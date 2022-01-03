@@ -1,0 +1,32 @@
+﻿<Window x:Class="_20220103_ThumbZ.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220103_ThumbZ"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="150"/>
+    </Grid.ColumnDefinitions>
+    <local:Layer x:Name="MyLayer1" IdName="Layer1"/>
+    <StackPanel Grid.Column="1" Name="MyStackPanel">
+      <TextBlock Text="{Binding Path=IdName}"/>
+      <TextBlock Text="{Binding Path=Left}"/>
+      <TextBlock Text="{Binding Path=Top}"/>
+      <TextBlock Text="{Binding Path=ZetIndex, StringFormat=ZIndex \= 0}"/>
+      <TextBlock Text="{Binding Path=Children[0].IdName}"/>
+      <TextBlock Text="{Binding Path=Children[1].IdName}"/>
+      <TextBlock Text="{Binding Path=Children[0]}"/>
+      <TextBlock Text="{Binding Path=Children}"/>
+      <TextBlock Text="{Binding Path=Children/IdName}"/>
+      <TextBlock Text="{Binding Path=Children/Children/IdName}"/>
+      <Button x:Name="ButtonUngroup" Content="グループ解除" Click="ButtonUngroup_Click"/>
+      <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
+      <Button x:Name="ButtonZIndexUp" Content="Z+" Click="ButtonZIndexUp_Click"/>
+      <Button x:Name="ButtonZIndexDown" Content="Z-" Click="ButtonZIndexDown_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>
