@@ -165,49 +165,7 @@ namespace _20220103_ThumbZ
             }
 
         }
-        //すでに配置されている要素群からグループ化、Parentがある状態
-        public void Group(IEnumerable<ReThumb> reThumbs, string name = "")
-        {
-            //Parent取得、すべて同じはずなので先頭から取得
-            ReThumb reParent = reThumbs.First().ParentReThumb;
-            if (reParent == null)
-            {
-                throw new ArgumentNullException(nameof(reThumbs), "Parentが無いよ");
-            }
 
-            int ziMax = reThumbs.Max(a => a.ZetIndex);
-            int ziMin = reThumbs.Min(a => a.ZetIndex);
-            IdName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
-            //左上座標
-            double left = reThumbs.Min(a => a.Left);
-            double top = reThumbs.Min(a => a.Top);
-            //位置調整
-            Left = left; Top = top;
-
-            //ListをZIndex順にソートする
-            var sortedElements = reThumbs.OrderBy(a => a.ZetIndex);
-
-
-            //元の親から削除して、新しい親のChildrenに追加する            
-            foreach (ReThumb item in sortedElements)
-            {
-                //元の所属先から削除
-                reParent.children.Remove(item);//削除
-
-                this.children.Add(item);//追加                
-                //位置調整
-                item.Left -= left; item.Top -= top;
-            }
-            //ParentのChildrenに自身を挿入、挿入Index = 最上位Index - (グループ要素数 - 1)
-            int insertIndex = ziMax - (sortedElements.Count() - 1);
-            reParent.children.Insert(insertIndex, this);
-            //ParentChildren全体のZIndex調整
-            for (int i = 0; i < reParent.children.Count; i++)
-            {
-                int zi = reParent.children[i].ZetIndex;
-                if (zi != i) { reParent.children[i].ZetIndex = i; }
-            }
-        }
 
 
         //こっちでのGotFocusはやめた
@@ -243,7 +201,8 @@ namespace _20220103_ThumbZ
                 if (layer != null)
                 {
                     item.DragDelta += item.ReThumb_DragDelta;
-                    layer.AddChildren(item);
+                    //layer.AddChildren(item);
+                    this.ParentReThumb.AddElement(item);
                 }
                 else
                 {
@@ -257,6 +216,7 @@ namespace _20220103_ThumbZ
             }
             //グループ(自身)を削除
             this.ParentReThumb.children.Remove(this);
+
         }
 
 

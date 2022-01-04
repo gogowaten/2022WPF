@@ -43,13 +43,13 @@ namespace _20220103_ThumbZ
             //Test2();
             //Test3();
             //MyLayer1.AddChildren(Test4());//グループ化
-            //Test5();//グループに追加
+            //Test5();//グループ
             //Test6();
-            //Test7();
+            Test7();//解除テスト
             //Test8();//
             //FocusThumbをこっちに用意しておいて、Newのときに渡すかPublicにしておいて、向こうでGotFocusイベントでdatacontextに指定するようにする？
             //Test9();//GotFocus、やっぱりやめた
-            Test10();
+            //Test10();
         }
         //Zオーダー、要素0,1,2,3を配置して、0と2をグループ化
         private void Test10()
@@ -57,7 +57,7 @@ namespace _20220103_ThumbZ
 
             for (int i = 0; i < 4; i++)
             {
-                ReThumb re = new(MakeTextBlock($"{nameof(Test10)}-{i}"), $"{nameof(Test10)}-{i}", i * 20, i * 50);
+                ReThumb re = new(MakeTextBlock($"{nameof(Test10)}-{i}", new SolidColorBrush(Color.FromRgb(20, 200, 40))), $"{nameof(Test10)}-{i}", i * 20, i * 50);
                 re.GotFocus += MyReThumb_GotFocus;
                 //re.Group(new List<ReThumb>() { re });
                 MyLayer1.AddChildren(re);
@@ -99,67 +99,85 @@ namespace _20220103_ThumbZ
 
         private void Test7()
         {
+            //一番下に四角形図形
+            ReThumb rect1 = new(MakeRectangle(null, 100, 200), "下rectangle");
+            rect1.GotFocus += MyReThumb_GotFocus;
+            MyLayer1.AddChildren(rect1);
+
+            string name = System.Reflection.MethodBase.GetCurrentMethod().Name;
             List<ReThumb> list = new();
             for (int i = 0; i < 3; i++)
             {
-                ReThumb re = new ReThumb(MakeTextBlock($"{nameof(Test7)}"), $"解除Test{i}", i * 20 + 20, i * 50 + 30);
+                ReThumb re = new ReThumb(MakeTextBlock($"name{i}"), $"要素{i}", i + 20, i * 50 + 30);
                 re.GotFocus += MyReThumb_GotFocus;
+                MyLayer1.AddChildren(re);
                 list.Add(re);
             }
-            ReThumb group = new(list);
+            ReThumb group = new(list, "グループ");
             group.GotFocus += MyReThumb_GotFocus;
-            MyLayer1.AddChildren(group);
-            //var gg = group.UnGroup();
+            group.Focus();
+
+            //一番上にも四角形図形
+            ReThumb rect2 = new(MakeRectangle(Brushes.MediumBlue, 100, 200), "上rectangle", 200, 0);
+            rect2.GotFocus += MyReThumb_GotFocus;
+            MyLayer1.AddChildren(rect2);
         }
 
-        //グループAとグループBからグループC作成
+        //既存グループ同士からグループ作成、グループAとグループBからグループC作成
         private void Test6()
         {
-            var listA = Enumerable.Range(0, 3).
-                Select(a => new ReThumb(MakeTextBlock($"GroupA-{a}"), a * 20 + 10, a * 50 + 10)).ToList();
-            listA.ForEach(a => a.GotFocus += MyReThumb_GotFocus);
+            string name = System.Reflection.MethodBase.GetCurrentMethod().Name;
+            //グループA作成してLayerに追加、LINQで書いてみた
+            var listA = Enumerable.Range(0, 3).Select(a => new ReThumb(MakeTextBlock($"GroupA-{a}", new SolidColorBrush(Color.FromRgb(20, (byte)(100 + a * 40), 50))), name, a * 20 + 10, a * 30 + 10)).ToList();
+            listA.ForEach(a => { a.GotFocus += MyReThumb_GotFocus; MyLayer1.AddChildren(a); });
             ReThumb groupA = new(listA, "グループA");
 
-            var listB = Enumerable.Range(0, 3).
-                Select(a => new ReThumb(MakeTextBlock($"GroupB-{a}"), a * 20 + 200, a * 50 + 20)).ToList();
-
-            listB.ForEach(a => a.GotFocus += MyReThumb_GotFocus);
+            //グループB作成、普通のForで書いてみた
+            List<ReThumb> listB = new();
+            for (int i = 0; i < 3; i++)
+            {
+                SolidColorBrush brush = new(Color.FromRgb((byte)(100 + (i * 40)), 50, (byte)(100 + (i * 40))));
+                ReThumb thumb = new ReThumb(MakeTextBlock($"GroupB-{i}", brush), name, i * 20 + 200, i * 30 + 20);
+                thumb.GotFocus += MyReThumb_GotFocus;
+                MyLayer1.AddChildren(thumb);
+                listB.Add(thumb);
+            }
             ReThumb groupB = new(listB, "グループB");
 
+            //グループAとBから新規にグループC作成
             List<ReThumb> listC = new() { groupA, groupB };
             ReThumb groupC = new(listC, $"グループC");
+            groupC.GotFocus += MyReThumb_GotFocus;
 
-            MyLayer1.AddChildren(groupC);
+            groupC.Focus();
         }
 
 
-        //既存グループに1要素を追加
+        //既存要素群からグループ作成、Zオーダー有効、要素0,1,2,3を配置して、0と2をグループ化
         private void Test5()
         {
-            //Group作成
-            ReThumb group = new(Enumerable.Range(0, 3).
-                Select(a => new ReThumb(MakeTextBlock($"Test5-{a}"), $"Test5-{a}", a * 20 + 200, a * 50 + 30)).
-                ToList(), "テストグループ");
+            //要素群作成、Layerに追加
+            string name = System.Reflection.MethodBase.GetCurrentMethod().Name;
+            for (int i = 0; i < 4; i++)
+            {
+                SolidColorBrush brush = new SolidColorBrush(Color.FromRgb(20, (byte)(100 + i * 30), 40));
+                ReThumb re = new(MakeTextBlock($"{name}-{i}", brush), $"{name}-{i}", i * 20, i * 40);
+                re.GotFocus += MyReThumb_GotFocus;
+                MyLayer1.AddChildren(re);//要素を実際に配置
+            }
+
+            //Layerにある要素群からGroup新規作成、配置は自動、配置先はもとの要素群と同じになる
+            ReThumb group = new(new List<ReThumb>() { MyLayer1.Children[2], MyLayer1.Children[0] }, "group");
             group.GotFocus += MyReThumb_GotFocus;
-            MyLayer1.AddChildren(group);//レイヤーに追加、しなくてもいいけど実際に使うときを再現するため
-
-            //別のThumb
-            ReThumb reThumb = new(MakeTextBlock("追加要素"), $"追加要素", 10, 20);
-            MyLayer1.AddChildren(reThumb);//これもレイヤーに追加
-            reThumb.GotFocus += MyReThumb_GotFocus;
-
-            //Group用Thumb新規作成
-            List<ReThumb> list = new() { group, reThumb };
-            ReThumb gg = new(list, nameof(Test5));
-            gg.GotFocus += MyReThumb_GotFocus;
+            group.Focus();
         }
-        //新規でグループ化
+        //新規でグループ化、Layerに追加していない要素群からグループ作成
         private ReThumb Test4()
         {
             List<ReThumb> list = new();//要素作成
             for (int i = 0; i < 3; i++)
             {
-                ReThumb re = new(MakeTextBlock($"test4の{i}"), $"テスト4の{i}", i * 20 + 20, i * 50 + 30);
+                ReThumb re = new(MakeTextBlock($"{nameof(Test4)}の{i}"), $"{nameof(Test4)}の{i}", i * 20 + 20, i * 50 + 30);
                 re.GotFocus += MyReThumb_GotFocus;
                 list.Add(re);
             }
@@ -206,14 +224,25 @@ namespace _20220103_ThumbZ
             FocusThumb = item;
         }
 
-        private TextBlock MakeTextBlock(string text)
+        private TextBlock MakeTextBlock(string text, Brush brush = null)
         {
+            if (brush == null) { brush = Brushes.MediumAquamarine; }
             TextBlock tb = new();
             tb.Text = text;
-            tb.Background = Brushes.MediumAquamarine;
+            tb.Background = brush;
             tb.Foreground = Brushes.White;
             tb.FontSize = 30;
             return tb;
+        }
+        private Rectangle MakeRectangle(Brush brush, double width = 100, double height = 100)
+        {
+            if (brush == null) { brush = Brushes.HotPink; }
+            Rectangle rectangle = new();
+            rectangle.Fill = brush;
+            rectangle.Width = width;
+            rectangle.Height = height;
+
+            return rectangle;
         }
 
         private void ButtonUngroup_Click(object sender, RoutedEventArgs e)
