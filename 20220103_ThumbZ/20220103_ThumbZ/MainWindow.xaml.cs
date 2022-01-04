@@ -22,7 +22,6 @@ namespace _20220103_ThumbZ
     {
         ReThumb MyReThumb1;
         ReThumb MyReThumb2;
-        ReThumb MyGroupReThumb;
         private ReThumb focusThumb;
 
         public ReThumb FocusThumb
@@ -44,7 +43,7 @@ namespace _20220103_ThumbZ
             //Test2();
             //Test3();
             //MyLayer1.AddChildren(Test4());//グループ化
-            //MyLayer1.AddChildren(Test5());//グループに追加
+            //Test5();//グループに追加
             //Test6();
             //Test7();
             //Test8();//
@@ -52,19 +51,20 @@ namespace _20220103_ThumbZ
             //Test9();//GotFocus、やっぱりやめた
             Test10();
         }
-        //Zオーダー
+        //Zオーダー、要素0,1,2,3を配置して、0と2をグループ化
         private void Test10()
         {
-            MyReThumb1 = new(MakeTextBlock($"{nameof(MyReThumb1)}"), $"{nameof(MyReThumb1)}");
-            MyReThumb1.GotFocus += MyReThumb_GotFocus;
-            MyLayer1.AddChildren(MyReThumb1);
-            Enumerable.Range(0, 3).Select(a => new ReThumb(MakeTextBlock($"{nameof(Test10)}-{a}"), $"{nameof(Test10)}-{a}"));
-            for (int i = 0; i < 3; i++)
+
+            for (int i = 0; i < 4; i++)
             {
-                ReThumb re = new ReThumb(MakeTextBlock($"{nameof(Test10)}-{i}"), $"{nameof(Test10)}-{i}");
+                ReThumb re = new(MakeTextBlock($"{nameof(Test10)}-{i}"), $"{nameof(Test10)}-{i}", i * 20, i * 50);
                 re.GotFocus += MyReThumb_GotFocus;
+                //re.Group(new List<ReThumb>() { re });
                 MyLayer1.AddChildren(re);
             }
+
+            ReThumb group = new(new List<ReThumb>() { MyLayer1.Children[2], MyLayer1.Children[0] }, "group");
+            //ReThumb group = new(new List<ReThumb>() { MyLayer1.Children[0], MyLayer1.Children[2] }, "group");
         }
         //FocusThumbを取得するためにMainWindowを渡すようにした、向こうのGotFocusイベント時にこっちのFocusThumbを入れ替えるようにしたけど
         //不自然かも
@@ -134,7 +134,7 @@ namespace _20220103_ThumbZ
 
 
         //既存グループに1要素を追加
-        private ReThumb Test5()
+        private void Test5()
         {
             //Group作成
             ReThumb group = new(Enumerable.Range(0, 3).
@@ -152,13 +152,12 @@ namespace _20220103_ThumbZ
             List<ReThumb> list = new() { group, reThumb };
             ReThumb gg = new(list, nameof(Test5));
             gg.GotFocus += MyReThumb_GotFocus;
-            return gg;
         }
         //新規でグループ化
         private ReThumb Test4()
         {
             List<ReThumb> list = new();//要素作成
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 3; i++)
             {
                 ReThumb re = new(MakeTextBlock($"test4の{i}"), $"テスト4の{i}", i * 20 + 20, i * 50 + 30);
                 re.GotFocus += MyReThumb_GotFocus;
@@ -228,6 +227,7 @@ namespace _20220103_ThumbZ
             var fthumb = focusThumb;
             var data = MyStackPanel.DataContext;
             var zindex = focusThumb?.ZetIndex;
+            var zzindex = Panel.GetZIndex(focusThumb);
             var children = MyLayer1.Children;
         }
 
@@ -235,14 +235,14 @@ namespace _20220103_ThumbZ
         {
             if (focusThumb == null) { return; }
             int z = focusThumb.ZetIndex;
-            focusThumb.SetZIndex(z + 1);
+            focusThumb.ChangeZIndex(z + 1);
         }
 
         private void ButtonZIndexDown_Click(object sender, RoutedEventArgs e)
         {
             if (focusThumb == null) { return; }
             int z = focusThumb.ZetIndex;
-            focusThumb.SetZIndex(z - 1);
+            focusThumb.ChangeZIndex(z - 1);
         }
     }
 }

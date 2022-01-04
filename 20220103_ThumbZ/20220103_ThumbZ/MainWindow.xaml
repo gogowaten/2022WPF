@@ -16,7 +16,7 @@
       <TextBlock Text="{Binding Path=IdName}"/>
       <TextBlock Text="{Binding Path=Left}"/>
       <TextBlock Text="{Binding Path=Top}"/>
-      <TextBlock Text="{Binding Path=ZetIndex, StringFormat=ZIndex \= 0}"/>
+      <TextBlock Text="{Binding Path=ZetIndex, StringFormat=ZetIndex \= 0}"/>
       <TextBlock Text="{Binding Path=Children[0].IdName}"/>
       <TextBlock Text="{Binding Path=Children[1].IdName}"/>
       <TextBlock Text="{Binding Path=Children[0]}"/>

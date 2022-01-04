@@ -16,6 +16,7 @@ using System.Windows.Controls.Primitives;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Collections.Specialized;
+using System.Globalization;
 
 namespace _20220103_ThumbZ
 {
@@ -49,16 +50,10 @@ namespace _20220103_ThumbZ
         public double Left { get => left; set { left = value; OnPropertyChanged(); } }
         public double Top { get => top; set { top = value; OnPropertyChanged(); } }
         public string IdName { get => idName; set { idName = value; OnPropertyChanged(); } }
-        //重なり順番、大きいほうが上、0から始まるけど実質のZIndexは+10して10から開始、これは下に装飾用のRectangleとか置く予定だから
-        public int ZetIndex
-        {
-            get => zetIndex; set
-            {
-                zetIndex = value;
-                Panel.SetZIndex(this, value + 10);
-                OnPropertyChanged();
-            }
-        }
+        //重なり順番、大きいほうが上、
+        //下に装飾用のRectangleとか置く予定だから
+        //実質のZIndexはConverterで+10している、10から開始、
+        public int ZetIndex { get => zetIndex; set { zetIndex = value; OnPropertyChanged(); } }
 
         protected ReThumb()
         {
@@ -77,6 +72,10 @@ namespace _20220103_ThumbZ
 
             this.SetBinding(Canvas.LeftProperty, MakeBind(nameof(Left)));
             this.SetBinding(Canvas.TopProperty, MakeBind(nameof(Top)));
+            //ZIndexの実際の値は+10したいのでBindingじゃなくてsetのほうで指定
+            var z = MakeBind(nameof(ZetIndex));
+            z.Converter = new ZIndexConverter();
+            this.SetBinding(Panel.ZIndexProperty, z);
 
             this.Focusable = true;
             //IsRoot = true;
@@ -115,36 +114,100 @@ namespace _20220103_ThumbZ
 
         }
 
-        //グループ化は複数Thumbを元に新規作成する→やめた、どこにも追加されていないThumb同士でグループ化するとZIndex処理がめんどくさそう
-        //代わりにメソッドにする、どこかに追加されたThumbのみ対象にする
+        //グループ化は要素群(Thumb)を元に新規作成する
+        //要素群のParentがある場合は、そこに追加する
         public ReThumb(IEnumerable<ReThumb> reThumbs, string name = "") : this()
         {
+            //要素群からParent取得
+            ReThumb reParent = reThumbs.First().ParentReThumb;
+            //if (reParent == null)
+            //{
+            //    throw new ArgumentNullException(nameof(reParent), "Parentが無いものはグループ化できない");
+            //}
             int ziMax = reThumbs.Max(a => a.ZetIndex);
             int ziMin = reThumbs.Min(a => a.ZetIndex);
             IdName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
+            //要素群全体を含むRectの左上座標
             double left = reThumbs.Min(a => a.Left);
             double top = reThumbs.Min(a => a.Top);
-            //Parent取得、すべて同じはずなので先頭から取得
-            ReThumb reParent = reThumbs.First().ParentReThumb;
+            //自身(新規ブループ)の座標調整
+            Left = left; Top = top;
 
-            //元の親から削除して、新しい親のChildrenに追加する
-            //ZIndex順にソートされている(前提の)はず
-            foreach (ReThumb item in reThumbs)
+            //要素群をZIndex順にソートする
+            var sortedElements = reThumbs.OrderBy(a => a.ZetIndex);
+
+
+            //要素群をParentから削除して、自身(新規ブループ)に追加する
+            foreach (ReThumb item in sortedElements)
             {
-                item.Left -= left;
-                item.Top -= top;
-                //元の所属先がある場合は、そこから削除
+                //Parentがある場合は、そこから削除
                 if (reParent != null)
                 {
                     reParent.children.Remove(item);//削除
                 }
-                this.children.Add(item);//追加
+                //自身(新規ブループ)に要素を追加
+                this.children.Add(item);
+
+                //要素の座標調整
+                item.Left -= left; item.Top -= top;
             }
 
-            Left = left;
-            Top = top;
-        }
+            if (reParent != null)
+            {
+                //Parentに自身(新規ブループ)を挿入、挿入Index = 最上位Index - (グループ要素数 - 1)
+                reParent.children.Insert(ziMax - (sortedElements.Count() - 1), this);
+                //ParentChildren全体のZIndex調整
+                for (int i = 0; i < reParent.children.Count; i++)
+                {
+                    int zi = reParent.children[i].ZetIndex;
+                    if (zi != i) { reParent.children[i].ZetIndex = i; }
+                }
+            }
 
+        }
+        //すでに配置されている要素群からグループ化、Parentがある状態
+        public void Group(IEnumerable<ReThumb> reThumbs, string name = "")
+        {
+            //Parent取得、すべて同じはずなので先頭から取得
+            ReThumb reParent = reThumbs.First().ParentReThumb;
+            if (reParent == null)
+            {
+                throw new ArgumentNullException(nameof(reThumbs), "Parentが無いよ");
+            }
+
+            int ziMax = reThumbs.Max(a => a.ZetIndex);
+            int ziMin = reThumbs.Min(a => a.ZetIndex);
+            IdName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
+            //左上座標
+            double left = reThumbs.Min(a => a.Left);
+            double top = reThumbs.Min(a => a.Top);
+            //位置調整
+            Left = left; Top = top;
+
+            //ListをZIndex順にソートする
+            var sortedElements = reThumbs.OrderBy(a => a.ZetIndex);
+
+
+            //元の親から削除して、新しい親のChildrenに追加する            
+            foreach (ReThumb item in sortedElements)
+            {
+                //元の所属先から削除
+                reParent.children.Remove(item);//削除
+
+                this.children.Add(item);//追加                
+                //位置調整
+                item.Left -= left; item.Top -= top;
+            }
+            //ParentのChildrenに自身を挿入、挿入Index = 最上位Index - (グループ要素数 - 1)
+            int insertIndex = ziMax - (sortedElements.Count() - 1);
+            reParent.children.Insert(insertIndex, this);
+            //ParentChildren全体のZIndex調整
+            for (int i = 0; i < reParent.children.Count; i++)
+            {
+                int zi = reParent.children[i].ZetIndex;
+                if (zi != i) { reParent.children[i].ZetIndex = i; }
+            }
+        }
 
 
         //こっちでのGotFocusはやめた
@@ -230,21 +293,21 @@ namespace _20220103_ThumbZ
                 }
             }
 
-            //削除された場合、ParentのChildrenに移動する
+            //削除された場合
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
                 foreach (object item in e.OldItems)
                 {
                     ReThumb re = item as ReThumb;
                     RootCanvas.Children.Remove(re);//グループから切り離し
-                    //ZIndexの調整、削除対象のZIndexより大きいものだけが対象、-1する
-                    foreach (ReThumb child in children)
-                    {
-                        if (child.zetIndex > re.zetIndex)
-                        {
-                            child.ZetIndex--;
-                        }
-                    }
+                    ////ZIndexの調整、削除対象のZIndexより大きいものだけが対象、-1する
+                    //foreach (ReThumb child in children)
+                    //{
+                    //    if (child.zetIndex > re.zetIndex)
+                    //    {
+                    //        child.ZetIndex--;
+                    //    }
+                    //}
                 }
 
             }
@@ -303,7 +366,11 @@ namespace _20220103_ThumbZ
             RootCanvas.Children.Add(element);
         }
 
-        public void SetZIndex(int newIndex)
+        /// <summary>
+        /// ZIndexの変更、実際の動作は移動になるので、移動元から移動先の間の全要素のZIndexも変更になる
+        /// </summary>
+        /// <param name="newIndex"></param>
+        public void ChangeZIndex(int newIndex)
         {
             int oldIndex = this.ZetIndex;
             if (newIndex >= ParentReThumb.children.Count
@@ -344,5 +411,22 @@ namespace _20220103_ThumbZ
         //{
 
         //}
+    }
+
+    public class ZIndexConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //throw new NotImplementedException();
+            int z = (int)value;
+            return z + 10;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //throw new NotImplementedException();
+            int z = (int)value;
+            return z - 10;
+        }
     }
 }
