@@ -44,7 +44,7 @@ namespace _20220103_ThumbZ
             //Test2();
             //Test3();
             //MyLayer1.AddChildren(Test4());//グループ化
-            //Test5();//グループ
+            Test5();//グループ
             Test6();
             //Test7();//解除テスト
             //Test8();//
@@ -269,6 +269,7 @@ namespace _20220103_ThumbZ
             var zindex = focusThumb?.ZetIndex;
             var zzindex = Panel.GetZIndex(focusThumb);
             var children = MyLayer1.Children;
+            var fChildren = focusThumb.Children;
         }
 
         private void ButtonZIndexUp_Click(object sender, RoutedEventArgs e)

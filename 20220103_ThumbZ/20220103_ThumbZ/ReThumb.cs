@@ -155,9 +155,9 @@ namespace _20220103_ThumbZ
             {
                 //Parentに自身(新規ブループ)を挿入、挿入Index = 最上位Index - (グループ要素数 - 1)
                 reParent.children.Insert(ziMax - (items.Count() - 1), this);
-                
 
-                //ParentChildren全体のZIndex調整
+
+                //ParentChildrenのZIndex調整、グループ追加位置より後ろの要素が対象
                 for (int i = ziMin; i < reParent.children.Count; i++)
                 {
                     int zi = reParent.children[i].ZetIndex;
@@ -166,80 +166,6 @@ namespace _20220103_ThumbZ
             }
 
         }
-        //   //グループ化は要素群(Thumb)を元に新規作成する
-        ////要素群のParentがある場合は、そこに追加する
-        //public ReThumb(IEnumerable<ReThumb> reThumbs, string name = "") : this()
-        //{
-        //    //要素群からParent取得
-        //    ReThumb reParent = reThumbs.First().ParentReThumb;
-        //    //if (reParent == null)
-        //    //{
-        //    //    throw new ArgumentNullException(nameof(reParent), "Parentが無いものはグループ化できない");
-        //    //}
-        //    int ziMax = reThumbs.Max(a => a.ZetIndex);
-        //    int ziMin = reThumbs.Min(a => a.ZetIndex);
-        //    IdName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
-        //    //要素群全体を含むRectの左上座標
-        //    double left = reThumbs.Min(a => a.Left);
-        //    double top = reThumbs.Min(a => a.Top);
-        //    //自身(新規ブループ)の座標調整
-        //    Left = left; Top = top;
-
-        ////要素群をZIndex順にソートする
-        //var sortedElements = reThumbs.OrderBy(a => a.ZetIndex);
-
-
-        ////要素群をParentから削除して、自身(新規ブループ)に追加する
-        //foreach (ReThumb item in sortedElements)
-        //{
-        //    //Parentがある場合は、そこから削除
-        //    if (reParent != null)
-        //    {
-        //        reParent.children.Remove(item);//削除
-        //    }
-        //    //自身(新規ブループ)に要素を追加
-        //    this.children.Add(item);
-
-        //    //要素の座標調整
-        //    item.Left -= left; item.Top -= top;
-        //}
-
-
-
-        //    if (reParent != null)
-        //    {
-        //        //Parentに自身(新規ブループ)を挿入、挿入Index = 最上位Index - (グループ要素数 - 1)
-        //        reParent.children.Insert(ziMax - (sortedElements.Count() - 1), this);
-        //        //ParentChildren全体のZIndex調整
-        //        for (int i = 0; i < reParent.children.Count; i++)
-        //        {
-        //            int zi = reParent.children[i].ZetIndex;
-        //            if (zi != i) { reParent.children[i].ZetIndex = i; }
-        //        }
-        //    }
-
-        //}
-
-
-
-        //こっちでのGotFocusはやめた
-        //private void ReThumb_GotFocus(MainWindow mainWindow)
-        //{
-        //    mainWindow.FocusThumb = this;
-        //}
-        //public ReThumb(UIElement element, MainWindow mainWindow) : this(element, null, 0, 0)
-        //{
-        //    this.GotFocus += (a, b) => ReThumb_GotFocus(mainWindow);
-        //}
-        //public ReThumb(UIElement element, MainWindow mainWindow, string name = null) : this(element, mainWindow)
-        //{
-        //    idName = name;
-        //}
-        //public ReThumb(UIElement element, MainWindow mainWindow, string name = null, double x = 0, double y = 0) : this(element, mainWindow, name)
-        //{
-        //    Left = x;
-        //    Top = y;
-        //}
 
         //グループ解除
         //子要素を開放して親の要素にする
@@ -248,10 +174,15 @@ namespace _20220103_ThumbZ
         public void UnGroup()
         {
             if (this.IsGroup == false) { return; }
+
+            //最初にグループ(自身)をParentから削除
+            this.ParentReThumb.children.Remove(this);
+
             int oldIndex = this.zetIndex;
             int oldItemsCount = this.ParentReThumb.children.Count;
             //ZIndex順にソート
             List<ReThumb> items = children.OrderBy(a => a.zetIndex).ToList();
+            //要素群をグループから削除
             for (int i = 0; i < items.Count; i++)
             {
                 ReThumb item = items[i];
@@ -261,24 +192,22 @@ namespace _20220103_ThumbZ
                 {
                     item.DragDelta += item.ReThumb_DragDelta;
                 }
-                this.ParentReThumb.children.Add(item);
+                //Parentに挿入
+                this.ParentReThumb.children.Insert(oldIndex + i, item);
 
                 //座標修正
-                item.Left += this.left;
-                item.Top += this.top;
+                item.Left += this.left; item.Top += this.top;
                 //RootReThumbの更新
                 ReplaceRootReThumb(item, item);
                 //ZIndex
                 item.ZetIndex += oldIndex;
             }
 
-            //グループ(自身)をParentから削除
-            this.ParentReThumb.children.Remove(this);
 
             //グループ解除対象以外の要素のZIndex修正
-            for (int i = oldIndex; i < oldItemsCount - 1; i++)
+            for (int i = oldIndex + items.Count; i < this.ParentReThumb.children.Count; i++)
             {
-                this.ParentReThumb.children[i].ZetIndex += items.Count - 1;
+                this.ParentReThumb.children[i].ZetIndex = i;
             }
 
         }
@@ -295,7 +224,7 @@ namespace _20220103_ThumbZ
             if (children.Count < 2 && IsGroup) { IsGroup = false; }
             else { IsGroup = true; }
 
-            //追加された場合
+            //追加された場合、Insertもここに来る
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
                 foreach (object item in e.NewItems)
@@ -310,8 +239,6 @@ namespace _20220103_ThumbZ
                         ReplaceRootReThumb(re, this.RootReThumb);
                         //DragDeltaを外す
                         re.DragDelta -= re.ReThumb_DragDelta;
-                        ////ZIndex
-                        //re.ZetIndex = this.children.Count - 1;
                     }
 
                 }
@@ -324,14 +251,6 @@ namespace _20220103_ThumbZ
                 {
                     ReThumb re = item as ReThumb;
                     RootCanvas.Children.Remove(re);//グループから切り離し
-                    ////ZIndexの調整、削除対象のZIndexより大きいものだけが対象、-1する
-                    //foreach (ReThumb child in children)
-                    //{
-                    //    if (child.zetIndex > re.zetIndex)
-                    //    {
-                    //        child.ZetIndex--;
-                    //    }
-                    //}
                 }
 
             }
@@ -340,6 +259,7 @@ namespace _20220103_ThumbZ
                 var nn = e.NewItems[0];
                 var oo = e.OldItems[0];
             }
+            //Moveだけ特別にZIndexを変更するようにしているけど、これでいい？
             else if (e.Action == NotifyCollectionChangedAction.Move)
             {
                 int newId = e.NewStartingIndex;//移動先Index

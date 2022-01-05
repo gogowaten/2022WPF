@@ -13,12 +13,15 @@
     </Grid.ColumnDefinitions>
     <local:Layer x:Name="MyLayer1" IdName="Layer1"/>
     <StackPanel Grid.Column="1" Name="MyStackPanel">
+      <TextBlock Text="{Binding}"/>
       <TextBlock Text="{Binding Path=IdName}"/>
       <TextBlock Text="{Binding Path=Left}"/>
       <TextBlock Text="{Binding Path=Top}"/>
       <TextBlock Text="{Binding Path=ZetIndex, StringFormat=ZetIndex \= 0}"/>
-      <TextBlock Text="{Binding Path=Children[0].IdName}"/>
-      <TextBlock Text="{Binding Path=Children[1].IdName}"/>
+      <TextBlock Text="{Binding Path=Children[0], StringFormat = child0 \= {0}}"/>
+      <TextBlock Text="{Binding Path=Children[1], StringFormat = child1 \= {0}}"/>
+      <TextBlock Text="{Binding Path=Children[2], StringFormat = child2 \= {0}}"/>
+      <TextBlock Text="{Binding Path=Children[3], StringFormat = child3 \= {0}}"/>
       <TextBlock Text="{Binding Path=Children[0]}"/>
       <TextBlock Text="{Binding Path=Children}"/>
       <TextBlock Text="{Binding Path=Children/IdName}"/>
@@ -27,8 +30,16 @@
       <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
       <Button x:Name="ButtonZIndexUp" Content="Z+" Click="ButtonZIndexUp_Click"/>
       <Button x:Name="ButtonZIndexDown" Content="Z-" Click="ButtonZIndexDown_Click"/>
+      <Separator/>
       <StackPanel x:Name="MyStackPanel2">
         <TextBlock Text="{Binding }"/>
+      </StackPanel>
+      <Separator/>
+      <StackPanel x:Name="MyStackPanel3">
+        <TextBlock Text="{Binding ElementName=MyLayer1}"/>
+        <TextBlock Text="{Binding Path=Children[0]}"/>
+        <TextBlock Text="{Binding Path=Children[1]}"/>
+        <TextBlock Text="{Binding Path=Children[2]}"/>
       </StackPanel>
     </StackPanel>
   </Grid>
