@@ -9,7 +9,7 @@
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
-      <ColumnDefinition Width="150"/>
+      <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <local:Layer x:Name="MyLayer1" IdName="Layer1"/>
     <StackPanel Grid.Column="1" Name="MyStackPanel">
@@ -27,6 +27,9 @@
       <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
       <Button x:Name="ButtonZIndexUp" Content="Z+" Click="ButtonZIndexUp_Click"/>
       <Button x:Name="ButtonZIndexDown" Content="Z-" Click="ButtonZIndexDown_Click"/>
+      <StackPanel x:Name="MyStackPanel2">
+        <TextBlock Text="{Binding }"/>
+      </StackPanel>
     </StackPanel>
   </Grid>
 </Window>

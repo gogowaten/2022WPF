@@ -22,6 +22,7 @@ namespace _20220103_ThumbZ
     {
         ReThumb MyReThumb1;
         ReThumb MyReThumb2;
+        ReThumb ClickedThumb;
         private ReThumb focusThumb;
 
         public ReThumb FocusThumb
@@ -44,8 +45,8 @@ namespace _20220103_ThumbZ
             //Test3();
             //MyLayer1.AddChildren(Test4());//グループ化
             //Test5();//グループ
-            //Test6();
-            Test7();//解除テスト
+            Test6();
+            //Test7();//解除テスト
             //Test8();//
             //FocusThumbをこっちに用意しておいて、Newのときに渡すかPublicにしておいて、向こうでGotFocusイベントでdatacontextに指定するようにする？
             //Test9();//GotFocus、やっぱりやめた
@@ -102,6 +103,7 @@ namespace _20220103_ThumbZ
             //一番下に四角形図形
             ReThumb rect1 = new(MakeRectangle(null, 100, 200), "下rectangle");
             rect1.GotFocus += MyReThumb_GotFocus;
+            rect1.PreviewMouseDown += MyReThumb_PreviewMouseDown;
             MyLayer1.AddChildren(rect1);
 
             string name = System.Reflection.MethodBase.GetCurrentMethod().Name;
@@ -110,17 +112,26 @@ namespace _20220103_ThumbZ
             {
                 ReThumb re = new ReThumb(MakeTextBlock($"name{i}"), $"要素{i}", i + 20, i * 50 + 30);
                 re.GotFocus += MyReThumb_GotFocus;
+                re.PreviewMouseDown += MyReThumb_PreviewMouseDown;
                 MyLayer1.AddChildren(re);
                 list.Add(re);
             }
             ReThumb group = new(list, "グループ");
             group.GotFocus += MyReThumb_GotFocus;
+            group.PreviewMouseDown += MyReThumb_PreviewMouseDown;
             group.Focus();
 
             //一番上にも四角形図形
             ReThumb rect2 = new(MakeRectangle(Brushes.MediumBlue, 100, 200), "上rectangle", 200, 0);
             rect2.GotFocus += MyReThumb_GotFocus;
+            rect2.PreviewMouseDown += MyReThumb_PreviewMouseDown;
             MyLayer1.AddChildren(rect2);
+        }
+
+        private void MyReThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //ClickedThumb = sender as ReThumb;
+            MyStackPanel2.DataContext = sender as ReThumb;
         }
 
         //既存グループ同士からグループ作成、グループAとグループBからグループC作成
