@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+//グループ化、グループ解除、ZIndexまでできた
+
 namespace _20220103_ThumbZ
 {
     /// <summary>
@@ -33,6 +35,7 @@ namespace _20220103_ThumbZ
                 //MyStackPanel.DataContext = value;
                 //FocusのRootをBinding
                 MyStackPanel.DataContext = value.RootReThumb;
+                //MyStackPanel3.DataContext = MyLayer1;
             }
         }
         public MainWindow()
@@ -44,13 +47,13 @@ namespace _20220103_ThumbZ
             //Test2();
             //Test3();
             //MyLayer1.AddChildren(Test4());//グループ化
-            Test5();//グループ
-            Test6();
+            //Test5();//グループ
+            //Test6();
             //Test7();//解除テスト
             //Test8();//
             //FocusThumbをこっちに用意しておいて、Newのときに渡すかPublicにしておいて、向こうでGotFocusイベントでdatacontextに指定するようにする？
             //Test9();//GotFocus、やっぱりやめた
-            //Test10();
+            Test10();
         }
         //Zオーダー、要素0,1,2,3を配置して、0と2をグループ化
         private void Test10()
