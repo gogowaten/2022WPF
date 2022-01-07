@@ -6,13 +6,17 @@
         xmlns:local="clr-namespace:_20220107"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+  <Window.Resources>
+    <local:MyConverter x:Key="conv"/>
+  </Window.Resources>
     <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <Canvas x:Name="MyCanvas">
-      <local:FlatThumb Width="120"/>
+      <local:FlatThumb x:Name="MyFlatThumb" MyWidth="120" Left="20" Top="20"/>
+      <local:FlatThumb2 Width="100" Height="100" Left="150" Top="20"/>
     </Canvas>
 
     <StackPanel Grid.Column="1">

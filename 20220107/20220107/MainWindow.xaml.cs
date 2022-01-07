@@ -27,7 +27,7 @@ namespace _20220107
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
-
+            MyFlatThumb.Width = 200;
         }
     }
 }
