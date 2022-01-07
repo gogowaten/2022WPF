@@ -133,7 +133,7 @@ namespace _20220107
             MyRootPanel = template.FindName("rootPanel", this) as Canvas;
             MyWidth = 100; Height = 100; MyRootPanel.Background = Brushes.Red;
 
-            this.DragDelta += SelectThumb_DragDelta;
+            //this.DragDelta += SelectThumb_DragDelta;
 
             BindingOperations.SetBinding(this, Canvas.LeftProperty, MakeBind("Left"));
             BindingOperations.SetBinding(this, Canvas.TopProperty, MakeBind("Top"));
@@ -147,65 +147,144 @@ namespace _20220107
             b.Path = new PropertyPath(path);
             return b;
         }
-        public void SelectThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        //public void SelectThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        //{
+        //    Left += e.HorizontalChange;
+        //    Top += e.VerticalChange;
+        //}
+        public override string ToString()
         {
-            Left += e.HorizontalChange;
-            Top += e.VerticalChange;
+            //return base.ToString();
+            return base.Name;
         }
     }
 
     public class FlatThumb2 : FlatThumb
     {
-        public FlatThumb TopLeft;
-        public FlatThumb LeftT;
-        public FlatThumb TRight = new() { Width = 10, Height = 10 };
+        public FlatThumb TRight = new() { Width = 10, Height = 10, Name = "Right" };
         public FlatThumb2()
         {
-            TopLeft = new() { Left = Left, Top = Top, Width = 10, Height = 10 };
-            TopLeft.MyRootPanel.Background = Brushes.Black;
-            MyRootPanel.Children.Add(TopLeft);
-            TRight.MyRootPanel.Background = Brushes.Black;
-            MyRootPanel.Children.Add(TRight);
             MyRootPanel.Background = Brushes.AliceBlue;
 
-            this.DragDelta -= SelectThumb_DragDelta;
+            TRight.MyRootPanel.Background = Brushes.Gold;
+            MyRootPanel.Children.Add(TRight);
+            TRight.DragDelta += TRight_DragDelta;
+            //TRight.DragDelta -= TRight.SelectThumb_DragDelta;
 
-            Binding b1 = new();
-            b1.Source = this;
-            b1.Path = new PropertyPath(Canvas.LeftProperty);
-            b1.Mode = BindingMode.TwoWay;
-            Binding b2 = new();
-            b2.Source = this;
-            b2.Path = new PropertyPath(WidthProperty);
-            b2.Mode = BindingMode.TwoWay;
-            MultiBinding mb = new();
-            mb.Converter = new MyConverter();
-            mb.Bindings.Add(b1);
-            mb.Bindings.Add(b2);
-            mb.Mode = BindingMode.TwoWay;
+            //this.DragDelta -= SelectThumb_DragDelta;
 
-            TRight.SetBinding(Canvas.LeftProperty, mb);
+            //Binding b1 = new();
+            //b1.Source = this;
+            //b1.Path = new PropertyPath(Canvas.LeftProperty);
+            //b1.ConverterParameter = TRight;
+            //b1.Converter = new ConverterWidth();
+            ////b1.Mode = BindingMode.TwoWay;
+            //this.SetBinding(WidthProperty, b1);
+
+
+            //Binding b1 = new();
+            //b1.Path = new PropertyPath(Canvas.LeftProperty);
+            //b1.Source = this;
+            //b1.Mode = BindingMode.TwoWay;
+
+            //Binding b2 = new();
+            //b2.Source = this;
+            //b2.Path = new PropertyPath(WidthProperty);
+            //b2.Mode = BindingMode.TwoWay;
+
+            //MultiBinding mb = new();
+            //mb.Converter = new MyConverter();
+            //mb.ConverterParameter = this;
+            //mb.Bindings.Add(b1);
+            //mb.Bindings.Add(b2);
+            //mb.Mode = BindingMode.TwoWay;
+
+            //TRight.SetBinding(Canvas.LeftProperty, mb);
+
+
+            //Binding b = new();
+            //b.Source = this;
+            //b.Path = new PropertyPath(WidthProperty);
+            //b.Mode = BindingMode.TwoWay;
+            //TRight.SetBinding(Canvas.LeftProperty, b);
+
+
+            Binding b = new("Left");
+            b.Source = TRight;
+            b.Mode = BindingMode.TwoWay;
+            b.Converter = new ConverterWidth2();
+            this.SetBinding(WidthProperty, b);
+
+
         }
 
+        private void TRight_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            //double left = Left + e.HorizontalChange;
+            //if (left < 1) { left = 1; }
+            //Left = left;
+            //double top = Top + e.VerticalChange;
+            //if (top < 1) { Top = 1; }
+            //Top = top;
+            Left += e.HorizontalChange;
+            Top += e.VerticalChange;
+        }
     }
 
+
+    public class ConverterWidth2 : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double left = (double)value;
+            if (left < 0) { left = 0; }
+            return left;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double width = (double)value;
+            return width;
+            //throw new NotImplementedException();
+        }
+    }
+    public class ConverterWidth : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double left = (double)value;
+            FlatThumb ft = (FlatThumb)parameter;
+            double right = left + ft.Left;
+            return right;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class MyConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            int left = (int)values[0];
+            double left = (double)values[0];
             double width = (double)values[1];
-            return left + width;
+            double right = width;
+            //double right = left + width;
+            return right;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
-            //double right = (double)value;
-            //object[] obj = new object[1];
-            //obj[0] = 20;
-            //obj[1] =(double)30;
-            //return obj;
+            //throw new NotImplementedException();
+            double right = (double)value;
+            FlatThumb2 ft = (FlatThumb2)parameter;
+            //double left = right;
+            double width = right - ft.Left;
+            object[] obj = new object[1];
+            obj[0] = ft.Left;
+            obj[1] = width;
+            return obj;
         }
     }
 }
