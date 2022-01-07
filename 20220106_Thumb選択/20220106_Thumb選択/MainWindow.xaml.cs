@@ -102,7 +102,7 @@ namespace _20220106_Thumb選択
             MyTextBlock.Text = names;
             //MyPath.Data = null;
         }
-        private Point GetLocate(UIElement element)
+        private Point GetLocate(FrameworkElement element)
         {
             return new Point(Canvas.GetLeft(element), Canvas.GetTop(element));
         }

@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32002.261
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20220107_Thumb選択グループ", "20220107_Thumb選択グループ\20220107_Thumb選択グループ.csproj", "{32F240C3-517A-4502-8885-EDC4007FA667}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32F240C3-517A-4502-8885-EDC4007FA667}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32F240C3-517A-4502-8885-EDC4007FA667}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32F240C3-517A-4502-8885-EDC4007FA667}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32F240C3-517A-4502-8885-EDC4007FA667}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5581EE26-0AC9-4797-AEF2-7E5FB898FC87}
+	EndGlobalSection
+EndGlobal

@@ -15,10 +15,6 @@
             MouseLeftButtonDown="MyCanvas_MouseLeftButtonDown"
             MouseMove="MyCanvas_MouseMove"
             MouseLeftButtonUp="MyCanvas_MouseLeftButtonUp">
-      <!--<Rectangle Width="100" Height="100" Fill="MediumAquamarine" Canvas.Left="100" Canvas.Top="50"/>
-      <Rectangle Width="100" Height="100" Fill="HotPink" Canvas.Left="100" Canvas.Top="200"/>
-      <Rectangle x:Name="MyRectangleWaku" Stroke="Red" Width="100" Height="100" Canvas.Left="150"/>-->
-      <!--<Path x:Name="MyPath" Stroke="Red" StrokeThickness="1"/>-->
     </Canvas>
     <StackPanel Grid.Column="1">
       <Button x:Name="MyButton" Content="test" Click="MyButton_Click"/>
