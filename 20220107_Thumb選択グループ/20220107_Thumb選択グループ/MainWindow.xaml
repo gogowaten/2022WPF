@@ -11,7 +11,13 @@
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
-    <local:Layer x:Name="MyLayer1" IdName="Layer1"/>
+    <Canvas x:Name="MyCanvas" Background="Transparent"
+            MouseLeftButtonDown="MyCanvas_MouseLeftButtonDown"
+            MouseMove="MyCanvas_MouseMove"
+            MouseLeftButtonUp="MyCanvas_MouseLeftButtonUp">
+      <local:Layer x:Name="MyLayer1" IdName="Layer1" Background="Gold"/>
+    </Canvas>
+    
     <StackPanel Grid.Column="1">
       <StackPanel Name="MyStackPanel">
         <TextBlock Text="{Binding}"/>
@@ -31,6 +37,7 @@
         <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
         <Button x:Name="ButtonZIndexUp" Content="Z+" Click="ButtonZIndexUp_Click"/>
         <Button x:Name="ButtonZIndexDown" Content="Z-" Click="ButtonZIndexDown_Click"/>
+        <Button x:Name="ButtonSelectionPath" Content="選択範囲" Click="ButtonSelectionPath_Click"/>
       </StackPanel>
 
       <Separator/>

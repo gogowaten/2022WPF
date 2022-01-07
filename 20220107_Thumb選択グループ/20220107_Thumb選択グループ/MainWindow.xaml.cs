@@ -25,6 +25,11 @@ namespace _20220107_Thumb選択グループ
         NeoThumb ClickedThumb;
         private NeoThumb focusThumb;
 
+        Point MyStartPoint;
+        bool IsSelection;
+        RectangleGeometry MySelectionGeometry = new();
+        Path MySelectionPath = new();
+
         public NeoThumb FocusThumb
         {
             get => focusThumb; set
@@ -40,6 +45,13 @@ namespace _20220107_Thumb選択グループ
         {
             InitializeComponent();
 
+            //MyLayer1.MouseLeftButtonDown += MyLayer1_MouseLeftButtonDown;
+            //MyLayer1.PreviewMouseLeftButtonDown += MyLayer1_PreviewMouseLeftButtonDown;
+            //MyLayer1.MouseMove += MyLayer1_MouseMove;
+            //MyLayer1.MouseLeftButtonUp += MyLayer1_MouseLeftButtonUp;
+            MyCanvas.Children.Add(MySelectionPath);
+            MySelectionPath.Stroke = Brushes.Red;
+            MySelectionPath.StrokeThickness = 1;
 
             //Test1();
             //Test2();
@@ -53,6 +65,9 @@ namespace _20220107_Thumb選択グループ
             //Test9();//GotFocus、やっぱりやめた
             Test10();
         }
+
+
+
         //Zオーダー、要素0,1,2,3を配置して、0と2をグループ化
         private void Test10()
         {
@@ -286,5 +301,50 @@ namespace _20220107_Thumb選択グループ
             int z = focusThumb.ZetIndex;
             focusThumb.ChangeZIndex(z - 1);
         }
+
+        private void ButtonSelectionPath_Click(object sender, RoutedEventArgs e)
+        {
+            //MySelectionPath = new();
+            ////MySelectionPath.Data = new RectangleGeometry(new Rect(0, 0, 100, 100));
+            //MySelectionPath.Stroke = Brushes.Red;
+            //MySelectionPath.StrokeThickness = 1;
+            //NeoThumb neo = new(MySelectionPath, "selection");
+            //MyLayer1.AddChildren(neo);
+
+            Visibility visible = MySelectionPath.Visibility;
+            if (visible == Visibility.Visible)
+            {
+                visible = Visibility.Collapsed;
+            }
+            else
+            {
+                visible = Visibility.Visible;
+                
+            }
+            MySelectionPath.Visibility = visible;
+        }
+
+        private void MyCanvas_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            Canvas canvas = sender as Canvas;
+            MyStartPoint = e.GetPosition(canvas);
+            IsSelection = true;
+        }
+
+        private void MyCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (IsSelection == false) { return; }
+            Canvas canvas = sender as Canvas;
+
+            MySelectionGeometry.Rect = new Rect(MyStartPoint, e.GetPosition(canvas));
+            MySelectionPath.Data = MySelectionGeometry;
+        }
+
+        private void MyCanvas_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            IsSelection = false;
+        }
+
+
     }
 }

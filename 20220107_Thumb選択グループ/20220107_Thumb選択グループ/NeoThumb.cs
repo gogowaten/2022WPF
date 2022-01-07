@@ -347,6 +347,7 @@ namespace _20220107_Thumb選択グループ
         public void AddChildren(NeoThumb thumb, int z = int.MinValue)
         {
             if (z == int.MinValue) { z = children.Count; }
+            if (z >= children.Count) { z = children.Count; }
             thumb.ZetIndex = z;
             children.Insert(z, thumb);
 
