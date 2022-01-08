@@ -46,6 +46,7 @@ namespace _20220107
             InitializeComponent();
 
             MyStackPnel.DataContext = this;
+
             MyCanvas.Children.Add(MyPath);
             MyPath.Fill = Brushes.Red;
             MyLeft = 20;
