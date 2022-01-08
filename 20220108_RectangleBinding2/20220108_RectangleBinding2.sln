@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.32002.261
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20220108_RectangleBinding2", "20220108_RectangleBinding2\20220108_RectangleBinding2.csproj", "{12A77AEA-01FD-40A8-BB05-FDBDD2D6FD80}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{12A77AEA-01FD-40A8-BB05-FDBDD2D6FD80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12A77AEA-01FD-40A8-BB05-FDBDD2D6FD80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12A77AEA-01FD-40A8-BB05-FDBDD2D6FD80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12A77AEA-01FD-40A8-BB05-FDBDD2D6FD80}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {55BBAC9D-97A4-4F22-A9A1-87A7400F8C73}
+	EndGlobalSection
+EndGlobal
