@@ -14,6 +14,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 
 namespace _20220107
 {
@@ -24,8 +25,13 @@ namespace _20220107
     {
         //Rect MyRect;
         Rectangle MyRectangle;
-        RectangleGeometry RectangleGeometry = new();
+        RectangleGeometry MyRectangleGeometry = new();
         Path MyPath = new();
+        Thumb TTopLeft = new() { Width = 10, Height = 10 };
+        Thumb TTopRight = new() { Width = 10, Height = 10 };
+        Thumb TBottomRight = new() { Width = 10, Height = 10 };
+        Thumb TBottomLeft = new() { Width = 10, Height = 10 };
+
         private double myLeft = 20;
         private double myTop = 20;
         private double myRight = 100;
@@ -54,13 +60,13 @@ namespace _20220107
             MyRight = 100;
             MyBottom = 100;
 
-            Binding b1 = new($"{nameof(MyLeft)}");
+            Binding b1 = new(nameof(MyLeft));
             b1.Source = this;
-            Binding b2 = new($"{nameof(MyTop)}");
+            Binding b2 = new(nameof(MyTop));
             b2.Source = this;
-            Binding b3 = new($"{nameof(MyRight)}");
+            Binding b3 = new(nameof(MyRight));
             b3.Source = this;
-            Binding b4 = new($"{nameof(MyBottom)}");
+            Binding b4 = new(nameof(MyBottom));
             b4.Source = this;
             MultiBinding mb = new();
             mb.Bindings.Add(b1);
@@ -69,6 +75,73 @@ namespace _20220107
             mb.Bindings.Add(b4);
             mb.Converter = new MyRectConverter();
             MyPath.SetBinding(Path.DataProperty, mb);
+
+
+            TTopLeft.DragDelta += TTopLeft_DragDelta;
+            TTopRight.DragDelta += TTopRight_DragDelta;
+            TBottomRight.DragDelta += TBottomRight_DragDelta;
+            TBottomLeft.DragDelta += TBottomLeft_DragDelta;
+            MyCanvas.Children.Add(TTopLeft);
+            MyCanvas.Children.Add(TTopRight);
+            MyCanvas.Children.Add(TBottomLeft);
+            MyCanvas.Children.Add(TBottomRight);
+
+            Binding tb;
+            //左上
+            tb = new(nameof(MyLeft));
+            tb.Source = this;
+            TTopLeft.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyTop));
+            tb.Source = this;
+            TTopLeft.SetBinding(Canvas.TopProperty, tb);
+            //右上
+            tb = new(nameof(MyRight));
+            tb.Source = this;
+            TTopRight.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyTop));
+            tb.Source = this;
+            TTopRight.SetBinding(Canvas.TopProperty, tb);
+            //左下
+            tb = new(nameof(MyLeft));
+            tb.Source = this;
+            TBottomLeft.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyBottom));
+            tb.Source = this;
+            TBottomLeft.SetBinding(Canvas.TopProperty, tb);
+            //右下
+            tb = new(nameof(MyRight));
+            tb.Source = this;
+            TBottomRight.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyBottom));
+            tb.Source = this;
+            TBottomRight.SetBinding(Canvas.TopProperty, tb);
+
+            
+        }
+
+        private void TBottomLeft_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyLeft += e.HorizontalChange;
+            MyBottom += e.VerticalChange;
+            
+        }
+
+        private void TBottomRight_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyRight += e.HorizontalChange;
+            MyBottom += e.VerticalChange;
+        }
+
+        private void TTopRight_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyRight += e.HorizontalChange;
+            MyTop += e.VerticalChange;
+        }
+
+        private void TTopLeft_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyLeft += e.HorizontalChange;
+            MyTop += e.VerticalChange;
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
@@ -95,13 +168,14 @@ namespace _20220107
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            RectangleGeometry r = (RectangleGeometry)value;
-            object[] vs = new object[3];
-            vs[0] = r.Rect.Left;
-            vs[1] = r.Rect.Top;
-            vs[2] = r.Rect.Right;
-            vs[3] = r.Rect.Bottom;
-            return vs;
+            throw new NotImplementedException();
+            //RectangleGeometry r = (RectangleGeometry)value;
+            //object[] vs = new object[3];
+            //vs[0] = r.Rect.Left;
+            //vs[1] = r.Rect.Top;
+            //vs[2] = r.Rect.Right;
+            //vs[3] = r.Rect.Bottom;
+            //return vs;
         }
     }
     public class MyMultiConverter : IMultiValueConverter
