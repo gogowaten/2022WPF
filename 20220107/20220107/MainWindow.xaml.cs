@@ -26,11 +26,11 @@ namespace _20220107
         //Rect MyRect;
         Rectangle MyRectangle;
         RectangleGeometry MyRectangleGeometry = new();
-        Path MyPath = new();
-        Thumb TTopLeft = new() { Width = 10, Height = 10 };
-        Thumb TTopRight = new() { Width = 10, Height = 10 };
-        Thumb TBottomRight = new() { Width = 10, Height = 10 };
-        Thumb TBottomLeft = new() { Width = 10, Height = 10 };
+        //Path MyPath = new();
+        //Thumb TTopLeft = new() { Width = 10, Height = 10 };
+        //Thumb TTopRight = new() { Width = 10, Height = 10 };
+        //Thumb TBottomRight = new() { Width = 10, Height = 10 };
+        //Thumb TBottomLeft = new() { Width = 10, Height = 10 };
 
         private double myLeft = 20;
         private double myTop = 20;
@@ -52,13 +52,8 @@ namespace _20220107
             InitializeComponent();
 
             MyStackPnel.DataContext = this;
+            MyCanvas.DataContext = this;
 
-            MyCanvas.Children.Add(MyPath);
-            MyPath.Fill = Brushes.Red;
-            MyLeft = 20;
-            MyTop = 20;
-            MyRight = 100;
-            MyBottom = 100;
 
             Binding b1 = new(nameof(MyLeft));
             b1.Source = this;
@@ -81,49 +76,45 @@ namespace _20220107
             TTopRight.DragDelta += TTopRight_DragDelta;
             TBottomRight.DragDelta += TBottomRight_DragDelta;
             TBottomLeft.DragDelta += TBottomLeft_DragDelta;
-            MyCanvas.Children.Add(TTopLeft);
-            MyCanvas.Children.Add(TTopRight);
-            MyCanvas.Children.Add(TBottomLeft);
-            MyCanvas.Children.Add(TBottomRight);
 
-            Binding tb;
+            //Binding tb;
             //左上
-            tb = new(nameof(MyLeft));
-            tb.Source = this;
-            TTopLeft.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyTop));
-            tb.Source = this;
-            TTopLeft.SetBinding(Canvas.TopProperty, tb);
+            //tb = new(nameof(MyLeft));
+            //tb.Source = this;
+            //TTopLeft.SetBinding(Canvas.LeftProperty, tb);
+            //tb = new(nameof(MyTop));
+            //tb.Source = this;
+            //TTopLeft.SetBinding(Canvas.TopProperty, tb);
             //右上
-            tb = new(nameof(MyRight));
-            tb.Source = this;
-            TTopRight.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyTop));
-            tb.Source = this;
-            TTopRight.SetBinding(Canvas.TopProperty, tb);
-            //左下
-            tb = new(nameof(MyLeft));
-            tb.Source = this;
-            TBottomLeft.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyBottom));
-            tb.Source = this;
-            TBottomLeft.SetBinding(Canvas.TopProperty, tb);
-            //右下
-            tb = new(nameof(MyRight));
-            tb.Source = this;
-            TBottomRight.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyBottom));
-            tb.Source = this;
-            TBottomRight.SetBinding(Canvas.TopProperty, tb);
+            //tb = new(nameof(MyRight));
+            //tb.Source = this;
+            //TTopRight.SetBinding(Canvas.LeftProperty, tb);
+            //tb = new(nameof(MyTop));
+            //tb.Source = this;
+            //TTopRight.SetBinding(Canvas.TopProperty, tb);
+            ////左下
+            //tb = new(nameof(MyLeft));
+            //tb.Source = this;
+            //TBottomLeft.SetBinding(Canvas.LeftProperty, tb);
+            //tb = new(nameof(MyBottom));
+            //tb.Source = this;
+            //TBottomLeft.SetBinding(Canvas.TopProperty, tb);
+            ////右下
+            //tb = new(nameof(MyRight));
+            //tb.Source = this;
+            //TBottomRight.SetBinding(Canvas.LeftProperty, tb);
+            //tb = new(nameof(MyBottom));
+            //tb.Source = this;
+            //TBottomRight.SetBinding(Canvas.TopProperty, tb);
 
-            
+
         }
 
         private void TBottomLeft_DragDelta(object sender, DragDeltaEventArgs e)
         {
             MyLeft += e.HorizontalChange;
             MyBottom += e.VerticalChange;
-            
+
         }
 
         private void TBottomRight_DragDelta(object sender, DragDeltaEventArgs e)
@@ -142,6 +133,9 @@ namespace _20220107
         {
             MyLeft += e.HorizontalChange;
             MyTop += e.VerticalChange;
+            //Thumb t = sender as Thumb;
+            //Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
+            //Canvas.SetTop(t, Canvas.GetTop(t) + e.VerticalChange);
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
