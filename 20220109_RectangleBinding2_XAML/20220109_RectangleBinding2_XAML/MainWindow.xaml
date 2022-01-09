@@ -1,0 +1,43 @@
+﻿<Window x:Class="_20220109_RectangleBinding2_XAML.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220109_RectangleBinding2_XAML"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Name="MyMain">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas x:Name="MyCanvas" DataContext="{Binding ElementName=MyMain}">
+      <Canvas.Resources>
+        <local:MyRectConverter x:Key="MyRectConvert"/>
+      </Canvas.Resources>
+      <Path x:Name="MyPath" Fill="MediumAquamarine">
+        <Path.Data>
+          <MultiBinding Converter="{StaticResource ResourceKey=MyRectConvert}">
+            <Binding Path="MyLeft"/>
+            <Binding Path="MyTop"/>
+            <Binding Path="MyRight"/>
+            <Binding Path="MyBottom"/>
+          </MultiBinding>
+        </Path.Data>
+      </Path>
+      <Thumb x:Name="TTopLeft" Width="10" Height="10" Canvas.Left="{Binding Path=MyLeft}" Canvas.Top="{Binding Path=MyTop}"/>
+      <Thumb x:Name="TTopRight" Width="10" Height="10" Canvas.Left="{Binding Path=MyRight}" Canvas.Top="{Binding Path=MyTop}"/>
+      <Thumb x:Name="TBottomLeft" Width="10" Height="10" Canvas.Left="{Binding Path=MyLeft}" Canvas.Top="{Binding Path=MyBottom}"/>
+      <Thumb x:Name="TBottomRight" Width="10" Height="10" Canvas.Left="{Binding Path=MyRight}" Canvas.Top="{Binding Path=MyBottom}"/>
+    </Canvas>
+
+    <StackPanel Grid.Column="1" Name="MyStackPnel">
+      <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
+      <Slider Value="{Binding Path=MyLeft}" Maximum="200"/>
+      <Slider Value="{Binding Path=MyTop}" Maximum="200"/>
+      <Slider Value="{Binding Path=MyRight}" Maximum="200"/>
+      <Slider Value="{Binding Path=MyBottom}" Maximum="200"/>
+
+    </StackPanel>
+  </Grid>
+</Window>
