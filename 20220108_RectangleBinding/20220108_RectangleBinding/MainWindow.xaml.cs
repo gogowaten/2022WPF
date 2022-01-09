@@ -48,6 +48,9 @@ namespace _20220108_RectangleBinding
 
             MyCanvas.Children.Add(MyPath);
             MyPath.Fill = Brushes.Red;
+            //Canvas.SetLeft(MyPath, 0);
+            //Canvas.SetTop(MyPath, 0);
+
             MyLeft = 20;
             MyTop = 20;
             MyRight = 100;
@@ -72,6 +75,7 @@ namespace _20220108_RectangleBinding
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
+            double l = Canvas.GetLeft(MyPath);
             RectangleGeometry pdata = (RectangleGeometry)MyPath.Data;
             var right = MyRight;
             var left = MyLeft;

@@ -13,11 +13,12 @@
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <Canvas x:Name="MyCanvas">
-      <Path x:Name="MyPath" Fill="MediumAquamarine"/>
+      <!--<local:SThumb x:Name="MySThumb"/>-->
+      <!--<Path x:Name="MyPath" Fill="MediumAquamarine"/>
       <Thumb x:Name="TTopLeft" Width="10" Height="10" Canvas.Left="{Binding Path=MyLeft}" Canvas.Top="{Binding Path=MyTop}"/>
       <Thumb x:Name="TTopRight" Width="10" Height="10" Canvas.Left="{Binding Path=MyRight}" Canvas.Top="{Binding Path=MyTop}"/>
       <Thumb x:Name="TBottomLeft" Width="10" Height="10" Canvas.Left="{Binding Path=MyLeft}" Canvas.Top="{Binding Path=MyBottom}"/>
-      <Thumb x:Name="TBottomRight" Width="10" Height="10" Canvas.Left="{Binding Path=MyRight}" Canvas.Top="{Binding Path=MyBottom}"/>
+      <Thumb x:Name="TBottomRight" Width="10" Height="10" Canvas.Left="{Binding Path=MyRight}" Canvas.Top="{Binding Path=MyBottom}"/>-->
     </Canvas>
 
     <StackPanel Grid.Column="1" Name="MyStackPnel">

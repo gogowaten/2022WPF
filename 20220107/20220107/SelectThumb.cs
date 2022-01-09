@@ -232,6 +232,155 @@ namespace _20220107
     }
 
 
+
+    public class ThumbCanvas : Thumb
+    {
+        private Canvas RootCanvas;
+        private static string ROOT_NAME = "root";
+        public ThumbCanvas()
+        {
+            ControlTemplate template = new();
+            template.VisualTree = new FrameworkElementFactory(typeof(Canvas), ROOT_NAME);
+            this.Template = template;
+            ApplyTemplate();
+
+            RootCanvas = this.Template.FindName(ROOT_NAME, this) as Canvas;
+            RootCanvas.Background = Brushes.Transparent;
+
+        }
+        public void AddChildren(FrameworkElement element)
+        {
+            RootCanvas.Children.Add(element);
+        }
+    }
+    public class SThumb : ThumbCanvas, System.ComponentModel.INotifyPropertyChanged
+    {
+        Path MyPath = new();
+        Thumb TTopLeft = new() { Width = 10, Height = 10 };
+        Thumb TTopRight = new() { Width = 10, Height = 10 };
+        Thumb TBottomRight = new() { Width = 10, Height = 10 };
+        Thumb TBottomLeft = new() { Width = 10, Height = 10 };
+
+        private double myLeft = 20;
+        private double myTop = 20;
+        private double myRight = 100;
+        private double myBottom = 100;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public double MyLeft { get => myLeft; set { myLeft = value; OnPropertyChanged(); } }
+        public double MyTop { get => myTop; set { myTop = value; OnPropertyChanged(); } }
+        public double MyRight { get => myRight; set { myRight = value; OnPropertyChanged(); } }
+        public double MyBottom { get => myBottom; set { myBottom = value; OnPropertyChanged(); } }
+        public SThumb()
+        {
+            AddChildren(MyPath);
+            MyPath.Fill = Brushes.Red;
+            Canvas.SetLeft(this, 0);
+            Canvas.SetTop(this, 0);
+            this.DragDelta += SThumb_DragDelta;
+            //MyPath.Data = new RectangleGeometry(new Rect(0, 0, 100, 20));
+            MyLeft = 20;
+            MyTop = 20;
+            MyRight = 100;
+            MyBottom = 100;
+
+            Binding b1 = new(nameof(MyLeft));
+            b1.Source = this;
+            Binding b2 = new(nameof(MyTop));
+            b2.Source = this;
+            Binding b3 = new(nameof(MyRight));
+            b3.Source = this;
+            Binding b4 = new(nameof(MyBottom));
+            b4.Source = this;
+            MultiBinding mb = new();
+            mb.Bindings.Add(b1);
+            mb.Bindings.Add(b2);
+            mb.Bindings.Add(b3);
+            mb.Bindings.Add(b4);
+            mb.Converter = new MyRectConverter2();
+            MyPath.SetBinding(Path.DataProperty, mb);
+
+
+            TTopLeft.DragDelta += TTopLeft_DragDelta;
+            TTopRight.DragDelta += TTopRight_DragDelta;
+            TBottomRight.DragDelta += TBottomRight_DragDelta;
+            TBottomLeft.DragDelta += TBottomLeft_DragDelta;
+
+            AddChildren(TTopLeft);
+            AddChildren(TTopRight);
+            AddChildren(TBottomLeft);
+            AddChildren(TBottomRight);
+
+            Binding tb;
+            //左上
+            tb = new(nameof(MyLeft));
+            tb.Source = this;
+            TTopLeft.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyTop));
+            tb.Source = this;
+            TTopLeft.SetBinding(Canvas.TopProperty, tb);
+            //右上
+            tb = new(nameof(MyRight));
+            tb.Source = this;
+            TTopRight.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyTop));
+            tb.Source = this;
+            TTopRight.SetBinding(Canvas.TopProperty, tb);
+            //左下
+            tb = new(nameof(MyLeft));
+            tb.Source = this;
+            TBottomLeft.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyBottom));
+            tb.Source = this;
+            TBottomLeft.SetBinding(Canvas.TopProperty, tb);
+            //右下
+            tb = new(nameof(MyRight));
+            tb.Source = this;
+            TBottomRight.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyBottom));
+            tb.Source = this;
+            TBottomRight.SetBinding(Canvas.TopProperty, tb);
+        }
+
+        private void SThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (e.OriginalSource != e.Source) { return; }
+            SThumb st = sender as SThumb;
+            Canvas.SetLeft(st, Canvas.GetLeft(st) + e.HorizontalChange);
+            Canvas.SetTop(st, Canvas.GetTop(st) + e.VerticalChange);
+            //MyLeft += e.HorizontalChange;
+            //myTop += e.VerticalChange;
+        }
+
+        private void TBottomLeft_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyLeft += e.HorizontalChange;
+            MyBottom += e.VerticalChange;
+        }
+
+        private void TBottomRight_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyRight += e.HorizontalChange;
+            MyBottom += e.VerticalChange;
+        }
+
+        private void TTopRight_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyRight += e.HorizontalChange;
+            MyTop += e.VerticalChange;
+        }
+
+        private void TTopLeft_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyLeft += e.HorizontalChange;
+            MyTop += e.VerticalChange;
+        }
+    }
     public class ConverterWidth2 : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -287,4 +436,22 @@ namespace _20220107
             return obj;
         }
     }
+
+    public class MyRectConverter2 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            double left = (double)values[0];
+            double top = (double)values[1];
+            double right = (double)values[2];
+            double bottom = (double)values[3];
+            return new RectangleGeometry(new Rect(new Point(left, top), new Point(right, bottom)));
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }

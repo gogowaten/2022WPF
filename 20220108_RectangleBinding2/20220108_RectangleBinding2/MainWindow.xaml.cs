@@ -57,19 +57,19 @@ namespace _20220108_RectangleBinding2
             MyRight = 100;
             MyBottom = 100;
 
-            Binding b1 = new(nameof(MyLeft));
-            b1.Source = this;
-            Binding b2 = new(nameof(MyTop));
-            b2.Source = this;
-            Binding b3 = new(nameof(MyRight));
-            b3.Source = this;
-            Binding b4 = new(nameof(MyBottom));
-            b4.Source = this;
+            Binding bLeft = new(nameof(MyLeft));
+            bLeft.Source = this;
+            Binding bTop = new(nameof(MyTop));
+            bTop.Source = this;
+            Binding bRight = new(nameof(MyRight));
+            bRight.Source = this;
+            Binding bBottom = new(nameof(MyBottom));
+            bBottom.Source = this;
             MultiBinding mb = new();
-            mb.Bindings.Add(b1);
-            mb.Bindings.Add(b2);
-            mb.Bindings.Add(b3);
-            mb.Bindings.Add(b4);
+            mb.Bindings.Add(bLeft);
+            mb.Bindings.Add(bTop);
+            mb.Bindings.Add(bRight);
+            mb.Bindings.Add(bBottom);
             mb.Converter = new MyRectConverter();
             MyPath.SetBinding(Path.DataProperty, mb);
 
@@ -83,35 +83,18 @@ namespace _20220108_RectangleBinding2
             MyCanvas.Children.Add(TBottomLeft);
             MyCanvas.Children.Add(TBottomRight);
 
-            Binding tb;
             //左上
-            tb = new(nameof(MyLeft));
-            tb.Source = this;
-            TTopLeft.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyTop));
-            tb.Source = this;
-            TTopLeft.SetBinding(Canvas.TopProperty, tb);
+            TTopLeft.SetBinding(Canvas.LeftProperty, bLeft);
+            TTopLeft.SetBinding(Canvas.TopProperty, bTop);
             //右上
-            tb = new(nameof(MyRight));
-            tb.Source = this;
-            TTopRight.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyTop));
-            tb.Source = this;
-            TTopRight.SetBinding(Canvas.TopProperty, tb);
+            TTopRight.SetBinding(Canvas.LeftProperty, bRight);
+            TTopRight.SetBinding(Canvas.TopProperty, bTop);
             //左下
-            tb = new(nameof(MyLeft));
-            tb.Source = this;
-            TBottomLeft.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyBottom));
-            tb.Source = this;
-            TBottomLeft.SetBinding(Canvas.TopProperty, tb);
+            TBottomLeft.SetBinding(Canvas.LeftProperty, bLeft);
+            TBottomLeft.SetBinding(Canvas.TopProperty, bBottom);
             //右下
-            tb = new(nameof(MyRight));
-            tb.Source = this;
-            TBottomRight.SetBinding(Canvas.LeftProperty, tb);
-            tb = new(nameof(MyBottom));
-            tb.Source = this;
-            TBottomRight.SetBinding(Canvas.TopProperty, tb);
+            TBottomRight.SetBinding(Canvas.LeftProperty, bRight);
+            TBottomRight.SetBinding(Canvas.TopProperty, bBottom);
 
 
         }
