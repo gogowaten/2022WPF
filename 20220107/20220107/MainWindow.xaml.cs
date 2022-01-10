@@ -24,10 +24,10 @@ namespace _20220107
     public partial class MainWindow : Window, System.ComponentModel.INotifyPropertyChanged
     {
         //Rect MyRect;
-        Rectangle MyRectangle;
-        RectangleGeometry MyRectangleGeometry;
-        SThumb2 MySThumb = new();
-        Path MyPath = new();
+        //Rectangle MyRectangle;
+        //RectangleGeometry MyRectangleGeometry;
+        RectThumb MyRectThumb = new();
+        //Path MyPath = new();
         private readonly Thumb TTopLeft = new() { Width = 10, Height = 10 };
         private readonly Thumb TTopRight = new() { Width = 10, Height = 10 };
         private readonly Thumb TBottomRight = new() { Width = 10, Height = 10 };
@@ -54,7 +54,8 @@ namespace _20220107
         {
             InitializeComponent();
 
-            MyCanvas.Children.Add(MySThumb);
+            MyCanvas.Children.Add(MyRectThumb);
+            MyStackPnel.DataContext = MyRectThumb;
 
             //MySThumb.DragDelta += MySThumb_DragDelta;
             //Test1();
@@ -67,7 +68,7 @@ namespace _20220107
         private void MySThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (e.OriginalSource != e.Source) { return; }
-            SThumb st = sender as SThumb;
+            RectThumb st = sender as RectThumb;
             Canvas.SetLeft(st, Canvas.GetLeft(st) + e.HorizontalChange);
             Canvas.SetTop(st, Canvas.GetTop(st) + e.VerticalChange);
         }
@@ -75,57 +76,57 @@ namespace _20220107
         private void Test1()
         {
 
-            MyStackPnel.DataContext = this;
-            MyCanvas.DataContext = this;
-            MyCanvas.Children.Add(MyPath);
-            MyPath.Fill = Brushes.MediumAquamarine;
-            Canvas.SetLeft(MyPath, 0);
-            Canvas.SetTop(MyPath, 0);
+            //MyStackPnel.DataContext = this;
+            //MyCanvas.DataContext = this;
+            //MyCanvas.Children.Add(MyPath);
+            //MyPath.Fill = Brushes.MediumAquamarine;
+            //Canvas.SetLeft(MyPath, 0);
+            //Canvas.SetTop(MyPath, 0);
 
 
-            Binding bLeft = new(nameof(MyLeft));
-            bLeft.Source = this;
-            Binding bTop = new(nameof(MyTop));
-            bTop.Source = this;
-            Binding bRight = new(nameof(MyRight));
-            bRight.Source = this;
-            Binding bBottom = new(nameof(MyBottom));
-            bBottom.Source = this;
-            MultiBinding mb = new();
-            mb.Bindings.Add(bLeft);
-            mb.Bindings.Add(bTop);
-            mb.Bindings.Add(bRight);
-            mb.Bindings.Add(bBottom);
-            mb.Converter = new MyRectConverter();
-            MyPath.SetBinding(Path.DataProperty, mb);
+            //Binding bLeft = new(nameof(MyLeft));
+            //bLeft.Source = this;
+            //Binding bTop = new(nameof(MyTop));
+            //bTop.Source = this;
+            //Binding bRight = new(nameof(MyRight));
+            //bRight.Source = this;
+            //Binding bBottom = new(nameof(MyBottom));
+            //bBottom.Source = this;
+            //MultiBinding mb = new();
+            //mb.Bindings.Add(bLeft);
+            //mb.Bindings.Add(bTop);
+            //mb.Bindings.Add(bRight);
+            //mb.Bindings.Add(bBottom);
+            //mb.Converter = new MyRectConverter();
+            //MyPath.SetBinding(Path.DataProperty, mb);
 
 
-            TTopLeft.DragDelta += TTopLeft_DragDelta;
-            TTopRight.DragDelta += TTopRight_DragDelta;
-            TBottomRight.DragDelta += TBottomRight_DragDelta;
-            TBottomLeft.DragDelta += TBottomLeft_DragDelta;
+            //TTopLeft.DragDelta += TTopLeft_DragDelta;
+            //TTopRight.DragDelta += TTopRight_DragDelta;
+            //TBottomRight.DragDelta += TBottomRight_DragDelta;
+            //TBottomLeft.DragDelta += TBottomLeft_DragDelta;
 
-            MyCanvas.Children.Add(TTopLeft);
-            MyCanvas.Children.Add(TTopRight);
-            MyCanvas.Children.Add(TBottomLeft);
-            MyCanvas.Children.Add(TBottomRight);
+            //MyCanvas.Children.Add(TTopLeft);
+            //MyCanvas.Children.Add(TTopRight);
+            //MyCanvas.Children.Add(TBottomLeft);
+            //MyCanvas.Children.Add(TBottomRight);
 
 
-            //左上
-            TTopLeft.SetBinding(Canvas.LeftProperty, bLeft);
-            TTopLeft.SetBinding(Canvas.TopProperty, bTop);
-            //右上
-            TTopRight.SetBinding(Canvas.LeftProperty, bRight);
-            TTopRight.SetBinding(Canvas.TopProperty, bTop);
-            //左下
-            TBottomLeft.SetBinding(Canvas.LeftProperty, bLeft);
-            TBottomLeft.SetBinding(Canvas.TopProperty, bBottom);
-            //右下
-            TBottomRight.SetBinding(Canvas.LeftProperty, bRight);
-            TBottomRight.SetBinding(Canvas.TopProperty, bBottom);
+            ////左上
+            //TTopLeft.SetBinding(Canvas.LeftProperty, bLeft);
+            //TTopLeft.SetBinding(Canvas.TopProperty, bTop);
+            ////右上
+            //TTopRight.SetBinding(Canvas.LeftProperty, bRight);
+            //TTopRight.SetBinding(Canvas.TopProperty, bTop);
+            ////左下
+            //TBottomLeft.SetBinding(Canvas.LeftProperty, bLeft);
+            //TBottomLeft.SetBinding(Canvas.TopProperty, bBottom);
+            ////右下
+            //TBottomRight.SetBinding(Canvas.LeftProperty, bRight);
+            //TBottomRight.SetBinding(Canvas.TopProperty, bBottom);
 
-            MyPath.SetBinding(Canvas.LeftProperty, bLeft);
-            MyPath.SetBinding(Canvas.TopProperty, bTop);
+            //MyPath.SetBinding(Canvas.LeftProperty, bLeft);
+            //MyPath.SetBinding(Canvas.TopProperty, bTop);
 
         }
 
@@ -172,12 +173,8 @@ namespace _20220107
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
-            //RectangleGeometry pdata = (RectangleGeometry)MyPath.Data;
-            var right = MyRight;
-            var left = MyLeft;
-            MyLeft = 10;
-            //MyPath.Data = new RectangleGeometry(new Rect(0, 0, 200, 99));
-            //MyRight = 400;
+            MessageBox.Show(MyRectThumb.GetRect().ToString());
+          
         }
     }
 
