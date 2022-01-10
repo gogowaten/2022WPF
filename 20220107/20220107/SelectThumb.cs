@@ -256,13 +256,13 @@ namespace _20220107
     public class SThumb : ThumbCanvas, System.ComponentModel.INotifyPropertyChanged
     {
         Path MyPath = new();
-        Thumb TTopLeft = new() { Width = 10, Height = 10 };
-        Thumb TTopRight = new() { Width = 10, Height = 10 };
-        Thumb TBottomRight = new() { Width = 10, Height = 10 };
-        Thumb TBottomLeft = new() { Width = 10, Height = 10 };
+        private readonly Thumb TTopLeft = new() { Width = 10, Height = 10 };
+        private readonly Thumb TTopRight = new() { Width = 10, Height = 10 };
+        private readonly Thumb TBottomRight = new() { Width = 10, Height = 10 };
+        private readonly Thumb TBottomLeft = new() { Width = 10, Height = 10 };
 
-        private double myLeft = 20;
-        private double myTop = 20;
+        private double myLeft = 120;
+        private double myTop = 120;
         private double myRight = 100;
         private double myBottom = 100;
 
@@ -379,6 +379,143 @@ namespace _20220107
         {
             MyLeft += e.HorizontalChange;
             MyTop += e.VerticalChange;
+        }
+    }
+    
+    public class SThumb2 : ThumbCanvas, System.ComponentModel.INotifyPropertyChanged
+    {
+        Path MyPath = new();
+        private readonly Thumb TTopLeft = new() { Width = 10, Height = 10 };
+        private readonly Thumb TTopRight = new() { Width = 10, Height = 10 };
+        private readonly Thumb TBottomRight = new() { Width = 10, Height = 10 };
+        private readonly Thumb TBottomLeft = new() { Width = 10, Height = 10 };
+
+        private double myLeft = 120;
+        private double myTop = 120;
+        private double myRight = 100;
+        private double myBottom = 100;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public double MyLeft { get => myLeft; set { myLeft = value; OnPropertyChanged(); } }
+        public double MyTop { get => myTop; set { myTop = value; OnPropertyChanged(); } }
+        public double MyRight { get => myRight; set { myRight = value; OnPropertyChanged(); } }
+        public double MyBottom { get => myBottom; set { myBottom = value; OnPropertyChanged(); } }
+        public SThumb2()
+        {
+            AddChildren(MyPath);
+            MyPath.Fill = Brushes.Red;
+            Canvas.SetLeft(this, 0);
+            Canvas.SetTop(this, 0);
+            this.DragDelta += SThumb_DragDelta;
+            //MyPath.Data = new RectangleGeometry(new Rect(0, 0, 100, 20));
+            MyLeft = 20;
+            MyTop = 20;
+            MyRight = 100;
+            MyBottom = 100;
+
+            Binding b1 = new(nameof(MyLeft));
+            b1.Source = this;
+            Binding b2 = new(nameof(MyTop));
+            b2.Source = this;
+            Binding b3 = new(nameof(MyRight));
+            b3.Source = this;
+            Binding b4 = new(nameof(MyBottom));
+            b4.Source = this;
+            MultiBinding mb = new();
+            mb.Bindings.Add(b1);
+            mb.Bindings.Add(b2);
+            mb.Bindings.Add(b3);
+            mb.Bindings.Add(b4);
+            mb.Converter = new MyRectConverter2();
+            MyPath.SetBinding(Path.DataProperty, mb);
+
+
+            TTopLeft.DragDelta += TTopLeft_DragDelta;
+            TTopRight.DragDelta += TTopRight_DragDelta;
+            TBottomRight.DragDelta += TBottomRight_DragDelta;
+            TBottomLeft.DragDelta += TBottomLeft_DragDelta;
+
+            AddChildren(TTopLeft);
+            AddChildren(TTopRight);
+            AddChildren(TBottomLeft);
+            AddChildren(TBottomRight);
+
+            Binding tb;
+            //左上
+            tb = new(nameof(MyLeft));
+            tb.Source = this;
+            TTopLeft.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyTop));
+            tb.Source = this;
+            TTopLeft.SetBinding(Canvas.TopProperty, tb);
+            //右上
+            tb = new(nameof(MyRight));
+            tb.Source = this;
+            TTopRight.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyTop));
+            tb.Source = this;
+            TTopRight.SetBinding(Canvas.TopProperty, tb);
+            //左下
+            tb = new(nameof(MyLeft));
+            tb.Source = this;
+            TBottomLeft.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyBottom));
+            tb.Source = this;
+            TBottomLeft.SetBinding(Canvas.TopProperty, tb);
+            //右下
+            tb = new(nameof(MyRight));
+            tb.Source = this;
+            TBottomRight.SetBinding(Canvas.LeftProperty, tb);
+            tb = new(nameof(MyBottom));
+            tb.Source = this;
+            TBottomRight.SetBinding(Canvas.TopProperty, tb);
+        }
+
+        private void SThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            //イベントの発生源が違うときは移動させない
+            if (e.OriginalSource != e.Source) { return; }
+
+            SThumb2 st = sender as SThumb2;
+            Canvas.SetLeft(st, Canvas.GetLeft(st) + e.HorizontalChange);
+            Canvas.SetTop(st, Canvas.GetTop(st) + e.VerticalChange);
+        }
+
+        private void TBottomLeft_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            double left = myLeft + e.HorizontalChange;
+            if (left < myRight) { MyLeft = left; }
+            double bottom = MyBottom + e.VerticalChange;
+            if (bottom > myTop) { MyBottom = bottom; }
+        }
+
+        private void TBottomRight_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            double right = MyRight + e.HorizontalChange;
+            if (right > myLeft) { MyRight = right; }
+            double bottom = MyBottom + e.VerticalChange;
+            if (bottom > myTop) { MyBottom = bottom; }
+        }
+
+        private void TTopRight_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            double right = MyRight + e.HorizontalChange;
+            if (right > myLeft) { MyRight = right; }
+            double top = MyTop + e.VerticalChange;
+            if (top < myBottom) { MyTop = top; }
+        }
+
+        private void TTopLeft_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            double left = myLeft + e.HorizontalChange;
+            if (left < myRight) { MyLeft = left; }
+            double top = MyTop + e.VerticalChange;
+            if (top < myBottom) { MyTop = top; }
         }
     }
     public class ConverterWidth2 : IValueConverter

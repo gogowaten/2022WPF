@@ -25,7 +25,8 @@ namespace _20220107
     {
         //Rect MyRect;
         Rectangle MyRectangle;
-        RectangleGeometry MyRectangleGeometry = new();
+        RectangleGeometry MyRectangleGeometry;
+        SThumb2 MySThumb = new();
         Path MyPath = new();
         private readonly Thumb TTopLeft = new() { Width = 10, Height = 10 };
         private readonly Thumb TTopRight = new() { Width = 10, Height = 10 };
@@ -53,8 +54,10 @@ namespace _20220107
         {
             InitializeComponent();
 
+            MyCanvas.Children.Add(MySThumb);
+
             //MySThumb.DragDelta += MySThumb_DragDelta;
-            Test1();
+            //Test1();
 
 
 

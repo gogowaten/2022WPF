@@ -13,7 +13,7 @@
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <Canvas x:Name="MyCanvas">
-      <!--<local:SThumb x:Name="MySThumb"/>-->
+      <!--<local:SThumb2 x:Name="MySThumb"/>-->
       <!--<Path x:Name="MyPath" Fill="MediumAquamarine"/>
       <Thumb x:Name="TTopLeft" Width="10" Height="10" Canvas.Left="{Binding Path=MyLeft}" Canvas.Top="{Binding Path=MyTop}"/>
       <Thumb x:Name="TTopRight" Width="10" Height="10" Canvas.Left="{Binding Path=MyRight}" Canvas.Top="{Binding Path=MyTop}"/>
