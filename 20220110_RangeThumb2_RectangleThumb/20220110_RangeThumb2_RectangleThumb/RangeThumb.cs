@@ -63,10 +63,10 @@ namespace _20220110_RangeThumb2_RectangleThumb
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public double MyLeft { get => myLeft; set { myLeft = value; OnPropertyChanged(); } }
-        public double MyTop { get => myTop; set { myTop = value; OnPropertyChanged(); } }
-        public double MyWidth { get => myWidth; set { if (value == myWidth) { return; } myWidth = value; OnPropertyChanged(); } }
-        public double MyHeight { get => myHeight; set { if (value == myHeight) { return; } myHeight = value; OnPropertyChanged(); } }
+        public double MyLeft { get => myLeft; set { if (value != myLeft) { myLeft = value; OnPropertyChanged(); } } }
+        public double MyTop { get => myTop; set { if (value != myTop) { myTop = value; OnPropertyChanged(); } } }
+        public double MyWidth { get => myWidth; set { if (value != myWidth) { myWidth = value; OnPropertyChanged(); } } }
+        public double MyHeight { get => myHeight; set { if (value != myHeight) { myHeight = value; OnPropertyChanged(); } } }
         public RangeThumb()
         {
             AddChildren(MyRectangle);

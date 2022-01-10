@@ -56,7 +56,7 @@ namespace _20220107
 
             MyCanvas.Children.Add(MyRectThumb);
             MyStackPnel.DataContext = MyRectThumb;
-
+            MyRectThumb.MyFillBrush = Brushes.MediumBlue;
             //MySThumb.DragDelta += MySThumb_DragDelta;
             //Test1();
 

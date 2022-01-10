@@ -265,6 +265,7 @@ namespace _20220107
         private double myTop;
         private double myWidth;
         private double myHeight;
+        private Brush myFillBrush = Brushes.MediumAquamarine;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
@@ -272,10 +273,12 @@ namespace _20220107
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public double MyLeft { get => myLeft; set { myLeft = value; OnPropertyChanged(); } }
-        public double MyTop { get => myTop; set { myTop = value; OnPropertyChanged(); } }
-        public double MyWidth { get => myWidth; set { if (value == myWidth) { return; } myWidth = value; OnPropertyChanged(); } }
-        public double MyHeight { get => myHeight; set { if (value == myHeight) { return; } myHeight = value; OnPropertyChanged(); } }
+        public double MyLeft { get => myLeft; set { if (value != myLeft) { myLeft = value; OnPropertyChanged(); } } }
+        public double MyTop { get => myTop; set { if (value != myTop) { myTop = value; OnPropertyChanged(); } } }
+        public double MyWidth { get => myWidth; set { if (value != myWidth) { myWidth = value; OnPropertyChanged(); } } }
+        public double MyHeight { get => myHeight; set { if (value != myHeight) { myHeight = value; OnPropertyChanged(); } } }
+
+        public Brush MyFillBrush { get => myFillBrush; set { if (value != myFillBrush) { myFillBrush = value; OnPropertyChanged(); } } }
         public RectThumb()
         {
             AddChildren(MyRectangle);
@@ -284,8 +287,11 @@ namespace _20220107
             //MyRectangle.Fill = Brushes.Red;
 
             //枠だけ表示、ドラッグ移動できるように透明色で塗りつぶす
-            MyRectangle.Fill = Brushes.Transparent;
+            //MyRectangle.Fill = Brushes.Transparent;
             MyRectangle.Stroke = Brushes.Red;
+            Binding bBrush = new(nameof(MyFillBrush));
+            bBrush.Source = this;
+            MyRectangle.SetBinding(Rectangle.FillProperty, bBrush);
 
             Canvas.SetLeft(this, 0);
             Canvas.SetTop(this, 0);
@@ -584,5 +590,8 @@ namespace _20220107
             throw new NotImplementedException();
         }
     }
+
+
+
 
 }
