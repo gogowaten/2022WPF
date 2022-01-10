@@ -27,10 +27,10 @@ namespace _20220107
         Rectangle MyRectangle;
         RectangleGeometry MyRectangleGeometry = new();
         Path MyPath = new();
-        Thumb TTopLeft = new() { Width = 10, Height = 10 };
-        Thumb TTopRight = new() { Width = 10, Height = 10 };
-        Thumb TBottomRight = new() { Width = 10, Height = 10 };
-        Thumb TBottomLeft = new() { Width = 10, Height = 10 };
+        private readonly Thumb TTopLeft = new() { Width = 10, Height = 10 };
+        private readonly Thumb TTopRight = new() { Width = 10, Height = 10 };
+        private readonly Thumb TBottomRight = new() { Width = 10, Height = 10 };
+        private readonly Thumb TBottomLeft = new() { Width = 10, Height = 10 };
 
         private double myLeft = 20;
         private double myTop = 20;
@@ -128,30 +128,43 @@ namespace _20220107
 
         private void TBottomLeft_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            MyLeft += e.HorizontalChange;
-            MyBottom += e.VerticalChange;
-
+            //MyLeft += e.HorizontalChange;
+            //MyBottom += e.VerticalChange;
+            double left = myLeft + e.HorizontalChange;
+            if (left < myRight) { MyLeft = left; }
+            double bottom = MyBottom + e.VerticalChange;
+            if (bottom > myTop) { MyBottom = bottom; }
         }
 
         private void TBottomRight_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            MyRight += e.HorizontalChange;
-            MyBottom += e.VerticalChange;
+            //MyRight += e.HorizontalChange;
+            //MyBottom += e.VerticalChange;
+            double right = MyRight + e.HorizontalChange;
+            if (right > myLeft) { MyRight = right; }
+            double bottom = MyBottom + e.VerticalChange;
+            if (bottom > myTop) { MyBottom = bottom; }
         }
 
         private void TTopRight_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            MyRight += e.HorizontalChange;
-            MyTop += e.VerticalChange;
+            //MyRight += e.HorizontalChange;
+            //MyTop += e.VerticalChange;
+            double right = MyRight + e.HorizontalChange;
+            if (right > myLeft) { MyRight = right; }
+            double top = MyTop + e.VerticalChange;
+            if (top < myBottom) { MyTop = top; }
         }
 
         private void TTopLeft_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            MyLeft += e.HorizontalChange;
-            MyTop += e.VerticalChange;
-            //Thumb t = sender as Thumb;
-            //Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
-            //Canvas.SetTop(t, Canvas.GetTop(t) + e.VerticalChange);
+            double left = myLeft + e.HorizontalChange;
+            if (left < myRight) { MyLeft = left; }
+            double top = MyTop + e.VerticalChange;
+            if (top < myBottom) { MyTop = top; }
+
+            //MyLeft += e.HorizontalChange;
+            //MyTop += e.VerticalChange;
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
@@ -173,14 +186,7 @@ namespace _20220107
             double top = (double)values[1];
             double right = (double)values[2];
             double bottom = (double)values[3];
-            //return new RectangleGeometry(new Rect(new Point(0, 0), new Point(right - left, bottom - top)));
-            double width = right - left;
-            if (width < 1)
-            {
-                width = 1;
-            }
-            double height = (bottom - top) < 1 ? 1 : bottom - top;
-            return new RectangleGeometry(new Rect(new Point(0, 0), new Point(width, height)));
+            return new RectangleGeometry(new Rect(new Point(0, 0), new Point(right - left, bottom - top)));
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
