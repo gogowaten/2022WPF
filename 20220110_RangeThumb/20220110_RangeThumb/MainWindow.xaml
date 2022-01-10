@@ -1,0 +1,26 @@
+﻿<Window x:Class="_20220110_RangeThumb.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220110_RangeThumb"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="600">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas x:Name="MyCanvas">
+    </Canvas>
+
+    <StackPanel Grid.Column="1" Name="MyStackPnel">
+      <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
+      <Slider Value="{Binding Path=MyLeft}" Maximum="200"/>
+      <Slider Value="{Binding Path=MyTop}" Maximum="200"/>
+      <Slider Value="{Binding Path=MyRight}" Maximum="200"/>
+      <Slider Value="{Binding Path=MyBottom}" Maximum="200"/>
+
+    </StackPanel>
+  </Grid>
+</Window>
