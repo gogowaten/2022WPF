@@ -15,29 +15,30 @@
             MouseLeftButtonDown="MyCanvas_MouseLeftButtonDown"
             MouseMove="MyCanvas_MouseMove"
             MouseLeftButtonUp="MyCanvas_MouseLeftButtonUp">
-      <local:Layer x:Name="MyLayer1" IdName="Layer1" Background="Gold"/>
+      <local:Layer x:Name="MyLayer1" MyName="Layer1" Background="Gold"/>
     </Canvas>
     
     <StackPanel Grid.Column="1">
       <StackPanel Name="MyStackPanel">
         <TextBlock Text="{Binding}"/>
-        <TextBlock Text="{Binding Path=IdName}"/>
-        <TextBlock Text="{Binding Path=Left}"/>
-        <TextBlock Text="{Binding Path=Top}"/>
-        <TextBlock Text="{Binding Path=ZetIndex, StringFormat=ZetIndex \= 0}"/>
+        <TextBlock Text="{Binding Path=MyName}"/>
+        <TextBlock Text="{Binding Path=MyLeft}"/>
+        <TextBlock Text="{Binding Path=MyTop}"/>
+        <TextBlock Text="{Binding Path=MyZIndex, StringFormat=ZIndex \= 0}"/>
         <TextBlock Text="{Binding Path=Children[0], StringFormat = child0 \= {0}}"/>
         <TextBlock Text="{Binding Path=Children[1], StringFormat = child1 \= {0}}"/>
         <TextBlock Text="{Binding Path=Children[2], StringFormat = child2 \= {0}}"/>
         <TextBlock Text="{Binding Path=Children[3], StringFormat = child3 \= {0}}"/>
         <TextBlock Text="{Binding Path=Children[0]}"/>
         <TextBlock Text="{Binding Path=Children}"/>
-        <TextBlock Text="{Binding Path=Children/IdName}"/>
-        <TextBlock Text="{Binding Path=Children/Children/IdName}"/>
+        <TextBlock Text="{Binding Path=Children/MyName}"/>
+        <TextBlock Text="{Binding Path=Children/Children/MyName}"/>
         <Button x:Name="ButtonUngroup" Content="グループ解除" Click="ButtonUngroup_Click"/>
         <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
         <Button x:Name="ButtonZIndexUp" Content="Z+" Click="ButtonZIndexUp_Click"/>
         <Button x:Name="ButtonZIndexDown" Content="Z-" Click="ButtonZIndexDown_Click"/>
-        <Button x:Name="ButtonSelectionPath" Content="選択範囲" Click="ButtonSelectionPath_Click"/>
+        <Button x:Name="ButtonSelectionPath" Content="選択範囲表示切り替え" Click="ButtonSelectionPath_Click"/>
+        <Button x:Name="ButtonGroup" Content="グループ化" Click="ButtonGroup_Click"/>
       </StackPanel>
 
       <Separator/>

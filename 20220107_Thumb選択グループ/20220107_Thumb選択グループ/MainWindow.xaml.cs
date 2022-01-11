@@ -24,6 +24,7 @@ namespace _20220107_Thumb選択グループ
         NeoThumb MyNeoThumb2;
         NeoThumb ClickedThumb;
         private NeoThumb focusThumb;
+        private List<NeoThumb> MyNeoThumbs = new();
 
         Point MyStartPoint;
         bool IsSelection;
@@ -282,7 +283,7 @@ namespace _20220107_Thumb選択グループ
         {
             var fthumb = focusThumb;
             var data = MyStackPanel.DataContext;
-            var zindex = focusThumb?.ZetIndex;
+            var zindex = focusThumb?.MyZIndex;
             var zzindex = Panel.GetZIndex(focusThumb);
             var children = MyLayer1.Children;
             var fChildren = focusThumb.Children;
@@ -291,26 +292,38 @@ namespace _20220107_Thumb選択グループ
         private void ButtonZIndexUp_Click(object sender, RoutedEventArgs e)
         {
             if (focusThumb == null) { return; }
-            int z = focusThumb.ZetIndex;
+            int z = focusThumb.MyZIndex;
             focusThumb.ChangeZIndex(z + 1);
         }
 
         private void ButtonZIndexDown_Click(object sender, RoutedEventArgs e)
         {
             if (focusThumb == null) { return; }
-            int z = focusThumb.ZetIndex;
+            int z = focusThumb.MyZIndex;
             focusThumb.ChangeZIndex(z - 1);
         }
 
+        private void ButtonGroup_Click(object sender, RoutedEventArgs e)
+        {
+            Rect bound = MySelectionGeometry.Bounds;
+
+            List<NeoThumb> neoThumbs = new();
+            foreach (var item in MyLayer1.Children)
+            {
+                //item.Test();
+               var neko = item.Children;
+                Rect r = new(item.MyLeft, item.MyTop, item.ActualWidth, item.ActualHeight);
+                if (r.IntersectsWith(bound))
+                {
+                    neoThumbs.Add(item);
+                }
+            }
+            NeoThumb neoThumb = new(neoThumbs, "");
+        }
         private void ButtonSelectionPath_Click(object sender, RoutedEventArgs e)
         {
-            //MySelectionPath = new();
-            ////MySelectionPath.Data = new RectangleGeometry(new Rect(0, 0, 100, 100));
-            //MySelectionPath.Stroke = Brushes.Red;
-            //MySelectionPath.StrokeThickness = 1;
-            //NeoThumb neo = new(MySelectionPath, "selection");
-            //MyLayer1.AddChildren(neo);
-
+           
+            //選択矩形表示切り替え
             Visibility visible = MySelectionPath.Visibility;
             if (visible == Visibility.Visible)
             {
@@ -319,7 +332,7 @@ namespace _20220107_Thumb選択グループ
             else
             {
                 visible = Visibility.Visible;
-                
+
             }
             MySelectionPath.Visibility = visible;
         }
@@ -344,7 +357,6 @@ namespace _20220107_Thumb選択グループ
         {
             IsSelection = false;
         }
-
 
     }
 }

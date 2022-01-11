@@ -36,10 +36,10 @@ namespace _20220107_Thumb選択グループ
         public ReadOnlyObservableCollection<NeoThumb> Children { get; private set; }
         //public ReadOnlyObservableCollection<NeoThumb> Children1 => new(Children);
 
-        private double left;
-        private double top;
-        private string idName;
-        private int zetIndex;
+        private double myLeft;
+        private double myTop;
+        private string myName;
+        private int myZIndex;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
@@ -47,13 +47,13 @@ namespace _20220107_Thumb選択グループ
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public double Left { get => left; set { left = value; OnPropertyChanged(); } }
-        public double Top { get => top; set { top = value; OnPropertyChanged(); } }
-        public string IdName { get => idName; set { idName = value; OnPropertyChanged(); } }
+        public double MyLeft { get => myLeft; set { myLeft = value; OnPropertyChanged(); } }
+        public double MyTop { get => myTop; set { myTop = value; OnPropertyChanged(); } }
+        public string MyName { get => myName; set { myName = value; OnPropertyChanged(); } }
         //重なり順番、大きいほうが上、
         //下に装飾用のRectangleとか置く予定だから
         //実質のZIndexはConverterで+10している、10から開始、
-        public int ZetIndex { get => zetIndex; set { zetIndex = value; OnPropertyChanged(); } }
+        public int MyZIndex { get => myZIndex; set { myZIndex = value; OnPropertyChanged(); } }
 
         protected NeoThumb()
         {
@@ -70,10 +70,10 @@ namespace _20220107_Thumb選択グループ
             children.CollectionChanged += Children_CollectionChanged;
             DragDelta += NeoThumb_DragDelta;
 
-            this.SetBinding(Canvas.LeftProperty, MakeBind(nameof(Left)));
-            this.SetBinding(Canvas.TopProperty, MakeBind(nameof(Top)));
+            this.SetBinding(Canvas.LeftProperty, MakeBind(nameof(MyLeft)));
+            this.SetBinding(Canvas.TopProperty, MakeBind(nameof(MyTop)));
             //ZIndexの実際の値は+10したいのでBindingじゃなくてsetのほうで指定
-            var z = MakeBind(nameof(ZetIndex));
+            var z = MakeBind(nameof(MyZIndex));
             z.Converter = new ZIndexConverter();
             this.SetBinding(Panel.ZIndexProperty, z);
 
@@ -84,10 +84,10 @@ namespace _20220107_Thumb選択グループ
         }
 
 
-        public void SetGotFocus(NeoThumb focus)
-        {
-            this.GotFocus += (a, b) => NeoThumb_GotFocus1(a, b, focus);
-        }
+        //public void SetGotFocus(NeoThumb focus)
+        //{
+        //    this.GotFocus += (a, b) => NeoThumb_GotFocus1(a, b, focus);
+        //}
 
         private void NeoThumb_GotFocus1(object sender, RoutedEventArgs e, NeoThumb focus)
         {
@@ -98,15 +98,15 @@ namespace _20220107_Thumb選択グループ
         {
             //AddElement(element);
             RootCanvas.Children.Add(element);
-            IdName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
-            Left = x;
-            Top = y;
+            MyName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
+            MyLeft = x;
+            MyTop = y;
         }
 
         public NeoThumb(UIElement element, double x, double y) : this(element, "")
         {
-            Left = x;
-            Top = y;
+            MyLeft = x;
+            MyTop = y;
         }
 
 
@@ -119,23 +119,20 @@ namespace _20220107_Thumb選択グループ
         //要素群のParentがある場合は、そこに追加する
         public NeoThumb(IEnumerable<NeoThumb> NeoThumbs, string name = "") : this()
         {
+            if (NeoThumbs.Count() < 2) { return; }
             //要素群からParent取得
             NeoThumb reParent = NeoThumbs.First().ParentNeoThumb;
-            //if (reParent == null)
-            //{
-            //    throw new ArgumentNullException(nameof(reParent), "Parentが無いものはグループ化できない");
-            //}
-            int ziMax = NeoThumbs.Max(a => a.ZetIndex);
-            int ziMin = NeoThumbs.Min(a => a.ZetIndex);
-            IdName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
+            int ziMax = NeoThumbs.Max(a => a.MyZIndex);
+            int ziMin = NeoThumbs.Min(a => a.MyZIndex);
+            MyName = string.IsNullOrEmpty(name) ? DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") : name;
             //要素群全体を含むRectの左上座標
-            double left = NeoThumbs.Min(a => a.Left);
-            double top = NeoThumbs.Min(a => a.Top);
+            double left = NeoThumbs.Min(a => a.MyLeft);
+            double top = NeoThumbs.Min(a => a.MyTop);
             //自身(新規ブループ)の座標調整
-            Left = left; Top = top;
+            MyLeft = left; MyTop = top;
 
             //要素群をZIndex順にソートする
-            var items = NeoThumbs.OrderBy(i => i.zetIndex).ToList();
+            var items = NeoThumbs.OrderBy(i => i.myZIndex).ToList();
             for (int i = 0; i < items.Count; i++)
             {
                 NeoThumb item = items[i];
@@ -144,24 +141,24 @@ namespace _20220107_Thumb選択グループ
                 {
                     reParent.children.Remove(item);//削除
                 }
-                //自身(新規ブループ)に要素を追加してZIndexも指定
+                //自身(新規ブループ)に要素群追加
                 children.Add(item);
-                item.ZetIndex = i;
+                item.MyZIndex = i;
                 //要素の座標調整
-                item.Left -= left; item.Top -= top;
+                item.MyLeft -= left; item.MyTop -= top;
             }
 
             if (reParent != null)
             {
                 //Parentに自身(新規ブループ)を挿入、挿入Index = 最上位Index - (グループ要素数 - 1)
-                reParent.children.Insert(ziMax - (items.Count() - 1), this);
+                reParent.children.Insert(ziMax - (items.Count - 1), this);
 
 
                 //ParentChildrenのZIndex調整、グループ追加位置より後ろの要素が対象
                 for (int i = ziMin; i < reParent.children.Count; i++)
                 {
-                    int zi = reParent.children[i].ZetIndex;
-                    if (zi != i) { reParent.children[i].ZetIndex = i; }
+                    int zi = reParent.children[i].MyZIndex;
+                    if (zi != i) { reParent.children[i].MyZIndex = i; }
                 }
             }
 
@@ -178,10 +175,10 @@ namespace _20220107_Thumb選択グループ
             //最初にグループ(自身)をParentから削除
             this.ParentNeoThumb.children.Remove(this);
 
-            int oldIndex = this.zetIndex;
+            int oldIndex = this.myZIndex;
             int oldItemsCount = this.ParentNeoThumb.children.Count;
             //ZIndex順にソート
-            List<NeoThumb> items = children.OrderBy(a => a.zetIndex).ToList();
+            List<NeoThumb> items = children.OrderBy(a => a.myZIndex).ToList();
             //要素群をグループから削除
             for (int i = 0; i < items.Count; i++)
             {
@@ -196,18 +193,18 @@ namespace _20220107_Thumb選択グループ
                 this.ParentNeoThumb.children.Insert(oldIndex + i, item);
 
                 //座標修正
-                item.Left += this.left; item.Top += this.top;
+                item.MyLeft += this.myLeft; item.MyTop += this.myTop;
                 //RootNeoThumbの更新
                 ReplaceRootNeoThumb(item, item);
                 //ZIndex
-                item.ZetIndex += oldIndex;
+                item.MyZIndex += oldIndex;
             }
 
 
             //グループ解除対象以外の要素のZIndex修正
             for (int i = oldIndex + items.Count; i < this.ParentNeoThumb.children.Count; i++)
             {
-                this.ParentNeoThumb.children[i].ZetIndex = i;
+                this.ParentNeoThumb.children[i].MyZIndex = i;
             }
 
         }
@@ -215,8 +212,8 @@ namespace _20220107_Thumb選択グループ
 
         protected virtual void NeoThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            Left += e.HorizontalChange;
-            Top += e.VerticalChange;
+            MyLeft += e.HorizontalChange;
+            MyTop += e.VerticalChange;
         }
 
         protected virtual void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
@@ -264,14 +261,14 @@ namespace _20220107_Thumb選択グループ
             {
                 int newId = e.NewStartingIndex;//移動先Index
                 int oldId = e.OldStartingIndex;//元のIndex
-                children[newId].ZetIndex = newId;//自身のZIndex変更
+                children[newId].MyZIndex = newId;//自身のZIndex変更
 
                 //自身が上がった場合、元の位置から新しい位置の間にある要素全てを-1する
                 if (newId > oldId)
                 {
                     for (int i = oldId; i < newId; i++)
                     {
-                        children[i].ZetIndex--;
+                        children[i].MyZIndex--;
                     }
                 }
                 //自身が下がった場合はあいだの要素全てを+1
@@ -279,7 +276,7 @@ namespace _20220107_Thumb選択グループ
                 {
                     for (int i = newId + 1; i < oldId + 1; i++)
                     {
-                        children[i].ZetIndex++;
+                        children[i].MyZIndex++;
                     }
                 }
 
@@ -316,7 +313,7 @@ namespace _20220107_Thumb選択グループ
         /// <param name="newIndex"></param>
         public void ChangeZIndex(int newIndex)
         {
-            int oldIndex = this.ZetIndex;
+            int oldIndex = this.MyZIndex;
             if (newIndex >= ParentNeoThumb.children.Count
                 || newIndex < 0
                 || newIndex == oldIndex)
@@ -327,10 +324,22 @@ namespace _20220107_Thumb選択グループ
             this.ParentNeoThumb.children.Move(oldIndex, newIndex);
         }
 
+        public void Test()
+        {
+            var neko = RootCanvas.ActualHeight;
+            Rect range = new();
+            foreach (var item in children)
+            {
+                FrameworkElement element = item as FrameworkElement;
+                Rect r = new(item.MyLeft, item.MyTop, element.ActualWidth, element.ActualHeight);
+                range.Union(r);
+            }
+
+        }
         public override string ToString()
         {
             //return base.ToString();
-            return $"{IdName}, x={Left}, y={Top}, z={zetIndex}";
+            return $"{MyName}, x={MyLeft}, y={MyTop}, z={myZIndex}";
         }
     }
 
@@ -348,7 +357,7 @@ namespace _20220107_Thumb選択グループ
         {
             if (z == int.MinValue) { z = children.Count; }
             if (z >= children.Count) { z = children.Count; }
-            thumb.ZetIndex = z;
+            thumb.MyZIndex = z;
             children.Insert(z, thumb);
 
         }
