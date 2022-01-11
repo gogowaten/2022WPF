@@ -265,7 +265,10 @@ namespace _20220107
         private double myTop;
         private double myWidth;
         private double myHeight;
-        private Brush myFillBrush = Brushes.MediumAquamarine;
+        private Brush myFill = Brushes.MediumAquamarine;
+        private Brush myStroke;
+        private double myHandleSize = 10;
+        private double myStrokeThickness = 1.0;
 
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
@@ -278,20 +281,27 @@ namespace _20220107
         public double MyWidth { get => myWidth; set { if (value != myWidth) { myWidth = value; OnPropertyChanged(); } } }
         public double MyHeight { get => myHeight; set { if (value != myHeight) { myHeight = value; OnPropertyChanged(); } } }
 
-        public Brush MyFillBrush { get => myFillBrush; set { if (value != myFillBrush) { myFillBrush = value; OnPropertyChanged(); } } }
+        public Brush MyFill { get => myFill; set { if (value != myFill) { myFill = value; OnPropertyChanged(); } } }
+        public Brush MyStroke { get => myStroke; set { if (value != myStroke) { myStroke = value; OnPropertyChanged(); } } }
+        public double MyStrokeThickness { get => myStrokeThickness; set { if (value != myStrokeThickness) { myStrokeThickness = value; OnPropertyChanged(); } } }
+        public double MyHandleSize { get => myHandleSize; set { if (value != myHandleSize) { myHandleSize = value; OnPropertyChanged(); } } }
+
         public RectThumb()
         {
             AddChildren(MyRectangle);
 
-            //塗りつぶし
-            //MyRectangle.Fill = Brushes.Red;
+            Binding bFill = new(nameof(MyFill));
+            bFill.Source = this;
+            MyRectangle.SetBinding(Rectangle.FillProperty, bFill);
 
-            //枠だけ表示、ドラッグ移動できるように透明色で塗りつぶす
-            //MyRectangle.Fill = Brushes.Transparent;
-            MyRectangle.Stroke = Brushes.Red;
-            Binding bBrush = new(nameof(MyFillBrush));
-            bBrush.Source = this;
-            MyRectangle.SetBinding(Rectangle.FillProperty, bBrush);
+            Binding bStroke = new(nameof(MyStroke));
+            bStroke.Source = this;
+            MyRectangle.SetBinding(Rectangle.StrokeProperty, bStroke);
+
+            Binding bStrokeThickness = new(nameof(MyStrokeThickness));
+            bStrokeThickness.Source = this;
+            MyRectangle.SetBinding(Rectangle.StrokeThicknessProperty, bStrokeThickness);
+
 
             Canvas.SetLeft(this, 0);
             Canvas.SetTop(this, 0);
@@ -325,12 +335,22 @@ namespace _20220107
             AddChildren(TBottomLeft);
             AddChildren(TBottomRight);
 
+            Binding bHandleSize = new(nameof(MyHandleSize));
+            bHandleSize.Source = this;
             //左上
+            TTopLeft.SetBinding(Thumb.WidthProperty, bHandleSize);
+            TTopLeft.SetBinding(Thumb.HeightProperty, bHandleSize);
             //右上
+            TTopRight.SetBinding(Thumb.WidthProperty, bHandleSize);
+            TTopRight.SetBinding(Thumb.HeightProperty, bHandleSize);
             TTopRight.SetBinding(Canvas.LeftProperty, bWidth);
             //左下
+            TBottomLeft.SetBinding(Thumb.WidthProperty, bHandleSize);
+            TBottomLeft.SetBinding(Thumb.HeightProperty, bHandleSize);
             TBottomLeft.SetBinding(Canvas.TopProperty, bHeight);
             //右下
+            TBottomRight.SetBinding(Thumb.WidthProperty, bHandleSize);
+            TBottomRight.SetBinding(Thumb.HeightProperty, bHandleSize);
             TBottomRight.SetBinding(Canvas.LeftProperty, bWidth);
             TBottomRight.SetBinding(Canvas.TopProperty, bHeight);
         }
