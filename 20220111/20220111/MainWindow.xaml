@@ -5,8 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20220111"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="450" Width="600">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas x:Name="MyCanvas"/>
 
-    </Grid>
+    <StackPanel x:Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
+    </StackPanel>
+  </Grid>
 </Window>
