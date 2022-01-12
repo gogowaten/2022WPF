@@ -35,15 +35,14 @@ namespace _20220111
             ApplyTemplate();
             RootCanvas = this.Template.FindName(ROOT_CANVAS_NAME, this) as Canvas;
 
-
-            RootCanvas.Children.Add(GroupCanvas);
-            RootCanvas.Children.Add(SurfaceCanvas);
+            RootCanvas.Children.Add(GroupCanvas);//グループ内要素用
+            RootCanvas.Children.Add(SurfaceCanvas);//枠表示用、最前面
         }
         public BaseThumb(FrameworkElement element) : this()
         {
-            AddElement(element);
+            SetContentElement(element);
         }
-        public void AddElement(FrameworkElement element)
+        public void SetContentElement(FrameworkElement element)
         {
             RootCanvas.Children.Add(element);
             //this.Width = element.ActualWidth;
@@ -53,7 +52,7 @@ namespace _20220111
     public class TThumb : BaseThumb
     {
         public Data MyData = new();
-        public FrameworkElement MyContentElement { get; private set; }
+        public FrameworkElement MyContentElement { get; private set; }//表示する要素用、1個だけに限定したい
         public bool IsEditInsideGroup//グループ内での移動
         {
             get => isEditInsideGroup;
@@ -91,6 +90,7 @@ namespace _20220111
         private Rect DragTempRect = new();
         public TThumb ParentThumb;//グループ時の親
 
+
         public TThumb()
         {
             DataContext = MyData;
@@ -101,6 +101,17 @@ namespace _20220111
             MySetTwoWayModeBinding(Canvas.TopProperty, nameof(MyData.Y));
 
             DragDelta += TThumb_DragDelta;
+
+            //枠表示用Rectangle
+            Rectangle rectangle = new();
+            //rectangle.Width = 200;
+            rectangle.SetBinding(Rectangle.WidthProperty, nameof(MyData.Width));
+            rectangle.SetBinding(Rectangle.HeightProperty, nameof(MyData.Height));
+            rectangle.Stroke = Brushes.MediumOrchid;
+            rectangle.StrokeThickness = 4;
+            SurfaceCanvas.Children.Add(rectangle);
+            rectangle.SetBinding(VisibilityProperty, nameof(MyData.VisibleFrame));
+
         }
         private void MySetTwoWayModeBinding(DependencyProperty property, string path)
         {
@@ -109,60 +120,9 @@ namespace _20220111
             this.SetBinding(property, b);
         }
 
-        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            if (ParentThumb == null) { return; }
-            if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
-            DragTempRect.Union(new Rect(MyData.X, MyData.Y, Width, Height));
-            //Parentの座標変更
-            ParentThumb.MyData.X += DragTempRect.X;
-            ParentThumb.MyData.Y += DragTempRect.Y;
-            ParentThumb.MyData.Width = DragTempRect.Width;
-            ParentThumb.MyData.Height = DragTempRect.Height;
-            //Childrenの座標変更
-            foreach (TThumb item in ParentThumb.Children)
-            {
-                item.MyData.X -= DragTempRect.X;
-                item.MyData.Y -= DragTempRect.Y;
-            }
-
-        }
-
-        private void TThumb_DragStarted(object sender, DragStartedEventArgs e)
-        {
-            if (ParentThumb == null) { return; }
-            if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
-
-            TThumb t = ParentThumb.Children[0];
-            if (t == this) { t = ParentThumb.Children[1]; }
-            DragTempRect.X = t.MyData.X;
-            DragTempRect.Y = t.MyData.Y;
-            DragTempRect.Width = t.Width;
-            DragTempRect.Height = t.Height;
-            foreach (TThumb item in ParentThumb.Children)
-            {
-                if (item != this)
-                {
-                    DragTempRect.Union(new Rect(item.MyData.X, item.MyData.Y, item.Width, item.Height));
-                }
-            }
-        }
-
-        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            MyData.X += e.HorizontalChange;
-            MyData.Y += e.VerticalChange;
-        }
-
-        private void MyContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            MyData.Width = MyContentElement.ActualWidth;
-            MyData.Height = MyContentElement.ActualHeight;
-        }
-
         public TThumb(FrameworkElement element) : this()
         {
-            AddElement(element);
+            SetContentElement(element);
             MyContentElement = element;
             MyContentElement.SizeChanged += MyContentElement_SizeChanged;
 
@@ -202,6 +162,65 @@ namespace _20220111
         //    var mcew = MyContentElement.Width;
         //    var tw = this.Width;
         //}
+
+        #region イベント
+        //子要素の移動終了時に自身のサイズ変更
+        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            
+            if (ParentThumb == null) { return; }
+            if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
+            DragTempRect.Union(new Rect(MyData.X, MyData.Y, Width, Height));
+            //Parentの座標変更
+            ParentThumb.MyData.X += DragTempRect.X;
+            ParentThumb.MyData.Y += DragTempRect.Y;
+            ParentThumb.MyData.Width = DragTempRect.Width;
+            ParentThumb.MyData.Height = DragTempRect.Height;
+            //Childrenの座標変更
+            foreach (TThumb item in ParentThumb.Children)
+            {
+                item.MyData.X -= DragTempRect.X;
+                item.MyData.Y -= DragTempRect.Y;
+            }
+
+        }
+
+        //子要素の移動開始時、移動する子要素以外での全体のRect取得しておく
+        private void TThumb_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            if (ParentThumb == null) { return; }
+            if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
+
+            TThumb t = ParentThumb.Children[0];
+            if (t == this) { t = ParentThumb.Children[1]; }
+            DragTempRect.X = t.MyData.X;
+            DragTempRect.Y = t.MyData.Y;
+            DragTempRect.Width = t.Width;
+            DragTempRect.Height = t.Height;
+            foreach (TThumb item in ParentThumb.Children)
+            {
+                if (item != this)
+                {
+                    DragTempRect.Union(new Rect(item.MyData.X, item.MyData.Y, item.Width, item.Height));
+                }
+            }
+        }
+
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+        }
+
+        private void MyContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            MyData.Width = MyContentElement.ActualWidth;
+            MyData.Height = MyContentElement.ActualHeight;
+        }
+
+        #endregion イベント
+
+
         public override string ToString()
         {
             //return base.ToString();
@@ -231,6 +250,7 @@ namespace _20220111
         private int z;
         private double width;
         private double height;
+        private Visibility visibleFrame = Visibility.Collapsed;
         #region Notify
         public event PropertyChangedEventHandler PropertyChanged;
         protected void OnpropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
@@ -245,6 +265,7 @@ namespace _20220111
         public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); } } }
         //public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); } } }
         public double Height { get => height; set { if (value != height) { height = value; OnpropertyChanged(); } } }
+        public Visibility VisibleFrame { get => visibleFrame; set { if (value != visibleFrame) { visibleFrame = value; OnpropertyChanged(); } } }
     }
 
 

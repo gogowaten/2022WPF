@@ -53,8 +53,10 @@ namespace _20220111
             {
                 Text = text,
                 FontSize = 30,
-                Background = Brushes.MediumAquamarine,
-                Foreground = Brushes.White
+                Background = new SolidColorBrush(Color.FromArgb(200, 100, 200, 150)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(10),
+                //RenderTransform = new ScaleTransform(2, 2),
             };
             return tb;
         }
@@ -84,25 +86,15 @@ namespace _20220111
 
         private void ButtonTest2_Click(object sender, RoutedEventArgs e)
         {
-            if (MyGTThumb.IsEditInsideGroup)
+            MyGTThumb.IsEditInsideGroup = !MyGTThumb.IsEditInsideGroup;
+            if (MyGTThumb.MyData.VisibleFrame == Visibility.Visible)
             {
-                MyGTThumb.IsEditInsideGroup = false;
-                //MyGTThumb.DragDelta += MyTThumb_DragDelta;
-                //foreach (TThumb item in MyGTThumb.Children)
-                //{
-                //    item.DragDelta -= MyTThumb_DragDelta;
-                //}
+                MyGTThumb.MyData.VisibleFrame = Visibility.Collapsed;
             }
             else
             {
-                MyGTThumb.IsEditInsideGroup = true;
-                //MyGTThumb.DragDelta -= MyTThumb_DragDelta;
-                //foreach (TThumb item in MyGTThumb.Children)
-                //{
-                //    item.DragDelta += MyTThumb_DragDelta;
-                //}
+                MyGTThumb.MyData.VisibleFrame = Visibility.Visible;
             }
-            
         }
     }
 }
