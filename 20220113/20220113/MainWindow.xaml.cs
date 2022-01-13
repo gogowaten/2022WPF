@@ -32,7 +32,7 @@ namespace _20220113
 
             MyTThumb = TThumb.CreateTextBlockThumb();
             MyLayer1.AddThumb(MyTThumb);
-            TThumb tt = TThumb.CreateTextBlockThumb("test2", 20, 30, 30);
+            TThumb tt = TThumb.CreateTextBlockThumb("test2", 50, 30, 30,"追加Thumb");
             MyLayer1.AddThumb(tt);
 
             //TextBlock tb = new() { Text = "test", FontSize = 30, Background = Brushes.MediumAquamarine };

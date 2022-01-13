@@ -82,7 +82,7 @@ namespace _20220113
         private bool isEditInsideGroup;//グループ内部の編集中、移動とかに使う、グループじゃなければtrueにしたくないけど…
         public bool IsGroup;//グループ判定、childrenが0なら必ずfalse
         //public bool IsMovable;//ドラッグ移動可能
-        private Rect DragTempRect;
+        private Rect TempRect = new();
         public TThumb? ParentThumb;//グループ時の親
 
 
@@ -118,6 +118,7 @@ namespace _20220113
         public TThumb(FrameworkElement element) : this()
         {
             RootCanvas.Children.Add(element);
+            //RootCanvas.UpdateLayout();
             MyContentElement = element;
             MyContentElement.SizeChanged += MyContentElement_SizeChanged;
 
@@ -158,75 +159,54 @@ namespace _20220113
             return t;
         }
 
-        public void AddThumb(TThumb thumb)
-        {
-            GroupCanvas.Children.Add(thumb);
-            thumb.UpdateLayout();//これでThumbのサイズが取得できるようになる
 
-            //GroupCanvas.UpdateLayout();これでもいいけど
-            //UpdateLayout();//これでもいいけど
-            //GroupCanvas.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Render);
-
-            ChildrenSource.Add(thumb);
-            thumb.ParentThumb = this;
-            //thumb.DragDelta -= thumb.TThumb_DragDelta;
-
-            Rect r = new(MyData.X, MyData.Y, MyData.Width, MyData.Height);
-            r.Union(new Rect(thumb.MyData.X, thumb.MyData.Y, thumb.MyData.Width, thumb.MyData.Height));
-            MyData.X = r.X; MyData.Y = r.Y;
-            MyData.Width = r.Width; MyData.Height = r.Height;
-        }
-        //public void GetSize()
-        //{
-        //    var aw = MyContentElement.ActualWidth;
-        //    var ah = MyContentElement.ActualHeight;
-        //    Transform rt = MyContentElement.RenderTransform;
-        //    Rect tfb = rt.TransformBounds(new Rect(0, 0, aw, ah));
-        //    var md = MyData;
-        //    var mdw = MyData.Width;
-        //    var mcew = MyContentElement.Width;
-        //    var tw = this.Width;
-        //}
 
         #region イベント
-        //子要素の移動終了時に自身のサイズ変更
+        //子要素の移動終了時に自身のサイズ変更、一番上までサイズ変更？
         protected void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
+            TThumb currentT = (TThumb)sender;
+            if (currentT.ParentThumb == null) { return; }
+            TThumb cuParent = currentT.ParentThumb;
+            if (cuParent.IsGroup == false || cuParent.IsEditInsideGroup == false) { return; }
+            var neko = currentT.TempRect;
+            var inu = cuParent.TempRect;
 
-            if (ParentThumb == null) { return; }
-            if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
-            DragTempRect.Union(new Rect(MyData.X, MyData.Y, Width, Height));
+            currentT.TempRect.Union(new Rect(currentT.MyData.X, currentT.MyData.Y, currentT.Width, currentT.Height));
             //Parentの座標変更
-            ParentThumb.MyData.X += DragTempRect.X;
-            ParentThumb.MyData.Y += DragTempRect.Y;
-            ParentThumb.MyData.Width = DragTempRect.Width;
-            ParentThumb.MyData.Height = DragTempRect.Height;
+            cuParent.MyData.X += currentT.TempRect.X;
+            cuParent.MyData.Y += currentT.TempRect.Y;
+            cuParent.MyData.Width = currentT.TempRect.Width;
+            cuParent.MyData.Height = currentT.TempRect.Height;
             //Childrenの座標変更
-            foreach (TThumb item in ParentThumb.ChildrenSource)
+            foreach (TThumb item in cuParent.ChildrenSource)
             {
-                item.MyData.X -= DragTempRect.X;
-                item.MyData.Y -= DragTempRect.Y;
+                item.MyData.X -= TempRect.X;
+                item.MyData.Y -= TempRect.Y;
             }
 
         }
 
-        //子要素の移動開始時、移動する子要素以外での全体のRect取得しておく
+        //子要素の移動開始時、移動しない要素全体のRect取得しておく
         protected void TThumb_DragStarted(object sender, DragStartedEventArgs e)
         {
-            if (ParentThumb == null) { return; }
-            if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
+            TThumb currentT = (TThumb)sender;
+            if (currentT.ParentThumb == null) { return; }
+            TThumb cuParent = currentT.ParentThumb;
+            if (cuParent.IsGroup == false || cuParent.IsEditInsideGroup == false) { return; }
 
-            TThumb t = ParentThumb.ChildrenSource[0];
-            if (t == this) { t = ParentThumb.ChildrenSource[1]; }
-            DragTempRect.X = t.MyData.X;
-            DragTempRect.Y = t.MyData.Y;
-            DragTempRect.Width = t.Width;
-            DragTempRect.Height = t.Height;
-            foreach (TThumb item in ParentThumb.ChildrenSource)
+            TThumb t = cuParent.ChildrenSource[0];
+            if (t == currentT) { t = cuParent.ChildrenSource[1]; }
+
+            currentT.TempRect.X = t.MyData.X;
+            currentT.TempRect.Y = t.MyData.Y;
+            currentT.TempRect.Width = t.Width;
+            currentT.TempRect.Height = t.Height;
+            foreach (TThumb item in cuParent.ChildrenSource)
             {
-                if (item != this)
+                if (item != currentT)
                 {
-                    DragTempRect.Union(new Rect(item.MyData.X, item.MyData.Y, item.Width, item.Height));
+                    currentT.TempRect.Union(new Rect(item.MyData.X, item.MyData.Y, item.Width, item.Height));
                 }
             }
         }
@@ -251,7 +231,7 @@ namespace _20220113
         public override string ToString()
         {
             //return base.ToString();
-            return $"x,y=({MyData.X}, {MyData.Y}) w,h=({MyData.Width}, {MyData.Height})";
+            return $"{Name}, x,y=({MyData.X}, {MyData.Y}) w,h=({MyData.Width}, {MyData.Height})";
         }
     }
 
@@ -304,7 +284,7 @@ namespace _20220113
         {
             IsGroup = true;
 
-            //IsEditInsideGroup = true;
+            IsEditInsideGroup = true;
 
             this.DragDelta -= TThumb_DragDelta;
             this.DragStarted -= TThumb_DragStarted;
@@ -324,11 +304,36 @@ namespace _20220113
             };
         }
 
-        //public void AddThumb(TThumb thumb)
-        //{
-        //    GroupCanvas.Children.Add(thumb);
+        /// <summary>
+        /// グループにThumbを追加
+        /// </summary>
+        /// <param name="thumb"></param>
+        public void AddThumb(TThumb thumb)
+        {
+            if (IsGroup == false) { return; }
+            GroupCanvas.Children.Add(thumb);
 
-        //}
+            //サイズ取得からLayerのサイズ変更まで
+            thumb.UpdateLayout();//これでThumbのサイズが取得できるようになる
+
+            //GroupCanvas.UpdateLayout();これでもいいけど
+            //UpdateLayout();//これでもいいけど
+            //GroupCanvas.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+
+            ChildrenSource.Add(thumb);
+            thumb.ParentThumb = this;
+            //thumb.DragDelta -= thumb.TThumb_DragDelta;
+
+            Rect r = new(MyData.X, MyData.Y, MyData.Width, MyData.Height);
+            r.Union(new Rect(thumb.MyData.X, thumb.MyData.Y, thumb.MyData.Width, thumb.MyData.Height));
+            MyData.X = r.X; MyData.Y = r.Y;
+            MyData.Width = r.Width; MyData.Height = r.Height;
+
+            //
+            thumb.DragStarted += TThumb_DragStarted;
+            thumb.DragCompleted += TThumb_DragCompleted;
+        }
+
     }
 
     public class SizeCanvas : Canvas
