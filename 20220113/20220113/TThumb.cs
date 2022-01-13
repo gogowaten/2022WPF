@@ -18,11 +18,7 @@ using System.ComponentModel;
 using System.Collections.Specialized;
 using System.Globalization;
 
-
-//Thumbサイズを計算するようにした、なにか表示したときに計算
-//グループThumbは中の要素を移動した際にも再計算
-
-namespace _20220111
+namespace _20220113
 {
     public abstract class BaseThumb : Thumb
     {
@@ -42,21 +38,15 @@ namespace _20220111
             RootCanvas.Children.Add(GroupCanvas);//グループ内要素用
             RootCanvas.Children.Add(SurfaceCanvas);//枠表示用、最前面
         }
-        public BaseThumb(FrameworkElement element) : this()
-        {
-            SetContentElement(element);
-        }
-        public void SetContentElement(FrameworkElement element)
-        {
-            RootCanvas.Children.Add(element);
-            //this.Width = element.ActualWidth;
-            //this.Height = element.ActualHeight;
-        }
+
     }
+
+
+
     public class TThumb : BaseThumb
     {
         public Data MyData = new();
-        public FrameworkElement MyContentElement { get; private set; }//表示する要素用、1個だけに限定したい
+        public FrameworkElement? MyContentElement { get; private set; }//表示する要素用、1個だけに限定したい
         public bool IsEditInsideGroup//グループ内での移動
         {
             get => isEditInsideGroup;
@@ -67,7 +57,7 @@ namespace _20220111
                 if (value)
                 {
                     this.DragDelta -= TThumb_DragDelta;
-                    foreach (var item in Children)
+                    foreach (var item in ChildrenSource)
                     {
                         item.DragDelta += item.TThumb_DragDelta;
                         item.DragStarted += item.TThumb_DragStarted;
@@ -77,7 +67,7 @@ namespace _20220111
                 else
                 {
                     this.DragDelta += TThumb_DragDelta;
-                    foreach (var item in Children)
+                    foreach (var item in ChildrenSource)
                     {
                         item.DragDelta -= item.TThumb_DragDelta;
                         item.DragStarted -= item.TThumb_DragStarted;
@@ -87,12 +77,13 @@ namespace _20220111
             }
         }
 
-        public List<TThumb> Children;
+        public IReadOnlyList<TThumb> Children => ChildrenSource;
+        protected List<TThumb> ChildrenSource { get; set; } = new();
         private bool isEditInsideGroup;//グループ内部の編集中、移動とかに使う、グループじゃなければtrueにしたくないけど…
         public bool IsGroup;//グループ判定、childrenが0なら必ずfalse
-        public bool IsMovable;//ドラッグ移動可能
-        private Rect DragTempRect = new();
-        public TThumb ParentThumb;//グループ時の親
+        //public bool IsMovable;//ドラッグ移動可能
+        private Rect DragTempRect;
+        public TThumb? ParentThumb;//グループ時の親
 
 
         public TThumb()
@@ -126,7 +117,7 @@ namespace _20220111
 
         public TThumb(FrameworkElement element) : this()
         {
-            SetContentElement(element);
+            RootCanvas.Children.Add(element);
             MyContentElement = element;
             MyContentElement.SizeChanged += MyContentElement_SizeChanged;
 
@@ -134,17 +125,17 @@ namespace _20220111
         public TThumb(List<TThumb> thumbs) : this()
         {
             IsGroup = true;
-            Children = new();
+
             for (int i = 0; i < thumbs.Count; i++)
             {
                 GroupCanvas.Children.Add(thumbs[i]);
-                Children.Add(thumbs[i]);
+                ChildrenSource.Add(thumbs[i]);
                 thumbs[i].ParentThumb = this;
             }
             Loaded += (a, b) =>
             {
                 Rect r = new();
-                foreach (TThumb item in Children)
+                foreach (TThumb item in ChildrenSource)
                 {
                     Data data = item.MyData;
                     r.Union(new Rect(data.X, data.Y, data.Width, data.Height));
@@ -155,6 +146,36 @@ namespace _20220111
             };
         }
 
+        public static TThumb CreateTextBlockThumb(string text = "TextBlock", double fontSize = 10, double x = 0, double y = 0, string name = "")
+        {
+            TextBlock tb = new() { Text = text, FontSize = fontSize };
+            TThumb t = new(tb);
+            t.MyData.X = x;
+            t.MyData.Y = y;
+            t.Name = name;
+            t.MyData.Type = TType.TextBlock;
+
+            return t;
+        }
+
+        public void AddThumb(TThumb thumb)
+        {
+            GroupCanvas.Children.Add(thumb);
+            thumb.UpdateLayout();//これでThumbのサイズが取得できるようになる
+
+            //GroupCanvas.UpdateLayout();これでもいいけど
+            //UpdateLayout();//これでもいいけど
+            //GroupCanvas.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+
+            ChildrenSource.Add(thumb);
+            thumb.ParentThumb = this;
+            //thumb.DragDelta -= thumb.TThumb_DragDelta;
+
+            Rect r = new(MyData.X, MyData.Y, MyData.Width, MyData.Height);
+            r.Union(new Rect(thumb.MyData.X, thumb.MyData.Y, thumb.MyData.Width, thumb.MyData.Height));
+            MyData.X = r.X; MyData.Y = r.Y;
+            MyData.Width = r.Width; MyData.Height = r.Height;
+        }
         //public void GetSize()
         //{
         //    var aw = MyContentElement.ActualWidth;
@@ -169,9 +190,9 @@ namespace _20220111
 
         #region イベント
         //子要素の移動終了時に自身のサイズ変更
-        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        protected void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            
+
             if (ParentThumb == null) { return; }
             if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
             DragTempRect.Union(new Rect(MyData.X, MyData.Y, Width, Height));
@@ -181,7 +202,7 @@ namespace _20220111
             ParentThumb.MyData.Width = DragTempRect.Width;
             ParentThumb.MyData.Height = DragTempRect.Height;
             //Childrenの座標変更
-            foreach (TThumb item in ParentThumb.Children)
+            foreach (TThumb item in ParentThumb.ChildrenSource)
             {
                 item.MyData.X -= DragTempRect.X;
                 item.MyData.Y -= DragTempRect.Y;
@@ -190,18 +211,18 @@ namespace _20220111
         }
 
         //子要素の移動開始時、移動する子要素以外での全体のRect取得しておく
-        private void TThumb_DragStarted(object sender, DragStartedEventArgs e)
+        protected void TThumb_DragStarted(object sender, DragStartedEventArgs e)
         {
             if (ParentThumb == null) { return; }
             if (ParentThumb.IsGroup == false || ParentThumb.IsEditInsideGroup == false) { return; }
 
-            TThumb t = ParentThumb.Children[0];
-            if (t == this) { t = ParentThumb.Children[1]; }
+            TThumb t = ParentThumb.ChildrenSource[0];
+            if (t == this) { t = ParentThumb.ChildrenSource[1]; }
             DragTempRect.X = t.MyData.X;
             DragTempRect.Y = t.MyData.Y;
             DragTempRect.Width = t.Width;
             DragTempRect.Height = t.Height;
-            foreach (TThumb item in ParentThumb.Children)
+            foreach (TThumb item in ParentThumb.ChildrenSource)
             {
                 if (item != this)
                 {
@@ -210,7 +231,7 @@ namespace _20220111
             }
         }
 
-        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        protected void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             MyData.X += e.HorizontalChange;
             MyData.Y += e.VerticalChange;
@@ -218,6 +239,8 @@ namespace _20220111
 
         private void MyContentElement_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+
+            if (MyContentElement == null) { return; }
             MyData.Width = MyContentElement.ActualWidth;
             MyData.Height = MyContentElement.ActualHeight;
         }
@@ -232,14 +255,14 @@ namespace _20220111
         }
     }
 
-    public class TTT : TThumb
-    {
-        void GetSize()
-        {
+    //public class TTT : TThumb
+    //{
+    //    void GetSize()
+    //    {
 
-        }
+    //    }
 
-    }
+    //}
 
 
 
@@ -248,6 +271,7 @@ namespace _20220111
     public class Data : System.ComponentModel.INotifyPropertyChanged
     {
         public List<Data> ChildrenDatas = new();
+        public TType Type;//外から変更できないようにしたけどわからん
 
         private double x;
         private double y;
@@ -255,9 +279,11 @@ namespace _20220111
         private double width;
         private double height;
         private Visibility visibleFrame = Visibility.Collapsed;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
         #region Notify
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnpropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        //public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnpropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -272,5 +298,57 @@ namespace _20220111
         public Visibility VisibleFrame { get => visibleFrame; set { if (value != visibleFrame) { visibleFrame = value; OnpropertyChanged(); } } }
     }
 
+    public class LayerThumb : TThumb
+    {
+        public LayerThumb()
+        {
+            IsGroup = true;
 
+            //IsEditInsideGroup = true;
+
+            this.DragDelta -= TThumb_DragDelta;
+            this.DragStarted -= TThumb_DragStarted;
+            this.DragCompleted -= TThumb_DragCompleted;
+
+            Loaded += (a, b) =>
+            {
+                Rect r = new();
+                foreach (TThumb item in ChildrenSource)
+                {
+                    Data data = item.MyData;
+                    r.Union(new Rect(data.X, data.Y, data.Width, data.Height));
+                    //item.DragDelta -= item.TThumb_DragDelta;
+                }
+                MyData.X = r.X; MyData.Y = r.Y;
+                MyData.Width = r.Width; MyData.Height = r.Height;
+            };
+        }
+
+        //public void AddThumb(TThumb thumb)
+        //{
+        //    GroupCanvas.Children.Add(thumb);
+
+        //}
+    }
+
+    public class SizeCanvas : Canvas
+    {
+        public SizeCanvas()
+        {
+
+        }
+
+        private void SizeCanvas_LayoutUpdated(object? sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public enum TType
+    {
+        Image,
+        TextBox,
+        TextBlock,
+        PathGeometry,
+    }
 }
