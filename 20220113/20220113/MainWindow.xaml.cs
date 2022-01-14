@@ -23,17 +23,20 @@ namespace _20220113
     {
         TThumb MyTThumb;
         TThumb MyGTThumb;
+        int MyCount = 0;
+        List<TThumb> MyList = new();
         public MainWindow()
         {
             InitializeComponent();
 
-           
 
+            AddElement();
+            AddElement();
 
-            MyTThumb = TThumb.CreateTextBlockThumb();
-            MyLayer1.AddThumb(MyTThumb);
-            TThumb tt = TThumb.CreateTextBlockThumb("test2", 50, 30, 30,"追加Thumb");
-            MyLayer1.AddThumb(tt);
+            //MyTThumb = TThumb.CreateTextBlockThumb("初期要素1",40,0,0,"要素1");
+            //MyLayer1.AddThumb(MyTThumb);
+            //TThumb tt = TThumb.CreateTextBlockThumb("初期要素2", 40, 30, 70,"要素2");
+            //MyLayer1.AddThumb(tt);
 
             //TextBlock tb = new() { Text = "test", FontSize = 30, Background = Brushes.MediumAquamarine };
             //tb.RenderTransform = new ScaleTransform(2, 2);
@@ -94,10 +97,17 @@ namespace _20220113
             var chi = MyLayer1.Children;
         }
 
+        private void AddElement()
+        {
+            TThumb t= TThumb.CreateTextBlockThumb($"要素{MyCount}", 30, MyCount * 30, MyCount * 50, $"要素{MyCount}");
+            MyList.Add(t);
+            MyLayer1.AddThumb(t);
+            MyCount++;
+        }
         private void ButtonTest2_Click(object sender, RoutedEventArgs e)
         {
             
-            MyLayer1.AddThumb(TThumb.CreateTextBlockThumb("addthumb", 30, 40, 40));
+            //MyLayer1.AddThumb(TThumb.CreateTextBlockThumb("追加要素1", 40, 140, 140,"追加要素1"));
             //MyGTThumb.IsEditInsideGroup = !MyGTThumb.IsEditInsideGroup;
             //if (MyGTThumb.MyData.VisibleFrame == Visibility.Visible)
             //{
@@ -107,6 +117,17 @@ namespace _20220113
             //{
             //    MyGTThumb.MyData.VisibleFrame = Visibility.Visible;
             //}
+        }
+
+        private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+        {
+            AddElement();
+        }
+
+        private void ButtonGroup1_2_Click(object sender, RoutedEventArgs e)
+        {
+            TThumb g = new(MyList.Take(2).ToList());
+            
         }
     }
 }

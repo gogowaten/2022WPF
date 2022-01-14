@@ -82,7 +82,7 @@ namespace _20220113
         private bool isEditInsideGroup;//グループ内部の編集中、移動とかに使う、グループじゃなければtrueにしたくないけど…
         public bool IsGroup;//グループ判定、childrenが0なら必ずfalse
         //public bool IsMovable;//ドラッグ移動可能
-        private Rect TempRect = new();
+        //private Rect TempRect = new();
         public TThumb? ParentThumb;//グループ時の親
 
 
@@ -169,20 +169,48 @@ namespace _20220113
             if (currentT.ParentThumb == null) { return; }
             TThumb cuParent = currentT.ParentThumb;
             if (cuParent.IsGroup == false || cuParent.IsEditInsideGroup == false) { return; }
-            var neko = currentT.TempRect;
-            var inu = cuParent.TempRect;
 
-            currentT.TempRect.Union(new Rect(currentT.MyData.X, currentT.MyData.Y, currentT.Width, currentT.Height));
-            //Parentの座標変更
-            cuParent.MyData.X += currentT.TempRect.X;
-            cuParent.MyData.Y += currentT.TempRect.Y;
-            cuParent.MyData.Width = currentT.TempRect.Width;
-            cuParent.MyData.Height = currentT.TempRect.Height;
-            //Childrenの座標変更
-            foreach (TThumb item in cuParent.ChildrenSource)
+            //currentT.TempRect.Union(new Rect(currentT.MyData.X, currentT.MyData.Y, currentT.Width, currentT.Height));
+
+            Rect temp = currentT.MyData.Bounds;// new(data.X, data.Y, data.Width, data.Height);
+            foreach (TThumb? item in cuParent.Children)
             {
-                item.MyData.X -= TempRect.X;
-                item.MyData.Y -= TempRect.Y;
+                temp.Union(item.MyData.Bounds);
+            }
+
+
+            //Parentの座標変更
+            //Layerだった場合は移動しない、サイズだけ変更
+            if (cuParent.MyData.Type == TType.Layer)
+            {
+                double xOffset = 0;
+                double yOffset = 0;
+                //全体Rectの座標がマイナスのときは全要素をOffsetする
+                if (temp.X < 0)
+                {
+                    xOffset = -temp.X;
+                    cuParent.ChildrenSource.ForEach(i => i.MyData.X += xOffset);
+                }
+                if (temp.Y < 0)
+                {
+                    yOffset = -temp.Y;
+                    cuParent.ChildrenSource.ForEach(i => i.MyData.Y += yOffset);
+                }
+                //Layerはサイズだけ変更
+                cuParent.MyData.Width = temp.Width + temp.X + xOffset;
+                cuParent.MyData.Height = temp.Height + temp.Y + yOffset;
+
+            }
+            else
+            {
+                //Parentのサイズと位置変更
+                cuParent.MyData.SetBounds(temp);
+                //Childrenの座標変更
+                foreach (TThumb item in cuParent.ChildrenSource)
+                {
+                    item.MyData.X -= temp.X;// TempRect.X;
+                    item.MyData.Y -= temp.Y;// TempRect.Y;
+                }
             }
 
         }
@@ -190,25 +218,25 @@ namespace _20220113
         //子要素の移動開始時、移動しない要素全体のRect取得しておく
         protected void TThumb_DragStarted(object sender, DragStartedEventArgs e)
         {
-            TThumb currentT = (TThumb)sender;
-            if (currentT.ParentThumb == null) { return; }
-            TThumb cuParent = currentT.ParentThumb;
-            if (cuParent.IsGroup == false || cuParent.IsEditInsideGroup == false) { return; }
+            //TThumb currentT = (TThumb)sender;
+            //if (currentT.ParentThumb == null) { return; }
+            //TThumb cuParent = currentT.ParentThumb;
+            //if (cuParent.IsGroup == false || cuParent.IsEditInsideGroup == false) { return; }
 
-            TThumb t = cuParent.ChildrenSource[0];
-            if (t == currentT) { t = cuParent.ChildrenSource[1]; }
+            //TThumb t = cuParent.ChildrenSource[0];
+            //if (t == currentT) { t = cuParent.ChildrenSource[1]; }
 
-            currentT.TempRect.X = t.MyData.X;
-            currentT.TempRect.Y = t.MyData.Y;
-            currentT.TempRect.Width = t.Width;
-            currentT.TempRect.Height = t.Height;
-            foreach (TThumb item in cuParent.ChildrenSource)
-            {
-                if (item != currentT)
-                {
-                    currentT.TempRect.Union(new Rect(item.MyData.X, item.MyData.Y, item.Width, item.Height));
-                }
-            }
+            //currentT.TempRect.X = t.MyData.X;
+            //currentT.TempRect.Y = t.MyData.Y;
+            //currentT.TempRect.Width = t.Width;
+            //currentT.TempRect.Height = t.Height;
+            //foreach (TThumb item in cuParent.ChildrenSource)
+            //{
+            //    if (item != currentT)
+            //    {
+            //        currentT.TempRect.Union(new Rect(item.MyData.X, item.MyData.Y, item.Width, item.Height));
+            //    }
+            //}
         }
 
         protected void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
@@ -252,13 +280,16 @@ namespace _20220113
     {
         public List<Data> ChildrenDatas = new();
         public TType Type;//外から変更できないようにしたけどわからん
+        public Rect Bounds { get; private set; }
 
         private double x;
         private double y;
         private int z;
         private double width;
         private double height;
-        private Visibility visibleFrame = Visibility.Collapsed;
+        private Visibility visibleFrame = Visibility.Visible;
+        private Rect rR;
+        private Rect rR1;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         #region Notify
@@ -269,13 +300,23 @@ namespace _20220113
         }
         #endregion Notify
 
-        public double X { get => x; set { if (value != x) { x = value; OnpropertyChanged(); } } }
-        public double Y { get => y; set { if (value != y) { y = value; OnpropertyChanged(); } } }
+        public double X { get => x; set { if (value != x) { x = value; OnpropertyChanged(); Bounds = new Rect(value, y, width, height); } } }
+        public double Y { get => y; set { if (value != y) { y = value; OnpropertyChanged(); Bounds = new Rect(x, value, width, height); } } }
         public int Z { get => z; set { if (value != z) { z = value; OnpropertyChanged(); } } }
-        public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); } } }
+        public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); Bounds = new Rect(x, y, value, height); } } }
         //public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); } } }
-        public double Height { get => height; set { if (value != height) { height = value; OnpropertyChanged(); } } }
+        public double Height { get => height; set { if (value != height) { height = value; OnpropertyChanged(); Bounds = new Rect(x, y, width, value); } } }
         public Visibility VisibleFrame { get => visibleFrame; set { if (value != visibleFrame) { visibleFrame = value; OnpropertyChanged(); } } }
+
+
+        public void SetBounds(Rect bounds)
+        {
+            Bounds = bounds;
+            X = bounds.X;
+            Y = bounds.Y;
+            Width = bounds.Width;
+            Height = bounds.Height;
+        }
     }
 
     public class LayerThumb : TThumb
@@ -351,9 +392,13 @@ namespace _20220113
 
     public enum TType
     {
+        Layer,
         Image,
         TextBox,
         TextBlock,
         PathGeometry,
     }
+
+
+
 }
