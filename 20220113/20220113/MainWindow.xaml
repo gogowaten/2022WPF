@@ -20,7 +20,7 @@
       <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
       <Button x:Name="ButtonTest2" Content="移動切り替え" Click="ButtonTest2_Click"/>
       <Button x:Name="ButtonAdd" Content="要素追加" Click="ButtonAdd_Click"/>
-      <Button x:Name="ButtonGroup1_2" Content="1と2をグループ化" Click="ButtonGroup1_2_Click"/>
+      <!--<Button x:Name="ButtonGroup1_2" Content="1と2をグループ化" Click="ButtonGroup1_2_Click"/>-->
     </StackPanel>
   </Grid>
 </Window>
