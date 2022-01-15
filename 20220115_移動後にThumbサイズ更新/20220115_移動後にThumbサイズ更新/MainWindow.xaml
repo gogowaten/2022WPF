@@ -6,7 +6,19 @@
         xmlns:local="clr-namespace:_20220115_移動後にThumbサイズ更新"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas x:Name="MyCanvas">
+      <Border Width="100" Height="100" Background="Red"/>
+      <local:LayerThumb x:Name="MyLayer1"/>
+    </Canvas>
 
-    </Grid>
+    <StackPanel x:Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
+      <Button x:Name="ButtonAdd" Content="要素追加" Click="ButtonAdd_Click"/>
+    </StackPanel>
+  </Grid>
 </Window>

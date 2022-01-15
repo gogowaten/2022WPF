@@ -12,17 +12,40 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
+
 
 namespace _20220115_移動後にThumbサイズ更新
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
+
+        int MyCount = 10;
+        List<TThumb> MyList = new();
         public MainWindow()
         {
             InitializeComponent();
+
         }
+
+
+        private void ButtonTest_Click(object sender, RoutedEventArgs e)
+        {
+            var chi = MyLayer1.Children;
+        }
+
+        private void AddElement()
+        {
+            TThumb t = TThumb.CreateTextBlockThumb($"要素{MyCount}", 30, MyCount * 30, MyCount * 50, $"要素{MyCount}");
+            MyList.Add(t);
+            MyLayer1.AddThumb(t);
+            MyCount++;
+        }
+
+        private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+        {
+            AddElement();
+        }
+
     }
 }
