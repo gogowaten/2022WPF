@@ -30,8 +30,8 @@ namespace _20220113
             InitializeComponent();
 
 
-            AddElement();
-            AddElement();
+            //AddElement();
+            //AddElement();
 
             //MyTThumb = TThumb.CreateTextBlockThumb("初期要素1",40,0,0,"要素1");
             //MyLayer1.AddThumb(MyTThumb);
@@ -122,12 +122,14 @@ namespace _20220113
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
             AddElement();
+            //MyGTThumb.chil
+            //MyGTThumb.GroupCanvas.Children.Add
         }
 
         private void ButtonGroup1_2_Click(object sender, RoutedEventArgs e)
         {
-            TThumb g = new(MyList.Take(2).ToList());
-            
+            //TThumb g = new(MyList.Take(2).ToList());
+            TThumb.ToGroup(MyList.Take(2).ToList());
         }
     }
 }
