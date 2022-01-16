@@ -129,7 +129,7 @@ namespace _20220113
         private void ButtonGroup1_2_Click(object sender, RoutedEventArgs e)
         {
             //TThumb g = new(MyList.Take(2).ToList());
-            TThumb.ToGroup(MyList.Take(2).ToList());
+            MyLayer1.ToGroup(MyList.Take(2).ToList(),"G1");
         }
     }
 }

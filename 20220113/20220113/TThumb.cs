@@ -123,95 +123,50 @@ namespace _20220113
             MyContentElement.SizeChanged += MyContentElement_SizeChanged;
 
         }
-        public TThumb(List<TThumb> thumbs) : this()
+      
+
+        public void AddThumb(TThumb thumb, int zIndex = -1)
         {
-            IsGroup = true;
-            thumbs[0].ParentThumb?.ChildrenSource.Add(this);
-            thumbs[0].ParentThumb?.GroupCanvas.Children.Add(this);
+            if (IsGroup == false) { return; }
+            GroupCanvas.Children.Add(thumb);
+            thumb.ParentThumb = this;
 
-            for (int i = 0; i < thumbs.Count; i++)
+
+            //ZIndexの位置にThumb追加、指定がなければ末尾に追加
+            if (zIndex == -1)
             {
-                thumbs[i].ParentThumb?.GroupCanvas.Children.Remove(thumbs[i]);
-                thumbs[i].ParentThumb?.ChildrenSource.Remove(thumbs[i]);
-
-                GroupCanvas.Children.Add(thumbs[i]);
-                ChildrenSource.Add(thumbs[i]);
-                thumbs[i].ParentThumb = this;
+                thumb.MyData.Z = ChildrenSource.Count;
+                ChildrenSource.Add(thumb);
             }
-            Loaded += (a, b) =>
+            else
             {
-                Rect r = new();
-                foreach (TThumb item in ChildrenSource)
-                {
-                    Data data = item.MyData;
-                    r.Union(new Rect(data.X, data.Y, data.Width, data.Height));
-                    item.DragDelta -= item.TThumb_DragDelta;
-                }
-                MyData.X = r.X; MyData.Y = r.Y;
-                MyData.Width = r.Width; MyData.Height = r.Height;
-            };
-        }
-
-        public static void ToGroup(List<TThumb> thumbs)
-        {
-            TThumb? parent = thumbs[0].ParentThumb;
-            if (parent == null) { throw new ArgumentException("Parentがnull"); }
-            if (IsParentEqual(thumbs) == false) { throw new ArgumentException("Parentが同一ではない"); }
-
-            //グループThumb作成
-            TThumb group = new();
-            group.IsGroup = true;
-            group.ParentThumb = parent;
-            //ZIndex
-            int maxZ = thumbs.Max(a => a.MyData.Z);
-            int minZ = thumbs.Min(a => a.MyData.Z);
-            //追加
-            parent.ChildrenSource.Insert(maxZ, group);
-            parent.GroupCanvas.Children.Add(group);
-
-            //要素群をZIndex順に並べ替えたリスト作成
-            List<TThumb>? items = thumbs.OrderBy(i => i.MyData.Z).ToList();
-            //要素群を元の親から外してから、グループThumbの子要素にする
-            for (int i = 0; i < items.Count; i++)
-            {
-                TThumb tt = items[i];
-                //外す
-                parent.ChildrenSource.Remove(tt);
-                parent.GroupCanvas.Children.Remove(tt);
-
-                //追加
-                tt.ParentThumb = group;
-                tt.MyData.Z = i;
-                group.ChildrenSource.Add(tt);
-                group.GroupCanvas.Children.Add(tt);
-
-                //ドラッグイベント
-                tt.DragDelta -= tt.TThumb_DragDelta;
-                tt.DragCompleted -= tt.TThumb_DragCompleted;
+                thumb.MyData.Z = zIndex;
+                ChildrenSource.Insert(zIndex, thumb);
             }
 
-            //グループThumb
-            //ZIndexを指定する、前に詰める
-            for (int i = minZ; i < parent.ChildrenSource.Count; i++)
+
+            //サイズ取得からLayerのサイズ変更まで
+            thumb.UpdateLayout();//これでThumbのサイズが取得できるようになる
+
+            //GroupCanvas.UpdateLayout();これでもいいけど
+            //UpdateLayout();//これでもいいけど
+            //GroupCanvas.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Render);
+
+            Rect r = new(MyData.X, MyData.Y, MyData.Width, MyData.Height);
+            r.Union(new Rect(thumb.MyData.X, thumb.MyData.Y, thumb.MyData.Width, thumb.MyData.Height));
+            MyData.X = r.X; MyData.Y = r.Y;
+            MyData.Width = r.Width; MyData.Height = r.Height;
+
+            if (this.MyData.Type == TType.Layer)
             {
-                parent.ChildrenSource[i].MyData.Z = i;
-                Panel.SetZIndex(parent.ChildrenSource[i], i);
+                thumb.DragCompleted += thumb.TThumb_DragCompleted;
             }
+          
 
 
         }
-        private static bool IsParentEqual(List<TThumb> items)
-        {
-            TThumb? parent = items[0].ParentThumb;
-            foreach (var item in items)
-            {
-                if (parent != item.ParentThumb)
-                {
-                    return false;
-                }
-            }
-            return true;
-        }
+
+
         public static TThumb CreateTextBlockThumb(string text = "TextBlock", double fontSize = 10, double x = 0, double y = 0, string name = "")
         {
             TextBlock tb = new() { Text = text, FontSize = fontSize };
@@ -228,7 +183,7 @@ namespace _20220113
 
         #region イベント
         //子要素の移動終了時に自身のサイズ変更、一番上までサイズ変更？
-        protected void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        public void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             TThumb currentT = (TThumb)sender;
             if (currentT.ParentThumb == null) { return; }
@@ -286,7 +241,7 @@ namespace _20220113
 
         //}
 
-        protected void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        public void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             MyData.X += e.HorizontalChange;
             MyData.Y += e.VerticalChange;
@@ -345,8 +300,6 @@ namespace _20220113
         private double width;
         private double height;
         private Visibility visibleFrame = Visibility.Visible;
-        private Rect rR;
-        private Rect rR1;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         #region Notify
@@ -381,11 +334,10 @@ namespace _20220113
         public LayerThumb()
         {
             IsGroup = true;
-
+            this.MyData.Type = TType.Layer;
             IsEditInsideGroup = true;
 
             this.DragDelta -= TThumb_DragDelta;
-            //this.DragStarted -= TThumb_DragStarted;
             this.DragCompleted -= TThumb_DragCompleted;
 
             Loaded += (a, b) =>
@@ -401,48 +353,66 @@ namespace _20220113
             };
         }
 
-        /// <summary>
-        /// グループにThumbを追加
-        /// </summary>
-        /// <param name="thumb"></param>
-        public void AddThumb(TThumb thumb, int zIndex = -1)
-        {
-            if (IsGroup == false) { return; }
-            GroupCanvas.Children.Add(thumb);
-            thumb.ParentThumb = this;
+   
+        public void ToGroup(List<TThumb> thumbs, string groupName = "")
+        {  
+            //グループThumb作成
+            TThumb group = new();
+            group.IsGroup = true;
+            group.ParentThumb = this;
+            group.Name = groupName;
+            group.MyData.Type = TType.Group;
+            group.DragCompleted += TThumb_DragCompleted;
 
+            //ZIndex
+            int maxZ = thumbs.Max(a => a.MyData.Z);
+            int minZ = thumbs.Min(a => a.MyData.Z);
+            //追加
+            this.ChildrenSource.Insert(maxZ, group);
+            this.GroupCanvas.Children.Add(group);
 
-            //ZIndexの位置にThumb追加、指定がなければ末尾に追加
-            if (zIndex == -1)
+            //要素群をZIndex順に並べ替えたリスト作成
+            List<TThumb>? items = thumbs.OrderBy(i => i.MyData.Z).ToList();
+            //要素群を元の親から外してから、グループThumbの子要素にする
+            for (int i = 0; i < items.Count; i++)
             {
-                thumb.MyData.Z = ChildrenSource.Count;
-                ChildrenSource.Add(thumb);
+                TThumb tt = items[i];
+                //Layerから外す
+                this.ChildrenSource.Remove(tt);
+                this.GroupCanvas.Children.Remove(tt);
+
+                //グループThumbに追加
+                tt.ParentThumb = group;
+                tt.MyData.Z = i;
+                group.AddThumb(tt);
+
+                //ドラッグイベント
+                tt.DragDelta -= tt.TThumb_DragDelta;
+                tt.DragCompleted -= tt.TThumb_DragCompleted;
             }
-            else
+
+            //グループThumb
+            //ZIndexを指定する、前に詰める
+            for (int i = minZ; i < this.ChildrenSource.Count; i++)
             {
-                thumb.MyData.Z = zIndex;
-                ChildrenSource.Insert(zIndex, thumb);
+                this.ChildrenSource[i].MyData.Z = i;
+                Panel.SetZIndex(this.ChildrenSource[i], i);
             }
 
-
-            //サイズ取得からLayerのサイズ変更まで
-            thumb.UpdateLayout();//これでThumbのサイズが取得できるようになる
-
-            //GroupCanvas.UpdateLayout();これでもいいけど
-            //UpdateLayout();//これでもいいけど
-            //GroupCanvas.Dispatcher.Invoke(() => { }, System.Windows.Threading.DispatcherPriority.Render);
-
-            Rect r = new(MyData.X, MyData.Y, MyData.Width, MyData.Height);
-            r.Union(new Rect(thumb.MyData.X, thumb.MyData.Y, thumb.MyData.Width, thumb.MyData.Height));
-            MyData.X = r.X; MyData.Y = r.Y;
-            MyData.Width = r.Width; MyData.Height = r.Height;
-
-            //thumb.DragDelta -= thumb.TThumb_DragDelta;
-            //thumb.DragStarted += TThumb_DragStarted;
-            thumb.DragCompleted += TThumb_DragCompleted;
 
         }
-
+        private static bool IsParentEqual(List<TThumb> items)
+        {
+            TThumb? parent = items[0].ParentThumb;
+            foreach (var item in items)
+            {
+                if (parent != item.ParentThumb)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 
     public class SizeCanvas : Canvas
@@ -460,7 +430,8 @@ namespace _20220113
 
     public enum TType
     {
-        Layer,
+        Layer = 1,
+        Group,
         Image,
         TextBox,
         TextBlock,
