@@ -14,43 +14,32 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
 
-namespace _20220113
+//要素追加ボタンで追加してからグループ化ボタン
+//クリックでFocus
+//Focusがグループのときに編集開始ボタンで中の要素を移動できる、けど
+//グループの中のグループの中の要素はうごかない
+
+namespace _20220117_グループ化に伴うサイズ変更
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+ 
+    //
     public partial class MainWindow : Window
     {
-        TThumb MyTThumb;
-        TThumb MyGTThumb;
         int MyCount = 0;
         List<TThumb> MyList = new();
         private TThumb FocusTT;
         TThumb MyG1;
         TThumb MyG2;
 
-        
+
 
         public MainWindow()
         {
             InitializeComponent();
 
-            
+
         }
 
-        private TextBlock MakeTextBlock(string text)
-        {
-            TextBlock tb = new()
-            {
-                Text = text,
-                FontSize = 30,
-                Background = new SolidColorBrush(Color.FromArgb(200, 100, 200, 150)),
-                Foreground = Brushes.White,
-                Padding = new Thickness(10),
-                //RenderTransform = new ScaleTransform(2, 2),
-            };
-            return tb;
-        }
 
 
         private void AddElement()
@@ -117,7 +106,7 @@ namespace _20220113
 
         private void ButtonGroupG1G2_Click(object sender, RoutedEventArgs e)
         {
-            MyLayer1.ToGroup(new List<TThumb>() { MyG1, MyG2 },"G3").GotFocus+=T_GotFocus;
+            MyLayer1.ToGroup(new List<TThumb>() { MyG1, MyG2 }).GotFocus += T_GotFocus;
         }
     }
 }

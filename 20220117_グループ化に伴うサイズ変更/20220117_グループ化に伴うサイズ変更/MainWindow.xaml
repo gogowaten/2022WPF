@@ -1,0 +1,39 @@
+﻿<Window x:Class="_20220117_グループ化に伴うサイズ変更.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220117_グループ化に伴うサイズ変更"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas x:Name="MyCanvas">
+      <Border Width="100" Height="100" Background="Red"/>
+      <local:LayerThumb x:Name="MyLayer1"/>
+    </Canvas>
+
+    <StackPanel x:Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
+      <Button x:Name="ButtonTest2" Content="test2" Click="ButtonTest2_Click"/>
+      <Button x:Name="ButtonAdd" Content="要素追加" Click="ButtonAdd_Click"/>
+      <Button x:Name="ButtonGroup0_1" Content="0と1をグループ化G1" Click="ButtonGroup0_1_Click"/>
+      <Button x:Name="ButtonGroup2_3" Content="2と3をグループ化G2" Click="ButtonGroup2_3_Click"/>
+      <Button x:Name="ButtonGroupG1G2" Content="G1とG2をグループ化G3" Click="ButtonGroupG1G2_Click"/>
+      <Button x:Name="ButtonBeginGroupEdit" Content="グループ編集開始" Click="ButtonBeginGroupEdit_Click"/>
+      <Button x:Name="ButtonEndGroupEdit" Content="グループ編集終了" Click="ButtonEndGroupEdit_Click"/>
+      <Separator/>
+      <TextBlock Text="{Binding Path=MyData.Name}"/>
+      <TextBlock Text="{Binding Path=MyData.Bounds}"/>
+      <TextBlock Text="{Binding Path=MyData.X, Mode=TwoWay, StringFormat=X \= {0}}"/>
+      <TextBlock Text="{Binding Path=MyData.Y, Mode=TwoWay, StringFormat=Y \= {0}}"/>
+      <TextBlock Text="{Binding Path=MyData.Z, Mode=TwoWay, StringFormat=Z \= {0}}"/>
+      <TextBlock Text="{Binding Path=MovableThumb}"/>
+      <TextBlock Text="{Binding Path=MovableThumb.MyData}"/>
+    </StackPanel>
+  </Grid>
+
+</Window>
