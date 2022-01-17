@@ -22,8 +22,17 @@
       <Button x:Name="ButtonAdd" Content="要素追加" Click="ButtonAdd_Click"/>
       <Button x:Name="ButtonGroup0_1" Content="0と1をグループ化G1" Click="ButtonGroup0_1_Click"/>
       <Button x:Name="ButtonGroup2_3" Content="2と3をグループ化G2" Click="ButtonGroup2_3_Click"/>
+      <Button x:Name="ButtonGroupG1G2" Content="G1とG2をグループ化G3" Click="ButtonGroupG1G2_Click"/>
       <Button x:Name="ButtonBeginGroupEdit" Content="グループ編集開始" Click="ButtonBeginGroupEdit_Click"/>
       <Button x:Name="ButtonEndGroupEdit" Content="グループ編集終了" Click="ButtonEndGroupEdit_Click"/>
+      <Separator/>
+      <TextBlock Text="{Binding Path=MyData.Name}"/>
+      <TextBlock Text="{Binding Path=MyData.Bounds}"/>
+      <TextBlock Text="{Binding Path=MyData.X, Mode=TwoWay, StringFormat=X \= {0}}"/>
+      <TextBlock Text="{Binding Path=MyData.Y, Mode=TwoWay, StringFormat=Y \= {0}}"/>
+      <TextBlock Text="{Binding Path=MyData.Z, Mode=TwoWay, StringFormat=Z \= {0}}"/>
+      <TextBlock Text="{Binding Path=MovableThumb}"/>
+      <TextBlock Text="{Binding Path=MovableThumb.MyData}"/>
     </StackPanel>
   </Grid>
 </Window>

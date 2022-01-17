@@ -45,7 +45,7 @@ namespace _20220113
 
     public class TThumb : BaseThumb
     {
-        public Data MyData = new();
+        public Data MyData { get; set; } = new();
         public FrameworkElement? MyContentElement { get; private set; }//表示する要素用、1個だけに限定したい
         public bool IsEditInsideGroup//グループ内での移動
         {
@@ -85,7 +85,8 @@ namespace _20220113
         //public bool IsMovable;//ドラッグ移動可能
         //private Rect TempRect = new();
         public TThumb? ParentThumb;//グループ時の親
-        public TThumb FocusTT;
+        public TThumb? MovableThumb { get; set; }//一番上のグループ、通常動かすThumb、なければ自分
+        public TThumb? FocusTT;
 
         public TThumb()
         {
@@ -93,12 +94,14 @@ namespace _20220113
             //this.SetBinding(Thumb.WidthProperty, new Binding(nameof(MyData.Width)));
             MySetTwoWayModeBinding(Thumb.WidthProperty, nameof(MyData.Width));
             MySetTwoWayModeBinding(Thumb.HeightProperty, nameof(MyData.Height));
+            MySetTwoWayModeBinding(Thumb.NameProperty, nameof(MyData.Name));
             MySetTwoWayModeBinding(Canvas.LeftProperty, nameof(MyData.X));
             MySetTwoWayModeBinding(Canvas.TopProperty, nameof(MyData.Y));
 
             this.Focusable = true;
             this.DragDelta += TThumb_DragDelta;
             this.GotFocus += TThumb_GotFocus;
+            this.MovableThumb = this;
 
             //枠表示用Rectangle
             Rectangle rectangle = new();
@@ -117,7 +120,38 @@ namespace _20220113
             if (this.ParentThumb != null)
             {
                 this.ParentThumb.FocusTT = this;
+                //TThumb tt = GetFocusGroupThumb(this);
+                //tt.Focus();
             }
+        }
+        protected TThumb GetFocusGroupThumb(TThumb thumb)
+        {
+            if (thumb.ParentThumb == null) { return thumb; }
+            TThumb pa = thumb.ParentThumb;
+            TThumb tt = thumb;
+            if (pa.IsGroup && pa.MyData.Type != TType.Layer)
+            {
+                tt = GetFocusGroupThumb(pa);
+            }
+            return tt;
+        }
+        public void ReplaceMovableThumb(TThumb thumb, TThumb movable)
+        {
+            thumb.MovableThumb = movable;
+            if (thumb.ChildrenSource.Count == 0) { return; }
+            foreach (TThumb? item in thumb.ChildrenSource)
+            {
+                item.ReplaceMovableThumb(item, movable);
+            }
+            //if (thumb.ParentThumb == null) { return; }
+            //if (thumb.ParentThumb.MyData.Type == TType.Layer)
+            //{
+            //    thumb.MovableThumb = this;
+            //}
+            //else if (thumb.ParentThumb.IsGroup)
+            //{
+            //    ReplaceMovableThumb(thumb.ParentThumb);
+            //}
         }
 
         private void MySetTwoWayModeBinding(DependencyProperty property, string path)
@@ -302,7 +336,16 @@ namespace _20220113
     {
         public List<Data> ChildrenDatas = new();
         public TType Type;//外から変更できないようにしたけどわからん
-        public Rect Bounds { get; private set; }
+        public Rect Bounds { get => bounds;
+            private set
+            {
+                if (value != bounds)
+                {
+                    bounds = value; OnpropertyChanged();
+                    SetBounds(value);
+                }
+            }
+        }
 
         private double x;
         private double y;
@@ -310,6 +353,8 @@ namespace _20220113
         private double width;
         private double height;
         private Visibility visibleFrame = Visibility.Visible;
+        private string name = "";
+        private Rect bounds;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         #region Notify
@@ -327,7 +372,7 @@ namespace _20220113
         //public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); } } }
         public double Height { get => height; set { if (value != height) { height = value; OnpropertyChanged(); Bounds = new Rect(x, y, width, value); } } }
         public Visibility VisibleFrame { get => visibleFrame; set { if (value != visibleFrame) { visibleFrame = value; OnpropertyChanged(); } } }
-
+        public string Name { get => name; set { if (value != name) { name = value; OnpropertyChanged(); } } }
 
         public void SetBounds(Rect bounds)
         {
@@ -339,6 +384,8 @@ namespace _20220113
         }
     }
 
+
+
     public class LayerThumb : TThumb
     {
         public LayerThumb()
@@ -347,6 +394,7 @@ namespace _20220113
             this.MyData.Type = TType.Layer;
             IsEditInsideGroup = true;
 
+            this.Focusable = false;
             this.DragDelta -= TThumb_DragDelta;
             this.DragCompleted -= TThumb_DragCompleted;
             this.GotFocus -= TThumb_GotFocus;
@@ -365,9 +413,9 @@ namespace _20220113
         }
 
 
-        public void ToGroup(List<TThumb> thumbs, string groupName = "")
+        public TThumb ToGroup(List<TThumb> thumbs, string groupName = "")
         {
-            if (thumbs.Count < 2) { return; }
+            if (thumbs.Count < 2) { throw new ArgumentException("Thumb数が2未満"); }
             //グループThumb作成
             TThumb group = new();
             group.IsGroup = true;
@@ -401,6 +449,12 @@ namespace _20220113
                 //ドラッグイベント
                 tt.DragDelta -= tt.TThumb_DragDelta;
                 tt.DragCompleted -= tt.TThumb_DragCompleted;
+                ////フォーカスしないようにする
+                //tt.Focusable = false;
+
+                //下にある全ての要素のMovableThumbの書き換え
+                tt.MovableThumb = group;
+                tt.ReplaceMovableThumb(tt, group);
             }
 
             //グループThumb
@@ -417,11 +471,14 @@ namespace _20220113
                 rect.Union(items[i].MyData.Bounds);
             }
             group.MyData.SetBounds(rect);
+
+            //要素群の座標調整
             foreach (var item in items)
             {
                 item.MyData.X -= rect.X;
                 item.MyData.Y -= rect.Y;
             }
+            return group;
         }
 
         private static bool IsParentEqual(List<TThumb> items)

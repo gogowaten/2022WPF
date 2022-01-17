@@ -25,13 +25,17 @@ namespace _20220113
         TThumb MyGTThumb;
         int MyCount = 0;
         List<TThumb> MyList = new();
-        TThumb FocusTT;
+        private TThumb FocusTT;
+        TThumb MyG1;
+        TThumb MyG2;
+
+        
 
         public MainWindow()
         {
             InitializeComponent();
 
-
+            
         }
 
         private TextBlock MakeTextBlock(string text)
@@ -54,12 +58,21 @@ namespace _20220113
             TThumb t = TThumb.CreateTextBlockThumb($"要素{MyCount}", 30, MyCount * 30, MyCount * 50, $"要素{MyCount}");
             MyList.Add(t);
             MyLayer1.AddThumb(t);
+            t.GotFocus += T_GotFocus;
             MyCount++;
+        }
+
+        private void T_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TThumb tt = (TThumb)sender;
+            MyStackPanel.DataContext = tt;
+            FocusTT = tt;
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
             var chi = MyLayer1.Children;
+            var focus = MyLayer1.FocusTT;
         }
         private void ButtonTest2_Click(object sender, RoutedEventArgs e)
         {
@@ -76,7 +89,8 @@ namespace _20220113
         private void ButtonGroup0_1_Click(object sender, RoutedEventArgs e)
         {
             //TThumb g = new(MyList.Take(2).ToList());
-            MyLayer1.ToGroup(MyList.Take(2).ToList(), "G1");
+            MyG1 = MyLayer1.ToGroup(MyList.Take(2).ToList(), "G1");
+            MyG1.GotFocus += T_GotFocus;
         }
 
         private void ButtonBeginGroupEdit_Click(object sender, RoutedEventArgs e)
@@ -97,9 +111,13 @@ namespace _20220113
 
         private void ButtonGroup2_3_Click(object sender, RoutedEventArgs e)
         {
-            MyLayer1.ToGroup(MyList.GetRange(2, 2), "G2");
+            MyG2 = MyLayer1.ToGroup(MyList.GetRange(2, 2), "G2");
+            MyG2.GotFocus += T_GotFocus;
         }
 
-
+        private void ButtonGroupG1G2_Click(object sender, RoutedEventArgs e)
+        {
+            MyLayer1.ToGroup(new List<TThumb>() { MyG1, MyG2 }).GotFocus+=T_GotFocus;
+        }
     }
 }
