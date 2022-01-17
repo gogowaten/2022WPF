@@ -20,7 +20,7 @@ namespace _20220115_移動後にThumbサイズ更新
     public partial class MainWindow : Window
     {
 
-        int MyCount = 10;
+        int MyCount = 1;
         List<TThumb> MyList = new();
         public MainWindow()
         {

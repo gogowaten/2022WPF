@@ -18,9 +18,12 @@
 
     <StackPanel x:Name="MyStackPanel" Grid.Column="1">
       <Button x:Name="ButtonTest" Content="test" Click="ButtonTest_Click"/>
-      <Button x:Name="ButtonTest2" Content="移動切り替え" Click="ButtonTest2_Click"/>
+      <Button x:Name="ButtonTest2" Content="test2" Click="ButtonTest2_Click"/>
       <Button x:Name="ButtonAdd" Content="要素追加" Click="ButtonAdd_Click"/>
-      <Button x:Name="ButtonGroup1_2" Content="1と2をグループ化" Click="ButtonGroup1_2_Click"/>
+      <Button x:Name="ButtonGroup0_1" Content="0と1をグループ化G1" Click="ButtonGroup0_1_Click"/>
+      <Button x:Name="ButtonGroup2_3" Content="2と3をグループ化G2" Click="ButtonGroup2_3_Click"/>
+      <Button x:Name="ButtonBeginGroupEdit" Content="グループ編集開始" Click="ButtonBeginGroupEdit_Click"/>
+      <Button x:Name="ButtonEndGroupEdit" Content="グループ編集終了" Click="ButtonEndGroupEdit_Click"/>
     </StackPanel>
   </Grid>
 </Window>

@@ -52,6 +52,7 @@ namespace _20220113
             get => isEditInsideGroup;
             set
             {
+                if (value == isEditInsideGroup) { return; }
                 if (IsGroup == false) { return; }
                 isEditInsideGroup = value;
                 if (value)
@@ -84,7 +85,7 @@ namespace _20220113
         //public bool IsMovable;//ドラッグ移動可能
         //private Rect TempRect = new();
         public TThumb? ParentThumb;//グループ時の親
-
+        public TThumb FocusTT;
 
         public TThumb()
         {
@@ -95,7 +96,9 @@ namespace _20220113
             MySetTwoWayModeBinding(Canvas.LeftProperty, nameof(MyData.X));
             MySetTwoWayModeBinding(Canvas.TopProperty, nameof(MyData.Y));
 
-            DragDelta += TThumb_DragDelta;
+            this.Focusable = true;
+            this.DragDelta += TThumb_DragDelta;
+            this.GotFocus += TThumb_GotFocus;
 
             //枠表示用Rectangle
             Rectangle rectangle = new();
@@ -108,6 +111,15 @@ namespace _20220113
             rectangle.SetBinding(VisibilityProperty, nameof(MyData.VisibleFrame));
 
         }
+
+        protected void TThumb_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (this.ParentThumb != null)
+            {
+                this.ParentThumb.FocusTT = this;
+            }
+        }
+
         private void MySetTwoWayModeBinding(DependencyProperty property, string path)
         {
             Binding b = new(path);
@@ -123,7 +135,7 @@ namespace _20220113
             MyContentElement.SizeChanged += MyContentElement_SizeChanged;
 
         }
-      
+
 
         public void AddThumb(TThumb thumb, int zIndex = -1)
         {
@@ -143,7 +155,7 @@ namespace _20220113
                 thumb.MyData.Z = zIndex;
                 ChildrenSource.Insert(zIndex, thumb);
             }
-
+            Panel.SetZIndex(thumb, thumb.MyData.Z);
 
             //サイズ取得からLayerのサイズ変更まで
             thumb.UpdateLayout();//これでThumbのサイズが取得できるようになる
@@ -161,7 +173,7 @@ namespace _20220113
             {
                 thumb.DragCompleted += thumb.TThumb_DragCompleted;
             }
-          
+
 
 
         }
@@ -205,17 +217,11 @@ namespace _20220113
             {
                 double xOffset = 0;
                 double yOffset = 0;
-                //全体Rectの座標がマイナスのときは全要素をOffsetする
-                if (temp.X < 0)
-                {
-                    xOffset = -temp.X;
-                    cuParent.ChildrenSource.ForEach(i => i.MyData.X += xOffset);
-                }
-                if (temp.Y < 0)
-                {
-                    yOffset = -temp.Y;
-                    cuParent.ChildrenSource.ForEach(i => i.MyData.Y += yOffset);
-                }
+                xOffset = -temp.X;
+                cuParent.ChildrenSource.ForEach(i => i.MyData.X += xOffset);
+                yOffset = -temp.Y;
+                cuParent.ChildrenSource.ForEach(i => i.MyData.Y += yOffset);
+
                 //Layerはサイズだけ変更
                 cuParent.MyData.Width = temp.Width + temp.X + xOffset;
                 cuParent.MyData.Height = temp.Height + temp.Y + yOffset;
@@ -224,12 +230,16 @@ namespace _20220113
             else
             {
                 //Parentのサイズと位置変更
-                cuParent.MyData.SetBounds(temp);
+                cuParent.MyData.X += temp.X;
+                cuParent.MyData.Y += temp.Y;
+                cuParent.MyData.Width = temp.Width;
+                cuParent.MyData.Height = temp.Height;
+
                 //Childrenの座標変更
                 foreach (TThumb item in cuParent.ChildrenSource)
                 {
-                    item.MyData.X -= temp.X;// TempRect.X;
-                    item.MyData.Y -= temp.Y;// TempRect.Y;
+                    item.MyData.X -= temp.X;
+                    item.MyData.Y -= temp.Y;
                 }
             }
 
@@ -339,6 +349,7 @@ namespace _20220113
 
             this.DragDelta -= TThumb_DragDelta;
             this.DragCompleted -= TThumb_DragCompleted;
+            this.GotFocus -= TThumb_GotFocus;
 
             Loaded += (a, b) =>
             {
@@ -353,9 +364,10 @@ namespace _20220113
             };
         }
 
-   
+
         public void ToGroup(List<TThumb> thumbs, string groupName = "")
-        {  
+        {
+            if (thumbs.Count < 2) { return; }
             //グループThumb作成
             TThumb group = new();
             group.IsGroup = true;
@@ -398,9 +410,20 @@ namespace _20220113
                 this.ChildrenSource[i].MyData.Z = i;
                 Panel.SetZIndex(this.ChildrenSource[i], i);
             }
-
-
+            //サイズと座標
+            Rect rect = items[0].MyData.Bounds;
+            for (int i = 1; i < items.Count; i++)
+            {
+                rect.Union(items[i].MyData.Bounds);
+            }
+            group.MyData.SetBounds(rect);
+            foreach (var item in items)
+            {
+                item.MyData.X -= rect.X;
+                item.MyData.Y -= rect.Y;
+            }
         }
+
         private static bool IsParentEqual(List<TThumb> items)
         {
             TThumb? parent = items[0].ParentThumb;
