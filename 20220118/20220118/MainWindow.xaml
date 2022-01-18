@@ -12,14 +12,26 @@
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <Canvas Name="MyCanvas">
-        <local:Layer x:Name="MyLayer"/>
-      <local:Layer>
-      </local:Layer>
+      <local:Layer x:Name="MyLayer"/>
     </Canvas>
 
     <StackPanel Grid.Column="1" Name="MyStackPanel">
-      <TextBlock Text="{Binding Path=MyThumbs[0].X}"/>
-      <TextBlock Text="{Binding Path=MyThumbs[0].Name}"/>
+      <StackPanel x:Name="MyStackPanel1">
+        <TextBlock Text="{Binding Path=Name}"/>
+        <TextBlock Text="{Binding Path=TTWidth}"/>
+      </StackPanel>
+
+      <Separator Margin="10"/>
+      
+      <StackPanel x:Name="MyStackPanelFocusedThumb">
+        <TextBlock Text="{Binding Path=ParentGroupThumb}"/>
+        <TextBlock Text="{Binding }"/>
+        <TextBlock Text="{Binding Path=X}"/>
+        <TextBlock Text="{Binding Path=Y}"/>
+        <TextBlock Text="{Binding Path=Name}"/>
+        <TextBlock Text="{Binding Path=Bounds, StringFormat= 0 \ }"/>
+        <TextBox Text="{Binding Path=Text, UpdateSourceTrigger=PropertyChanged}"/>
+      </StackPanel>
       <Button x:Name="ButtonTest" Content="Test" Click="ButtonTest_Click"/>
     </StackPanel>
   </Grid>

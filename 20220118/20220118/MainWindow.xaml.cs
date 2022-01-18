@@ -31,21 +31,29 @@ namespace _20220118
         private void Test1()
         {
             MyTT = new($"{nameof(Test1)}", 10, 10, "T1");
-            //MyTT = new("ooo");
+            MyTT.GotFocus += MyTT_GotFocus;
             MyLayer.AddThumb(MyTT);
             MyThumbs.Add(MyTT);
 
             TTTextBlock ttt = new("T2", 100, 100, "T2");
+            ttt.GotFocus += MyTT_GotFocus;
             MyLayer.AddThumb(ttt);
             MyThumbs.Add(ttt);
 
-            MyStackPanel.DataContext = MyLayer;
+            MyStackPanel1.DataContext = MyLayer;
+        }
+
+        private void MyTT_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TThumb thumb = sender as TThumb;
+            MyStackPanelFocusedThumb.DataContext = thumb;
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
             MyTT.Text = "aaaaaaaa";
             var list = MyLayer.MyThumbs;
+            //var focus = MyLayer.FocusedChildThumb;
         }
     }
 }

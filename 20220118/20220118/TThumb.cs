@@ -75,7 +75,7 @@ namespace _20220118
         private int z;
         private double width;
         private double height;
-        private Visibility visibleFrame = Visibility.Visible;
+        private Visibility visibleFrame = Visibility.Collapsed;
         private string name = "";
         private Rect bounds;
 
@@ -91,8 +91,9 @@ namespace _20220118
         #endregion プロパティ
 
         #region フィールド
-        public TThumb GroupThumb;//実質ParentThumb
-        public TThumb GroupTopThumb;//実際に移動させるThumbになる
+        public TThumb ParentGroupThumb { get; set; }//実質ParentThumb
+        public TThumb RootGroupThumb;//実際に移動させるThumbになる
+        //public TThumb FocusedChildThumb { get; set; }//フォーカスがあたっているThumb
 
         #endregion フィールド
 
@@ -110,7 +111,8 @@ namespace _20220118
 
             this.PreviewMouseLeftButtonUp += TThumb_PreviewMouseLeftButtonUp;
             this.DragDelta += TThumbDragDelta;
-            //this.GotFocus += TThumb_GotFocus;
+            this.GotFocus += TThumb_GotFocus;
+            this.LostFocus += TThumb_LostFocus;
             //this.MovableThumb = this;
 
             //枠表示用Rectangle
@@ -132,6 +134,28 @@ namespace _20220118
             }
         }
 
+
+
+
+
+
+
+        #region イベント
+
+        protected void TThumb_LostFocus(object sender, RoutedEventArgs e)
+        {
+            TThumb thumb = sender as TThumb;
+            thumb.VisibleFrame = Visibility.Collapsed;
+        }
+
+        protected void TThumb_GotFocus(object sender, RoutedEventArgs e)
+        {
+            TThumb thumb = sender as TThumb;
+            //TThumb parent = thumb.ParentGroupThumb;
+            //parent.FocusedChildThumb = thumb;
+            thumb.VisibleFrame = Visibility.Visible;
+        }
+
         protected void TThumb_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (IsFocused)
@@ -141,10 +165,6 @@ namespace _20220118
         }
 
 
-
-
-
-        #region イベント
         //子要素の移動終了時に自身のサイズ変更、一番上までサイズ変更？
         public void TThumbDragCompleted(object sender, DragCompletedEventArgs e)
         {
@@ -231,7 +251,10 @@ namespace _20220118
         public Layer()
         {
             Type = TType.Layer;
+            Focusable = false;
             DragDelta -= TThumbDragDelta;
+            GotFocus -= TThumb_GotFocus;
+            LostFocus -= TThumb_LostFocus;
             PreviewMouseLeftButtonUp -= TThumb_PreviewMouseLeftButtonUp;
 
         }
@@ -239,6 +262,7 @@ namespace _20220118
         {
             MyThumbs.Add(thumb);
             RootCanvas.Children.Add(thumb);
+            thumb.ParentGroupThumb = this;
         }
     }
     public class TTTextBlock : TThumb
