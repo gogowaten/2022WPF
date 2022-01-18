@@ -43,11 +43,11 @@ namespace _20220118
 
     }
 
-    public class TThumb : BaseThumb, System.ComponentModel.INotifyPropertyChanged
+    public abstract class TThumb : BaseThumb, System.ComponentModel.INotifyPropertyChanged
     {
         #region Notify
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnpropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = "")
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
@@ -62,7 +62,7 @@ namespace _20220118
             {
                 if (value != bounds)
                 {
-                    bounds = value; OnpropertyChanged();
+                    bounds = value; OnPropertyChanged();
                     X = value.X;
                     Y = value.Y;
                     TTWidth = value.Width;
@@ -79,14 +79,14 @@ namespace _20220118
         private string name = "";
         private Rect bounds;
 
-        public double X { get => x; set { if (value != x) { x = value; OnpropertyChanged(); Bounds = new Rect(value, y, width, height); } } }
-        public double Y { get => y; set { if (value != y) { y = value; OnpropertyChanged(); Bounds = new Rect(x, value, width, height); } } }
-        public int Z { get => z; set { if (value != z) { z = value; OnpropertyChanged(); } } }
-        public double TTWidth { get => width; set { if (value != width) { width = value; OnpropertyChanged(); Bounds = new Rect(x, y, value, height); } } }
+        public double X { get => x; set { if (value != x) { x = value; OnPropertyChanged(); Bounds = new Rect(value, y, width, height); } } }
+        public double Y { get => y; set { if (value != y) { y = value; OnPropertyChanged(); Bounds = new Rect(x, value, width, height); } } }
+        public int Z { get => z; set { if (value != z) { z = value; OnPropertyChanged(); } } }
+        public double TTWidth { get => width; set { if (value != width) { width = value; OnPropertyChanged(); Bounds = new Rect(x, y, value, height); } } }
         //public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); } } }
-        public double TTHeight { get => height; set { if (value != height) { height = value; OnpropertyChanged(); Bounds = new Rect(x, y, width, value); } } }
-        public Visibility VisibleFrame { get => visibleFrame; set { if (value != visibleFrame) { visibleFrame = value; OnpropertyChanged(); } } }
-        public string TTName { get => name; set { if (value != name) { name = value; OnpropertyChanged(); } } }
+        public double TTHeight { get => height; set { if (value != height) { height = value; OnPropertyChanged(); Bounds = new Rect(x, y, width, value); } } }
+        public Visibility VisibleFrame { get => visibleFrame; set { if (value != visibleFrame) { visibleFrame = value; OnPropertyChanged(); } } }
+        public string TTName { get => name; set { if (value != name) { name = value; OnPropertyChanged(); } } }
 
         #endregion プロパティ
 
@@ -107,6 +107,8 @@ namespace _20220118
 
             this.Focusable = true;
 
+
+            this.PreviewMouseLeftButtonUp += TThumb_PreviewMouseLeftButtonUp;
             this.DragDelta += TThumbDragDelta;
             //this.GotFocus += TThumb_GotFocus;
             //this.MovableThumb = this;
@@ -128,9 +130,20 @@ namespace _20220118
                 b.Mode = BindingMode.TwoWay;
                 this.SetBinding(property, b);
             }
-
-
         }
+
+        protected void TThumb_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (IsFocused)
+            {
+
+            }
+        }
+
+
+
+
+
         #region イベント
         //子要素の移動終了時に自身のサイズ変更、一番上までサイズ変更？
         public void TThumbDragCompleted(object sender, DragCompletedEventArgs e)
@@ -204,16 +217,22 @@ namespace _20220118
 
         #endregion イベント
 
+        public override string ToString()
+        {
+            //return base.ToString();
+            return $"{Name} x,y,z({X},{Y},{Z}) 幅,高({width:0.0}, {height:0.0})";
+        }
     }
 
 
     public class Layer : TThumb
     {
-        public List<TThumb> MyThumbs = new();
+        public List<TThumb> MyThumbs { get; set; } = new();
         public Layer()
         {
             Type = TType.Layer;
             DragDelta -= TThumbDragDelta;
+            PreviewMouseLeftButtonUp -= TThumb_PreviewMouseLeftButtonUp;
 
         }
         public void AddThumb(TThumb thumb)
@@ -225,18 +244,26 @@ namespace _20220118
     public class TTTextBlock : TThumb
     {
         private string text;
-        
+        private double tTFontSize = 30;
 
-        public string Text { get => text; set { if (value != text) { text = value; OnpropertyChanged(); } } }
+        public string Text { get => text; set { if (value != text) { text = value; OnPropertyChanged(); } } }
+        public double TTFontSize { get => tTFontSize; set { if (value != tTFontSize) { tTFontSize = value; OnPropertyChanged(); } } }
 
-        public TTTextBlock(string text)
+        public TTTextBlock()
         {
             Type = TType.TextBlock;
-            TextBlock tb = new() { Text = text, FontSize = 30 };
+            TextBlock tb = new() { Text = text, FontSize = tTFontSize };
             tb.SizeChanged += ElementSizeChanged;
-            tb.SetBinding(TextBlock.TextProperty, new Binding($"{nameof(Text)}"));
-            this.X = 10; this.Y = 10; this.TTName = "youso1";
+            tb.SetBinding(TextBlock.TextProperty, nameof(Text));
             this.RootCanvas.Children.Add(tb);
+        }
+        public TTTextBlock(string str) : this()
+        {
+            Text = str; X = 10; Y = 10; TTName = "youso1";
+        }
+        public TTTextBlock(string str, double x = 0, double y = 0, string name = "ななし") : this()
+        {
+            Text = str; X = x; Y = y; TTName = name;
         }
     }
 

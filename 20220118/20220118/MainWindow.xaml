@@ -18,7 +18,8 @@
     </Canvas>
 
     <StackPanel Grid.Column="1" Name="MyStackPanel">
-      <TextBlock Text="{Binding Path=X}"/>
+      <TextBlock Text="{Binding Path=MyThumbs[0].X}"/>
+      <TextBlock Text="{Binding Path=MyThumbs[0].Name}"/>
       <Button x:Name="ButtonTest" Content="Test" Click="ButtonTest_Click"/>
     </StackPanel>
   </Grid>

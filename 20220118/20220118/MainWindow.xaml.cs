@@ -21,6 +21,7 @@ namespace _20220118
     public partial class MainWindow : Window
     {
         TTTextBlock MyTT;
+        List<TThumb> MyThumbs = new();
         public MainWindow()
         {
             InitializeComponent();
@@ -29,10 +30,16 @@ namespace _20220118
         }
         private void Test1()
         {
-            MyTT = new($"{nameof(Test1)}");
-            MyLayer.AddThumb(MyTT);//.Children.Add(MyTT);
-            MyStackPanel.DataContext = MyTT;
-            MyTT.Text = "henkou";
+            MyTT = new($"{nameof(Test1)}", 10, 10, "T1");
+            //MyTT = new("ooo");
+            MyLayer.AddThumb(MyTT);
+            MyThumbs.Add(MyTT);
+
+            TTTextBlock ttt = new("T2", 100, 100, "T2");
+            MyLayer.AddThumb(ttt);
+            MyThumbs.Add(ttt);
+
+            MyStackPanel.DataContext = MyLayer;
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
