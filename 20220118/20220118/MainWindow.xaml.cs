@@ -53,14 +53,14 @@ namespace _20220118
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
-            MyTT.Text = "aaaaaaaa";
+            //MyTT.Text = "aaaaaaaa";
             var list = MyLayer.ChildrenList;
             //var focus = MyLayer.FocusedChildThumb;
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
-            TTTextBlock ttb = new($"要素{MyCount}", MyCount * 30, MyCount * 40, $"要素{MyCount}");
+            TTTextBlock ttb = new($"要素{MyCount}", MyCount * 30, MyCount * 45, $"要素{MyCount}");
             MyThumbs.Add(ttb);
             ttb.GotFocus += MyTT_GotFocus;
             MyLayer.AddThumb(ttb);
@@ -69,19 +69,23 @@ namespace _20220118
 
         private void ButtonG1_Click(object sender, RoutedEventArgs e)
         {
-            TTGroup group = MyLayer.ToGroup(MyThumbs.GetRange(0, 2));
+            TTGroup group = MyLayer.ToGroup(MyThumbs.GetRange(0, 2), "G1");
+            group.GotFocus += MyTT_GotFocus;
             MyGroups.Add(group);
         }
 
         private void ButtonG2_Click(object sender, RoutedEventArgs e)
         {
-            TTGroup group = MyLayer.ToGroup(MyThumbs.GetRange(2, 2));
+            TTGroup group = MyLayer.ToGroup(MyThumbs.GetRange(2, 2), "G2");
+            group.GotFocus += MyTT_GotFocus;
             MyGroups.Add(group);
         }
 
         private void ButtonG3_Click(object sender, RoutedEventArgs e)
         {
-            MyLayer.ToGroup(MyGroups.GetRange(0, 2));
+            TTGroup group = MyLayer.ToGroup(MyGroups.GetRange(0, 2), "G3");
+            group.GotFocus += MyTT_GotFocus;
+            MyGroups.Add(group);
         }
     }
 }

@@ -114,6 +114,7 @@ namespace _20220118
 
 
             this.PreviewMouseLeftButtonUp += TThumb_PreviewMouseLeftButtonUp;
+            this.PreviewMouseLeftButtonDown += TThumb_PreviewMouseLeftButtonDown;
             this.DragDelta += TThumbDragDelta;
             this.GotFocus += TThumb_GotFocus;
             this.LostFocus += TThumb_LostFocus;
@@ -148,6 +149,14 @@ namespace _20220118
             }
         }
 
+        protected void TThumb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (this.IsFocused)
+            {
+                var neko = 0;
+            }
+        }
+
 
 
 
@@ -165,6 +174,10 @@ namespace _20220118
         protected void TThumb_GotFocus(object sender, RoutedEventArgs e)
         {
             TThumb thumb = sender as TThumb;
+            if (thumb.ParentGroupThumb.visibleFrame == Visibility.Visible)
+            {
+                var neko = 0;
+            }
             //TThumb parent = thumb.ParentGroupThumb;
             //parent.FocusedChildThumb = thumb;
             thumb.VisibleFrame = Visibility.Visible;
@@ -174,7 +187,10 @@ namespace _20220118
         {
             if (IsFocused)
             {
-
+                TThumb thumb = sender as TThumb;
+                TTGroup tTGroup = thumb.ParentGroupThumb;
+                var tf = thumb.IsFocused;
+                var tgf = tTGroup.IsFocused;
             }
         }
 
@@ -270,13 +286,33 @@ namespace _20220118
             GotFocus -= TThumb_GotFocus;
             LostFocus -= TThumb_LostFocus;
             PreviewMouseLeftButtonUp -= TThumb_PreviewMouseLeftButtonUp;
-
+            PreviewMouseLeftButtonDown -= TThumb_PreviewMouseLeftButtonDown;
         }
-      
-        
+
+
     }
     public class TTGroup : TThumb
     {
+        private bool isMovableChildrenMode;
+
+        public bool IsMovableChildrenMode
+        {
+            get => isMovableChildrenMode;
+            set
+            {
+                if (value != isMovableChildrenMode)
+                {
+                    isMovableChildrenMode = value;
+                    this.DragDelta -= TThumbDragDelta;
+                    this.DragCompleted -= TThumbDragCompleted;
+                    foreach (var item in ChildrenList)
+                    {
+                        item.DragDelta += item.TThumbDragDelta;
+                        item.DragCompleted += item.TThumbDragCompleted;
+                    }
+                }
+            }
+        }
         public List<TThumb> ChildrenList { get; set; } = new();
         public TTGroup()
         {
@@ -298,14 +334,14 @@ namespace _20220118
 
             thumb.DragCompleted += TThumbDragCompleted;
         }
-        public TTGroup ToGroup(List<TThumb> thumbs,string name="Group")
+        public TTGroup ToGroup(List<TThumb> thumbs, string name = "Group")
         {
             if (thumbs.Count < 2) { throw new ArgumentException("Thumb数が2未満"); }
             //グループThumb作成
             TTGroup group = new();
-            
+
             group.ParentGroupThumb = this;
-            group.Name = name;            
+            group.Name = name;
             group.DragCompleted += TThumbDragCompleted;
 
             //ZIndex
@@ -334,11 +370,14 @@ namespace _20220118
                 tt.DragDelta -= tt.TThumbDragDelta;
                 tt.DragCompleted -= tt.TThumbDragCompleted;
                 ////フォーカスしないようにする
-                tt.Focusable = false;
+                //tt.Focusable = false;
 
                 //下にある全ての要素のMovableThumbの書き換え
                 //tt.MovableThumb = group;
                 //tt.ReplaceMovableThumb(tt, group);
+
+                //
+                tt.PreviewMouseLeftButtonUp += Tt_PreviewMouseLeftButtonUp;
             }
 
             //グループThumb
@@ -364,7 +403,24 @@ namespace _20220118
             }
             return group;
         }
+
+        private void Tt_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            //TThumb tt = sender as TThumb;
+            //TTGroup parent = tt.ParentGroupThumb;
+            //if (parent != null)
+            //{
+            //    parent.DragDelta -= parent.TThumbDragDelta;
+            //    parent.DragCompleted -= parent.TThumbDragCompleted;
+            //    foreach (var item in parent.ChildrenList)
+            //    {
+            //        item.DragDelta += item.TThumbDragDelta;
+            //        item.DragCompleted += item.TThumbDragCompleted;
+            //    }
+            //}
+        }
     }
+
     public class TTTextBlock : TThumb
     {
         private string text;
