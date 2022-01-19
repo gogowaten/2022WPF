@@ -33,6 +33,10 @@
         <TextBox Text="{Binding Path=Text, UpdateSourceTrigger=PropertyChanged}"/>
       </StackPanel>
       <Button x:Name="ButtonTest" Content="Test" Click="ButtonTest_Click"/>
+      <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
+      <Button x:Name="ButtonG1" Content="0_1_G1" Click="ButtonG1_Click"/>
+      <Button x:Name="ButtonG2" Content="2__3__G2" Click="ButtonG2_Click"/>
+      <Button x:Name="ButtonG3" Content="G1G2deG3" Click="ButtonG3_Click"/>
     </StackPanel>
   </Grid>
 </Window>

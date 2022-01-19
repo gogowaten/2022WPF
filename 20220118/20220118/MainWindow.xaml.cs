@@ -22,11 +22,13 @@ namespace _20220118
     {
         TTTextBlock MyTT;
         List<TThumb> MyThumbs = new();
+        List<TThumb> MyGroups = new();
+        int MyCount = 0;
         public MainWindow()
         {
             InitializeComponent();
 
-            Test1();
+            //Test1();
         }
         private void Test1()
         {
@@ -52,8 +54,34 @@ namespace _20220118
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
         {
             MyTT.Text = "aaaaaaaa";
-            var list = MyLayer.MyThumbs;
+            var list = MyLayer.ChildrenList;
             //var focus = MyLayer.FocusedChildThumb;
+        }
+
+        private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+        {
+            TTTextBlock ttb = new($"要素{MyCount}", MyCount * 30, MyCount * 40, $"要素{MyCount}");
+            MyThumbs.Add(ttb);
+            ttb.GotFocus += MyTT_GotFocus;
+            MyLayer.AddThumb(ttb);
+            MyCount++;
+        }
+
+        private void ButtonG1_Click(object sender, RoutedEventArgs e)
+        {
+            TTGroup group = MyLayer.ToGroup(MyThumbs.GetRange(0, 2));
+            MyGroups.Add(group);
+        }
+
+        private void ButtonG2_Click(object sender, RoutedEventArgs e)
+        {
+            TTGroup group = MyLayer.ToGroup(MyThumbs.GetRange(2, 2));
+            MyGroups.Add(group);
+        }
+
+        private void ButtonG3_Click(object sender, RoutedEventArgs e)
+        {
+            MyLayer.ToGroup(MyGroups.GetRange(0, 2));
         }
     }
 }

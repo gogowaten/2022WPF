@@ -55,10 +55,19 @@ namespace _20220118
 
         #region 保存するプロパティ、依存プロパティ
         public TType Type;//外から変更できないようにしたけどわからん
+        private double x;
+        private double y;
+        private int z;
+        private double width;
+        private double height;
+        private Visibility visibleFrame = Visibility.Collapsed;
+        private Visibility visibleFrame2 = Visibility.Visible;
+        private string name = "";
+        private Rect bounds;
         public Rect Bounds
         {
             get => bounds;
-            private set
+            set
             {
                 if (value != bounds)
                 {
@@ -70,14 +79,6 @@ namespace _20220118
                 }
             }
         }
-        private double x;
-        private double y;
-        private int z;
-        private double width;
-        private double height;
-        private Visibility visibleFrame = Visibility.Collapsed;
-        private string name = "";
-        private Rect bounds;
 
         public double X { get => x; set { if (value != x) { x = value; OnPropertyChanged(); Bounds = new Rect(value, y, width, height); } } }
         public double Y { get => y; set { if (value != y) { y = value; OnPropertyChanged(); Bounds = new Rect(x, value, width, height); } } }
@@ -86,13 +87,16 @@ namespace _20220118
         //public double Width { get => width; set { if (value != width) { width = value; OnpropertyChanged(); } } }
         public double TTHeight { get => height; set { if (value != height) { height = value; OnPropertyChanged(); Bounds = new Rect(x, y, width, value); } } }
         public Visibility VisibleFrame { get => visibleFrame; set { if (value != visibleFrame) { visibleFrame = value; OnPropertyChanged(); } } }
+        public Visibility VisibleFrame2 { get => visibleFrame2; set { if (value != visibleFrame2) { visibleFrame2 = value; OnPropertyChanged(); } } }
         public string TTName { get => name; set { if (value != name) { name = value; OnPropertyChanged(); } } }
 
         #endregion プロパティ
 
         #region フィールド
-        public TThumb ParentGroupThumb { get; set; }//実質ParentThumb
-        public TThumb RootGroupThumb;//実際に移動させるThumbになる
+        public TTGroup ParentGroupThumb { get; set; }//実質ParentThumb
+        public TTGroup RootGroupThumb;//実際に移動させるThumbになる
+
+
         //public TThumb FocusedChildThumb { get; set; }//フォーカスがあたっているThumb
 
         #endregion フィールド
@@ -117,13 +121,23 @@ namespace _20220118
 
             //枠表示用Rectangle
             Rectangle rectangle = new();
-            //rectangle.Width = 200;
             rectangle.SetBinding(Rectangle.WidthProperty, nameof(TTWidth));
             rectangle.SetBinding(Rectangle.HeightProperty, nameof(TTHeight));
-            rectangle.Stroke = Brushes.MediumOrchid;
+            rectangle.Stroke = Brushes.Cyan;
             rectangle.StrokeThickness = 4;
             SurfaceCanvas.Children.Add(rectangle);
             rectangle.SetBinding(VisibilityProperty, nameof(VisibleFrame));
+
+            //枠表示用Rectangle2
+            Rectangle rectangle2 = new();
+            rectangle2.SetBinding(Rectangle.WidthProperty, nameof(TTWidth));
+            rectangle2.SetBinding(Rectangle.HeightProperty, nameof(TTHeight));
+            rectangle2.Stroke = Brushes.MediumBlue;
+            rectangle2.StrokeThickness = 1;
+            SurfaceCanvas.Children.Add(rectangle2);
+            rectangle2.SetBinding(VisibilityProperty, nameof(VisibleFrame2));
+
+
 
 
             void MySetTwoWayModeBinding(DependencyProperty property, string path)
@@ -168,51 +182,51 @@ namespace _20220118
         //子要素の移動終了時に自身のサイズ変更、一番上までサイズ変更？
         public void TThumbDragCompleted(object sender, DragCompletedEventArgs e)
         {
-            //TThumb currentT = (TThumb)sender;
-            //if (currentT.ParentThumb == null) { return; }
-            //TThumb cuParent = currentT.ParentThumb;
+            TThumb currentT = (TThumb)sender;
+            if (currentT.ParentGroupThumb == null) { return; }
+            TTGroup group = currentT.ParentGroupThumb;
             //if (cuParent.IsGroup == false || cuParent.IsEditInsideGroup == false) { return; }
 
-            ////currentT.TempRect.Union(new Rect(currentT.MyData.X, currentT.MyData.Y, currentT.Width, currentT.Height));
+            //currentT.TempRect.Union(new Rect(currentT.MyData.X, currentT.MyData.Y, currentT.Width, currentT.Height));
 
-            //Rect temp = currentT.MyData.Bounds;// new(data.X, data.Y, data.Width, data.Height);
-            //foreach (TThumb? item in cuParent.Children)
-            //{
-            //    temp.Union(item.MyData.Bounds);
-            //}
+            Rect temp = currentT.Bounds;// new(data.X, data.Y, data.Width, data.Height);
+            foreach (TThumb item in group.ChildrenList)
+            {
+                temp.Union(item.Bounds);
+            }
 
 
-            ////Parentの座標変更
-            ////Layerだった場合は移動しない、サイズだけ変更
-            //if (cuParent.MyData.Type == TType.Layer)
-            //{
-            //    double xOffset = 0;
-            //    double yOffset = 0;
-            //    xOffset = -temp.X;
-            //    cuParent.ChildrenSource.ForEach(i => i.MyData.X += xOffset);
-            //    yOffset = -temp.Y;
-            //    cuParent.ChildrenSource.ForEach(i => i.MyData.Y += yOffset);
+            //Parentの座標変更
+            //Layerだった場合は移動しない、サイズだけ変更
+            if (group.Type == TType.Layer)
+            {
+                double xOffset = 0;
+                double yOffset = 0;
+                xOffset = -temp.X;
+                group.ChildrenList.ForEach(i => i.X += xOffset);
+                yOffset = -temp.Y;
+                group.ChildrenList.ForEach(i => i.Y += yOffset);
 
-            //    //Layerはサイズだけ変更
-            //    cuParent.MyData.Width = temp.Width + temp.X + xOffset;
-            //    cuParent.MyData.Height = temp.Height + temp.Y + yOffset;
+                //Layerはサイズだけ変更
+                group.Width = temp.Width + temp.X + xOffset;
+                group.Height = temp.Height + temp.Y + yOffset;
 
-            //}
-            //else
-            //{
-            //    //Parentのサイズと位置変更
-            //    cuParent.MyData.X += temp.X;
-            //    cuParent.MyData.Y += temp.Y;
-            //    cuParent.MyData.Width = temp.Width;
-            //    cuParent.MyData.Height = temp.Height;
+            }
+            else
+            {
+                //Parentのサイズと位置変更
+                group.X += temp.X;
+                group.Y += temp.Y;
+                group.Width = temp.Width;
+                group.Height = temp.Height;
 
-            //    //Childrenの座標変更
-            //    foreach (TThumb item in cuParent.ChildrenSource)
-            //    {
-            //        item.MyData.X -= temp.X;
-            //        item.MyData.Y -= temp.Y;
-            //    }
-            //}
+                //Childrenの座標変更
+                foreach (TThumb item in group.ChildrenList)
+                {
+                    item.X -= temp.X;
+                    item.Y -= temp.Y;
+                }
+            }
 
         }
 
@@ -245,9 +259,9 @@ namespace _20220118
     }
 
 
-    public class Layer : TThumb
+    public class Layer : TTGroup
     {
-        public List<TThumb> MyThumbs { get; set; } = new();
+        //public List<TThumb> MyChildren { get; set; } = new();
         public Layer()
         {
             Type = TType.Layer;
@@ -258,11 +272,97 @@ namespace _20220118
             PreviewMouseLeftButtonUp -= TThumb_PreviewMouseLeftButtonUp;
 
         }
+      
+        
+    }
+    public class TTGroup : TThumb
+    {
+        public List<TThumb> ChildrenList { get; set; } = new();
+        public TTGroup()
+        {
+            Type = TType.Group;
+
+        }
         public void AddThumb(TThumb thumb)
         {
-            MyThumbs.Add(thumb);
-            RootCanvas.Children.Add(thumb);
+            thumb.Z = ChildrenList.Count;
+            ChildrenList.Add(thumb);
+            GroupCanvas.Children.Add(thumb);
             thumb.ParentGroupThumb = this;
+            Panel.SetZIndex(thumb, thumb.Z);
+            //レイアウト更新してからサイズ変更(調整)
+            thumb.UpdateLayout();
+            Rect r = this.Bounds;
+            r.Union(thumb.Bounds);
+            this.Bounds = r;
+
+            thumb.DragCompleted += TThumbDragCompleted;
+        }
+        public TTGroup ToGroup(List<TThumb> thumbs,string name="Group")
+        {
+            if (thumbs.Count < 2) { throw new ArgumentException("Thumb数が2未満"); }
+            //グループThumb作成
+            TTGroup group = new();
+            
+            group.ParentGroupThumb = this;
+            group.Name = name;            
+            group.DragCompleted += TThumbDragCompleted;
+
+            //ZIndex
+            int maxZ = thumbs.Max(a => a.Z);
+            int minZ = thumbs.Min(a => a.Z);
+            //追加
+            this.ChildrenList.Insert(maxZ, group);
+            this.GroupCanvas.Children.Add(group);
+
+            //要素群をZIndex順に並べ替えたリスト作成
+            List<TThumb> items = thumbs.OrderBy(i => i.Z).ToList();
+            //要素群を元の親から外してから、グループThumbの子要素にする
+            for (int i = 0; i < items.Count; i++)
+            {
+                TThumb tt = items[i];
+                //Layerから外す
+                this.ChildrenList.Remove(tt);
+                this.GroupCanvas.Children.Remove(tt);
+
+                //グループThumbに追加
+                tt.ParentGroupThumb = group;
+                tt.Z = i;
+                group.AddThumb(tt);
+
+                //ドラッグイベント
+                tt.DragDelta -= tt.TThumbDragDelta;
+                tt.DragCompleted -= tt.TThumbDragCompleted;
+                ////フォーカスしないようにする
+                tt.Focusable = false;
+
+                //下にある全ての要素のMovableThumbの書き換え
+                //tt.MovableThumb = group;
+                //tt.ReplaceMovableThumb(tt, group);
+            }
+
+            //グループThumb
+            //ZIndexを指定する、前に詰める
+            for (int i = minZ; i < this.ChildrenList.Count; i++)
+            {
+                this.ChildrenList[i].Z = i;
+                Panel.SetZIndex(this.ChildrenList[i], i);
+            }
+            //サイズと座標
+            Rect rect = items[0].Bounds;
+            for (int i = 1; i < items.Count; i++)
+            {
+                rect.Union(items[i].Bounds);
+            }
+            group.Bounds = rect;
+
+            //要素群の座標調整
+            foreach (var item in items)
+            {
+                item.X -= rect.X;
+                item.Y -= rect.Y;
+            }
+            return group;
         }
     }
     public class TTTextBlock : TThumb
