@@ -49,6 +49,7 @@ namespace _20220118
         {
             TThumb thumb = sender as TThumb;
             MyStackPanelFocusedThumb.DataContext = thumb;
+            MyStackPanelFocusedParent.DataContext = thumb.ParentGroupThumb;
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)

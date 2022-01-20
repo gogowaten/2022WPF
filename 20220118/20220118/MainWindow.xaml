@@ -24,13 +24,18 @@
       <Separator Margin="10"/>
       
       <StackPanel x:Name="MyStackPanelFocusedThumb">
-        <TextBlock Text="{Binding Path=ParentGroupThumb}"/>
-        <TextBlock Text="{Binding }"/>
-        <TextBlock Text="{Binding Path=X}"/>
-        <TextBlock Text="{Binding Path=Y}"/>
+        <TextBlock Text="{Binding Path=ParentGroupThumb, StringFormat=parent \= {0}}"/>
+        <TextBlock Text="{Binding StringFormat=this \= {0}}"/>
         <TextBlock Text="{Binding Path=Name}"/>
         <TextBlock Text="{Binding Path=Bounds, StringFormat= 0 \ }"/>
         <TextBox Text="{Binding Path=Text, UpdateSourceTrigger=PropertyChanged}"/>
+      </StackPanel>
+
+      <Separator Margin="10"/>
+
+      <StackPanel x:Name="MyStackPanelFocusedParent">
+        <TextBlock Text="{Binding StringFormat=this \= {0}}"/>
+        <TextBlock Text="{Binding Path=Bounds, StringFormat= 0 \ }"/>
       </StackPanel>
       <Button x:Name="ButtonTest" Content="Test" Click="ButtonTest_Click"/>
       <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
