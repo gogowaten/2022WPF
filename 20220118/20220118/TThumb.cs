@@ -365,34 +365,44 @@ namespace _20220118
                     {
                         this.DragDelta -= TThumbDragDelta;
                         this.DragCompleted -= TThumbDragCompleted;
-                        foreach (var item in ChildrenList)
-                        {
-                            item.DragDelta += item.TThumbDragDelta;
-                            item.DragCompleted += item.TThumbDragCompleted;
-                        }
+                        this.ContextMenu = null;
+                        AddDragEvent(this);
                     }
                     else
                     {
                         this.DragDelta += TThumbDragDelta;
                         this.DragCompleted += TThumbDragCompleted;
-                        foreach (var item in ChildrenList)
-                        {
-                            item.DragDelta -= item.TThumbDragDelta;
-                            item.DragCompleted -= item.TThumbDragCompleted;
-                        }
+                        this.AddContextMenu(this);
+                        RemoveDragEvent(this);
                     }
                 }
             }
         }
         private void RemoveDragEvent(TTGroup group)
         {
-            group.DragDelta -= group.TThumbDragDelta;
-            group.DragCompleted -= group.TThumbDragCompleted;
             foreach (TThumb item in group.ChildrenList)
             {
+                item.DragDelta -= item.TThumbDragDelta;
+                item.DragCompleted -= item.TThumbDragCompleted;
                 if (item.Type == TType.Group)
                 {
-                    RemoveDragEvent(item as TTGroup);
+                    TTGroup g = item as TTGroup;
+                    g.AddContextMenu(g);
+                    //RemoveDragEvent(item as TTGroup);
+                }
+            }
+        }
+        private void AddDragEvent(TTGroup group)
+        {
+            foreach (TThumb item in group.ChildrenList)
+            {
+                item.DragDelta += item.TThumbDragDelta;
+                item.DragCompleted += item.TThumbDragCompleted;
+                if (item.Type == TType.Group)
+                {
+                    TTGroup g = item as TTGroup;
+                    g.AddContextMenu(g);
+                    //AddDragEvent(item as TTGroup);
                 }
             }
         }
