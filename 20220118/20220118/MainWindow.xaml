@@ -42,6 +42,8 @@
       <Button x:Name="ButtonG1" Content="0_1_G1" Click="ButtonG1_Click"/>
       <Button x:Name="ButtonG2" Content="2__3__G2" Click="ButtonG2_Click"/>
       <Button x:Name="ButtonG3" Content="G1G2deG3" Click="ButtonG3_Click"/>
+      <Button x:Name="ButtonMove" Content="移動" Click="ButtonMove_Click"/>
+      <Button x:Name="ButtonStop" Content="固定" Click="ButtonStop_Click"/>
     </StackPanel>
   </Grid>
 </Window>

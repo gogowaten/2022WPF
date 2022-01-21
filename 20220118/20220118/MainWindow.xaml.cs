@@ -24,6 +24,7 @@ namespace _20220118
         List<TThumb> MyThumbs = new();
         List<TThumb> MyGroups = new();
         int MyCount = 0;
+        TThumb MyTargetThumb;
         public MainWindow()
         {
             InitializeComponent();
@@ -50,6 +51,7 @@ namespace _20220118
             TThumb thumb = sender as TThumb;
             MyStackPanelFocusedThumb.DataContext = thumb;
             MyStackPanelFocusedParent.DataContext = thumb.ParentGroupThumb;
+            MyTargetThumb = thumb;
         }
 
         private void ButtonTest_Click(object sender, RoutedEventArgs e)
@@ -87,6 +89,18 @@ namespace _20220118
             TTGroup group = MyLayer.ToGroup(MyGroups.GetRange(0, 2), "G3");
             group.GotFocus += MyTT_GotFocus;
             MyGroups.Add(group);
+        }
+
+        private void ButtonMove_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyTargetThumb == null) { return; }
+
+
+        }
+
+        private void ButtonStop_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

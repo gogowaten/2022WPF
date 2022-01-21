@@ -119,6 +119,7 @@ namespace _20220118
             this.GotFocus += TThumb_GotFocus;
             this.LostFocus += TThumb_LostFocus;
             this.PreviewMouseDown += TThumbPreviewMouseDown;
+            
 
             //this.MovableThumb = this;
 
@@ -153,12 +154,7 @@ namespace _20220118
 
         protected void TThumbPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            //クリックしたThumbを記録
-            TThumb thumb = sender as TThumb;
-            if (thumb.ParentGroupThumb != null)
-            {
-                thumb.ParentGroupThumb.PreviewClickedChildThumb = thumb;
-            }
+           
         }
 
         protected void TThumb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -205,6 +201,7 @@ namespace _20220118
 
         #region イベント
 
+
         protected void TThumb_LostFocus(object sender, RoutedEventArgs e)
         {
             TThumb thumb = sender as TThumb;
@@ -233,9 +230,14 @@ namespace _20220118
 
         protected void TThumb_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
+            //クリックしたThumbを記録
+            TThumb thumb = sender as TThumb;
+            if (thumb.ParentGroupThumb != null)
+            {
+                thumb.ParentGroupThumb.LastClickedThumb = thumb;
+            }
             if (IsFocused)
             {
-                TThumb thumb = sender as TThumb;
                 TTGroup tTGroup = thumb.ParentGroupThumb;
                 var tf = thumb.IsFocused;
                 var tgf = tTGroup.IsFocused;
@@ -290,17 +292,13 @@ namespace _20220118
                 }
             }
 
-            ////waku
-            //if (e.HorizontalChange + e.VerticalChange == 0)
-            //{
-            //    TThumb thumb = GetVisibleFrameThumb(currentT);
-            //    thumb.VisibleFrame = Visibility.Visible;
-            //    if (thumb.Type == TType.Group)
-            //    {
-            //        TTGroup tTGroup = thumb as TTGroup;
-            //        tTGroup.IsMovableChildrenMode = true;
-            //    }
-            //}
+            //移動していないクリックの場合、編集状態にする
+            //同じトップグループ内の要素全部を編集(移動可能)状態にする
+            if (e.HorizontalChange + e.VerticalChange == 0)
+            {
+
+            }
+           
         }
 
 
@@ -351,6 +349,9 @@ namespace _20220118
     }
     public class TTGroup : TThumb
     {
+        public List<TThumb> ChildrenList { get; set; } = new();
+        public TThumb LastClickedThumb { get; set; }//最後にクリックされたChildThumb
+
         private bool isMovableChildrenMode;
 
         public bool IsMovableChildrenMode
@@ -365,49 +366,48 @@ namespace _20220118
                     {
                         this.DragDelta -= TThumbDragDelta;
                         this.DragCompleted -= TThumbDragCompleted;
-                        this.ContextMenu = null;
-                        AddDragEvent(this);
+                        //this.ContextMenu = null;
+                        //AddDragEvent(this);
                     }
                     else
                     {
                         this.DragDelta += TThumbDragDelta;
                         this.DragCompleted += TThumbDragCompleted;
-                        this.AddContextMenu(this);
-                        RemoveDragEvent(this);
+                        //this.AddContextMenu(this);
+                        //RemoveDragEvent(this);
                     }
                 }
             }
         }
-        private void RemoveDragEvent(TTGroup group)
-        {
-            foreach (TThumb item in group.ChildrenList)
-            {
-                item.DragDelta -= item.TThumbDragDelta;
-                item.DragCompleted -= item.TThumbDragCompleted;
-                if (item.Type == TType.Group)
-                {
-                    TTGroup g = item as TTGroup;
-                    g.AddContextMenu(g);
-                    //RemoveDragEvent(item as TTGroup);
-                }
-            }
-        }
-        private void AddDragEvent(TTGroup group)
-        {
-            foreach (TThumb item in group.ChildrenList)
-            {
-                item.DragDelta += item.TThumbDragDelta;
-                item.DragCompleted += item.TThumbDragCompleted;
-                if (item.Type == TType.Group)
-                {
-                    TTGroup g = item as TTGroup;
-                    g.AddContextMenu(g);
-                    //AddDragEvent(item as TTGroup);
-                }
-            }
-        }
-        public List<TThumb> ChildrenList { get; set; } = new();
-        public TThumb PreviewClickedChildThumb { get; set; }//前回クリックしたChildThumb
+
+        //private void RemoveDragEvent(TTGroup group)
+        //{
+        //    foreach (TThumb item in group.ChildrenList)
+        //    {
+        //        item.DragDelta -= item.TThumbDragDelta;
+        //        item.DragCompleted -= item.TThumbDragCompleted;
+        //        if (item.Type == TType.Group)
+        //        {
+        //            TTGroup g = item as TTGroup;
+        //            g.AddContextMenu(g);
+        //        }
+        //    }
+        //}
+        //private void AddDragEvent(TTGroup group)
+        //{
+        //    foreach (TThumb item in group.ChildrenList)
+        //    {
+        //        item.DragDelta += item.TThumbDragDelta;
+        //        item.DragCompleted += item.TThumbDragCompleted;
+        //        if (item.Type == TType.Group)
+        //        {
+        //            TTGroup g = item as TTGroup;
+        //            g.AddContextMenu(g);
+        //            //AddDragEvent(item as TTGroup);
+        //        }
+        //    }
+        //}
+
 
         public TTGroup()
         {
@@ -530,28 +530,28 @@ namespace _20220118
                 item.Y -= rect.Y;
             }
 
-            AddContextMenu(group);
+            //AddContextMenu(group);
 
             return group;
         }
 
-        private void AddContextMenu(TTGroup thumb)
-        {
-            //右クリックメニュー            
-            ContextMenu contextMenu = new();
-            thumb.ContextMenu = contextMenu;
+        //private void AddContextMenu(TTGroup thumb)
+        //{
+        //    //右クリックメニュー            
+        //    ContextMenu contextMenu = new();
+        //    thumb.ContextMenu = contextMenu;
 
-            MenuItem menuItem = new();
-            contextMenu.Items.Add(menuItem);
-            menuItem.Header = "編集開始";
-            menuItem.Click += thumb.MenuItem_Click;
+        //    MenuItem menuItem = new();
+        //    contextMenu.Items.Add(menuItem);
+        //    menuItem.Header = "編集開始";
+        //    menuItem.Click += thumb.MenuItem_Click;
 
-            MenuItem editEnd = new();
-            contextMenu.Items.Add(editEnd);
-            editEnd.Header = "編集終了";
-            editEnd.Click += thumb.EditEnd_Click;
+        //    MenuItem editEnd = new();
+        //    contextMenu.Items.Add(editEnd);
+        //    editEnd.Header = "編集終了";
+        //    editEnd.Click += thumb.EditEnd_Click;
 
-        }
+        //}
 
         private void Tt_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
