@@ -94,7 +94,7 @@ namespace _20220118
 
         #region フィールド
         public TTGroup ParentGroupThumb { get; set; }//実質ParentThumb
-        public TTGroup RootGroupThumb;//実際に移動させるThumbになる
+        //public TTGroup RootGroupThumb;//実際に移動させるThumbになる
 
 
         //public TThumb FocusedChildThumb { get; set; }//フォーカスがあたっているThumb
@@ -152,24 +152,11 @@ namespace _20220118
 
 
 
-        protected void TThumbPreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-           
-        }
-
-        protected void TThumb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            if (this.IsFocused)
-            {
-                var neko = 0;
-            }
-        }
-
 
 
 
         /// <summary>
-        /// 対象Thumbが所属する一番上のグループを返す(Layer以外、なければそのまま返す)
+        /// 対象Thumbが所属する一番上のグループthumbを返す(Layer以外、なければそのまま返す)
         /// </summary>
         /// <param name="thumb"></param>
         /// <returns></returns>
@@ -189,7 +176,7 @@ namespace _20220118
         protected TThumb GetVisibleFrameThumb(TThumb thumb)
         {
             TThumb parent = thumb.ParentGroupThumb;
-            if (parent.visibleFrame != Visibility.Visible && parent.Type != TType.Layer)
+            if (parent.visibleFrame != Visibility.Visible && parent.Type == TType.Group)
             {
                 return GetVisibleFrameThumb(parent);
             }
@@ -201,6 +188,19 @@ namespace _20220118
 
         #region イベント
 
+
+        protected void TThumbPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
+        protected void TThumb_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (this.IsFocused)
+            {
+                var neko = 0;
+            }
+        }
 
         protected void TThumb_LostFocus(object sender, RoutedEventArgs e)
         {
@@ -230,7 +230,7 @@ namespace _20220118
 
         protected void TThumb_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            //クリックしたThumbを記録
+            //最後にクリックしたThumbを記録
             TThumb thumb = sender as TThumb;
             if (thumb.ParentGroupThumb != null)
             {
@@ -238,9 +238,9 @@ namespace _20220118
             }
             if (IsFocused)
             {
-                TTGroup tTGroup = thumb.ParentGroupThumb;
-                var tf = thumb.IsFocused;
-                var tgf = tTGroup.IsFocused;
+                //TTGroup tTGroup = thumb.ParentGroupThumb;
+                //var tf = thumb.IsFocused;
+                //var tgf = tTGroup.IsFocused;
             }
         }
 
