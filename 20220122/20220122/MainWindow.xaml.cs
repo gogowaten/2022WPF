@@ -37,7 +37,8 @@ namespace _20220122
 
         private void ButtonTest1_Click(object sender, RoutedEventArgs e)
         {
-
+            var neko = MyThumbs[0].ParentLayer;
+            var inu = MyLayer1.LastClickedThumb;
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)

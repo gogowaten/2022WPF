@@ -462,15 +462,29 @@ namespace _20220122
 
             thumb.DragCompleted += thumb.TThumbDragCompleted;
 
-            //Layerを登録
-            if(this is Layer layer)
+            //Layerに登録と、Layerを登録
+            Layer layer1 = this as Layer;
+            if(layer1 != null)
             {
-                thumb.ParentLayer = layer;
+                thumb.ParentLayer = layer1;
+                layer1.LastClickedThumb = thumb;
             }
-            else
-            {
-                thumb.ParentLayer = this.ParentLayer;
-            }
+            
+            //Layer layer = this as Layer ?? this.ParentLayer ?? thumb.ParentLayer;
+            //thumb.ParentLayer = layer;
+            //layer.LastClickedThumb = thumb;
+
+            //if (this is Layer layer)
+            //{
+            //    thumb.ParentLayer = layer;
+            //    layer.LastClickedThumb = thumb;
+            //}
+            //else
+            //{
+            //    thumb.ParentLayer = this.ParentLayer;
+            //    this.ParentLayer.LastClickedThumb = thumb;
+            //}
+
 
             //if (thumb.ContextMenu == null && thumb.ParentGroupThumb.Type == TType.Group)
             //{
