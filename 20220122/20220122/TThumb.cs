@@ -105,8 +105,8 @@ namespace _20220122
 
 
         #region フィールド
-        public TThumb ParentGroupThumb { get; set; }//所属するGroupやLayer
-        public TThumb TopParentGroupThumb { get; set; }//一番上のGroupThumb
+        public BaseThumb ParentThumb { get; set; }//所属するGroupやLayer
+        public BaseThumb TopParentThumb { get; set; }//一番上のGroupThumb
         public Layer ParentLayer { get; set; }//所属するLayer
 
 
@@ -173,14 +173,14 @@ namespace _20220122
 
         protected void TThumb_LostFocus(object sender, RoutedEventArgs e)
         {
-            TThumb thumb = sender as TThumb;
+            BaseThumb thumb = sender as BaseThumb;
             thumb.VisibleFrame = Visibility.Collapsed;
         }
 
         protected void TThumb_GotFocus(object sender, RoutedEventArgs e)
         {
             TThumb thumb = sender as TThumb;
-            if (thumb.ParentGroupThumb.visibleFrame == Visibility.Visible)
+            if (thumb.ParentThumb.visibleFrame == Visibility.Visible)
             {
                 var neko = 0;
             }
@@ -188,7 +188,7 @@ namespace _20220122
             //枠表示
             if (e.OriginalSource == e.Source)
             {
-                TThumb top = GetTopGroupThumb(thumb);
+                BaseThumb top = GetTopGroupThumb(thumb);
                 top.VisibleFrame = Visibility.Visible;
 
 
@@ -199,54 +199,77 @@ namespace _20220122
 
         protected void TThumb_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
-            
+            if (e.OriginalSource is BaseThumb target && sender is Layer thumb)
+            {
+                thumb.LastClickedThumb = target;
+            }
         }
-      
+
+        ///// <summary>
+        ///// ParentThumbのbounds取得
+        ///// </summary>
+        ///// <param name="baseThumb"></param>
+        ///// <returns></returns>
+        //        protected Rect GetGroupRect(BaseThumb baseThumb)
+        //        {
+        //            Rect r;
+        //            if (baseThumb.ParentThumb is TTGroup group)
+        //            {
+        //                r = baseThumb.bounds;
+        //                foreach (var item in group.ChildrenList)
+        //                {
+        //                    r.Union(item.bounds);
+        //                }
+        //            }
+        //            else { r = baseThumb.bounds; }
+        //            return r;
+        //        }
         //子要素の移動終了時に自身のサイズ変更、一番上までサイズ変更？
         public void TThumbDragCompleted(object sender, DragCompletedEventArgs e)
         {
-            TThumb currentT = (TThumb)sender;
-            if (currentT.ParentGroupThumb == null) { return; }
-
-            //全体のRect取得
-            TTGroup group = currentT.ParentGroupThumb;
-            Rect unionRect = currentT.Bounds;
-            foreach (TThumb item in group.ChildrenList)
+            BaseThumb currentT = (BaseThumb)sender;
+            if (currentT.ParentThumb == null) { return; }
+            if (currentT.ParentThumb is TTGroup group)
             {
-                unionRect.Union(item.Bounds);
-            }
-
-
-            //Parentの座標変更
-            //Layerだった場合は移動しないで、サイズだけ変更
-            if (group.Type == TType.Layer)
-            {
-                double xOffset = 0;
-                double yOffset = 0;
-                xOffset = -unionRect.X;
-                group.ChildrenList.ForEach(i => i.X += xOffset);
-                yOffset = -unionRect.Y;
-                group.ChildrenList.ForEach(i => i.Y += yOffset);
-
-                //Layerはサイズだけ変更
-                group.Width = unionRect.Width + unionRect.X + xOffset;
-                group.Height = unionRect.Height + unionRect.Y + yOffset;
-
-            }
-            else
-            {
-                //Parentのサイズと位置変更
-                group.X += unionRect.X;
-                group.Y += unionRect.Y;
-                group.Width = unionRect.Width;
-                group.Height = unionRect.Height;
-
-                //Childrenの座標変更
-                foreach (TThumb item in group.ChildrenList)
+                //兄弟要素が収まるRect取得
+                Rect unionRect = currentT.Bounds;
+                foreach (var item in group.ChildrenList)
                 {
-                    item.X -= unionRect.X;
-                    item.Y -= unionRect.Y;
+                    unionRect.Union(item.Bounds);
                 }
+
+                //Parentの座標変更
+                //Layerだった場合
+                if (group.Type == TType.Layer)
+                {
+                    double xOffset = 0;
+                    double yOffset = 0;
+                    //兄弟要素の座標変更
+                    xOffset = -unionRect.X;
+                    group.ChildrenList.ForEach(i => i.X += xOffset);
+                    yOffset = -unionRect.Y;
+                    group.ChildrenList.ForEach(i => i.Y += yOffset);
+                    //Layerはサイズだけ変更
+                    group.Width = unionRect.Width + unionRect.X + xOffset;
+                    group.Height = unionRect.Height + unionRect.Y + yOffset;
+
+                }
+                else
+                {
+                    //Parentのサイズと位置変更
+                    group.X += unionRect.X;
+                    group.Y += unionRect.Y;
+                    group.Width = unionRect.Width;
+                    group.Height = unionRect.Height;
+
+                    //兄弟要素の座標変更
+                    foreach (BaseThumb item in group.ChildrenList)
+                    {
+                        item.X -= unionRect.X;
+                        item.Y -= unionRect.Y;
+                    }
+                }
+
             }
 
             //移動していないクリックの場合、編集状態にする
@@ -279,14 +302,16 @@ namespace _20220122
         }
 
         #endregion イベント
+
+
         /// <summary>
         /// 対象Thumbが所属する一番上のグループthumbを返す(Layer以外、なければそのまま返す)
         /// </summary>
         /// <param name="thumb"></param>
         /// <returns></returns>
-        protected TThumb GetTopGroupThumb(TThumb thumb)
+        protected BaseThumb GetTopGroupThumb(BaseThumb thumb)
         {
-            TThumb temp = thumb.ParentGroupThumb;
+            BaseThumb temp = thumb.ParentThumb;
             if (temp != null && temp.Type != TType.Layer)
             {
                 return GetTopGroupThumb(temp);
@@ -308,7 +333,7 @@ namespace _20220122
     public abstract class TThumb : BaseThumb
     {
         public TThumb()
-        {            
+        {
             this.Focusable = true;
         }
 
@@ -325,15 +350,15 @@ namespace _20220122
         //    }
         //}
 
-     
-       
+
+
     }
 
 
 
     public class Layer : TTGroup
     {
-        //public List<TThumb> MyChildren { get; set; } = new();
+        public BaseThumb LastClickedThumb { get; set; }//最後にクリックされたChildThumb
         public Layer()
         {
             Type = TType.Layer;
@@ -341,7 +366,7 @@ namespace _20220122
             DragDelta -= TThumbDragDelta;
             GotFocus -= TThumb_GotFocus;
             LostFocus -= TThumb_LostFocus;
-            PreviewMouseLeftButtonUp -= TThumb_PreviewMouseLeftButtonUp;
+            //PreviewMouseLeftButtonUp -= TThumb_PreviewMouseLeftButtonUp;
             PreviewMouseLeftButtonDown -= TThumb_PreviewMouseLeftButtonDown;
         }
 
@@ -349,8 +374,8 @@ namespace _20220122
     }
     public class TTGroup : TThumb
     {
-        public List<TThumb> ChildrenList { get; set; } = new();
-        public TThumb LastClickedThumb { get; set; }//最後にクリックされたChildThumb
+        public List<BaseThumb> ChildrenList { get; set; } = new();
+
 
         private bool isMovableChildrenMode;
 
@@ -416,17 +441,18 @@ namespace _20220122
             //フォーカスはバブルで上がってくるので停止できないので、ここで無効にしても意味が薄い
             GotFocus -= TThumb_GotFocus;
             //this.Focusable = false;
+            PreviewMouseLeftButtonUp -= TThumb_PreviewMouseLeftButtonUp;
         }
 
 
 
 
-        public void AddThumb(TThumb thumb)
+        public void AddThumb(BaseThumb thumb)
         {
             thumb.Z = ChildrenList.Count;
             ChildrenList.Add(thumb);
             GroupCanvas.Children.Add(thumb);
-            thumb.ParentGroupThumb = this;
+            thumb.ParentThumb = this;
             Panel.SetZIndex(thumb, thumb.Z);
             //レイアウト更新してからサイズ変更(調整)
             thumb.UpdateLayout();
@@ -435,6 +461,16 @@ namespace _20220122
             this.Bounds = r;
 
             thumb.DragCompleted += thumb.TThumbDragCompleted;
+
+            //Layerを登録
+            if(this is Layer layer)
+            {
+                thumb.ParentLayer = layer;
+            }
+            else
+            {
+                thumb.ParentLayer = this.ParentLayer;
+            }
 
             //if (thumb.ContextMenu == null && thumb.ParentGroupThumb.Type == TType.Group)
             //{
@@ -465,25 +501,25 @@ namespace _20220122
             this.IsMovableChildrenMode = true;
         }
 
-        private TThumb GetLastClikedThumb(TThumb thumb)
-        {
-            //最後にクリックしたThumbを記録
-            TThumb thumb = sender as TThumb;
-            if (thumb.ParentGroupThumb != null)
-            {
-                thumb.ParentGroupThumb.LastClickedThumb = thumb;
-            }
+        //private BaseThumb GetLastClickedThumb(BaseThumb thumb)
+        //{
+        //    //最後にクリックしたThumbを記録
+        //    BaseThumb thumb = sender as BaseThumb;
+        //    if (thumb.ParentThumb != null)
+        //    {
+        //        thumb.ParentThumb.LastClickedThumb = thumb;
+        //    }
 
-            return
-        }
+        //    return
+        //}
 
-        public TTGroup ToGroup(List<TThumb> thumbs, string name = "Group")
+        public TTGroup MakeGroupFromChildren(List<BaseThumb> thumbs, string name = "Group")
         {
             if (thumbs.Count < 2) { throw new ArgumentException("Thumb数が2未満"); }
             //グループThumb作成
             TTGroup group = new();
 
-            group.ParentGroupThumb = this;
+            group.ParentThumb = this;
             group.Name = name;
             group.DragCompleted += group.TThumbDragCompleted;
 
@@ -495,17 +531,17 @@ namespace _20220122
             this.GroupCanvas.Children.Add(group);
 
             //要素群をZIndex順に並べ替えたリスト作成
-            List<TThumb> items = thumbs.OrderBy(i => i.Z).ToList();
+            List<BaseThumb> items = thumbs.OrderBy(i => i.Z).ToList();
             //要素群を元の親から外してから、グループThumbの子要素にする
             for (int i = 0; i < items.Count; i++)
             {
-                TThumb tt = items[i];
+                BaseThumb tt = items[i];
                 //Layerから外す
                 this.ChildrenList.Remove(tt);
                 this.GroupCanvas.Children.Remove(tt);
 
                 //グループThumbに追加
-                tt.ParentGroupThumb = group;
+                tt.ParentThumb = group;
                 tt.Z = i;
                 group.AddThumb(tt);
 

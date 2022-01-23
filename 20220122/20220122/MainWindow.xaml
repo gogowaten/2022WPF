@@ -6,15 +6,23 @@
         xmlns:local="clr-namespace:_20220122"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
     <Canvas x:Name="MyCanvas">
-      <TextBlock x:Name="Test1" Text="Test" PreviewMouseUp="TextBlock_PreviewMouseUp"/>
-      <Canvas x:Name="MyCanvas1">
-        <TextBlock x:Name="Test2" Text="Test" PreviewMouseUp="TextBlock_PreviewMouseUp"/>
-        <Canvas x:Name="MyCanvas2">
-          <TextBlock x:Name="Test3" Text="Test" PreviewMouseUp="TextBlock_PreviewMouseUp"/>
-        </Canvas>
-      </Canvas>
+      <local:Layer x:Name="MyLayer1"/>
     </Canvas>
-    </Grid>
+    <StackPanel Grid.Column="1">
+      <Button x:Name="ButtonTest1" Content="test1" Click="ButtonTest1_Click"/>
+      <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
+      <Button x:Name="ButtonG1" Content="0and1deG1" Click="ButtonG1_Click"/>
+      <Button x:Name="ButtonG2" Content="2and3deG2" Click="ButtonG2_Click"/>
+      <Button x:Name="ButtonG3" Content="G1andG2deG23" Click="ButtonG3_Click"/>
+      <StackPanel>
+
+      </StackPanel>
+    </StackPanel>
+  </Grid>
 </Window>
