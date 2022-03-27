@@ -16,7 +16,8 @@
         <Label Content="text" Canvas.Left="10" Canvas.Top="10" Background="Gray" Padding="10" PreviewMouseLeftButtonUp="Label_PreviewMouseLeftButtonUp"/>
       </Canvas>
     </Canvas>
-    <local:TThumb x:Name="MyTT" Width="300" Height="200" Background="WhiteSmoke" Canvas.Top="200"/>
+    <local:TThumb x:Name="MyTT" Width="300" Height="200" Background="White" Canvas.Top="200" BGColor="blue">
+    </local:TThumb>
 
 
   </Canvas>

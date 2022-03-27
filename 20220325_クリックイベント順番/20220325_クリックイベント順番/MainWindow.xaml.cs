@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,12 +30,12 @@ namespace _20220325_クリックイベント順番
         {
             MyTT.AddElement(MakeLabel("t 1",Brushes.Gray), 10, 10);
 
-            TThumb thumb = new();
+            TThumb thumb = new("text1");
             MyTT.AddElement(thumb, 70, 20);
             thumb.Width = 50; thumb.Height = 50;thumb.Background = Brushes.Silver;
             thumb.AddElement(MakeLabel("text", Brushes.Gray), 10, 10);
 
-            thumb = new();
+            thumb = new("text2");
             MyTT.AddElement(thumb, 170, 120);
             thumb.Width = 50; thumb.Height = 50; thumb.Background = Brushes.Silver;
             thumb.AddElement(MakeLabel("text", Brushes.Gray), 10, 10);
@@ -42,7 +43,7 @@ namespace _20220325_クリックイベント順番
         private Label MakeLabel(string text, Brush brush)
         {
             Label label = new() { Content = text, Background = brush, Padding = new Thickness(10) };            
-            label.PreviewMouseLeftButtonDown += Label_PreviewMouseLeftButtonDown;
+            //label.PreviewMouseLeftButtonDown += Label_PreviewMouseLeftButtonDown;
             return label;
         }
 
@@ -61,11 +62,32 @@ namespace _20220325_クリックイベント順番
         }
     }
 
-    public class TThumb : System.Windows.Controls.Primitives.Thumb
+    public class TThumb : System.Windows.Controls.Primitives.Thumb, System.ComponentModel.INotifyPropertyChanged
     {
         private string PANEL_NAME = "panel";
         private Canvas MyCanvas;
-        static int MyCount = 0;
+        private Brush bGColor;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public Brush BGColor
+        {
+            get => bGColor;
+            set
+            {
+                if(value != bGColor)
+                {
+                    bGColor = value;
+                    //MyCanvas.Background = bGColor;
+                }
+                
+
+            }
+        }
 
         public TThumb()
         {
@@ -81,8 +103,11 @@ namespace _20220325_クリックイベント順番
             MyCanvas.SetBinding(Canvas.BackgroundProperty, b);
 
             this.PreviewMouseLeftButtonUp += TThumb_PreviewMouseLeftButtonUp;
-            this.Name = $"thumb{MyCount}";
-            MyCount++;
+        }
+        public TThumb(string name) : this()
+        {
+
+            this.Name = name;
         }
 
         private void TThumb_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
