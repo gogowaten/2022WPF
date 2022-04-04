@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
   <Grid>
-    <Canvas x:Name="MyCanvas">
+    <Canvas x:Name="MyCanvas">      
       <Canvas.Resources>
         <Style TargetType="Rectangle">
           <Setter Property="Width" Value="100"/>
@@ -17,7 +17,8 @@
       <Rectangle x:Name="R1" Canvas.Top="0" Canvas.Left="0" Fill="Cyan" Panel.ZIndex="0"/>
       <Rectangle x:Name="R2" Canvas.Top="20" Canvas.Left="20" Fill="MediumAquamarine" Panel.ZIndex="-1"/>
       <Rectangle x:Name="R3" Canvas.Top="40" Canvas.Left="40" Fill="MediumBlue" Panel.ZIndex="-3"/>
-      <Rectangle x:Name="R4" Canvas.Top="60" Canvas.Left="60" Fill="Gold" Panel.ZIndex="0"/>
+      <Rectangle x:Name="R4" Canvas.Top="{Binding Path=Top}" Canvas.Left="60" Fill="Gold" Panel.ZIndex="{Binding Path=ZIndex}"/>
+      <Button x:Name="Button1" Content="test" Click="Button1_Click"/>
     </Canvas>
   </Grid>
 </Window>
