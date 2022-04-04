@@ -28,21 +28,24 @@ namespace _20220325_クリックイベント順番
         }
         private void Test()
         {
-            MyTT.AddElement(MakeLabel("t 1",Brushes.Gray), 10, 10);
+            MyTT.AddElement(MakeLabel("t 1", Brushes.Gray), 10, 10);
 
             TThumb thumb = new("text1");
             MyTT.AddElement(thumb, 70, 20);
-            thumb.Width = 50; thumb.Height = 50;thumb.Background = Brushes.Silver;
+            thumb.Width = 50; thumb.Height = 50; thumb.Background = Brushes.Silver;
             thumb.AddElement(MakeLabel("text", Brushes.Gray), 10, 10);
 
             thumb = new("text2");
             MyTT.AddElement(thumb, 170, 120);
             thumb.Width = 50; thumb.Height = 50; thumb.Background = Brushes.Silver;
             thumb.AddElement(MakeLabel("text", Brushes.Gray), 10, 10);
+
+
+
         }
         private Label MakeLabel(string text, Brush brush)
         {
-            Label label = new() { Content = text, Background = brush, Padding = new Thickness(10) };            
+            Label label = new() { Content = text, Background = brush, Padding = new Thickness(10) };
             //label.PreviewMouseLeftButtonDown += Label_PreviewMouseLeftButtonDown;
             return label;
         }
@@ -79,12 +82,12 @@ namespace _20220325_クリックイベント順番
             get => bGColor;
             set
             {
-                if(value != bGColor)
+                if (value != bGColor)
                 {
                     bGColor = value;
                     //MyCanvas.Background = bGColor;
                 }
-                
+
 
             }
         }

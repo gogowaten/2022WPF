@@ -7,11 +7,22 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="600">
   <Canvas Background="AliceBlue" UseLayoutRounding="True">
-    <TextBlock Text="text" Canvas.Left="10" Canvas.Top="10" Background="Gray" Padding="10"/>
-    <Canvas Background="LightGray" Canvas.Left="100" Canvas.Top="10" Width="300" Height="200">
+    <BulletDecorator Background="Red">
+      <BulletDecorator.Bullet>
+        <BulletDecorator Background="Cyan">
+          <BulletDecorator.Bullet>
+            <TextBlock Text="bullet3"/>
+          </BulletDecorator.Bullet>
+          <TextBlock Text="bullet1"/>
+        </BulletDecorator>
+      </BulletDecorator.Bullet>
+      <TextBlock Text="bullet2"/>
+    </BulletDecorator>
+    <TextBlock Text="text" Canvas.Left="10" Canvas.Top="30" Background="Gray" Padding="10"/>
+    <Canvas Background="LightGray" Canvas.Left="100" Canvas.Top="30" Width="300" Height="200">
       <TextBlock Text="text" Canvas.Left="10" Canvas.Top="10" Background="Gray" Padding="10"/>
       <TextBlock Text="text" Canvas.Left="50" Canvas.Top="130" Background="Gray" Padding="10"/>
-      <Canvas Background="WhiteSmoke" Canvas.Left="150" Canvas.Top="10" Width="100" Height="180">        
+      <Canvas Background="WhiteSmoke" Canvas.Left="150" Canvas.Top="10" Width="100" Height="180">
         <Label Content="text" Canvas.Left="50" Canvas.Top="130" Background="Gray" Padding="10" PreviewMouseLeftButtonUp="Label_PreviewMouseLeftButtonUp"/>
         <Label Content="text" Canvas.Left="10" Canvas.Top="10" Background="Gray" Padding="10" PreviewMouseLeftButtonUp="Label_PreviewMouseLeftButtonUp"/>
       </Canvas>
