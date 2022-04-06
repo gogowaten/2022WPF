@@ -21,42 +21,34 @@ namespace _20220406
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Canvas G1;
-        private Canvas G2;
+        private CThumb MainCanvas;
+        private CThumb G1;
         public MainWindow()
         {
             InitializeComponent();
             //this.LayoutUpdated += MainWindow_LayoutUpdated;
+            MainCanvas = new CThumb();
+            MainCanvas.Background = Brushes.Snow;
+            MainCanvas.Width = 200;
+            MainCanvas.Height = 100;
+            MyCanvas.Children.Add(MainCanvas);
             AddG();
 
         }
 
-        private void MainWindow_LayoutUpdated(object sender, EventArgs e)
-        {
-        }
 
         private void AddG()
         {
-            G1 = new Canvas();
-            TextBlock textBlock = new() { Text = "text1", Margin = new Thickness(10) };
-            CThumb cThumb = new(textBlock);
-            MyCanvas.AddElement(cThumb, 20, 0);
+            G1 = new CThumb(new TextBlock() { Text = "text1", Margin = new Thickness(10) });
+            MainCanvas.AddElement(G1, 20, 0);
 
         }
     }
-    public class TCC1 : CThumb
-    {
-        //System.Collections.ObjectModel.ObservableCollection<TT> Children;
-        public TCC1()
-        {
-            Width = 100;
-            Height = 100;
-        }
 
-    }
     public class CThumb : Thumb
     {
         internal Canvas RootCanvas;
+        internal CThumb Parent;
         public CThumb()
         {
             ControlTemplate template = new();
@@ -68,11 +60,12 @@ namespace _20220406
             RootCanvas.Background = Brushes.Snow;
             Canvas.SetLeft(this, 0);
             Canvas.SetTop(this, 0);
-            this.DragDelta += TC1_DragDelta;
+
         }
         public CThumb(UIElement element) : this()
         {
             AddElement(element, 0, 0);
+
         }
 
         private void TC1_DragDelta(object sender, DragDeltaEventArgs e)
@@ -87,6 +80,20 @@ namespace _20220406
             RootCanvas.Children.Add(element);
             Canvas.SetLeft(element, left);
             Canvas.SetTop(element, top);
+
+            CThumb ct = element as CThumb;
+            if (ct == null)
+            {
+                this.DragDelta += TC1_DragDelta;
+            }
+            //if (element is CThumb cThumb)
+            //{
+            //    cThumb.DragDelta += TC1_DragDelta;
+            //}
+        }
+        private void RemoveDragDelta()
+        {
+            this.DragDelta -= TC1_DragDelta;
         }
         public void RemoveElement(UIElement control)
         {

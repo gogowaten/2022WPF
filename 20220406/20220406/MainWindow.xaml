@@ -7,10 +7,8 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
   <Grid>
-    <Canvas>
-    <local:TCC1 x:Name="MyCanvas" Width="200" Canvas.Left="0" Canvas.Top="0">
-
-      </local:TCC1>
+    <Canvas Name="MyCanvas">
+   
     </Canvas>
   </Grid>
 </Window>
