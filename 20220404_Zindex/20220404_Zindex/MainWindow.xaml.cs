@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 
 namespace _20220404_Zindex
 {
@@ -40,8 +41,9 @@ namespace _20220404_Zindex
             var d = (Data)R4.DataContext;
             d.Top = 20;
             d.ZIndex = -20;
-            
         }
+
+
     }
     public class Data : System.ComponentModel.INotifyPropertyChanged
     {
@@ -74,5 +76,6 @@ namespace _20220404_Zindex
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
     }
 }
