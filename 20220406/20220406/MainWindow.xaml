@@ -7,8 +7,15 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
   <Grid>
-    <Canvas Name="MyCanvas">
-   
-    </Canvas>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="150"/>
+    </Grid.ColumnDefinitions>
+    <Canvas Name="MyCanvas"/>
+    <StackPanel Grid.Column="1">
+      <Button x:Name="Button1" Content="Button1" Click="Button1_Click"/>
+
+    </StackPanel>
+
   </Grid>
 </Window>
