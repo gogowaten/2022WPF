@@ -32,12 +32,14 @@ namespace _20220408
 
             Items = new ObservableCollection<Item>
             {
-                new PathItem { X = 50, Y = 50, Width = 50, Height = 50, Stroke = Brushes.Red, Data = "M0,25L25,50L50,25L25,0Z", },
                 new EllipseItem { X = 200, Y = 50, Width = 50, Height = 100, Fill = Brushes.Green, },
-                new ImageItem { X = 50, Y = 200, Width = 32, Height = 32, Source = new BitmapImage(new Uri("https://teratail-v2.storage.googleapis.com/uploads/avatars/u13/132786/KnkDDC5A_thumbnail_32x32.jpg")), },
-                new RectangleItem { X = 200, Y = 200, Width = 100, Height = 50, Fill = Brushes.Blue, },
-                new RichTextBoxItem { X = 400, Y = 50, Width = 300, Height = 300, Text = "RichTextBoxItem" },
             };
+            Items.Add(new ThumbItem() { BackGround = Brushes.Cyan, Height = 100, Width = 100, X = 10, Y = 10 });
+        }
+
+        private void Button1_Click(object sender, RoutedEventArgs e)
+        {
+            Items.Add(new ThumbItem() { BackGround = Brushes.MidnightBlue, Height = 100, Y = 100, X = 100, Width = 100 });
         }
     }
     public class Item
@@ -47,30 +49,18 @@ namespace _20220408
         public double Width { get; set; }
         public double Height { get; set; }
     }
-
-    public class PathItem : Item
+    public class ThumbItem : Item
     {
-        public Brush Stroke { get; set; }
-        public string Data { get; set; }
+        public Brush BackGround { get; set; }
     }
+
 
     public class EllipseItem : Item
     {
         public Brush Fill { get; set; }
     }
 
-    public class ImageItem : Item
-    {
-        public ImageSource Source { get; set; }
-    }
 
-    public class RectangleItem : Item
-    {
-        public Brush Fill { get; set; }
-    }
 
-    public class RichTextBoxItem : Item
-    {
-        public string Text { get; set; }
-    }
+
 }

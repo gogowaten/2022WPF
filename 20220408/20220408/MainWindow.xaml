@@ -7,42 +7,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
   <Window.Resources>
-    <DataTemplate DataType="{x:Type local:PathItem}">
-      <Path
-        Width="{Binding Width}"
-        Height="{Binding Height}"
-        Data="{Binding Data}"
-        Stroke="{Binding Stroke}" />
+    <DataTemplate DataType="{x:Type local:ThumbItem}">
+      <Thumb Width="{Binding Width}" 
+             Height="{Binding Height}"
+             Background="{Binding BackGround}"/>
     </DataTemplate>
     <DataTemplate DataType="{x:Type local:EllipseItem}">
-      <Ellipse
-        Width="{Binding Width}"
-        Height="{Binding Height}"
-        Fill="{Binding Fill}" />
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type local:ImageItem}">
-      <Image
-        Width="{Binding Width}"
-        Height="{Binding Height}"
-        Source="{Binding Source}" />
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type local:RectangleItem}">
-      <Rectangle
-        Width="{Binding Width}"
-        Height="{Binding Height}"
-        Fill="{Binding Fill}" />
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type local:RichTextBoxItem}">
-      <RichTextBox Width="{Binding Width}" Height="{Binding Height}">
-        <FlowDocument>
-          <Paragraph>
-            <Run Text="{Binding Text}" />
-          </Paragraph>
-        </FlowDocument>
-      </RichTextBox>
+      <Ellipse Width="{Binding Width}"
+               Height="{Binding Height}"
+               Fill="{Binding Fill}" />
     </DataTemplate>
   </Window.Resources>
-    <Grid>
+
+  <Grid>
     <ItemsControl ItemsSource="{Binding Items}">
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
@@ -56,5 +33,6 @@
         </Style>
       </ItemsControl.ItemContainerStyle>
     </ItemsControl>
+    <Button x:Name="Button1" Width="100" Height="30" Content="Add" Click="Button1_Click"/>
   </Grid>
 </Window>
