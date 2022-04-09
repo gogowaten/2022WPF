@@ -13,11 +13,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
-//Canvasコントロールの子要素を動的に増減させたい
-//https://teratail.com/questions/359699
+using System.Windows.Controls.Primitives;
 
 
-namespace _20220408
+namespace _20220409_CanvasBinding
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -32,7 +31,7 @@ namespace _20220408
 
             Items = new ObservableCollection<Item>
             {
-                new EllipseItem { X = 200, Y = 50, Width = 50, Height = 100, Fill = Brushes.Green, }
+                new EllipseItem { X = 200, Y = 50, Width = 50, Height = 100, Fill = Brushes.Green, },
             };
             Items.Add(new ThumbItem() { BackGround = Brushes.Cyan, Height = 100, Width = 100, X = 10, Y = 10 });
         }
@@ -59,8 +58,4 @@ namespace _20220408
     {
         public Brush Fill { get; set; }
     }
-
-
-
-
 }
