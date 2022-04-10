@@ -7,32 +7,11 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
   <Window.Resources>
-    <DataTemplate DataType="{x:Type local:ThumbItem}">
-      <Thumb Width="{Binding Width}" 
-             Height="{Binding Height}"
-             Background="{Binding BackGround}"/>
-    </DataTemplate>
-    <DataTemplate DataType="{x:Type local:EllipseItem}">
-      <Ellipse Width="{Binding Width}"
-               Height="{Binding Height}"
-               Fill="{Binding Fill}" />
-    </DataTemplate>
+
   </Window.Resources>
 
-  <Grid>
-    <ItemsControl ItemsSource="{Binding Items}">
-      <ItemsControl.ItemsPanel>
-        <ItemsPanelTemplate>
-          <Canvas />
-        </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
-      <ItemsControl.ItemContainerStyle>
-        <Style>
-          <Setter Property="Canvas.Left" Value="{Binding X}" />
-          <Setter Property="Canvas.Top" Value="{Binding Y}" />
-        </Style>
-      </ItemsControl.ItemContainerStyle>
-    </ItemsControl>
+  <Canvas x:Name="MyGrid">
+   
     <Button x:Name="Button1" Width="100" Height="30" Content="Add" Click="Button1_Click"/>
-  </Grid>
+  </Canvas>
 </Window>
