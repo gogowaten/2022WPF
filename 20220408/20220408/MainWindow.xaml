@@ -11,7 +11,7 @@
   </Window.Resources>
 
   <Canvas x:Name="MyGrid">
-   
-    <Button x:Name="Button1" Width="100" Height="30" Content="Add" Click="Button1_Click"/>
+    <Button x:Name="Button1" Width="100" Height="30" Canvas.Left="200" Canvas.Top="340" Content="Add" Click="Button1_Click"/>
+    
   </Canvas>
 </Window>

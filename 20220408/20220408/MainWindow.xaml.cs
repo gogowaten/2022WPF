@@ -29,25 +29,35 @@ namespace _20220408
 
         private AThumb MyTT;
         private GThumb MyGroup1;
+        private GThumb MyGroup2;
+        private UserControl2 My2;
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
+
+            My2 = new();
+            My2.Content = new DataText("usercontrol2", 10, 100, 0);
+            MyGrid.Children.Add(My2);
+
 
             MyTT = new(new TextBlock() { Text = "test", FontSize = 20 });
             MyGrid.Children.Add(MyTT);
 
             MyGroup1 = new();
             MyGrid.Children.Add(MyGroup1);
-            MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "atse", FontSize = 30 }));
-            //MyTT.AddItem(new TextBlock() { Text = "test", FontSize = 20 }, 10, 100);
+            MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "item1-1", FontSize = 30 }));
 
+            //MyGroup2 = new();
+            //MyGrid.Children.Add(MyGroup2);
+            //MyGroup2.AddItem(new AThumb(new TextBlock() { Text = "item2-1", FontSize = 30 }));
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
             //MyGroup1.AddToEventRoute()
-            MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "addItem1", FontSize = 30 }));
+            MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "item1-2", FontSize = 30 }, 100, 100));
 
         }
     }
@@ -55,7 +65,9 @@ namespace _20220408
     public class AThumb : Thumb
     {
         public ContentControl MyContent { get; set; }
-        public AThumb(UIElement element)
+        public double X { get; set; }
+        public double Y { get; set; }
+        public AThumb(UIElement element, double x = 0, double y = 0)
         {
             ControlTemplate template = new();
             template.VisualTree = new FrameworkElementFactory(typeof(ContentControl), nameof(MyContent));
@@ -63,46 +75,60 @@ namespace _20220408
             this.ApplyTemplate();
             MyContent = (ContentControl)template.FindName(nameof(MyContent), this);
             MyContent.Content = element;
-            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
-            DragDelta += AThumb_DragDelta;
+            Canvas.SetLeft(this, x); Canvas.SetTop(this, y);
+
         }
 
+        public void AddDragDelta()
+        {
+            this.DragDelta += AThumb_DragDelta;
+        }
+        public void RemoveDragDelta()
+        {
+            this.DragDelta -= AThumb_DragDelta;
+        }
         private void AThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            Canvas.SetLeft(this, Canvas.GetLeft(this) + e.HorizontalChange);
-            Canvas.SetTop(this, Canvas.GetTop(this) + e.VerticalChange);
+            //Canvas.SetLeft(this, X + e.HorizontalChange);
+            //Canvas.SetTop(this, Y + e.VerticalChange);
         }
     }
     public class GThumb : Thumb
     {
         public ObservableCollection<AThumb> Items { get; set; } = new();
         public IItemsControl BasePanel { get; set; }
-        public GThumb()
+        public double X { get; set; }
+        public double Y { get; set; }
+        public GThumb(double x = 0, double y = 0)
         {
+            this.X = x; this.Y = y;
+            this.DataContext = this;
             ControlTemplate template = new();
             template.VisualTree = new FrameworkElementFactory(typeof(IItemsControl), nameof(BasePanel));
             this.Template = template;
             this.ApplyTemplate();
             BasePanel = (IItemsControl)template.FindName(nameof(BasePanel), this);
             BasePanel.SetBinding(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
-            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            //Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            AddDragDelta();
         }
+
         public void AddItem(AThumb item)
         {
-            BasePanel.Items.Add(item);
+            Items.Add(item);
         }
         public void AddDragDelta()
         {
             this.DragDelta += GThumb_DragDelta;
         }
-        private void GThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            Canvas.SetLeft(this, Canvas.GetLeft(this) + e.HorizontalChange);
-            Canvas.SetTop(this, Canvas.GetTop(this) + e.VerticalChange);
-        }
         public void RemoveDragDelta()
         {
             this.DragDelta -= GThumb_DragDelta;
+        }
+        private void GThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            Canvas.SetLeft(this, X + e.HorizontalChange);
+            Canvas.SetTop(this, Y + e.VerticalChange);
         }
 
     }
@@ -154,6 +180,45 @@ namespace _20220408
             this.ItemContainerStyle = style;
             style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("X")));
             style.Setters.Add(new Setter(Canvas.TopProperty, new Binding("Y")));
+
+            //this.DataContext = this.ItemsSource;
         }
+    }
+
+    public class Data
+    {
+        public Data() { }
+        public Data(double x, double y, double z, double width, double height)
+        {
+            X = x;
+            Y = y;
+            Z = z;
+            Width = width;
+            Height = height;
+        }
+
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
+
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+    public class DataText : Data
+    {
+        public DataText(string text, double x, double y, double z, double width = 0, double height = 0) : base(x, y, z, width, height)
+        {
+            Text = text;
+        }
+
+        public string Text { get; set; }
+    }
+    public class DataRect : Data
+    {
+        public DataRect(double x, double y, double z, double width, double height) : base(x, y, z, width, height)
+        {
+        }
+
+        public Brush Brush { get; set; }
     }
 }
