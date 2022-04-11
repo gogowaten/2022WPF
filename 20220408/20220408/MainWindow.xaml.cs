@@ -31,6 +31,7 @@ namespace _20220408
         private GThumb MyGroup1;
         private GThumb MyGroup2;
         private UserControl2 My2;
+        private UserControl2 My21;
 
         public MainWindow()
         {
@@ -38,16 +39,22 @@ namespace _20220408
             DataContext = this;
 
             My2 = new();
-            My2.Content = new DataText("usercontrol2", 10, 100, 0);
             MyGrid.Children.Add(My2);
+            DataText dataText = new DataText("usercontrol2", 10, 100, 0, 200, 30);
+            My2.Data = dataText;
 
+            My21 = new();
+            MyGrid.Children.Add(My21);
+            DataRect rect = new(100, 100, 0, 20, 100);
+            rect.Brush = Brushes.Red;
+            My21.Data = rect;
 
-            MyTT = new(new TextBlock() { Text = "test", FontSize = 20 });
-            MyGrid.Children.Add(MyTT);
+            //MyTT = new(new TextBlock() { Text = "test", FontSize = 20 });
+            //MyGrid.Children.Add(MyTT);
 
-            MyGroup1 = new();
-            MyGrid.Children.Add(MyGroup1);
-            MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "item1-1", FontSize = 30 }));
+            //MyGroup1 = new();
+            //MyGrid.Children.Add(MyGroup1);
+            //MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "item1-1", FontSize = 30 }));
 
             //MyGroup2 = new();
             //MyGrid.Children.Add(MyGroup2);
@@ -56,9 +63,9 @@ namespace _20220408
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            //MyGroup1.AddToEventRoute()
-            MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "item1-2", FontSize = 30 }, 100, 100));
-
+            var neko = My2.DataContext;
+            var x = Canvas.GetLeft(My2);
+            //My2.Data.X = 200;
         }
     }
 

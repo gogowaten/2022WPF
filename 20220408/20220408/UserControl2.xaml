@@ -6,6 +6,9 @@
              xmlns:local="clr-namespace:_20220408"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+  <!--<UserControl.DataContext>
+    <Binding Path="MyData"/>
+  </UserControl.DataContext>-->
   <UserControl.Resources>
     <DataTemplate DataType="{x:Type local:DataRect}">
       <Rectangle
@@ -20,25 +23,24 @@
         Text="{Binding Text}" />
     </DataTemplate>
   </UserControl.Resources>
-  <UserControl.DataContext>
-    <local:Data/>
-  </UserControl.DataContext>
-  <Grid>
+  <UserControl.Style>
+    <Style>
+      <Setter Property="Canvas.Left" Value="{Binding Path=Data.X}"/>
+      <Setter Property="Canvas.Top" Value="{Binding Path=Data.Y}"/>
+    </Style>
+  </UserControl.Style>
     <Thumb>
-      <Thumb.DataContext>
-        <local:Data/>
-      </Thumb.DataContext>
       <Thumb.Template>
         <ControlTemplate>
-          <ContentControl/>
+          <ContentControl Content="{Binding Data}"/>
         </ControlTemplate>
       </Thumb.Template>
-      <Thumb.Style>
+      <!--<Thumb.Style>
         <Style>
           <Setter Property="Canvas.Left" Value="{Binding Path=X}"/>
           <Setter Property="Canvas.Top" Value="{Binding Path=Y}"/>
         </Style>
-      </Thumb.Style>
+      </Thumb.Style>-->
     </Thumb>
     <!--<ItemsControl ItemsSource="{Binding Items}">
     <ItemsControl>
@@ -54,5 +56,5 @@
         </Style>
       </ItemsControl.ItemContainerStyle>
     </ItemsControl>-->
-  </Grid>
+  
 </UserControl>

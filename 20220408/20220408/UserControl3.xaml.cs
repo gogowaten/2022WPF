@@ -16,20 +16,13 @@ using System.Windows.Shapes;
 namespace _20220408
 {
     /// <summary>
-    /// UserControl2.xaml の相互作用ロジック
+    /// UserControl3.xaml の相互作用ロジック
     /// </summary>
-    public partial class UserControl2 : UserControl
+    public partial class UserControl3 : UserControl
     {
-        public Data Data { get; set; }
-        public UserControl2()
+        public UserControl3()
         {
             InitializeComponent();
-            this.DataContext = this;
-            
         }
-        //public void SetData(Data data)
-        //{
-        //    Data = data;
-        //}
     }
 }
