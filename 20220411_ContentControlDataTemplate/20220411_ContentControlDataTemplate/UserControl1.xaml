@@ -24,7 +24,7 @@
 
   <UserControl.Style>
     <Style>
-      <Setter Property="Canvas.Left" Value="{Binding MyData.X}"/>
+      <Setter Property="Canvas.Left" Value="{Binding MyData.X, Mode=TwoWay}"/>
       <Setter Property="Canvas.Top" Value="{Binding MyData.Y}"/>
       <Setter Property="Panel.ZIndex" Value="{Binding MyData.Z}"/>
     </Style>

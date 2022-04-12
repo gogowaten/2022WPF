@@ -10,8 +10,25 @@
 
   </Window.Resources>
 
-  <Canvas x:Name="MyGrid">
+  <Canvas x:Name="MyGrid" UseLayoutRounding="True">
     <Button x:Name="Button1" Width="100" Height="30" Canvas.Left="200" Canvas.Top="340" Content="Add" Click="Button1_Click"/>
-    
+    <Path x:Name="MyPath" Stroke="Magenta" StrokeThickness="1">
+      <Path.Data>
+        <PathGeometry>
+          <PathGeometry.Figures>
+            <PathFigureCollection>
+              <PathFigure IsClosed="True" StartPoint="10,100">
+                <PathFigure.Segments>
+                  <PathSegmentCollection>
+                    <LineSegment Point="100,100" />
+                    <LineSegment Point="100,50" />
+                  </PathSegmentCollection>
+                </PathFigure.Segments>
+              </PathFigure>
+            </PathFigureCollection>
+          </PathGeometry.Figures>
+        </PathGeometry>
+      </Path.Data>
+    </Path>
   </Canvas>
 </Window>

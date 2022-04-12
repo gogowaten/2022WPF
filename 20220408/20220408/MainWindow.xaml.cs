@@ -32,40 +32,32 @@ namespace _20220408
         private GThumb MyGroup2;
         private UserControl2 My2;
         private UserControl2 My21;
+        private Path MyPath2;
 
         public MainWindow()
         {
             InitializeComponent();
             DataContext = this;
 
-            My2 = new();
-            MyGrid.Children.Add(My2);
-            DataText dataText = new DataText("usercontrol2", 10, 100, 0, 200, 30);
-            My2.Data = dataText;
+            MyPath2 = new();
+            MyGrid.Children.Add(MyPath2);
+            RenderOptions.SetEdgeMode(MyPath2, EdgeMode.Aliased);
+            Canvas.SetLeft(MyPath2, 10);Canvas.SetTop(MyPath2, 10);
+            MyPath2.Stroke = Brushes.Red;
+            //MyPath2.Data = new LineGeometry(new(10, 0), new(50, 50));
+            //MyPath2.Data = new EllipseGeometry(new Rect(new Size(50, 50)));
+            MyPath2.Data = new RectangleGeometry(new Rect(new Size(50, 50)));
 
-            My21 = new();
-            MyGrid.Children.Add(My21);
-            DataRect rect = new(100, 100, 0, 20, 100);
-            rect.Brush = Brushes.Red;
-            My21.Data = rect;
-
-            //MyTT = new(new TextBlock() { Text = "test", FontSize = 20 });
-            //MyGrid.Children.Add(MyTT);
-
-            //MyGroup1 = new();
-            //MyGrid.Children.Add(MyGroup1);
-            //MyGroup1.AddItem(new AThumb(new TextBlock() { Text = "item1-1", FontSize = 30 }));
-
-            //MyGroup2 = new();
-            //MyGrid.Children.Add(MyGroup2);
-            //MyGroup2.AddItem(new AThumb(new TextBlock() { Text = "item2-1", FontSize = 30 }));
+            PolyBezierSegment polyBezierSegment;
+            Polygon polygon;
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            var neko = My2.DataContext;
+            var neko = MyPath.Data;
             var x = Canvas.GetLeft(My2);
             //My2.Data.X = 200;
+            
         }
     }
 
@@ -227,5 +219,12 @@ namespace _20220408
         }
 
         public Brush Brush { get; set; }
+    }
+    public class DataPath : Data
+    {
+        public DataPath(double x, double y, double z, double width=double.NaN, double height=double.NaN) : base(x, y, z, width, height)
+        {
+        }
+        
     }
 }
