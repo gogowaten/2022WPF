@@ -27,9 +27,9 @@ namespace _20220408
     public partial class MainWindow : Window
     {
 
-        private AThumb MyTT;
-        private GThumb MyGroup1;
-        private GThumb MyGroup2;
+        //private AThumb MyTT;
+        //private GThumb MyGroup1;
+        //private GThumb MyGroup2;
         private UserControl2 My2;
         private UserControl2 My21;
         private Path MyPath2;
@@ -40,16 +40,44 @@ namespace _20220408
             DataContext = this;
 
             MyPath2 = new();
-            MyGrid.Children.Add(MyPath2);
-            RenderOptions.SetEdgeMode(MyPath2, EdgeMode.Aliased);
-            Canvas.SetLeft(MyPath2, 10);Canvas.SetTop(MyPath2, 10);
-            MyPath2.Stroke = Brushes.Red;
+            //MyGrid.Children.Add(MyPath2);
+            //RenderOptions.SetEdgeMode(MyPath2, EdgeMode.Aliased);
+            //Canvas.SetLeft(MyPath2, 10); Canvas.SetTop(MyPath2, 10);
+            //MyPath2.Stroke = Brushes.Cyan;
             //MyPath2.Data = new LineGeometry(new(10, 0), new(50, 50));
             //MyPath2.Data = new EllipseGeometry(new Rect(new Size(50, 50)));
-            MyPath2.Data = new RectangleGeometry(new Rect(new Size(50, 50)));
+            //MyPath2.Data = new RectangleGeometry(new Rect(new Size(50, 50)));
+            DataPath dataPath = new(new RectangleGeometry(new Rect(new Size(50, 50))), Brushes.Gold, 0, 0, 0);
+            My2 = new();
+            My2.Data = dataPath;
+            MyGrid.Children.Add(My2);
 
-            PolyBezierSegment polyBezierSegment;
-            Polygon polygon;
+            //Polygonは点から点をつなく直線だけなのでPathで代用できる
+            Polygon polygon = new();
+            MyGrid.Children.Add(polygon);
+            //RenderOptions.SetEdgeMode(polygon, EdgeMode.Aliased);
+            polygon.Points.Add(new Point(110, 50));
+            polygon.Points.Add(new Point(200, 180));
+            polygon.Points.Add(new Point(150, 10));
+            polygon.Stroke = Brushes.Red;
+
+
+            PolyBezierSegment polyBezierSegment = new();
+            BezierSegment bezierSegment = new(new(120, 120), new(100, 200), new(300, 300), true);
+            QuadraticBezierSegment quadraticBezierSegment = new(new(120, 130), new(220, 220), true);
+            PolyQuadraticBezierSegment polyQuadraticBezierSegment = new();
+            PathSegmentCollection pathSegments = new();
+            pathSegments.Add(bezierSegment);
+            Path path = new();
+            PathFigure pathFigure = new();
+            pathFigure.Segments.Add(bezierSegment);
+            PathGeometry pathGeometry = new();
+            pathGeometry.Figures.Add(pathFigure);
+            path.Data = pathGeometry;
+            path.Stroke = Brushes.Magenta;
+            //MyGrid.Children.Add(path);
+            My21 = new();MyGrid.Children.Add(My21);
+            My21.Data = new DataPath(pathGeometry, Brushes.MediumAquamarine, 30, 0, 0);
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
@@ -57,7 +85,7 @@ namespace _20220408
             var neko = MyPath.Data;
             var x = Canvas.GetLeft(My2);
             //My2.Data.X = 200;
-            
+
         }
     }
 
@@ -222,9 +250,15 @@ namespace _20220408
     }
     public class DataPath : Data
     {
-        public DataPath(double x, double y, double z, double width=double.NaN, double height=double.NaN) : base(x, y, z, width, height)
+        public DataPath(Geometry geometry, Brush stroke, double x, double y, double z, double width = double.NaN, double height = double.NaN) : base(x, y, z, width, height)
         {
+            Geometry = geometry;
+            Stroke = stroke;
         }
-        
+        public Geometry Geometry { get; set; }
+        public Brush Stroke { get; set; }
     }
+
+
+
 }

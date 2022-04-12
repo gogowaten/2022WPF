@@ -22,6 +22,9 @@
         Height="{Binding Height}"
         Text="{Binding Text}" />
     </DataTemplate>
+    <DataTemplate DataType="{x:Type local:DataPath}">
+      <Path Data="{Binding Geometry}" Stroke="{Binding Stroke}"/>      
+    </DataTemplate>
   </UserControl.Resources>
   <UserControl.Style>
     <Style>
