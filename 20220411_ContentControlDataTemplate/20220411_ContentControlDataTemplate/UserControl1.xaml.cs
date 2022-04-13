@@ -66,4 +66,15 @@ namespace _20220411_ContentControlDataTemplate
 
         public Brush Brush { get; set; }
     }
+    public class DataPath : Data
+    {
+        public DataPath(Geometry geometry, Brush stroke, double x, double y, double z, double width = double.NaN, double height = double.NaN) : base(x, y, z, width, height)
+        {
+            Geometry = geometry;
+            Stroke = stroke;
+        }
+        public Geometry Geometry { get; set; }
+        public Brush Stroke { get; set; }
+    }
+
 }

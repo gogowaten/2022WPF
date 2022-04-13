@@ -19,6 +19,9 @@
         Text="{Binding Text}"
         FontSize="{Binding FontSize}"/>
     </DataTemplate>
+    <DataTemplate DataType="{x:Type local:DataPath}">
+      <Path Data="{Binding Geometry}" Stroke="{Binding Stroke}"/>
+    </DataTemplate>
   </UserControl.Resources>
 
 
