@@ -11,6 +11,7 @@
   </Window.Resources>
 
   <Canvas x:Name="MyGrid" UseLayoutRounding="True">
+    <local:Class1 x:Name="MyClass1" Width="100" Height="100"/>
     <Button x:Name="Button1" Width="100" Height="30" Canvas.Left="200" Canvas.Top="340" Content="Add" Click="Button1_Click"/>
     <Path x:Name="MyPath" Stroke="Magenta" StrokeThickness="1">
       <Path.Data>
