@@ -20,7 +20,9 @@ namespace _20220408
     class Class1 : Thumb
     {
         public ObservableCollection<Class1Item> MyDatas { get; set; }
-
+        //Thumb.Template
+        // ItemsControl
+        //  ItemsPanelTemplate.Canvas
         public Class1()
         {
             this.DataContext = this;
