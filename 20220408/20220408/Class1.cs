@@ -54,11 +54,10 @@ namespace _20220408
 
 
     }
-    class Class1Item : Thumb
+    public class Class1Item : Thumb
     {
-        ContentControl MyContentControl;
-
-        public Class1Item(UIElement element, double x = 0, double y = 0)
+        protected ContentControl MyContentControl;
+        public Class1Item()
         {
             FrameworkElementFactory content = new(typeof(ContentControl), nameof(MyContentControl));
 
@@ -70,10 +69,49 @@ namespace _20220408
             this.Template = template;
             this.ApplyTemplate();
             MyContentControl = (ContentControl)template.FindName(nameof(MyContentControl), this);
+        }
+        public Class1Item(UIElement element, double x = 0, double y = 0):this()
+        {
+            //FrameworkElementFactory content = new(typeof(ContentControl), nameof(MyContentControl));
+
+            ////↓はエラーになる、VisualまたはContentElementから派生した値はサポートされません
+            ////content.SetValue(ContentControl.ContentProperty, element);
+
+            //ControlTemplate template = new();
+            //template.VisualTree = content;
+            //this.Template = template;
+            //this.ApplyTemplate();
+            //MyContentControl = (ContentControl)template.FindName(nameof(MyContentControl), this);
             MyContentControl.Content = element;
 
             Canvas.SetLeft(this, x);
             Canvas.SetTop(this, y);
+        }
+    }
+
+    public class TText : Class1Item
+    {
+        public DataText DataText;
+        public TText(string text)
+        {
+            DataText = new(text, 0, 0, 0);
+            TextBox textBox = new();
+            textBox.SetBinding(TextBox.TextProperty, new Binding(nameof(DataText.Text)));
+            this.MyContentControl.Content = textBox;
+
+            this.DataContext = DataText;
+        }
+        public TText(DataText dataText)
+        {
+            DataText = dataText;
+            TextBox box = new();
+            box.SetBinding(TextBox.TextProperty, new Binding(nameof(DataText.Text)));
+            this.MyContentControl.Content = box;
+            
+
+            this.DataContext = DataText;
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(DataText.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(DataText.Y)));
         }
     }
 }

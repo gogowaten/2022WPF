@@ -26,24 +26,19 @@ namespace _20220408
     /// </summary>
     public partial class MainWindow : Window
     {
-
-
+        TText MyTT;
+        TText MyTT2;
 
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = this;
 
+            MyTT = new("tttext");
+            MyGrid.Children.Add(MyTT);
 
-
-            Class1Item class1Item2 = new(new TextBlock { Text = "item2" });
-            SetLocate(class1Item2, 40, 30);
-            MyClass1.MyDatas.Add(class1Item2);
-
-            Class1Item class1Item3 = new(new Rectangle { Fill = Brushes.Red, Width = 20, Height = 20 });
-            SetLocate(class1Item3, 10, 30);
-            MyClass1.MyDatas.Add(class1Item3);
-
+            DataText dataText = new("datatext2", 50, 50, 0);
+            MyTT2 = new(dataText);
+            MyGrid.Children.Add(MyTT2);
 
         }
         private void SetLocate(UIElement element, double x, double y)
@@ -54,10 +49,8 @@ namespace _20220408
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            Class1Item class1Item = new(new TextBox { Text="textbox" });
-            SetLocate(class1Item, 5, 60);
-            MyClass1.MyDatas.Add(class1Item);
-
+            var neko = MyTT.DataText.Text;
+            MyTT.DataText.Text = "henkou";
 
         }
     }
@@ -185,53 +178,7 @@ namespace _20220408
         }
     }
 
-    public class Data
-    {
-        public Data() { }
-        public Data(double x, double y, double z, double width, double height)
-        {
-            X = x;
-            Y = y;
-            Z = z;
-            Width = width;
-            Height = height;
-        }
-
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-
-        public double Width { get; set; }
-        public double Height { get; set; }
-    }
-    public class DataText : Data
-    {
-        public DataText(string text, double x, double y, double z, double width = 0, double height = 0) : base(x, y, z, width, height)
-        {
-            Text = text;
-        }
-
-        public string Text { get; set; }
-    }
-    public class DataRect : Data
-    {
-        public DataRect(double x, double y, double z, double width, double height) : base(x, y, z, width, height)
-        {
-        }
-
-        public Brush Brush { get; set; }
-    }
-    public class DataPath : Data
-    {
-        public DataPath(Geometry geometry, Brush stroke, double x, double y, double z, double width = double.NaN, double height = double.NaN) : base(x, y, z, width, height)
-        {
-            Geometry = geometry;
-            Stroke = stroke;
-        }
-        public Geometry Geometry { get; set; }
-        public Brush Stroke { get; set; }
-    }
-
+  
 
 
 }
