@@ -40,6 +40,13 @@ namespace _20220408
             MyTT2 = new(dataText);
             MyGrid.Children.Add(MyTT2);
 
+            PolyLineSegment polyLineSegment = new();
+            polyLineSegment.Points = new PointCollection() { new (15, 0), new (30, 30) };
+            PathFigure pathFigure = new(new(0, 30), new List<PathSegment>() { polyLineSegment }, true);
+            PathGeometry pathGeo = new();
+            pathGeo.Figures.Add(pathFigure);
+            Path path = new() { Data = pathGeo, Fill = Brushes.MediumAquamarine };
+            MyGrid.Children.Add(path);
         }
         private void SetLocate(UIElement element, double x, double y)
         {
@@ -178,7 +185,7 @@ namespace _20220408
         }
     }
 
-  
+
 
 
 }

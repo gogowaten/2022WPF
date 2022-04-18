@@ -31,5 +31,14 @@
         </PathGeometry>
       </Path.Data>
     </Path>
+    <Path>
+      <Path.Data>
+        <PathGeometry>
+          <PathFigure>
+            
+          </PathFigure>
+        </PathGeometry>
+      </Path.Data>
+    </Path>
   </Canvas>
 </Window>

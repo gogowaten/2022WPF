@@ -56,9 +56,11 @@ namespace _20220418_いろいろシリアル化
 
             MyCanvas.DataContext = MyData;
 
-            Test1($"E:\\MyData.xml", MyData);
+            DataSave($"E:\\MyData.xml", MyData);
+            Data loadData = DataLoad($"E:\\MyData.xml");
+
         }
-        private void Test1(string fileName, Data data)
+        private void DataSave(string fileName, Data data)
         {
             XmlWriterSettings settings = new()
             {
@@ -80,7 +82,20 @@ namespace _20220418_いろいろシリアル化
                     MessageBox.Show(ex.Message);
                 }
             }
-
+        }
+        private Data DataLoad(string fileName)
+        {
+            DataContractSerializer serializer = new(typeof(Data));
+            try
+            {
+                using XmlReader reader = XmlReader.Create(fileName); ;
+                return (Data)serializer.ReadObject(reader);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return null;
+            }
         }
         private void Button1_Click(object sender, RoutedEventArgs e)
         {

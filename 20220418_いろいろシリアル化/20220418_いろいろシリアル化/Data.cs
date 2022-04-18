@@ -87,6 +87,8 @@ namespace _20220418_いろいろシリアル化
         [DataMember]
         public QuadraticBezierSegment QuadraticBezierSegment { get; set; }
 
+        
+        
 
         #endregion クラスの頭で属性の宣言が必要系
 
