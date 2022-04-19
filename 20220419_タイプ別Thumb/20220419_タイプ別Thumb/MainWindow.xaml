@@ -6,7 +6,17 @@
         xmlns:local="clr-namespace:_20220419_タイプ別Thumb"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas x:Name="MyCanvas"/>
+    <StackPanel x:Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="Button1" Content="Add" Click="Button1_Click"/>
+      <Border x:Name="MyBorder" Height="10" Background="{Binding Path=Stroke, Mode=TwoWay}"/>
+      <Border Height="10" Background="Aqua"/>
+      <TextBlock x:Name="MyTextBlock" Text="{Binding Text, Mode=TwoWay}"/>
+    </StackPanel>
+  </Grid>
 </Window>
