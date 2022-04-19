@@ -6,14 +6,23 @@
         xmlns:local="clr-namespace:_20220408"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-  <Window.Resources>
-
-  </Window.Resources>
-
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <StackPanel x:Name="MyStackPanel" Grid.Column="1">
+      <StackPanel.DataContext>
+        <local:Data2/>
+      </StackPanel.DataContext>
+      <Button x:Name="Button1" Content="Add" Click="Button1_Click"/>
+      <Border x:Name="MyBorder" Height="10" Background="{Binding Path=Stroke, Mode=TwoWay}"/>
+      <Border Height="10" Background="Aqua"/>
+    </StackPanel>
   <Canvas x:Name="MyGrid" UseLayoutRounding="True">
     <local:Class1 x:Name="MyClass1" Width="100" Height="100"/>
-    <Button x:Name="Button1" Width="100" Height="30" Canvas.Left="200" Canvas.Top="340" Content="Add" Click="Button1_Click"/>
-    <Path x:Name="MyPath" Stroke="Magenta" StrokeThickness="1">
+      
+      <Path x:Name="MyPath" Stroke="Magenta" StrokeThickness="1">
       <Path.Data>
         <PathGeometry>
           <PathGeometry.Figures>
@@ -31,14 +40,7 @@
         </PathGeometry>
       </Path.Data>
     </Path>
-    <Path>
-      <Path.Data>
-        <PathGeometry>
-          <PathFigure>
-            
-          </PathFigure>
-        </PathGeometry>
-      </Path.Data>
-    </Path>
-  </Canvas>
+
+    </Canvas>
+  </Grid>
 </Window>

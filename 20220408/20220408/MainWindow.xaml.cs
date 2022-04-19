@@ -28,6 +28,9 @@ namespace _20220408
     {
         TText MyTT;
         TText MyTT2;
+        IThumb MyIThumb;
+        IThumb MyIThumb2;
+        IGThumb MyIGThumb;
 
         public MainWindow()
         {
@@ -41,12 +44,29 @@ namespace _20220408
             MyGrid.Children.Add(MyTT2);
 
             PolyLineSegment polyLineSegment = new();
-            polyLineSegment.Points = new PointCollection() { new (15, 0), new (30, 30) };
+            polyLineSegment.Points = new PointCollection() { new(15, 0), new(30, 30) };
             PathFigure pathFigure = new(new(0, 30), new List<PathSegment>() { polyLineSegment }, true);
             PathGeometry pathGeo = new();
             pathGeo.Figures.Add(pathFigure);
             Path path = new() { Data = pathGeo, Fill = Brushes.MediumAquamarine };
             MyGrid.Children.Add(path);
+
+            //Data2 data1 = new(ThumbType.Path, 10, 20, new RectangleGeometry(new(0, 0, 30, 30)), Brushes.Red);
+            //MyIThumb = new(data1);
+            //MyGrid.Children.Add(MyIThumb);
+            //MyStackPanel.DataContext = data1;
+
+            //Data2 data2 = new(ThumbType.TextBlock, 100, 20, "asdfa");
+            //MyIThumb2 = new IThumb(data2);
+            //MyGrid.Children.Add(MyIThumb2);
+
+
+            Data2 data3 = new(ThumbType.Path, 10, 20, new RectangleGeometry(new(0, 0, 30, 30)), Brushes.Pink);
+            Data2 data4 = new(ThumbType.TextBlock, 100, 20, "aaaaa");
+            Data2 data5 = new(ThumbType.Group, new() { data3, data4 }, 0, 0);
+            MyIGThumb = new(data5);
+            MyGrid.Children.Add(MyIGThumb);
+
         }
         private void SetLocate(UIElement element, double x, double y)
         {
@@ -56,8 +76,20 @@ namespace _20220408
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
+            //Dataが通知プロパティじゃなくても
+            //要素ーDataー要素
+            //のとき要素の値を変更するとすべて変化する
+            //ただしDataの値を変更しても要素には伝わらない
+            //var con = MyIThumb.MyContentControl.Content;
+            //MyBorder.Background = Brushes.Blue;
+            //var data2 = MyIThumb.Data2;
+            //MyIThumb.Data2.Stroke = Brushes.Orange;
+            //data2 = MyIThumb.Data2;
+
             var neko = MyTT.DataText.Text;
             MyTT.DataText.Text = "henkou";
+            MyIGThumb.MyChildren.Add(new IGThumb(new Data2(ThumbType.TextBlock, 0, 100, "bbbbb")));
+            MyGrid.Children.Add(new IGThumb(new Data2(ThumbType.TextBlock, 100, 100, "ccccc")));
 
         }
     }
