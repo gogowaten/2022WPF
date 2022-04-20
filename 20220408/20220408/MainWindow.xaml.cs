@@ -31,42 +31,50 @@ namespace _20220408
         IThumb MyIThumb;
         IThumb MyIThumb2;
         IGThumb MyIGThumb;
-
+        IGThumb2 MyIGThumb2;
         public MainWindow()
         {
             InitializeComponent();
 
-            MyTT = new("tttext");
-            MyGrid.Children.Add(MyTT);
+            //MyTT = new("tttext");
+            //MyGrid.Children.Add(MyTT);
 
-            DataText dataText = new("datatext2", 50, 50, 0);
-            MyTT2 = new(dataText);
-            MyGrid.Children.Add(MyTT2);
+            //DataText dataText = new("datatext2", 50, 50, 0);
+            //MyTT2 = new(dataText);
+            //MyGrid.Children.Add(MyTT2);
 
-            PolyLineSegment polyLineSegment = new();
-            polyLineSegment.Points = new PointCollection() { new(15, 0), new(30, 30) };
-            PathFigure pathFigure = new(new(0, 30), new List<PathSegment>() { polyLineSegment }, true);
-            PathGeometry pathGeo = new();
-            pathGeo.Figures.Add(pathFigure);
-            Path path = new() { Data = pathGeo, Fill = Brushes.MediumAquamarine };
-            MyGrid.Children.Add(path);
+            //PolyLineSegment polyLineSegment = new();
+            //polyLineSegment.Points = new PointCollection() { new(15, 0), new(30, 30) };
+            //PathFigure pathFigure = new(new(0, 30), new List<PathSegment>() { polyLineSegment }, true);
+            //PathGeometry pathGeo = new();
+            //pathGeo.Figures.Add(pathFigure);
+            //Path path = new() { Data = pathGeo, Fill = Brushes.MediumAquamarine };
+            //MyGrid.Children.Add(path);
 
-            //Data2 data1 = new(ThumbType.Path, 10, 20, new RectangleGeometry(new(0, 0, 30, 30)), Brushes.Red);
+            Data2 data1 = new(ThumbType.Path, 10, 20, new RectangleGeometry(new(0, 0, 30, 30)), Brushes.Red);
             //MyIThumb = new(data1);
             //MyGrid.Children.Add(MyIThumb);
             //MyStackPanel.DataContext = data1;
 
-            //Data2 data2 = new(ThumbType.TextBlock, 100, 20, "asdfa");
+            Data2 data2 = new(ThumbType.TextBlock, 100, 0, "asdfa");
             //MyIThumb2 = new IThumb(data2);
             //MyGrid.Children.Add(MyIThumb2);
 
 
-            Data2 data3 = new(ThumbType.Path, 10, 20, new RectangleGeometry(new(0, 0, 30, 30)), Brushes.Pink);
+            Data2 data3 = new(ThumbType.Path, 100, 120, new RectangleGeometry(new(0, 0, 130, 30)), Brushes.DarkCyan);
             Data2 data4 = new(ThumbType.TextBlock, 100, 20, "aaaaa");
             Data2 data5 = new(ThumbType.Group, new() { data3, data4 }, 0, 0);
-            MyIGThumb = new(data5);
-            MyGrid.Children.Add(MyIGThumb);
+            //MyIGThumb = new(data5);
+            //MyGrid.Children.Add(MyIGThumb);
 
+
+            MyIGThumb2 = new IGThumb2(data1);
+            //MyIGThumb2.DataSet(data3);
+            MyGrid.Children.Add(MyIGThumb2);
+            
+            MyLayer.MySetContent(data5);
+            MyLayer.MyAddChildren(data2);
+            
         }
         private void SetLocate(UIElement element, double x, double y)
         {
