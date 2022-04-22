@@ -26,12 +26,8 @@ namespace _20220408
     /// </summary>
     public partial class MainWindow : Window
     {
-        TText MyTT;
-        TText MyTT2;
-        IThumb MyIThumb;
-        IThumb MyIThumb2;
-        IGThumb MyIGThumb;
-        IGThumb2 MyIGThumb2;
+        ItemThumb3 MyItemThumb3;
+        GroupThumb3 MyG3;
         public MainWindow()
         {
             InitializeComponent();
@@ -52,29 +48,23 @@ namespace _20220408
             //MyGrid.Children.Add(path);
 
             Data2 data1 = new(ThumbType.Path, 10, 20, new RectangleGeometry(new(0, 0, 30, 30)), Brushes.Red);
-            //MyIThumb = new(data1);
-            //MyGrid.Children.Add(MyIThumb);
-            //MyStackPanel.DataContext = data1;
-
             Data2 data2 = new(ThumbType.TextBlock, 100, 0, "asdfa");
-            //MyIThumb2 = new IThumb(data2);
-            //MyGrid.Children.Add(MyIThumb2);
-
 
             Data2 data3 = new(ThumbType.Path, 100, 120, new RectangleGeometry(new(0, 0, 130, 30)), Brushes.DarkCyan);
             Data2 data4 = new(ThumbType.TextBlock, 100, 20, "aaaaa");
             Data2 data5 = new(ThumbType.Group, new() { data3, data4 }, 0, 0);
-            //MyIGThumb = new(data5);
-            //MyGrid.Children.Add(MyIGThumb);
 
+            MyItemThumb3 = new(data1);
+            MyGrid.Children.Add(MyItemThumb3);
 
-            MyIGThumb2 = new IGThumb2(data1);
-            //MyIGThumb2.DataSet(data3);
-            MyGrid.Children.Add(MyIGThumb2);
-            
-            MyLayer.MySetContent(data5);
-            MyLayer.MyAddChildren(data2);
-            
+            MyG3 = new(100, 10);
+            ItemThumb3 item = new(data2);
+            MyG3.AddItem(item);
+            MyG3.AddItem(new ItemThumb3(data3));
+
+            MyGrid.Children.Add(MyG3);
+            //MyG3.AddData(data2);
+
         }
         private void SetLocate(UIElement element, double x, double y)
         {
@@ -93,12 +83,8 @@ namespace _20220408
             //var data2 = MyIThumb.Data2;
             //MyIThumb.Data2.Stroke = Brushes.Orange;
             //data2 = MyIThumb.Data2;
-
-            var neko = MyTT.DataText.Text;
-            MyTT.DataText.Text = "henkou";
-            MyIGThumb.MyChildren.Add(new IGThumb(new Data2(ThumbType.TextBlock, 0, 100, "bbbbb")));
-            MyGrid.Children.Add(new IGThumb(new Data2(ThumbType.TextBlock, 100, 100, "ccccc")));
-
+            Data2 data = new(ThumbType.Path, 100, 120, new RectangleGeometry(new(0, 0, 130, 130)), Brushes.Cyan);
+            MyItemThumb3.Data.Stroke = Brushes.Cyan;
         }
     }
 

@@ -175,14 +175,9 @@ namespace _20220408
         }
         public IGThumb2(Data2 data) : this()
         {
-            if (data.Children.Count == 0)
-            {
-                MySetContent(data);
-            }
-            else
-            {
 
-            }
+            MySetContent(data);
+
         }
 
         public void MySetContent(Data2 data)
@@ -221,10 +216,91 @@ namespace _20220408
             Data2.Children.Add(data);
             Children.Add(new IGThumb2(data));
         }
-
     }
 
+    public abstract class IGThumb3 : Thumb
+    {
+        public Data2 Data { get; set; }
+        public IGThumb3()
+        {
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+        }
 
+    }
+    public class ItemThumb3 : IGThumb3
+    {
+        public ContentControl Content { get; private set; }
+
+        public ItemThumb3()
+        {
+            FrameworkElementFactory content = new(typeof(ContentControl), nameof(Content));
+            ControlTemplate template = new();
+            template.VisualTree = content;
+            this.Template = template;
+            this.ApplyTemplate();
+            Content = (ContentControl)template.FindName(nameof(Content), this);
+
+        }
+        public ItemThumb3(Data2 data) : this()
+        {
+            SetData(data);
+        }
+        public void SetData(Data2 data)
+        {
+            this.Data = data;
+            this.DataContext = Data;
+            Canvas.SetLeft(this, data.X); Canvas.SetTop(this, data.Y);
+
+            FrameworkElement element = null;
+            switch (data.ItemType)
+            {
+                case ThumbType.Path:
+                    element = new Path();
+                    element.SetBinding(Path.DataProperty, new Binding(nameof(Data.Geometry)));
+                    element.SetBinding(Path.StrokeProperty, new Binding(nameof(Data.Stroke)));
+                    break;
+                case ThumbType.TextBlock:
+                    element = new TextBlock();
+                    element.SetBinding(TextBlock.TextProperty, new Binding(nameof(Data.Text)));
+                    break;
+
+            }
+            this.Content.Content = element;
+        }
+    }
+    public class GroupThumb3 : IGThumb3
+    {
+        public ObservableCollection<IGThumb3> MyChildren { get; set; } = new();
+        public GroupThumb3()
+        {
+            FrameworkElementFactory canvas = new(typeof(Canvas));
+            canvas.SetValue(BackgroundProperty, Brushes.Bisque);
+            FrameworkElementFactory itemsControl = new(typeof(ItemsControl));
+            itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(MyChildren)));
+            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
+            ControlTemplate template = new();
+            template.VisualTree = itemsControl;
+            this.Template = template;
+            this.ApplyTemplate();
+
+            this.DataContext = this;
+
+        }
+        public GroupThumb3(double x,double y) : this()
+        {
+            Canvas.SetLeft(this, x);Canvas.SetTop(this, y);
+        }
+        
+        public void AddData(Data2 data)
+        {
+            ItemThumb3 itemThumb3 = new(data);
+            MyChildren.Add(itemThumb3);
+        }
+        public void AddItem(ItemThumb3 item)
+        {
+            MyChildren.Add(item);
+        }
+    }
 
     public enum ThumbType
     {
