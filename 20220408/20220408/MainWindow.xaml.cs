@@ -28,6 +28,11 @@ namespace _20220408
     {
         ItemThumb3 MyItemThumb3;
         GroupThumb3 MyG3;
+        ItemTThumb4 MyItemTThumb4;
+        GroupTThumb4 MyGroupTThumb4;
+        GroupTThumb4 MyGroupTThumb4_1;
+        GroupTThumb4 MyGroupTThumb4_2;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -51,8 +56,9 @@ namespace _20220408
             Data2 data2 = new(ThumbType.TextBlock, 100, 0, "asdfa");
 
             Data2 data3 = new(ThumbType.Path, 100, 120, new RectangleGeometry(new(0, 0, 130, 30)), Brushes.DarkCyan);
-            Data2 data4 = new(ThumbType.TextBlock, 100, 20, "aaaaa");
-            Data2 data5 = new(ThumbType.Group, new() { data3, data4 }, 0, 0);
+            Data2 dataI1 = new(ThumbType.TextBlock, 100, 20, "aaaaa");
+            Data2 dataI2 = new(ThumbType.TextBlock, 100, 20, "bbbbb");
+            Data2 dataG1 = new(ThumbType.Group, new() { dataI1, dataI2 }, 0, 0);
 
             MyItemThumb3 = new(data1);
             MyGrid.Children.Add(MyItemThumb3);
@@ -65,6 +71,28 @@ namespace _20220408
             MyGrid.Children.Add(MyG3);
             //MyG3.AddData(data2);
 
+            MyItemTThumb4 = new(new Data3TextBlock("ItemTThumb4", 0, 120));
+            MyGrid.Children.Add(MyItemTThumb4);
+
+            MyGroupTThumb4 = new();
+            MyGrid.Children.Add(MyGroupTThumb4);
+            MyGroupTThumb4.AddItem(new ItemTThumb4(new Data3TextBlock("GItem1", 9, 140)));
+
+            List<Data3Base> list = new()
+            {
+                new Data3TextBlock("dataItem1", 70, 150),
+                new Data3TextBlock("dataItem2", 70, 170)
+            };
+            MyGroupTThumb4_1 = new(list);
+            MyGrid.Children.Add(MyGroupTThumb4_1);
+
+            List<ItemTThumb4> items = new()
+            {
+                new ItemTThumb4(new Data3TextBlock("listItem1", 140, 100)),
+                new ItemTThumb4(new Data3TextBlock("listItem2", 140, 120))
+            };
+            MyGroupTThumb4_2 = new(items);
+            MyGrid.Children.Add(MyGroupTThumb4_2);
         }
         private void SetLocate(UIElement element, double x, double y)
         {
@@ -83,8 +111,14 @@ namespace _20220408
             //var data2 = MyIThumb.Data2;
             //MyIThumb.Data2.Stroke = Brushes.Orange;
             //data2 = MyIThumb.Data2;
-            Data2 data = new(ThumbType.Path, 100, 120, new RectangleGeometry(new(0, 0, 130, 130)), Brushes.Cyan);
-            MyItemThumb3.Data.Stroke = Brushes.Cyan;
+            Data2 data = new(ThumbType.Path, 90, 20, new RectangleGeometry(new(0, 0, 30, 130)), Brushes.Cyan);
+            MyGroupTThumb4.AddItem(new ItemTThumb4(new Data3TextBlock("tuikaItem1", 10, 160)));
+            var neko = MyGroupTThumb4.MyData;
+
+            GroupTThumb4 groupTThumb4 = new(MyGroupTThumb4_2.MyData);
+            MyGrid.Children.Add(groupTThumb4);
+            Canvas.SetLeft(groupTThumb4, 200);
+
         }
     }
 

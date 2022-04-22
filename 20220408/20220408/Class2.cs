@@ -218,9 +218,13 @@ namespace _20220408
         }
     }
 
+
+    //基本クラスを作って、そこから単一と複数用クラスを派生させてみたけど
+    //中途半端な気がする
+    //データも基本クラスを作って、種類ごとに派生クラスを作る？
     public abstract class IGThumb3 : Thumb
     {
-        public Data2 Data { get; set; }
+        public Data2 MyData { get; set; }
         public IGThumb3()
         {
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
@@ -247,8 +251,8 @@ namespace _20220408
         }
         public void SetData(Data2 data)
         {
-            this.Data = data;
-            this.DataContext = Data;
+            this.MyData = data;
+            this.DataContext = MyData;
             Canvas.SetLeft(this, data.X); Canvas.SetTop(this, data.Y);
 
             FrameworkElement element = null;
@@ -256,12 +260,12 @@ namespace _20220408
             {
                 case ThumbType.Path:
                     element = new Path();
-                    element.SetBinding(Path.DataProperty, new Binding(nameof(Data.Geometry)));
-                    element.SetBinding(Path.StrokeProperty, new Binding(nameof(Data.Stroke)));
+                    element.SetBinding(Path.DataProperty, new Binding(nameof(MyData.Geometry)));
+                    element.SetBinding(Path.StrokeProperty, new Binding(nameof(MyData.Stroke)));
                     break;
                 case ThumbType.TextBlock:
                     element = new TextBlock();
-                    element.SetBinding(TextBlock.TextProperty, new Binding(nameof(Data.Text)));
+                    element.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
                     break;
 
             }
@@ -285,20 +289,151 @@ namespace _20220408
 
             this.DataContext = this;
 
+            MyData = new Data2();
+            MyData.Children = new();
+            MyData.ItemType = ThumbType.Group;
         }
-        public GroupThumb3(double x,double y) : this()
+        public GroupThumb3(double x, double y) : this()
         {
-            Canvas.SetLeft(this, x);Canvas.SetTop(this, y);
+            Canvas.SetLeft(this, x); Canvas.SetTop(this, y);
         }
-        
-        public void AddData(Data2 data)
-        {
-            ItemThumb3 itemThumb3 = new(data);
-            MyChildren.Add(itemThumb3);
-        }
+
+        //public void AddData(Data2 data)
+        //{
+        //    ItemThumb3 itemThumb3 = new(data);
+        //    MyChildren.Add(itemThumb3);
+        //}
         public void AddItem(ItemThumb3 item)
         {
             MyChildren.Add(item);
+            MyData.Children.Add(item.MyData);
+        }
+        public void AddItem(List<ItemThumb3> items)
+        {
+            foreach (var item in items)
+            {
+                AddItem(item);
+            }
+        }
+    }
+
+
+    public class TThumb4 : Thumb
+    {
+        public Data3Base MyData { get; set; }
+        public TThumb4()
+        {
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+        }
+        public override string ToString()
+        {
+            //return base.ToString();
+            return $"x, y = ({MyData.X}, {MyData.Y}), type = {MyData.ItemType}";
+        }
+    }
+    public class ItemTThumb4 : TThumb4
+    {
+        public ContentControl MyContent { get; private set; }
+
+        public ItemTThumb4()
+        {
+            FrameworkElementFactory content = new(typeof(ContentControl), nameof(MyContent));
+            ControlTemplate template = new();
+            template.VisualTree = content;
+            this.Template = template;
+            this.ApplyTemplate();
+            MyContent = (ContentControl)template.FindName(nameof(MyContent), this);
+
+        }
+        public ItemTThumb4(Data3Base data) : this()
+        {
+            SetData(data);
+        }
+        public void SetData(Data3Base data)
+        {
+            this.MyData = data;
+            this.DataContext = MyData;
+            Canvas.SetLeft(this, data.X); Canvas.SetTop(this, data.Y);
+
+            FrameworkElement element = null;
+            switch (data.ItemType)
+            {
+                case ThumbType.Path:
+                    element = new Path();
+                    element.SetBinding(Path.DataProperty, new Binding(nameof(Data3Path.Geometry)));
+                    element.SetBinding(Path.StrokeProperty, new Binding(nameof(Data3Path.Fill)));
+                    break;
+                case ThumbType.TextBlock:
+                    element = new TextBlock();
+                    element.SetBinding(TextBlock.TextProperty, new Binding(nameof(Data3TextBlock.Text)));
+                    break;
+
+            }
+            this.MyContent.Content = element;
+        }
+    }
+    public class GroupTThumb4 : TThumb4
+    {
+        public new Data3Group MyData { get; set; }
+        public ObservableCollection<TThumb4> MyChildrenItems { get; set; } = new();
+        public GroupTThumb4()
+        {
+            FrameworkElementFactory MyCanvas = new(typeof(Canvas));
+            MyCanvas.SetValue(BackgroundProperty, Brushes.Bisque);
+            FrameworkElementFactory itemsControl = new(typeof(ItemsControl));
+            itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(MyChildrenItems)));
+            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(MyCanvas));
+            ControlTemplate template = new();
+            template.VisualTree = itemsControl;
+            this.Template = template;
+            this.ApplyTemplate();
+
+            MyData = new Data3Group();
+            this.DataContext = this;
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+        }
+        public GroupTThumb4(List<ItemTThumb4> items) : this()
+        {
+            foreach (var item in items)
+            {
+                MyData.ChildrenData.Add(item.MyData);
+                MyChildrenItems.Add(item);
+            }
+        }
+        public GroupTThumb4(List<Data3Base> datas) : this()
+        {
+            foreach (var data in datas)
+            {
+                ItemTThumb4 itemTThumb4 = new(data);
+                MyChildrenItems.Add(itemTThumb4);
+                MyData.ChildrenData.Add(data);
+            }
+        }
+        public GroupTThumb4(Data3Group data3Group) : this()
+        {
+            foreach (var item in data3Group.ChildrenData)
+            {
+
+                ThumbType type = item.ItemType;
+                if (type == ThumbType.Group)
+                {
+                    GroupTThumb4 groupTThumb4 = new((Data3Group)item);
+                    MyChildrenItems.Add(groupTThumb4);
+                    MyData.ChildrenData.Add(item);
+                }
+                else
+                {
+                    ItemTThumb4 itemTThumb4 = new(item);
+                    MyChildrenItems.Add(itemTThumb4);
+                    MyData.ChildrenData.Add(item);
+                }
+
+            }
+        }
+        public void AddItem(ItemTThumb4 item)
+        {
+            MyChildrenItems.Add(item);
+            MyData.ChildrenData.Add(item.MyData);
         }
     }
 

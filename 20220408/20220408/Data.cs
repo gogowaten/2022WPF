@@ -94,5 +94,52 @@ namespace _20220408
         }
     }
 
-   
+    public class Data3Base
+    {
+        public ThumbType ItemType { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public override string ToString()
+        {
+            //return base.ToString();
+            return $"(x, y)=({X}, {Y}), {ItemType}";
+        }
+    }
+    public class Data3Path : Data3Base
+    {
+        public Geometry Geometry { get; set; }
+        public Brush Fill { get; set; }
+        public Data3Path() { ItemType = ThumbType.Path; }
+        public Data3Path(Geometry geometry, Brush fill, double x, double y) : this()
+        {
+            Geometry = geometry; Fill = fill;
+            X = x; Y = y;
+        }
+    }
+    public class Data3TextBlock : Data3Base
+    {
+        public string Text { get; set; }
+        public Data3TextBlock() { ItemType = ThumbType.TextBlock; }
+        public Data3TextBlock(string text, double x, double y) : this()
+        {
+            Text = text; X = x; Y = y;
+        }
+    }
+    public class Data3Group : Data3Base
+    {
+        public ObservableCollection<Data3Base> ChildrenData { get; set; } = new();
+        public Data3Group() { ItemType = ThumbType.Group; }
+        public Data3Group(List<ItemTThumb4> items, double x, double y) : this()
+        {
+            X = x; Y = y;
+            foreach (ItemTThumb4 item in items)
+            {
+                ChildrenData.Add(item.MyData);
+            }
+        }
+        public Data3Group(Data3Group data3Group)
+        {
+            ChildrenData = data3Group.ChildrenData;
+        }
+    }
 }
