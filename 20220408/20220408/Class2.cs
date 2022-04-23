@@ -318,6 +318,9 @@ namespace _20220408
     }
 
 
+    //データも種類ごとに別クラスにしてみた
+    //Thumbはアイテム用途グループ用の2種類は前回と同じだけど内容は少し変更
+    //良くなった
     public class TThumb4 : Thumb
     {
         public Data3Base MyData { get; set; }
@@ -427,7 +430,6 @@ namespace _20220408
                     MyChildrenItems.Add(itemTThumb4);
                     MyData.ChildrenData.Add(item);
                 }
-
             }
         }
         public void AddItem(ItemTThumb4 item)
