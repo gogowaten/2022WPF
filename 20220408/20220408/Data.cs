@@ -142,8 +142,28 @@ namespace _20220408
             ChildrenData = data3Group.ChildrenData;
         }
     }
+
+
     public class Data4
     {
+        public ThumbType DataType { get; set; }
+        public ObservableCollection<Data4> ChildrenData { get; set; } = new();
+        public double X { get; set; }
+        public double Y { get; set; }
+        public string Text { get; set; }
+        public Brush Background { get; set; }
+        public Geometry Geometry { get; set; }
+        public Brush Fill { get; set; }
+        public Data4() { }
+        public Data4(ThumbType type, double x, double y)
+        {
+            DataType = type; X = x; Y = y;
+        }
+        public Data4(ThumbType type, double x, double y,string text)
+        {
+            DataType = type; X = x; Y = y;
+            Text = text;
+        }
 
     }
 }

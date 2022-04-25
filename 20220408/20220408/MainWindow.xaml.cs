@@ -26,98 +26,66 @@ namespace _20220408
     /// </summary>
     public partial class MainWindow : Window
     {
-        ItemThumb3 MyItemThumb3;
-        GroupThumb3 MyG3;
-        ItemTThumb4 MyItemTThumb4;
-        GroupTThumb4 MyGroupTThumb4;
-        GroupTThumb4 MyGroupTThumb4_1;
-        GroupTThumb4 MyGroupTThumb4_2;
+        TThumb5 thumb5_1;
+        TThumb5 thumb5_2;
 
         public MainWindow()
         {
             InitializeComponent();
 
-            //MyTT = new("tttext");
-            //MyGrid.Children.Add(MyTT);
+            Data4 data1 = new(ThumbType.TextBlock, 10, 20, "Test1");
+            thumb5_1 = new TThumb5(data1);
+            MyLayer.AddItem(thumb5_1);
 
-            //DataText dataText = new("datatext2", 50, 50, 0);
-            //MyTT2 = new(dataText);
-            //MyGrid.Children.Add(MyTT2);
+            Data4 data3 = new(ThumbType.TextBlock, 0, 0, "Test2");
+            Data4 data4 = new(ThumbType.TextBlock, 0, 30, "Test3");
+            Data4 data2 = new(ThumbType.Group, 20, 40);
+            data2.ChildrenData.Add(data3);
+            data2.ChildrenData.Add(data4);
+            thumb5_2 = new(data2);
+            MyLayer.AddItem(thumb5_2);
 
-            //PolyLineSegment polyLineSegment = new();
-            //polyLineSegment.Points = new PointCollection() { new(15, 0), new(30, 30) };
-            //PathFigure pathFigure = new(new(0, 30), new List<PathSegment>() { polyLineSegment }, true);
-            //PathGeometry pathGeo = new();
-            //pathGeo.Figures.Add(pathFigure);
-            //Path path = new() { Data = pathGeo, Fill = Brushes.MediumAquamarine };
-            //MyGrid.Children.Add(path);
 
-            Data2 data1 = new(ThumbType.Path, 10, 20, new RectangleGeometry(new(0, 0, 30, 30)), Brushes.Red);
-            Data2 data2 = new(ThumbType.TextBlock, 100, 0, "asdfa");
 
-            Data2 data3 = new(ThumbType.Path, 100, 120, new RectangleGeometry(new(0, 0, 130, 30)), Brushes.DarkCyan);
-            Data2 dataI1 = new(ThumbType.TextBlock, 100, 20, "aaaaa");
-            Data2 dataI2 = new(ThumbType.TextBlock, 100, 20, "bbbbb");
-            Data2 dataG1 = new(ThumbType.Group, new() { dataI1, dataI2 }, 0, 0);
-
-            MyItemThumb3 = new(data1);
-            MyGrid.Children.Add(MyItemThumb3);
-
-            MyG3 = new(100, 10);
-            ItemThumb3 item = new(data2);
-            MyG3.AddItem(item);
-            MyG3.AddItem(new ItemThumb3(data3));
-
-            MyGrid.Children.Add(MyG3);
-            //MyG3.AddData(data2);
-
-            MyItemTThumb4 = new(new Data3TextBlock("ItemTThumb4", 0, 120));
-            MyGrid.Children.Add(MyItemTThumb4);
-
-            MyGroupTThumb4 = new();
-            MyGrid.Children.Add(MyGroupTThumb4);
-            MyGroupTThumb4.AddItem(new ItemTThumb4(new Data3TextBlock("GItem1", 9, 140)));
-
-            List<Data3Base> list = new()
-            {
-                new Data3TextBlock("dataItem1", 70, 150),
-                new Data3TextBlock("dataItem2", 70, 170)
-            };
-            MyGroupTThumb4_1 = new(list);
-            MyGrid.Children.Add(MyGroupTThumb4_1);
-
-            List<ItemTThumb4> items = new()
-            {
-                new ItemTThumb4(new Data3TextBlock("listItem1", 140, 100)),
-                new ItemTThumb4(new Data3TextBlock("listItem2", 140, 120))
-            };
-            MyGroupTThumb4_2 = new(items);
-            MyGrid.Children.Add(MyGroupTThumb4_2);
         }
-        private void SetLocate(UIElement element, double x, double y)
-        {
-            Canvas.SetLeft(element, x);
-            Canvas.SetTop(element, y);
-        }
+
+
+
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            //Dataが通知プロパティじゃなくても
-            //要素ーDataー要素
-            //のとき要素の値を変更するとすべて変化する
-            //ただしDataの値を変更しても要素には伝わらない
-            //var con = MyIThumb.MyContentControl.Content;
-            //MyBorder.Background = Brushes.Blue;
-            //var data2 = MyIThumb.Data2;
-            //MyIThumb.Data2.Stroke = Brushes.Orange;
-            //data2 = MyIThumb.Data2;
-            Data2 data = new(ThumbType.Path, 90, 20, new RectangleGeometry(new(0, 0, 30, 130)), Brushes.Cyan);
-            MyGroupTThumb4.AddItem(new ItemTThumb4(new Data3TextBlock("tuikaItem1", 10, 160)));
-            var neko = MyGroupTThumb4.MyData;
+            var data = MyLayer.MyData;
+            var datad = MyLayer.Items;
+            var neko = thumb5_2.MyData;
+            data.X = 100; data.Y = 100;
+            TThumb5 thumb = new(data);
+            MyLayer.AddItem(thumb);
+        }
 
-            GroupTThumb4 groupTThumb4 = new(MyGroupTThumb4_2.MyData);
-            MyGrid.Children.Add(groupTThumb4);
-            Canvas.SetLeft(groupTThumb4, 200);
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var datatemp = (DataTemplate)Resources["dataTemplate"];
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            //            【WPF】XAMLでテンプレートを定義とコードで定義は違う。 | 創造的プログラミングと粘土細工
+            //http://pro.art55.jp/?eid=1150138
+
+            var factory = new FrameworkElementFactory(typeof(Border));
+            factory.SetValue(Border.BorderBrushProperty, Brushes.AliceBlue);
+            factory.SetValue(Border.BorderThicknessProperty, new Thickness(2));
+            factory.SetValue(MarginProperty, new Thickness(5));
+            factory.SetValue(PaddingProperty, new Thickness(10));//効かない
+            var textBlockFactory = new FrameworkElementFactory(typeof(TextBlock));
+            textBlockFactory.SetBinding(TextBlock.TextProperty, new Binding("."));
+            textBlockFactory.SetValue(PaddingProperty, new Thickness(10));//効かない
+            textBlockFactory.SetValue(MarginProperty, new Thickness(10));
+            factory.AppendChild(textBlockFactory);
+            var dataTemplate2 = new DataTemplate { VisualTree = factory };
+
+            Button button = (Button)sender;
+            button.ContentTemplate = dataTemplate2;
 
         }
     }
