@@ -6,7 +6,14 @@
         xmlns:local="clr-namespace:_20220425_Thumb"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <local:GroupTThumb x:Name="MyLayer"/>
+    <StackPanel x:Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="Button1" Content="test" Click="Button1_Click"/>
+    </StackPanel>
+  </Grid>
 </Window>
