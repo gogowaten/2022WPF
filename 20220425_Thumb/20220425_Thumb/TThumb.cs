@@ -19,7 +19,8 @@ namespace _20220425_Thumb
 {
     //データも種類ごとに別クラスにしてみた
     //Thumbはアイテム用途グループ用の2種類は前回と同じだけど内容は少し変更
-    //良くなった
+    //良くなった？イマイチのような気がする
+    //データはⅠ種類にしたほうが良いかな？Thumbも？
     public class TThumb : Thumb
     {
         public Data MyData { get; set; }
@@ -111,6 +112,8 @@ namespace _20220425_Thumb
                 MyData.ChildrenData.Add(data);
             }
         }
+       //グループデータから含まれる要素を再構築するところ
+       //ここがいまいち、アイテムタイプがグループかどうかを判定してる
         public GroupTThumb(DataGroup dataGroup) : this()
         {
             Canvas.SetLeft(this, dataGroup.X); Canvas.SetTop(this, dataGroup.Y);
