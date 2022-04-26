@@ -54,11 +54,15 @@ namespace _20220426_Thumb
 
         public TThumb(Data data) : this()
         {
-            MyData = data;
-            Canvas.SetLeft(this, data.X); Canvas.SetTop(this, data.Y);
+            this.MyData = data;
+            this.DataContext = MyData;
+            this.MyItemsControl.DataContext = this;
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(Data.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(Data.Y)));
+            
 
             //グループなら子要素を作成追加
-            if (data.DataType == ThumbType.Group || data.DataType == ThumbType.None)
+            if (data.ThumbType == ThumbType.Group || data.ThumbType == ThumbType.None)
             {
                 data.ChildrenData.ToList()
                     .ForEach(x => Children.Add(new TThumb(x)));
@@ -66,16 +70,23 @@ namespace _20220426_Thumb
             //グループ以外はそれぞれの要素を作成
             else
             {
+                this.DragDelta += TThumb_DragDelta;//ドラッグ移動
                 SetItemThumbTemplate();//テンプレート書き換え
-                UIElement element = null;
-                switch (data.DataType)
+                FrameworkElement element = null;
+                switch (data.ThumbType)
                 {
                     case ThumbType.None:
                         break;
                     case ThumbType.Path:
+                        element = new Path() { Fill = Brushes.Red };
+                        element.SetBinding(Path.DataProperty, new Binding(nameof(Data.Geometry)));
+                        element.SetBinding(Path.FillProperty, new Binding(nameof(Data.Fill)));
                         break;
                     case ThumbType.TextBlock:
-                        element = new TextBlock() { Text = data.Text };
+                        element = new TextBlock();
+                        element.SetBinding(TextBlock.TextProperty, new Binding(nameof(Data.Text)));
+                        if (data.Foreground == null) { data.Foreground = Brushes.Black; }
+                        element.SetBinding(TextBlock.ForegroundProperty, new Binding(nameof(Data.Foreground)));
                         break;
                     case ThumbType.Image:
                         break;
@@ -127,6 +138,17 @@ namespace _20220426_Thumb
         {
             MyData.ChildrenData.Remove(thumb.MyData);
             Children.Remove(thumb);
+        }
+
+        //ドラッグ移動
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+        }
+        public override string ToString()
+        {
+            return $"{MyData.Text}";
         }
     }
 }

@@ -22,6 +22,7 @@ namespace _20220426_Thumb
     {
         TThumb thumb5_1;
         TThumb thumb5_2;
+        TThumb thumbGeo;
         public MainWindow()
         {
             InitializeComponent();
@@ -38,6 +39,12 @@ namespace _20220426_Thumb
             data2.ChildrenData.Add(data4);
             thumb5_2 = new(data2);
             MyLayer.AddItem(thumb5_2);
+
+            Data geoData1 = new(ThumbType.Path, 40, 120) { Fill = Brushes.MediumAquamarine };
+            geoData1.Geometry = new EllipseGeometry(new Rect(0, 0, 40, 40));
+            thumbGeo = new TThumb(geoData1);
+            MyLayer.AddItem(thumbGeo);
+
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
@@ -45,9 +52,16 @@ namespace _20220426_Thumb
             var data = MyLayer.MyData;
             var datad = MyLayer.Items;
             var neko = thumb5_2.MyData;
-            //data.X = 100; data.Y = 100;
-            //TThumb thumb = new(data);
-            //MyLayer.AddItem(thumb);
+            thumb5_1.MyData.X += 20;
+            thumb5_1.MyData.Text = "kakikae";
+            thumb5_2.MyData.ChildrenData[0].Text = "kakikae2";
+            thumb5_1.MyData.Foreground = Brushes.Red;
+            thumbGeo.MyData.Fill =
+                new LinearGradientBrush(
+                    new GradientStopCollection(){
+                        new GradientStop(Colors.Magenta, 0.2),
+                        new GradientStop(Colors.Cyan, 0.5),
+                        new GradientStop(Colors.Orange, 0.7)});
         }
     }
 }

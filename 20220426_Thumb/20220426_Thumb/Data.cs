@@ -14,33 +14,58 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Windows.Controls.Primitives;
+using System.ComponentModel;
 
 namespace _20220426_Thumb
 {
-public    class Data
+    public class Data : System.ComponentModel.INotifyPropertyChanged
     {
-        public ThumbType DataType { get; set; }
+        private double x;
+        private double y;
+        private string text;
+        private Brush foreground;
+        private Geometry geometry;
+        private Brush fill;
+
+        public ThumbType ThumbType { get; set; }
         public ObservableCollection<Data> ChildrenData { get; set; } = new();
-        public double X { get; set; }
-        public double Y { get; set; }
-        public string Text { get; set; }
+        public double X { get => x; set { if (x == value) { return; } x = value; OnPropertyChanged(); } }
+        public double Y { get => y; set { if (y == value) { return; } y = value; OnPropertyChanged(); } }
+        public string Text { get => text; set { if (text == value) { return; } text = value; OnPropertyChanged(); } }
         public Brush Background { get; set; }
-        public Geometry Geometry { get; set; }
-        public Brush Fill { get; set; }
+        public Brush Foreground
+        {
+            get => foreground; set
+            {
+                if (foreground == value)
+                {
+                    return;
+                }
+                foreground = value;
+                OnPropertyChanged();
+            }
+        }
+        public Geometry Geometry { get => geometry; set { if (geometry == value) { return; } geometry = value; OnPropertyChanged(); } }
+        public Brush Fill { get => fill; set { if (fill == value) { return; } fill = value; OnPropertyChanged(); } }
         public Data() { }
         public Data(ThumbType type, double x, double y)
         {
-            DataType = type; X = x; Y = y;
+            ThumbType = type; X = x; Y = y;
         }
         public Data(ThumbType type, double x, double y, string text)
         {
-            DataType = type; X = x; Y = y;
+            ThumbType = type; X = x; Y = y;
             Text = text;
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
         public override string ToString()
         {
-            return $"{DataType}, {X}, {Y}";
+            return $"{ThumbType}, {X}, {Y}";
         }
     }
 }
