@@ -47,9 +47,9 @@ namespace _20220426_ThumbSerialize
 
             var neko = thumb5_1.MyData;
             thumb5_1.MyData.X += 10;
-            thumb5_1.MyData.Text = "kakikae";
+            thumb5_1.MyData.Text = "書き換え";
             thumb5_2.MyData.X += 20;
-            thumb5_2.MyData.ChildrenData[0].Text = "kakikae2";
+            thumb5_2.MyData.ChildrenData[0].Text = "書き換え2";
         }
 
         private void Button2_Click(object sender, RoutedEventArgs e)
@@ -85,8 +85,6 @@ namespace _20220426_ThumbSerialize
             Data4 d = DataLoad($"E:\\MyData.xml");
             foreach (var item in d.ChildrenData)
             {
-                TThumb5 t = new(item);
-                var neko = t.MyData;
                 MyLayer.AddItem(new TThumb5(item));
             }
 

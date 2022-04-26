@@ -14,18 +14,11 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Windows.Controls.Primitives;
+using System.Globalization;
 
 namespace _20220408
 {
-    public enum ThumbType
-    {
-        Layer = 0,
-        Path,
-        TextBlock,
-        Image,
-        Group,
-
-    }
+   
     class Class2 { }
     public class IThumb : Thumb
     {
@@ -472,16 +465,30 @@ namespace _20220408
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
 
             SetGroupThumbTemplate();
+            SetContextMenu();
 
             this.DataContext = this;
 
+            Children.CollectionChanged += Children_CollectionChanged;
+        }
 
+        private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            //if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            //{
+            //    TThumb5 t = (TThumb5)sender;
+            //    t.MyData.Parent = this;
+            //}
         }
 
         protected void TThumb5_DragDelta(object sender, DragDeltaEventArgs e)
         {
             MyData.X += e.HorizontalChange;
             MyData.Y += e.VerticalChange;
+            var neko = e.Source;
+            var inu = e.OriginalSource;
+            var tt = (TThumb5)e.OriginalSource;
+            var uma = tt.MyData.Parent;
         }
 
         public TThumb5(Data4 data) : this()
@@ -498,6 +505,13 @@ namespace _20220408
             {
                 data.ChildrenData.ToList()
                     .ForEach(x => Children.Add(new TThumb5(x)));
+                //foreach (var item in data.ChildrenData)
+                //{
+                //    //TThumb5 tt = new(item);
+                //    //tt.MyData.Parent = this;
+                //    //Children.Add(tt);
+                //    AddItem(new TThumb5(item));
+                //}
             }
             //グループ以外はそれぞれの要素を作成
             else
@@ -565,6 +579,8 @@ namespace _20220408
         {
             MyData.ChildrenData.Add(thumb.MyData);
             Children.Add(thumb);
+            //thumb.MyData.Parent = this;
+
             //Layer直下に追加するものだけドラッグ移動イベントを追加する
             if (this.MyData.DataType == ThumbType.Layer)
             {
@@ -584,6 +600,40 @@ namespace _20220408
         public override string ToString()
         {
             return $"{MyData.Text}";
+        }
+
+        private void SetContextMenu()
+        {
+            ContextMenu cm = new();
+            this.ContextMenu = cm;
+            MenuItem item = new() { Header = "edit" };
+            item.Click += Item_Click;
+            cm.Items.Add(item);
+        }
+
+        private void Item_Click(object sender, RoutedEventArgs e)
+        {
+            var element = sender;
+            var neko = e.OriginalSource;
+            var inu = e.Source;
+        }
+        private void Edit()
+        {
+
+        }
+    }
+
+
+    public class AA : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

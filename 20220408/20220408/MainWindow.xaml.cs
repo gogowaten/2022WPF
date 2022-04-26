@@ -39,7 +39,7 @@ namespace _20220408
 
             Data4 data3 = new(ThumbType.TextBlock, 0, 0, "Test2");
             Data4 data4 = new(ThumbType.TextBlock, 0, 30, "Test3");
-            Data4 data2 = new(ThumbType.Group, 20, 40);
+            Data4 data2 = new(ThumbType.Group, 20, 40,"Group1");
             data2.ChildrenData.Add(data3);
             data2.ChildrenData.Add(data4);
             thumb5_2 = new(data2);

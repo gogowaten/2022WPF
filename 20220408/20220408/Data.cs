@@ -19,6 +19,16 @@ using System.Runtime.Serialization;
 
 namespace _20220408
 {
+    public enum ThumbType
+    {
+        Layer = 0,
+        Path,
+        TextBlock,
+        Image,
+        Group,
+
+    }
+
     public class Data
     {
         public Data() { }
@@ -145,16 +155,20 @@ namespace _20220408
         }
     }
 
-    [System.Runtime.Serialization.DataContract]
-    [System.Runtime.Serialization.KnownType(typeof(Data4)),
-        System.Runtime.Serialization.KnownType(typeof(MatrixTransform)),
-        System.Runtime.Serialization.KnownType(typeof(EllipseGeometry))]
-    public class Data4 : System.ComponentModel.INotifyPropertyChanged
+    //System.Runtime.Serialization.DataContract
+    //System.Runtime.Serialization.KnownType
+    [DataContract]
+    [KnownType(typeof(Data4)),
+        KnownType(typeof(MatrixTransform)),
+        KnownType(typeof(EllipseGeometry))]
+    //System.ComponentModel.INotifyPropertyChanged
+    public class Data4 : INotifyPropertyChanged
     {
         private double _x;
         private double _y;
         private string _text;
 
+        public TThumb5 Parent { get; set; }
         [DataMember]
         public ThumbType DataType { get; set; }
         [DataMember]
