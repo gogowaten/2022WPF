@@ -14,6 +14,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Windows.Controls.Primitives;
+using System.ComponentModel;
 
 namespace _20220408
 {
@@ -144,13 +145,17 @@ namespace _20220408
     }
 
 
-    public class Data4
+    public class Data4 : System.ComponentModel.INotifyPropertyChanged
     {
+        private double _x;
+        private double _y;
+        private string _text;
+
         public ThumbType DataType { get; set; }
         public ObservableCollection<Data4> ChildrenData { get; set; } = new();
-        public double X { get; set; }
-        public double Y { get; set; }
-        public string Text { get; set; }
+        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
         public Brush Background { get; set; }
         public Geometry Geometry { get; set; }
         public Brush Fill { get; set; }
@@ -159,11 +164,16 @@ namespace _20220408
         {
             DataType = type; X = x; Y = y;
         }
-        public Data4(ThumbType type, double x, double y,string text)
+        public Data4(ThumbType type, double x, double y, string text)
         {
             DataType = type; X = x; Y = y;
             Text = text;
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
     }
 }

@@ -54,12 +54,11 @@ namespace _20220408
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            var data = MyLayer.MyData;
-            var datad = MyLayer.Items;
-            var neko = thumb5_2.MyData;
-            data.X = 100; data.Y = 100;
-            TThumb5 thumb = new(data);
-            MyLayer.AddItem(thumb);
+            var neko = thumb5_1.MyData;
+            thumb5_1.MyData.X += 10;
+            thumb5_1.MyData.Text = "kakikae";
+            thumb5_2.MyData.X += 20;
+            thumb5_2.MyData.ChildrenData[0].Text = "kakikae2";
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

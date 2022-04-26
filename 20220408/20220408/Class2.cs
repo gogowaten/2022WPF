@@ -450,6 +450,7 @@ namespace _20220408
         }
     }
 
+
     //Thumb2の派生、全部まとめた
     //ContentControlをContentPresenterに変更した、
     //初期テンプレートはItemsControl(複数用)にしておいて
@@ -473,13 +474,24 @@ namespace _20220408
             SetGroupThumbTemplate();
 
             this.DataContext = this;
+
+
         }
 
+        private void TThumb5_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+        }
 
         public TThumb5(Data4 data) : this()
         {
-            MyData = data;
-            Canvas.SetLeft(this, data.X); Canvas.SetTop(this, data.Y);
+            this.MyData = data;
+            this.DataContext = MyData;
+            this.MyItemsControl.DataContext = this;
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(Data4.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(Data4.Y)));
+
 
             //グループなら子要素を作成追加
             if (data.DataType == ThumbType.Group || data.DataType == ThumbType.None)
@@ -490,16 +502,21 @@ namespace _20220408
             //グループ以外はそれぞれの要素を作成
             else
             {
+                this.DragDelta += TThumb5_DragDelta;
+
                 SetItemThumbTemplate();//テンプレート書き換え
-                UIElement element = null;
+                FrameworkElement element = null;
+
                 switch (data.DataType)
                 {
                     case ThumbType.None:
                         break;
                     case ThumbType.Path:
                         break;
-                    case ThumbType.TextBlock:
-                        element = new TextBlock() { Text = data.Text };
+                    case ThumbType.TextBlock:                        
+                        element = new TextBlock();
+                        //element.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+                        element.SetBinding(TextBlock.TextProperty, new Binding(nameof(Data4.Text)));
                         break;
                     case ThumbType.Image:
                         break;
@@ -509,14 +526,13 @@ namespace _20220408
                         break;
                 }
                 this.ContentPresenter.Content = element;
-
             }
 
         }
 
         //複数要素表示用テンプレートに書き換える
         private void SetGroupThumbTemplate()
-        {            
+        {
             FrameworkElementFactory canvas = new(typeof(Canvas));
             canvas.SetValue(BackgroundProperty, Brushes.Bisque);
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
@@ -529,9 +545,10 @@ namespace _20220408
             this.ApplyTemplate();
             MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
         }
+
         //単一要素表示用テンプレートに書き換える
         private void SetItemThumbTemplate()
-        {        
+        {
             FrameworkElementFactory contentPresenter = new(typeof(ContentPresenter), nameof(ContentPresenter));
             ControlTemplate template = new();
             template.VisualTree = contentPresenter;
@@ -551,6 +568,11 @@ namespace _20220408
         {
             MyData.ChildrenData.Remove(thumb.MyData);
             Children.Remove(thumb);
+        }
+
+        public override string ToString()
+        {
+            return $"{MyData.Text}";
         }
     }
 }
