@@ -452,13 +452,13 @@ namespace _20220408
 
     //Thumb2の派生、全部まとめた
     //ContentControlをContentPresenterに変更した、
+    //初期テンプレートはItemsControl(複数用)にしておいて
+    //単体アイテム用は作成時にテンプレートを書き換えるようにした
     public class TThumb5 : Thumb
     {
-        //public ContentControl Content { get; set; }
-        //private Canvas MyCanvas;
         private ItemsControl MyItemsControl;
         private ContentPresenter ContentPresenter;
-        public FrameworkElement MyContet { get; set; }
+
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
         //Thumbの追加や削除は別メソッドにした
         private ObservableCollection<TThumb5> Children { get; set; } = new();
@@ -472,34 +472,6 @@ namespace _20220408
 
             SetGroupThumbTemplate();
 
-
-            ////テンプレート書き換え
-            ////単一要素表示用
-            //FrameworkElementFactory content = new(typeof(ContentControl), nameof(Content));
-
-            ////複数要素表示用
-            //FrameworkElementFactory canvas = new(typeof(Canvas));
-            //canvas.SetValue(BackgroundProperty, Brushes.Bisque);
-            //FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
-            //itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
-            //itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
-
-            ////2つをまとめる
-            //FrameworkElementFactory base_panel = new(typeof(Canvas), nameof(MyCanvas));
-            //base_panel.AppendChild(content);
-            //base_panel.AppendChild(itemsControl);
-
-            ////テンプレート適用
-            //ControlTemplate template = new();
-            //template.VisualTree = base_panel;
-            //this.Template = template;
-
-            ////構成要素を取り出しておく
-            //this.ApplyTemplate();
-            //Content = (ContentControl)template.FindName(nameof(Content), this);
-            //MyCanvas = (Canvas)template.FindName(nameof(MyCanvas), this);
-            //MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
-
             this.DataContext = this;
         }
 
@@ -509,14 +481,13 @@ namespace _20220408
             MyData = data;
             Canvas.SetLeft(this, data.X); Canvas.SetTop(this, data.Y);
 
+            //グループなら子要素を作成追加
             if (data.DataType == ThumbType.Group || data.DataType == ThumbType.None)
             {
-                foreach (var cData in data.ChildrenData)
-                {
-                    this.Children.Add(new TThumb5(cData));
-
-                }
+                data.ChildrenData.ToList()
+                    .ForEach(x => Children.Add(new TThumb5(x)));
             }
+            //グループ以外はそれぞれの要素を作成
             else
             {
                 SetItemThumbTemplate();//テンプレート書き換え
@@ -533,24 +504,19 @@ namespace _20220408
                     case ThumbType.Image:
                         break;
                     case ThumbType.Group:
-                        //foreach (var cData in data.ChildrenData)
-                        //{
-                        //    this.Children.Add(new TThumb5(cData));
-                        //}
                         break;
                     default:
                         break;
                 }
-                //this.Content.Content = element;
                 this.ContentPresenter.Content = element;
 
             }
 
         }
 
+        //複数要素表示用テンプレートに書き換える
         private void SetGroupThumbTemplate()
-        {
-            //複数要素表示用
+        {            
             FrameworkElementFactory canvas = new(typeof(Canvas));
             canvas.SetValue(BackgroundProperty, Brushes.Bisque);
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
@@ -563,9 +529,9 @@ namespace _20220408
             this.ApplyTemplate();
             MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
         }
+        //単一要素表示用テンプレートに書き換える
         private void SetItemThumbTemplate()
-        {
-            //単一要素表示用
+        {        
             FrameworkElementFactory contentPresenter = new(typeof(ContentPresenter), nameof(ContentPresenter));
             ControlTemplate template = new();
             template.VisualTree = contentPresenter;
