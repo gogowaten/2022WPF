@@ -8,7 +8,7 @@
         Title="MainWindow" Height="450" Width="800">
   <Window.Resources>
     <DataTemplate x:Key="dataTemplate">
-      <Border BorderBrush="Red" BorderThickness="20" Padding="10" Margin="0">
+      <Border BorderBrush="Red" BorderThickness="20" Padding="10" Margin="10">
         <TextBlock Text="{Binding .}"/>
       </Border>
     </DataTemplate>
@@ -38,6 +38,28 @@
       <Button x:Name="Button1" Content="Add" Click="Button1_Click" Template="{StaticResource kk}" Background="Red"/>
       <Border x:Name="MyBorder" Height="10" Background="{Binding Path=Stroke, Mode=TwoWay}"/>
       <Border Height="10" Background="Aqua"/>
+      <Button x:Name="Button2" Content="save" Click="Button2_Click"/>
+      <Button Name="Button3" Content="load" Click="Button3_Click"/>
+      <Button x:Name="Button4" Content="clear" Click="Button4_Click"/>
+      <TabControl x:Name="MyTabControl">
+        <TabItem Header="Text">
+          <Grid>
+            <StackPanel>
+              <Button x:Name="TextBlockButton" Content="Add" Click="TextBlockButton_Click"/>
+              <TextBox x:Name="MyTextBox" Text="追加テキストブロック"/>
+            </StackPanel>
+          </Grid>
+        </TabItem>
+        <TabItem Header="Ellipse">
+          <Grid>
+            <StackPanel>
+              <Button x:Name="EllipseButton" Content="Add" Click="EllipseButton_Click"/>
+              <TextBox x:Name="EllipseWidth" Text="50"/>
+              <TextBox x:Name="EllipseHeight" Text="40"/>
+            </StackPanel>
+          </Grid>
+        </TabItem>
+      </TabControl>
       <!--<Button Loaded="OnLoaded" HorizontalAlignment="Center" VerticalAlignment="Center"
               Click="Button_Click">button</Button>-->
     </StackPanel>

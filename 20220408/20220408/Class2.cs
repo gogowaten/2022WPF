@@ -19,7 +19,7 @@ namespace _20220408
 {
     public enum ThumbType
     {
-        None = 0,
+        Layer = 0,
         Path,
         TextBlock,
         Image,
@@ -478,7 +478,7 @@ namespace _20220408
 
         }
 
-        private void TThumb5_DragDelta(object sender, DragDeltaEventArgs e)
+        protected void TThumb5_DragDelta(object sender, DragDeltaEventArgs e)
         {
             MyData.X += e.HorizontalChange;
             MyData.Y += e.VerticalChange;
@@ -494,7 +494,7 @@ namespace _20220408
 
 
             //グループなら子要素を作成追加
-            if (data.DataType == ThumbType.Group || data.DataType == ThumbType.None)
+            if (data.DataType == ThumbType.Group || data.DataType == ThumbType.Layer)
             {
                 data.ChildrenData.ToList()
                     .ForEach(x => Children.Add(new TThumb5(x)));
@@ -502,18 +502,20 @@ namespace _20220408
             //グループ以外はそれぞれの要素を作成
             else
             {
-                this.DragDelta += TThumb5_DragDelta;
+                //this.DragDelta += TThumb5_DragDelta;
 
                 SetItemThumbTemplate();//テンプレート書き換え
                 FrameworkElement element = null;
 
                 switch (data.DataType)
                 {
-                    case ThumbType.None:
+                    case ThumbType.Layer:
                         break;
                     case ThumbType.Path:
+                        element = new Path() { Fill = Brushes.MediumAquamarine };
+                        element.SetBinding(Path.DataProperty, new Binding(nameof(Data4.Geometry)));
                         break;
-                    case ThumbType.TextBlock:                        
+                    case ThumbType.TextBlock:
                         element = new TextBlock();
                         //element.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
                         element.SetBinding(TextBlock.TextProperty, new Binding(nameof(Data4.Text)));
@@ -563,13 +565,22 @@ namespace _20220408
         {
             MyData.ChildrenData.Add(thumb.MyData);
             Children.Add(thumb);
+            //Layer直下に追加するものだけドラッグ移動イベントを追加する
+            if (this.MyData.DataType == ThumbType.Layer)
+            {
+                thumb.DragDelta += thumb.TThumb5_DragDelta;
+            }
         }
         public void RemoveItem(TThumb5 thumb)
         {
             MyData.ChildrenData.Remove(thumb.MyData);
             Children.Remove(thumb);
         }
-
+        public void RemoveAllItem()
+        {
+            Children.Clear();
+            MyData.ChildrenData.Clear();
+        }
         public override string ToString()
         {
             return $"{MyData.Text}";
