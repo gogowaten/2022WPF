@@ -18,7 +18,7 @@ using System.Globalization;
 
 namespace _20220408
 {
-   
+
     class Class2 { }
     public class IThumb : Thumb
     {
@@ -457,6 +457,7 @@ namespace _20220408
         //Thumbの追加や削除は別メソッドにした
         private ObservableCollection<TThumb5> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb5> Items { get; set; }
+        public TThumb5 ParentGroup { get; private set; }
 
         public Data4 MyData { get; set; } = new();
         public TThumb5()
@@ -474,11 +475,16 @@ namespace _20220408
 
         private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            //if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-            //{
-            //    TThumb5 t = (TThumb5)sender;
-            //    t.MyData.Parent = this;
-            //}
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                TThumb5 t = (TThumb5)e.NewItems[0];
+                t.ParentGroup = this;
+                Binding b = new();
+                b.Source = t;
+                b.Converter = new BB();
+
+                this.SetBinding(Thumb.WidthProperty, b);
+            }
         }
 
         protected void TThumb5_DragDelta(object sender, DragDeltaEventArgs e)
@@ -488,7 +494,7 @@ namespace _20220408
             var neko = e.Source;
             var inu = e.OriginalSource;
             var tt = (TThumb5)e.OriginalSource;
-            var uma = tt.MyData.Parent;
+            //var uma = tt.MyData.Parent;
         }
 
         public TThumb5(Data4 data) : this()
@@ -505,13 +511,7 @@ namespace _20220408
             {
                 data.ChildrenData.ToList()
                     .ForEach(x => Children.Add(new TThumb5(x)));
-                //foreach (var item in data.ChildrenData)
-                //{
-                //    //TThumb5 tt = new(item);
-                //    //tt.MyData.Parent = this;
-                //    //Children.Add(tt);
-                //    AddItem(new TThumb5(item));
-                //}
+
             }
             //グループ以外はそれぞれの要素を作成
             else
@@ -624,6 +624,27 @@ namespace _20220408
     }
 
 
+    public class BB : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            TThumb5 thumb = (TThumb5)value;
+            //ReadOnlyObservableCollection<TThumb5> children = (ReadOnlyObservableCollection<TThumb5>)thumb.Items;
+            double min = double.MaxValue;
+            double max = double.MinValue;
+            foreach (var item in thumb.ParentGroup.Items)
+            {
+                min = Math.Min(min, item.MyData.X);
+                max = Math.Max(max, item.MyData.X + item.ActualWidth);
+            }
+            return max - min;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     public class AA : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)

@@ -39,7 +39,7 @@ namespace _20220408
 
             Data4 data3 = new(ThumbType.TextBlock, 0, 0, "Test2");
             Data4 data4 = new(ThumbType.TextBlock, 0, 30, "Test3");
-            Data4 data2 = new(ThumbType.Group, 20, 40,"Group1");
+            Data4 data2 = new(ThumbType.Group, 20, 40, "Group1");
             data2.ChildrenData.Add(data3);
             data2.ChildrenData.Add(data4);
             thumb5_2 = new(data2);
@@ -56,7 +56,10 @@ namespace _20220408
         {
             var items = MyLayer.Items;
             var datas = MyLayer.MyData;
-
+            var width = MyLayer.Width;
+            var item = MyLayer.Items[0];
+            var ww = item.ActualWidth;
+            
             var neko = thumb5_1.MyData;
             thumb5_1.MyData.X += 10;
             thumb5_1.MyData.Text = "kakikae";
@@ -129,7 +132,7 @@ namespace _20220408
                 var neko = t.MyData;
                 MyLayer.AddItem(new TThumb5(item));
             }
-            
+
         }
         private Data4 DataLoad(string fileName)
         {

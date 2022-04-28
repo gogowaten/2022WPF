@@ -168,7 +168,7 @@ namespace _20220408
         private double _y;
         private string _text;
 
-        public TThumb5 Parent { get; set; }
+        //public TThumb5 Parent { get; set; }
         [DataMember]
         public ThumbType DataType { get; set; }
         [DataMember]
