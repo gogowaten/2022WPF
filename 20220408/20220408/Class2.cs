@@ -450,7 +450,7 @@ namespace _20220408
     //単体アイテム用は作成時にテンプレートを書き換えるようにした
     public class TThumb5 : Thumb
     {
-        private ItemsControl MyItemsControl;
+        public ItemsControl MyItemsControl;
         private ContentPresenter ContentPresenter;
 
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
@@ -477,13 +477,33 @@ namespace _20220408
         {
             if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
             {
-                TThumb5 t = (TThumb5)e.NewItems[0];
-                t.ParentGroup = this;
-                Binding b = new();
-                b.Source = t;
-                b.Converter = new BB();
+                TThumb5 new_item = (TThumb5)e.NewItems[0];
+                new_item.ParentGroup = this;
 
-                this.SetBinding(Thumb.WidthProperty, b);
+                //Parentのサイズ再設定とItemsの位置調整
+                //AjustLocate(new_item);
+                //AjustSize(new_item);
+                Binding b = new();                
+                b.Source = new_item.MyData.X;
+                b.ConverterParameter = this.Items;
+                b.Converter = new BBWidth();
+                b.Mode = BindingMode.OneWay;
+                this.SetBinding(WidthProperty, b);
+
+                b = new();                
+                b.Source = new_item.MyData.Y;
+                b.ConverterParameter = this.Items;
+                b.Converter = new BBWidth();
+                b.Mode = BindingMode.OneWay;
+                this.SetBinding(HeightProperty, b);
+
+                //Binding b = new();                
+                //b.Source = new_item;
+                //b.Path = new PropertyPath(nameof(MyData.X));
+                //b.ConverterParameter = this.Items;
+                //b.Converter = new BB();
+                //b.Mode = BindingMode.OneWay;
+                //this.SetBinding(WidthProperty, b);
             }
         }
 
@@ -511,6 +531,9 @@ namespace _20220408
             {
                 data.ChildrenData.ToList()
                     .ForEach(x => Children.Add(new TThumb5(x)));
+                AjustLocate2(this);
+
+
 
             }
             //グループ以外はそれぞれの要素を作成
@@ -542,6 +565,7 @@ namespace _20220408
                         break;
                 }
                 this.ContentPresenter.Content = element;
+                //this.UpdateLayout();
             }
 
         }
@@ -551,9 +575,23 @@ namespace _20220408
         {
             FrameworkElementFactory canvas = new(typeof(Canvas));
             canvas.SetValue(BackgroundProperty, Brushes.Bisque);
+
+            //Binding b = new();
+            //b.Source = this;
+            //b.Converter = new BB();
+            //b.ConverterParameter = this.Items;
+            //canvas.SetValue(Canvas.WidthProperty, b);
+
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
             itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
             itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
+            //Binding b = new();
+            //b.Source = itemsControl;
+            //b.Path = new PropertyPath(ItemsControl.ActualWidthProperty);
+            //b.Mode = BindingMode.OneWay;
+            ////canvas.SetValue(Canvas.WidthProperty, b);
+            //canvas.SetBinding(Canvas.WidthProperty, b);
+
             ControlTemplate template = new();
             template.VisualTree = itemsControl;
 
@@ -573,6 +611,8 @@ namespace _20220408
             this.ApplyTemplate();
             ContentPresenter = (ContentPresenter)template.FindName(nameof(ContentPresenter), this);
             //ContentPresenter.SetValue(ContentPresenter.ContentProperty, new Binding(nameof(MyContet)));
+
+
         }
 
         public void AddItem(TThumb5 thumb)
@@ -585,6 +625,52 @@ namespace _20220408
             if (this.MyData.DataType == ThumbType.Layer)
             {
                 thumb.DragDelta += thumb.TThumb5_DragDelta;
+                thumb.DragCompleted += TThumb5_DragCompleted;
+            }
+        }
+
+        private void TThumb5_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            TThumb5 thumb = (TThumb5)sender;
+            AjustLocate2(thumb.ParentGroup);//位置調整
+            //Parentのサイズ再計算、設定
+            //AjustSize(thumb);
+        }
+        private void AjustSize(TThumb5 thumb)
+        {
+            (double w, double y) = GetParentSize(thumb);
+            thumb.ParentGroup.Width = w;
+            thumb.ParentGroup.Height = y;
+        }
+        private (double w, double y) GetParentSize(TThumb5 thumb)
+        {
+            double w = double.MinValue;
+            double h = double.MinValue;
+            foreach (var item in thumb.ParentGroup.Items)
+            {
+                w = Math.Max(w, item.MyData.X + item.ActualWidth);
+                h = Math.Max(h, item.MyData.Y + item.ActualHeight);
+            }
+            return (w, h);
+        }
+        /// <summary>
+        /// 子要素全体の位置調整、画面内に収まるように、余白ができないようにする
+        /// ドラッグ移動後や要素追加後などに実行
+        /// </summary>
+        /// <param name="groupThumb"></param>       
+        private void AjustLocate2(TThumb5 groupThumb)
+        {
+            double left = double.MaxValue;
+            double top = double.MaxValue;
+            foreach (var item in groupThumb.Items)
+            {
+                if (item.MyData.X < left) { left = item.MyData.X; }
+                if (item.MyData.Y < top) { top = item.MyData.Y; }
+            }
+            foreach (var item in groupThumb.Items)
+            {
+                item.MyData.X -= left;
+                item.MyData.Y -= top;
             }
         }
         public void RemoveItem(TThumb5 thumb)
@@ -624,15 +710,34 @@ namespace _20220408
     }
 
 
-    public class BB : IValueConverter
+    public class BBH : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            TThumb5 thumb = (TThumb5)value;
-            //ReadOnlyObservableCollection<TThumb5> children = (ReadOnlyObservableCollection<TThumb5>)thumb.Items;
+            var children = (ReadOnlyObservableCollection<TThumb5>)parameter;
             double min = double.MaxValue;
             double max = double.MinValue;
-            foreach (var item in thumb.ParentGroup.Items)
+            foreach (var item in children)
+            {
+                min = Math.Min(min, item.MyData.Y);
+                max = Math.Max(max, item.MyData.Y + item.ActualHeight);
+            }
+            return max - min;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class BBWidth : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var children = (ReadOnlyObservableCollection<TThumb5>)parameter;
+            double min = double.MaxValue;
+            double max = double.MinValue;
+            foreach (var item in children)
             {
                 min = Math.Min(min, item.MyData.X);
                 max = Math.Max(max, item.MyData.X + item.ActualWidth);

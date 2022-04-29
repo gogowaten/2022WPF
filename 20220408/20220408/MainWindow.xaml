@@ -41,6 +41,7 @@
       <Button x:Name="Button2" Content="save" Click="Button2_Click"/>
       <Button Name="Button3" Content="load" Click="Button3_Click"/>
       <Button x:Name="Button4" Content="clear" Click="Button4_Click"/>
+      <TextBlock Text="{Binding ElementName=MyLayer, Path=Width}"/>
       <TabControl x:Name="MyTabControl">
         <TabItem Header="Text">
           <Grid>
@@ -65,7 +66,7 @@
     </StackPanel>
     
     <Canvas x:Name="MyGrid" UseLayoutRounding="True">
-      <local:Class1 x:Name="MyClass1" Width="100" Height="100"/>
+      <!--<local:Class1 x:Name="MyClass1" Width="100" Height="100"/>-->
       <local:TThumb5 x:Name="MyLayer"/>
       
     </Canvas>

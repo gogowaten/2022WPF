@@ -37,20 +37,22 @@ namespace _20220408
             thumb5_1 = new TThumb5(data1);
             MyLayer.AddItem(thumb5_1);
 
-            Data4 data3 = new(ThumbType.TextBlock, 0, 0, "Test2");
-            Data4 data4 = new(ThumbType.TextBlock, 0, 30, "Test3");
+            Data4 data3 = new(ThumbType.TextBlock, 50, 0, "Test22");
+            Data4 data4 = new(ThumbType.TextBlock, 100, 100, "Test333");
             Data4 data2 = new(ThumbType.Group, 20, 40, "Group1");
             data2.ChildrenData.Add(data3);
             data2.ChildrenData.Add(data4);
             thumb5_2 = new(data2);
             MyLayer.AddItem(thumb5_2);
-
+            Loaded += MainWindow_Loaded;
 
 
         }
 
-
-
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            
+        }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
@@ -59,12 +61,16 @@ namespace _20220408
             var width = MyLayer.Width;
             var item = MyLayer.Items[0];
             var ww = item.ActualWidth;
-            
-            var neko = thumb5_1.MyData;
-            thumb5_1.MyData.X += 10;
-            thumb5_1.MyData.Text = "kakikae";
-            thumb5_2.MyData.X += 20;
-            thumb5_2.MyData.ChildrenData[0].Text = "kakikae2";
+            var icaw = thumb5_2.MyItemsControl.ActualWidth;
+            var w1 = thumb5_1.ActualWidth;
+
+            //var neko = thumb5_1.MyData;
+            //thumb5_1.MyData.X += 10;
+            //thumb5_1.MyData.Text = "kakikae";
+            //thumb5_2.MyData.X += 20;
+            thumb5_2.Items[0].MyData.X += 40;
+            thumb5_2.Items[1].MyData.Y += 40;
+            //thumb5_2.MyData.ChildrenData[0].Text = "kakikae2";
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
