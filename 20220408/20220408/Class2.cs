@@ -470,41 +470,16 @@ namespace _20220408
 
             this.DataContext = this;
 
-            Children.CollectionChanged += Children_CollectionChanged;
-        }
-
-        private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            //子要素のParentを自身に指定する
+            Children.CollectionChanged += (a, b) =>
             {
-                TThumb5 new_item = (TThumb5)e.NewItems[0];
-                new_item.ParentGroup = this;
-
-                //Parentのサイズ再設定とItemsの位置調整
-                //AjustLocate(new_item);
-                //AjustSize(new_item);
-                Binding b = new();                
-                b.Source = new_item.MyData.X;
-                b.ConverterParameter = this.Items;
-                b.Converter = new BBWidth();
-                b.Mode = BindingMode.OneWay;
-                this.SetBinding(WidthProperty, b);
-
-                b = new();                
-                b.Source = new_item.MyData.Y;
-                b.ConverterParameter = this.Items;
-                b.Converter = new BBWidth();
-                b.Mode = BindingMode.OneWay;
-                this.SetBinding(HeightProperty, b);
-
-                //Binding b = new();                
-                //b.Source = new_item;
-                //b.Path = new PropertyPath(nameof(MyData.X));
-                //b.ConverterParameter = this.Items;
-                //b.Converter = new BB();
-                //b.Mode = BindingMode.OneWay;
-                //this.SetBinding(WidthProperty, b);
-            }
+                if (b.NewItems[0] is TThumb5 t) { t.ParentGroup = this; }
+            };
+            //子要素サイズ変更時にParentのサイズも変更する
+            this.SizeChanged += (x, y) =>
+            {
+                if (this.ParentGroup != null) { AjustSize(this); }
+            };
         }
 
         protected void TThumb5_DragDelta(object sender, DragDeltaEventArgs e)
@@ -565,7 +540,6 @@ namespace _20220408
                         break;
                 }
                 this.ContentPresenter.Content = element;
-                //this.UpdateLayout();
             }
 
         }
@@ -574,23 +548,11 @@ namespace _20220408
         private void SetGroupThumbTemplate()
         {
             FrameworkElementFactory canvas = new(typeof(Canvas));
-            canvas.SetValue(BackgroundProperty, Brushes.Bisque);
-
-            //Binding b = new();
-            //b.Source = this;
-            //b.Converter = new BB();
-            //b.ConverterParameter = this.Items;
-            //canvas.SetValue(Canvas.WidthProperty, b);
-
+            //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
             itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
             itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
-            //Binding b = new();
-            //b.Source = itemsControl;
-            //b.Path = new PropertyPath(ItemsControl.ActualWidthProperty);
-            //b.Mode = BindingMode.OneWay;
-            ////canvas.SetValue(Canvas.WidthProperty, b);
-            //canvas.SetBinding(Canvas.WidthProperty, b);
+
 
             ControlTemplate template = new();
             template.VisualTree = itemsControl;
@@ -598,6 +560,7 @@ namespace _20220408
             this.Template = template;
             this.ApplyTemplate();
             MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
+
         }
 
         //単一要素表示用テンプレートに書き換える
@@ -634,7 +597,7 @@ namespace _20220408
             TThumb5 thumb = (TThumb5)sender;
             AjustLocate2(thumb.ParentGroup);//位置調整
             //Parentのサイズ再計算、設定
-            //AjustSize(thumb);
+            AjustSize(thumb);
         }
         private void AjustSize(TThumb5 thumb)
         {
