@@ -62,8 +62,8 @@ namespace _20220408
             var item = MyLayer.Items[0];
             var ww = item.ActualWidth;
             var icaw = thumb5_2.MyItemsControl.ActualWidth;
+            var conten = thumb5_1.ContentPresenter.Content;
             var w1 = thumb5_1.ActualWidth;
-
             //var neko = thumb5_1.MyData;
             //thumb5_1.MyData.X += 10;
             //thumb5_1.MyData.Text = "kakikae";

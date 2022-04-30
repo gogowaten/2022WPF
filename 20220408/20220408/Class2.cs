@@ -451,7 +451,9 @@ namespace _20220408
     public class TThumb5 : Thumb
     {
         public ItemsControl MyItemsControl;
-        private ContentPresenter ContentPresenter;
+        public ContentPresenter ContentPresenter;
+        private Canvas RootCanvas;
+        public bool IsMoveItems;
 
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
         //Thumbの追加や削除は別メソッドにした
@@ -482,6 +484,8 @@ namespace _20220408
             };
         }
 
+
+        #region ドラッグイベント
         protected void TThumb5_DragDelta(object sender, DragDeltaEventArgs e)
         {
             MyData.X += e.HorizontalChange;
@@ -491,6 +495,27 @@ namespace _20220408
             var tt = (TThumb5)e.OriginalSource;
             //var uma = tt.MyData.Parent;
         }
+        private void TThumb5_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            TThumb5 thumb = (TThumb5)sender;
+            AjustLocate2(thumb.ParentGroup);//位置調整
+            //Parentのサイズ再計算、設定
+            AjustParentSize(thumb);
+        }
+        private static void SetDragAll(TThumb5 thumb)
+        {
+            thumb.DragDelta += thumb.TThumb5_DragDelta;
+            thumb.DragCompleted += thumb.TThumb5_DragCompleted;
+        }
+        private static void RemoveDragEvent(TThumb5 thumb)
+        {
+            thumb.DragDelta -= thumb.TThumb5_DragDelta;
+            thumb.DragCompleted -= thumb.TThumb5_DragCompleted;
+
+        }
+
+        #endregion ドラッグイベント
+
 
         public TThumb5(Data4 data) : this()
         {
@@ -540,6 +565,8 @@ namespace _20220408
                         break;
                 }
                 this.ContentPresenter.Content = element;
+
+
             }
 
         }
@@ -547,35 +574,81 @@ namespace _20220408
         //複数要素表示用テンプレートに書き換える
         private void SetGroupThumbTemplate()
         {
-            FrameworkElementFactory canvas = new(typeof(Canvas));
+            FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
             //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
-            canvas.SetValue(BackgroundProperty, Brushes.Beige);
+            itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
+            //アイテムズコントロール
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
             itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
-            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
+            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
+            //枠表示
+            FrameworkElementFactory rect = MakeWaku();
 
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas));
+            baseCanvas.AppendChild(itemsControl);
+            baseCanvas.AppendChild(rect);
 
             ControlTemplate template = new();
-            template.VisualTree = itemsControl;
+            template.VisualTree = baseCanvas;
 
             this.Template = template;
             this.ApplyTemplate();
             MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
 
         }
-
+        private FrameworkElementFactory MakeWaku()
+        {
+            //枠表示
+            FrameworkElementFactory rect = new(typeof(Rectangle));
+            rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
+            Binding b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualWidthProperty);
+            rect.SetBinding(Rectangle.WidthProperty, b);
+            b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualHeightProperty);
+            rect.SetValue(Rectangle.HeightProperty, b);
+            return rect;
+        }
         //単一要素表示用テンプレートに書き換える
         private void SetItemThumbTemplate()
         {
+            //FrameworkElementFactory contentPresenter = new(typeof(ContentPresenter), nameof(ContentPresenter));
+            //ControlTemplate template = new();
+            //template.VisualTree = contentPresenter;
+
+            //this.Template = template;
+            //this.ApplyTemplate();
+            //ContentPresenter = (ContentPresenter)template.FindName(nameof(ContentPresenter), this);
+            ////ContentPresenter.SetValue(ContentPresenter.ContentProperty, new Binding(nameof(MyContet)));
+
+            FrameworkElementFactory waku = MakeWaku();
             FrameworkElementFactory contentPresenter = new(typeof(ContentPresenter), nameof(ContentPresenter));
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(RootCanvas));
+
+            baseCanvas.AppendChild(contentPresenter);
+            baseCanvas.AppendChild(waku);
             ControlTemplate template = new();
-            template.VisualTree = contentPresenter;
+            template.VisualTree = baseCanvas;
 
             this.Template = template;
             this.ApplyTemplate();
             ContentPresenter = (ContentPresenter)template.FindName(nameof(ContentPresenter), this);
             //ContentPresenter.SetValue(ContentPresenter.ContentProperty, new Binding(nameof(MyContet)));
+            RootCanvas = (Canvas)template.FindName(nameof(RootCanvas), this);
 
+            //要素のサイズとCanvasのサイズのBinding
+            //Template構築中のFrameworkElementFactoryでは反応しないので
+            //Template構築後に取り出してBindingした
+            Binding b = new();
+            b.Source = ContentPresenter;
+            b.Path = new PropertyPath(ActualWidthProperty);
+            RootCanvas.SetBinding(WidthProperty, b);
+            b = new();
+            b.Source = ContentPresenter;
+            b.Path = new PropertyPath(ActualHeightProperty);
+            RootCanvas.SetBinding(HeightProperty, b);
 
         }
 
@@ -588,18 +661,13 @@ namespace _20220408
             //Layer直下に追加するものだけドラッグ移動イベントを追加する
             if (this.MyData.DataType == ThumbType.Layer)
             {
-                thumb.DragDelta += thumb.TThumb5_DragDelta;
-                thumb.DragCompleted += TThumb5_DragCompleted;
+                SetDragAll(thumb);
+                //thumb.DragDelta += thumb.TThumb5_DragDelta;
+                //thumb.DragCompleted += thumb.TThumb5_DragCompleted;                
             }
         }
 
-        private void TThumb5_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            TThumb5 thumb = (TThumb5)sender;
-            AjustLocate2(thumb.ParentGroup);//位置調整
-            //Parentのサイズ再計算、設定
-            AjustParentSize(thumb);
-        }
+
         public static void AjustParentSize(TThumb5 thumb)
         {
             (double w, double y) = GetParentSize(thumb);
@@ -630,12 +698,72 @@ namespace _20220408
             {
                 if (item.MyData.X < left) { left = item.MyData.X; }
                 if (item.MyData.Y < top) { top = item.MyData.Y; }
+
             }
+
             foreach (var item in groupThumb.Items)
             {
                 item.MyData.X -= left;
                 item.MyData.Y -= top;
             }
+            
+            if(groupThumb.ParentGroup is not null && groupThumb.ParentGroup is TThumb5 layer)
+            {
+                foreach (var item in layer.Items)
+                {
+                    item.MyData.X -= left;
+                    item.MyData.Y -= top;
+                }
+            }
+            
+            
+
+            //if (groupThumb.MyData.DataType == ThumbType.Layer)
+            //{
+            //    foreach (var item in groupThumb.Items)
+            //    {
+            //        item.MyData.X -= left;
+            //        item.MyData.Y -= top;
+            //    }
+            //}
+            //else if (groupThumb.MyData.DataType == ThumbType.Group)
+            //{
+            //    double diffx = groupThumb.MyData.X + left;
+            //    double diffy = groupThumb.MyData.Y + top;
+            //    if (diffx < 0)
+            //    {
+            //        TThumb5 layer = GetLayerThumb(groupThumb);
+            //        foreach (var item in layer.Items)
+            //        {
+            //            item.MyData.X -= diffx;
+            //        }
+            //        groupThumb.MyData.X = 0;
+            //    }
+            //    if (diffy < 0)
+            //    {
+            //        var layser = GetLayerThumb(groupThumb);
+            //        foreach (var item in layser.Items)
+            //        {
+            //            item.MyData.Y -= diffy;
+            //        }
+            //        groupThumb.MyData.Y = 0;
+            //    }
+
+            //    foreach (var item in groupThumb.Items)
+            //    {
+            //        item.MyData.X -= left;
+            //        item.MyData.Y -= top;
+            //    }
+            //}
+        }
+        public TThumb5 GetLayerThumb(TThumb5 thumb)
+        {
+            //Parentを遡ってLayer型のThumbを返す
+            TThumb5 t = thumb.ParentGroup;
+            if (t == null) { return null; }
+            if (t.MyData.DataType == ThumbType.Layer) { return t; }
+            else { GetLayerThumb(t); }
+            return null;
         }
         public void RemoveItem(TThumb5 thumb)
         {
@@ -666,6 +794,26 @@ namespace _20220408
             var element = sender;
             var neko = e.OriginalSource;
             var inu = e.Source;
+            TThumb5 tParent = this.ParentGroup;
+            if (tParent.IsMoveItems)
+            {
+                tParent.IsMoveItems = false;
+                SetDragAll(tParent);
+                foreach (var item in tParent.Items)
+                {
+                    RemoveDragEvent(item);
+                }
+            }
+            else
+            {
+                tParent.IsMoveItems = true;
+                RemoveDragEvent(this.ParentGroup);
+                foreach (var item in this.ParentGroup.Items)
+                {
+                    SetDragAll(item);
+                }
+            }
+
         }
         private void Edit()
         {
