@@ -71,6 +71,8 @@ namespace _20220408
             thumb5_2.Items[0].MyData.X += 40;
             thumb5_2.Items[1].MyData.Y += 40;
             //thumb5_2.MyData.ChildrenData[0].Text = "kakikae2";
+            TThumb5.AjustParentSize(thumb5_2.Items[0]);//位置調整、必須
+
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

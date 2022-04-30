@@ -473,12 +473,12 @@ namespace _20220408
             //子要素のParentを自身に指定する
             Children.CollectionChanged += (a, b) =>
             {
-                if (b.NewItems[0] is TThumb5 t) { t.ParentGroup = this; }
+                if (b.NewItems != null && b.NewItems[0] is TThumb5 t) { t.ParentGroup = this; }
             };
             //子要素サイズ変更時にParentのサイズも変更する
             this.SizeChanged += (x, y) =>
             {
-                if (this.ParentGroup != null) { AjustSize(this); }
+                if (this.ParentGroup != null) { AjustParentSize(this); }
             };
         }
 
@@ -506,7 +506,7 @@ namespace _20220408
             {
                 data.ChildrenData.ToList()
                     .ForEach(x => Children.Add(new TThumb5(x)));
-                AjustLocate2(this);
+                //AjustLocate2(this);
 
 
 
@@ -549,6 +549,7 @@ namespace _20220408
         {
             FrameworkElementFactory canvas = new(typeof(Canvas));
             //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
+            canvas.SetValue(BackgroundProperty, Brushes.Beige);
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
             itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
             itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
@@ -597,15 +598,15 @@ namespace _20220408
             TThumb5 thumb = (TThumb5)sender;
             AjustLocate2(thumb.ParentGroup);//位置調整
             //Parentのサイズ再計算、設定
-            AjustSize(thumb);
+            AjustParentSize(thumb);
         }
-        private void AjustSize(TThumb5 thumb)
+        public static void AjustParentSize(TThumb5 thumb)
         {
             (double w, double y) = GetParentSize(thumb);
             thumb.ParentGroup.Width = w;
             thumb.ParentGroup.Height = y;
         }
-        private (double w, double y) GetParentSize(TThumb5 thumb)
+        private static (double w, double y) GetParentSize(TThumb5 thumb)
         {
             double w = double.MinValue;
             double h = double.MinValue;
