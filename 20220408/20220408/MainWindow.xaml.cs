@@ -33,13 +33,13 @@ namespace _20220408
         {
             InitializeComponent();
 
-            Data4 data1 = new(ThumbType.TextBlock, 10, 20, "Test1");
+            Data4 data1 = new(ThumbType.TextBlock, 0, 0, "Item1");
             thumb5_1 = new TThumb5(data1);
             MyLayer.AddItem(thumb5_1);
 
-            Data4 data3 = new(ThumbType.TextBlock, 50, 0, "Test22");
-            Data4 data4 = new(ThumbType.TextBlock, 100, 100, "Test333");
-            Data4 data2 = new(ThumbType.Group, 20, 40, "Group1");
+            Data4 data3 = new(ThumbType.TextBlock, 0, 0, "GroupItem1");
+            Data4 data4 = new(ThumbType.TextBlock, 100, 100, "GroupItem2");
+            Data4 data2 = new(ThumbType.Group, 40, 40, "Group1");
             data2.ChildrenData.Add(data3);
             data2.ChildrenData.Add(data4);
             thumb5_2 = new(data2);

@@ -686,76 +686,40 @@ namespace _20220408
             return (w, h);
         }
         /// <summary>
-        /// 子要素全体の位置調整、画面内に収まるように、余白ができないようにする
+        /// 位置調整、画面内に収まるように、余白ができないようにする
+        /// 子要素を処理したあとに親要素を遡って処理、Layerまでたどる
         /// ドラッグ移動後や要素追加後などに実行
         /// </summary>
-        /// <param name="groupThumb"></param>       
+        /// <param name="groupThumb">グループ型Thumb</param>       
         private void AjustLocate2(TThumb5 groupThumb)
         {
+            //子要素の左端と上端を取得
             double left = double.MaxValue;
             double top = double.MaxValue;
             foreach (var item in groupThumb.Items)
             {
                 if (item.MyData.X < left) { left = item.MyData.X; }
                 if (item.MyData.Y < top) { top = item.MyData.Y; }
-
             }
-
-            foreach (var item in groupThumb.Items)
+            //0以外なら位置調整
+            if (left != 0 || top != 0)
             {
-                item.MyData.X -= left;
-                item.MyData.Y -= top;
-            }
-            
-            if(groupThumb.ParentGroup is not null && groupThumb.ParentGroup is TThumb5 layer)
-            {
-                foreach (var item in layer.Items)
+                foreach (var item in groupThumb.Items)
                 {
                     item.MyData.X -= left;
                     item.MyData.Y -= top;
                 }
+                //自身がレイヤー型ではなければ自身も調整して、さらに親要素も処理する
+                if (groupThumb.MyData.DataType != ThumbType.Layer)
+                {
+                    groupThumb.MyData.X += left;
+                    groupThumb.MyData.Y += top;
+                    //親要素をたどる
+                    AjustLocate2(groupThumb.ParentGroup);
+                }
             }
-            
-            
-
-            //if (groupThumb.MyData.DataType == ThumbType.Layer)
-            //{
-            //    foreach (var item in groupThumb.Items)
-            //    {
-            //        item.MyData.X -= left;
-            //        item.MyData.Y -= top;
-            //    }
-            //}
-            //else if (groupThumb.MyData.DataType == ThumbType.Group)
-            //{
-            //    double diffx = groupThumb.MyData.X + left;
-            //    double diffy = groupThumb.MyData.Y + top;
-            //    if (diffx < 0)
-            //    {
-            //        TThumb5 layer = GetLayerThumb(groupThumb);
-            //        foreach (var item in layer.Items)
-            //        {
-            //            item.MyData.X -= diffx;
-            //        }
-            //        groupThumb.MyData.X = 0;
-            //    }
-            //    if (diffy < 0)
-            //    {
-            //        var layser = GetLayerThumb(groupThumb);
-            //        foreach (var item in layser.Items)
-            //        {
-            //            item.MyData.Y -= diffy;
-            //        }
-            //        groupThumb.MyData.Y = 0;
-            //    }
-
-            //    foreach (var item in groupThumb.Items)
-            //    {
-            //        item.MyData.X -= left;
-            //        item.MyData.Y -= top;
-            //    }
-            //}
         }
+
         public TThumb5 GetLayerThumb(TThumb5 thumb)
         {
             //Parentを遡ってLayer型のThumbを返す
@@ -777,7 +741,7 @@ namespace _20220408
         }
         public override string ToString()
         {
-            return $"{MyData.Text}";
+            return $"{MyData.X}, {MyData.Y}, {MyData.Text}";
         }
 
         private void SetContextMenu()

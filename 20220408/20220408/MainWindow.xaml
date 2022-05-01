@@ -41,7 +41,7 @@
       <Button x:Name="Button2" Content="save" Click="Button2_Click"/>
       <Button Name="Button3" Content="load" Click="Button3_Click"/>
       <Button x:Name="Button4" Content="clear" Click="Button4_Click"/>
-      <TextBlock Text="{Binding ElementName=MyLayer, Path=Width}"/>
+      <TextBlock Text="{Binding ElementName=MyLayer, Path=Width, StringFormat=Width \= 0}"/>
       <TabControl x:Name="MyTabControl">
         <TabItem Header="Text">
           <Grid>
