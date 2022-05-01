@@ -37,8 +37,8 @@ namespace _20220408
             thumb5_1 = new TThumb5(data1);
             MyLayer.AddItem(thumb5_1);
 
-            Data4 data3 = new(ThumbType.TextBlock, 0, 0, "GroupItem1");
-            Data4 data4 = new(ThumbType.TextBlock, 100, 100, "GroupItem2");
+            Data4 data3 = new(ThumbType.TextBlock, 0, 0, "Item1-1");
+            Data4 data4 = new(ThumbType.TextBlock, 100, 100, "Item1-2");
             Data4 data2 = new(ThumbType.Group, 40, 40, "Group1");
             data2.ChildrenData.Add(data3);
             data2.ChildrenData.Add(data4);
@@ -46,7 +46,21 @@ namespace _20220408
             MyLayer.AddItem(thumb5_2);
             Loaded += MainWindow_Loaded;
 
-
+            Data4 data6 = new(ThumbType.TextBlock, 0, 0, "Item2-1-1");
+            Data4 data7 = new(ThumbType.TextBlock, 40, 40, "Item2-1-2");
+            Data4 data8 = new(ThumbType.Group, 0, 0, "Group2-1");
+            data8.ChildrenData.Add(data6);
+            data8.ChildrenData.Add(data7);
+            Data4 data9 = new(ThumbType.TextBlock, 0, 0, "Item2-2-1");
+            Data4 data10 = new(ThumbType.TextBlock, 40, 40, "Item2-2-2");
+            Data4 data11 = new(ThumbType.Group, 100, 100, "Group2-2");
+            data11.ChildrenData.Add(data9);
+            data11.ChildrenData.Add(data10);
+            Data4 data12 = new(ThumbType.Group, 40, 160, "Group2");
+            data12.ChildrenData.Add(data8);
+            data12.ChildrenData.Add(data11);
+            TThumb5 g2 = new(data12);
+            MyLayer.AddItem(g2);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
@@ -56,6 +70,7 @@ namespace _20220408
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
+            
             var items = MyLayer.Items;
             var datas = MyLayer.MyData;
             var width = MyLayer.Width;

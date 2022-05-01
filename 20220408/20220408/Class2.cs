@@ -454,6 +454,84 @@ namespace _20220408
         public ContentPresenter ContentPresenter;
         private Canvas RootCanvas;
         public bool IsMoveItems;
+        private bool isEditing;
+
+        public bool IsEditing
+        {
+            get => isEditing;
+            set
+            {
+                if (value != isEditing)
+                {
+                    TThumb5 editing = GetEditingThumb();
+                    //編集中にする
+                    if (value && editing != null)
+                    {
+                        //編集中グループのアイテムのドラッグイベントを削除
+                        foreach (var item in editing.Items)
+                        {
+                            RemoveDragEvent(item);
+                        }
+
+                        //新たに編集中にするグループを取得、そのアイテムにドラッグ移動イベント付加
+                        var next = GetNextEditingThumb(this);
+                        foreach (var item in next.Items)
+                        {
+                            AddDragEvent(item);
+                        }
+                    }
+                    //編集終了にする
+                    else
+                    {
+
+                    }
+                    isEditing = value;
+                }
+
+
+            }
+        }
+        private TThumb5 GetNextEditingThumb(TThumb5 thumb)
+        {
+            if (thumb.ParentGroup.IsEditing) { return thumb; }
+            else { return GetNextEditingThumb(thumb.ParentGroup); }
+        }
+        private TThumb5 GetEditingThumb(TThumb5 groupThumb)
+        {
+            if (groupThumb.MyData.DataType != ThumbType.Group) { return null; }
+            TThumb5 result = null;
+            foreach (var item in groupThumb.Items)
+            {
+                if (item.MyData.DataType == ThumbType.Group)
+                {
+                    if (item.IsEditing) { result = item; break; }
+                    else { result = GetEditingThumb(item); }
+                }
+            }
+            return result;
+        }
+        private TThumb5 GetEditingThumb()
+        {
+            var layer = GetLayer(this);
+            if (layer.IsEditing) { return layer; }
+            TThumb5 result = null;
+            foreach (var item in layer.Items)
+            {
+                if (item.MyData.DataType == ThumbType.Group)
+                {
+                    if (item.IsEditing) { result = item; break; }
+                    else { result = GetEditingThumb(item); }
+                }
+            }
+            return result;
+        }
+        //自身が所属するLayerを取得
+        private TThumb5 GetLayer(TThumb5 thumb)
+        {
+            TThumb5 t = thumb;
+            if (t.MyData.DataType == ThumbType.Layer) { return t; }
+            else { return GetLayer(t.ParentGroup); }
+        }
 
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
         //Thumbの追加や削除は別メソッドにした
@@ -502,7 +580,7 @@ namespace _20220408
             //Parentのサイズ再計算、設定
             AjustParentSize(thumb);
         }
-        private static void SetDragAll(TThumb5 thumb)
+        private static void AddDragEvent(TThumb5 thumb)
         {
             thumb.DragDelta += thumb.TThumb5_DragDelta;
             thumb.DragCompleted += thumb.TThumb5_DragCompleted;
@@ -568,6 +646,8 @@ namespace _20220408
 
 
             }
+            //
+            if (data.DataType == ThumbType.Layer) { isEditing = true; }
 
         }
 
@@ -661,7 +741,7 @@ namespace _20220408
             //Layer直下に追加するものだけドラッグ移動イベントを追加する
             if (this.MyData.DataType == ThumbType.Layer)
             {
-                SetDragAll(thumb);
+                AddDragEvent(thumb);
                 //thumb.DragDelta += thumb.TThumb5_DragDelta;
                 //thumb.DragCompleted += thumb.TThumb5_DragCompleted;                
             }
@@ -755,28 +835,29 @@ namespace _20220408
 
         private void Item_Click(object sender, RoutedEventArgs e)
         {
-            var element = sender;
-            var neko = e.OriginalSource;
-            var inu = e.Source;
+            this.ParentGroup.IsEditing = !this.ParentGroup.IsEditing;
             TThumb5 tParent = this.ParentGroup;
-            if (tParent.IsMoveItems)
-            {
-                tParent.IsMoveItems = false;
-                SetDragAll(tParent);
-                foreach (var item in tParent.Items)
-                {
-                    RemoveDragEvent(item);
-                }
-            }
-            else
-            {
-                tParent.IsMoveItems = true;
-                RemoveDragEvent(this.ParentGroup);
-                foreach (var item in this.ParentGroup.Items)
-                {
-                    SetDragAll(item);
-                }
-            }
+            var neko = tParent.IsMoveItems;
+            var inu = tParent.ParentGroup.IsMoveItems;
+
+            //if (tParent.IsMoveItems)
+            //{
+            //    tParent.IsMoveItems = false;
+            //    AddDragEvent(tParent);
+            //    foreach (var item in tParent.Items)
+            //    {
+            //        RemoveDragEvent(item);
+            //    }
+            //}
+            //else
+            //{
+            //    tParent.IsMoveItems = true;
+            //    RemoveDragEvent(this.ParentGroup);
+            //    foreach (var item in this.ParentGroup.Items)
+            //    {
+            //        AddDragEvent(item);
+            //    }
+            //}
 
         }
         private void Edit()
