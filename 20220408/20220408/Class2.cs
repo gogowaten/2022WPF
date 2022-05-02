@@ -463,68 +463,72 @@ namespace _20220408
             {
                 if (value != isEditing)
                 {
-                    TThumb5 editing = GetEditingThumb();
-                    //編集中にする
-                    if (value && editing != null)
-                    {
-                        //編集中グループのアイテムのドラッグイベントを削除
-                        foreach (var item in editing.Items)
-                        {
-                            RemoveDragEvent(item);
-                        }
+                    //var pastnext = GetPastAndNextThumb(this);
 
-                        //新たに編集中にするグループを取得、そのアイテムにドラッグ移動イベント付加
-                        var next = GetNextEditingThumb(this);
-                        foreach (var item in next.Items)
-                        {
-                            AddDragEvent(item);
-                        }
-                    }
-                    //編集終了にする
-                    else
-                    {
+                    //TThumb5 editing = GetEditingThumb();
+                    ////編集中にする
+                    //if (value && editing != null)
+                    //{
+                    //    editing.IsEditing = false;
+                    //    //編集中グループのアイテムのドラッグイベントを削除
+                    //    foreach (var item in editing.Items)
+                    //    {
+                    //        RemoveDragEvent(item);
+                    //    }
+                    //    //新たに編集中にするグループを取得、そのアイテムにドラッグ移動イベント付加
+                    //    var next = GetNextEditingThumb(this);
+                    //    foreach (var item in next.Items)
+                    //    {
+                    //        AddDragEvent(item);
+                    //    }
+                    //}
 
-                    }
+                    ////編集終了にする
+                    //else
+                    //{
+
+                    //}
                     isEditing = value;
                 }
 
 
             }
         }
-        private TThumb5 GetNextEditingThumb(TThumb5 thumb)
-        {
-            if (thumb.ParentGroup.IsEditing) { return thumb; }
-            else { return GetNextEditingThumb(thumb.ParentGroup); }
-        }
-        private TThumb5 GetEditingThumb(TThumb5 groupThumb)
-        {
-            if (groupThumb.MyData.DataType != ThumbType.Group) { return null; }
-            TThumb5 result = null;
-            foreach (var item in groupThumb.Items)
-            {
-                if (item.MyData.DataType == ThumbType.Group)
-                {
-                    if (item.IsEditing) { result = item; break; }
-                    else { result = GetEditingThumb(item); }
-                }
-            }
-            return result;
-        }
-        private TThumb5 GetEditingThumb()
-        {
-            var layer = GetLayer(this);
-            if (layer.IsEditing) { return layer; }
-            TThumb5 result = null;
-            foreach (var item in layer.Items)
-            {
-                if (item.MyData.DataType == ThumbType.Group)
-                {
-                    if (item.IsEditing) { result = item; break; }
-                    else { result = GetEditingThumb(item); }
-                }
-            }
-            return result;
-        }
+
+        //private TThumb5 GetNextEditingThumb(TThumb5 thumb)
+        //{
+        //    if (thumb.ParentGroup.IsEditing) { return thumb; }
+        //    else { return GetNextEditingThumb(thumb.ParentGroup); }
+        //}
+        //private TThumb5 GetEditingThumb(TThumb5 groupThumb)
+        //{
+        //    if (groupThumb.MyData.DataType != ThumbType.Group) { return null; }
+        //    TThumb5 result = null;
+        //    foreach (var item in groupThumb.Items)
+        //    {
+        //        if (item.MyData.DataType == ThumbType.Group)
+        //        {
+        //            if (item.IsEditing) { result = item; break; }
+        //            else { result = GetEditingThumb(item); }
+        //        }
+        //    }
+        //    return result;
+        //}
+        //private TThumb5 GetEditingThumb()
+        //{
+        //    var layer = GetLayer(this);
+        //    if (layer.IsEditing) { return layer; }
+        //    TThumb5 result = null;
+        //    foreach (var item in layer.Items)
+        //    {
+        //        if (item.MyData.DataType == ThumbType.Group)
+        //        {
+        //            if (item.IsEditing) { result = item; break; }
+        //            else { result = GetEditingThumb(item); }
+        //        }
+        //    }
+        //    return result;
+        //}
         //自身が所属するLayerを取得
         private TThumb5 GetLayer(TThumb5 thumb)
         {
@@ -828,41 +832,53 @@ namespace _20220408
         {
             ContextMenu cm = new();
             this.ContextMenu = cm;
-            MenuItem item = new() { Header = "edit" };
-            item.Click += Item_Click;
+            MenuItem item = new() { Header = "BeginEdit" };
+            item.Click += Item_ClickBeginEdit;
             cm.Items.Add(item);
+            item = new() { Header = "EndEdit" };
+            item.Click += Item_ClickEndEdit;
+            cm.Items.Add(item);
+
         }
 
-        private void Item_Click(object sender, RoutedEventArgs e)
+        private void Item_ClickEndEdit(object sender, RoutedEventArgs e)
         {
+            //編集状態解除
+            var editT = GetNextEditingThumb(this);
+
+        }
+
+        private void Item_ClickBeginEdit(object sender, RoutedEventArgs e)
+        {
+            //編集状態にする
+            var et = GetEditingGroupThumb(this);
             this.ParentGroup.IsEditing = !this.ParentGroup.IsEditing;
             TThumb5 tParent = this.ParentGroup;
-            var neko = tParent.IsMoveItems;
-            var inu = tParent.ParentGroup.IsMoveItems;
-
-            //if (tParent.IsMoveItems)
-            //{
-            //    tParent.IsMoveItems = false;
-            //    AddDragEvent(tParent);
-            //    foreach (var item in tParent.Items)
-            //    {
-            //        RemoveDragEvent(item);
-            //    }
-            //}
-            //else
-            //{
-            //    tParent.IsMoveItems = true;
-            //    RemoveDragEvent(this.ParentGroup);
-            //    foreach (var item in this.ParentGroup.Items)
-            //    {
-            //        AddDragEvent(item);
-            //    }
-            //}
-
         }
-        private void Edit()
+        private (TThumb5 now, TThumb5 next) GetNextEditingThumb(TThumb5 thumb)
         {
-
+            TThumb5 parent = thumb.ParentGroup;
+            if (parent.IsEditing)
+            {
+                if (thumb.MyData.DataType == ThumbType.Group)
+                {
+                    return (parent, thumb);
+                }
+                else
+                {
+                    return (parent, parent);
+                }
+            }
+            else
+            {
+                return GetNextEditingThumb(parent);
+            }
+        }
+        private TThumb5 GetEditingGroupThumb(TThumb5 thumb)
+        {
+            //if(thumb.ParentGroup == null) { return null; }
+            if (thumb.ParentGroup.isEditing) { return thumb.ParentGroup; }
+            else { return GetEditingGroupThumb(thumb.ParentGroup); }
         }
     }
 
