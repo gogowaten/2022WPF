@@ -532,9 +532,8 @@ namespace _20220408
         //自身が所属するLayerを取得
         private TThumb5 GetLayer(TThumb5 thumb)
         {
-            TThumb5 t = thumb;
-            if (t.MyData.DataType == ThumbType.Layer) { return t; }
-            else { return GetLayer(t.ParentGroup); }
+            if (thumb.MyData.DataType == ThumbType.Layer) { return thumb; }
+            else { return GetLayer(thumb.ParentGroup); }
         }
 
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
@@ -804,15 +803,15 @@ namespace _20220408
             }
         }
 
-        public TThumb5 GetLayerThumb(TThumb5 thumb)
-        {
-            //Parentを遡ってLayer型のThumbを返す
-            TThumb5 t = thumb.ParentGroup;
-            if (t == null) { return null; }
-            if (t.MyData.DataType == ThumbType.Layer) { return t; }
-            else { GetLayerThumb(t); }
-            return null;
-        }
+        //public TThumb5 GetLayerThumb(TThumb5 thumb)
+        //{
+        //    //Parentを遡ってLayer型のThumbを返す
+        //    TThumb5 t = thumb.ParentGroup;
+        //    if (t == null) { return null; }
+        //    if (t.MyData.DataType == ThumbType.Layer) { return t; }
+        //    else { GetLayerThumb(t); }
+        //    return null;
+        //}
         public void RemoveItem(TThumb5 thumb)
         {
             MyData.ChildrenData.Remove(thumb.MyData);
@@ -851,9 +850,24 @@ namespace _20220408
         private void Item_ClickBeginEdit(object sender, RoutedEventArgs e)
         {
             //編集状態にする
-            var et = GetEditingGroupThumb(this);
-            this.ParentGroup.IsEditing = !this.ParentGroup.IsEditing;
-            TThumb5 tParent = this.ParentGroup;
+            var et = GetEditingGroupThumbToRoot(this);
+            var egt = GetEditingGroupThumb(this);
+            var egt2 = GetEditingGroupThumbToRoot2(this);
+            var tt = GetNextEditingThumb(this);
+            if (tt.now != tt.next)
+            {
+                tt.now.IsEditing = false;
+                tt.next.IsEditing = true;
+                foreach (var item in tt.now.Items)
+                {
+                    RemoveDragEvent(item);
+                }
+                foreach (var item in tt.next.Items)
+                {
+                    AddDragEvent(item);
+                }
+            }
+
         }
         private (TThumb5 now, TThumb5 next) GetNextEditingThumb(TThumb5 thumb)
         {
@@ -874,12 +888,103 @@ namespace _20220408
                 return GetNextEditingThumb(parent);
             }
         }
+        private (TThumb5 now, TThumb5 next) GetNextEditingThumb2(TThumb5 thumb)
+        {
+
+            TThumb5 parent = thumb.ParentGroup;
+            if (parent.IsEditing)
+            {
+                if (thumb.MyData.DataType == ThumbType.Group)
+                {
+                    return (parent, thumb);
+                }
+                else
+                {
+                    return (parent, parent);
+                }
+            }
+            else
+            {
+                return GetNextEditingThumb2(parent);
+            }
+        }
+
+        private (TThumb5 now, TThumb5 next) GetEditingGroupThumbToRoot2(TThumb5 thumb)
+        {
+            //ルート方向へ探索
+            TThumb5 parent = thumb.ParentGroup;
+            if (parent == null) { return (null, null); }
+            else
+            {
+                if (parent.isEditing)
+                {
+                    if (thumb.MyData.DataType == ThumbType.Group)
+                    {
+                        return (parent, thumb);
+                    }
+                    else return (parent, null);
+                }
+                else
+                {
+                    return GetEditingGroupThumbToRoot2(parent);
+                }
+            }
+        }
+
+        private TThumb5 GetEditingGroupThumbToRoot(TThumb5 thumb)
+        {
+            //ルート方向へ探索
+            TThumb5 parent = thumb.ParentGroup;
+            if (parent == null) { return null; }
+            return parent.IsEditing ? parent : GetEditingGroupThumbToRoot(parent);
+        }
+        private TThumb5 GetEditingGroupThumbToLeaf(TThumb5 thumb)
+        {
+            //リーフ方向へ探索
+            TThumb5 result = null;
+            if (thumb.isEditing) { return thumb; }
+            else if (thumb.Items.Count == 0) { return null; }
+            else
+            {
+                foreach (TThumb5 item in thumb.Items)
+                {
+                    result = GetEditingGroupThumbToLeaf(item);
+                    if (result != null) { break; }
+                }
+            }
+            return result;
+
+        }
+        
+        private (TThumb5 now,TThumb5 next) GetEditingGroupThumbToLeaf2(TThumb5 thumb)
+        {
+            //リーフ方向へ探索
+            TThumb5 result = null;
+            if (thumb.isEditing) { return thumb; }
+            else if (thumb.Items.Count == 0) { return null; }
+            else
+            {
+                foreach (TThumb5 item in thumb.Items)
+                {
+                    result = GetEditingGroupThumbToLeaf2(item);
+                    if (result != null) { break; }
+                }
+            }
+            return result;
+
+        }
         private TThumb5 GetEditingGroupThumb(TThumb5 thumb)
         {
-            //if(thumb.ParentGroup == null) { return null; }
-            if (thumb.ParentGroup.isEditing) { return thumb.ParentGroup; }
-            else { return GetEditingGroupThumb(thumb.ParentGroup); }
+            //ルート方向へ探索して、なければルートからリーフ方向へ探索
+            TThumb5 editing = GetEditingGroupThumbToRoot(thumb);
+            if (editing == null)
+            {
+                editing = GetEditingGroupThumbToLeaf(GetLayer(thumb));
+            }
+            return editing;
         }
+
+
     }
 
 
