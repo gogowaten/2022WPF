@@ -535,6 +535,28 @@ namespace _20220408
             if (thumb.MyData.DataType == ThumbType.Layer) { return thumb; }
             else { return GetLayer(thumb.ParentGroup); }
         }
+        /// <summary>
+        /// 指定ThumbからParentを辿ってLayerと直下のGroupを返す、このときのGroupは指定Thumbの系統のもの
+        /// </summary>
+        /// <param name="thumb"></param>
+        /// <returns></returns>
+        private (TThumb5 layer, TThumb5 group) GetLayerAndGroup(TThumb5 thumb)
+        {
+            TThumb5 parent = thumb.ParentGroup;
+            if (parent.MyData.DataType == ThumbType.Layer)
+            {
+                TThumb5 child = null;
+                if (thumb.MyData.DataType == ThumbType.Group)
+                {
+                    child = thumb;
+                }
+                return (parent, child);//直下がItemだった場合はchildはnullで返す
+            }
+            else
+            {
+                return GetLayerAndGroup(parent);
+            }
+        }
 
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
         //Thumbの追加や削除は別メソッドにした
@@ -853,16 +875,30 @@ namespace _20220408
             var et = GetEditingGroupThumbToRoot(this);
             var egt = GetEditingGroupThumb(this);
             var egt2 = GetEditingGroupThumbToRoot2(this);
-            var tt = GetNextEditingThumb(this);
-            if (tt.now != tt.next)
+            var rgt3 = GetEditingGroupThumbToLeaf22(this);
+            //var tt = GetNextEditingThumb(this);
+            //if (tt.now != tt.next)
+            //{
+            //    tt.now.IsEditing = false;
+            //    tt.next.IsEditing = true;
+            //    foreach (var item in tt.now.Items)
+            //    {
+            //        RemoveDragEvent(item);
+            //    }
+            //    foreach (var item in tt.next.Items)
+            //    {
+            //        AddDragEvent(item);
+            //    }
+            //}
+            if (rgt3.now != rgt3.next && rgt3.next != null)
             {
-                tt.now.IsEditing = false;
-                tt.next.IsEditing = true;
-                foreach (var item in tt.now.Items)
+                rgt3.now.IsEditing = false;
+                rgt3.next.IsEditing = true;
+                foreach (var item in rgt3.now.Items)
                 {
                     RemoveDragEvent(item);
                 }
-                foreach (var item in tt.next.Items)
+                foreach(var item in rgt3.next.Items)
                 {
                     AddDragEvent(item);
                 }
@@ -911,18 +947,18 @@ namespace _20220408
 
         private (TThumb5 now, TThumb5 next) GetEditingGroupThumbToRoot2(TThumb5 thumb)
         {
-            //ルート方向へ探索
+            //ルート方向へ探索(Parentをたどる同系統探索)
             TThumb5 parent = thumb.ParentGroup;
-            if (parent == null) { return (null, null); }
+            if (parent == null) { return (null, null); }//同系統にはなかった
             else
             {
                 if (parent.isEditing)
                 {
                     if (thumb.MyData.DataType == ThumbType.Group)
                     {
-                        return (parent, thumb);
+                        return (parent, thumb);//今と次の両方見つかった
                     }
-                    else return (parent, null);
+                    else return (parent, null);//今のグループが先端だった(変更する必要なし)
                 }
                 else
                 {
@@ -955,22 +991,23 @@ namespace _20220408
             return result;
 
         }
-        
-        private (TThumb5 now,TThumb5 next) GetEditingGroupThumbToLeaf2(TThumb5 thumb)
+
+        private (TThumb5 now, TThumb5 next) GetEditingGroupThumbToLeaf22(TThumb5 thumb)
         {
-            //リーフ方向へ探索
-            TThumb5 result = null;
-            if (thumb.isEditing) { return thumb; }
-            else if (thumb.Items.Count == 0) { return null; }
+            //同系統から探索
+            var tt = GetEditingGroupThumbToRoot2(thumb);
+            if (tt.now != null && tt.next != null) { return tt; }//同系統にあった、完了            
+            else if (tt.now != null && tt.next == null) { return tt; }//変更の必要なし、完了
+            //同系統になかった場合、全体から今を探索、次はルートの直下になる
             else
             {
-                foreach (TThumb5 item in thumb.Items)
-                {
-                    result = GetEditingGroupThumbToLeaf2(item);
-                    if (result != null) { break; }
-                }
+                var lg = GetLayerAndGroup(thumb);//Layerと同系統直下のGroup取得
+                //直下がItemだった場合は次をLayerにする
+                if (lg.group == null) { tt.next = lg.layer; }
+                else { tt.next = lg.group; }
+                tt.now = GetEditingGroupThumbToLeaf(lg.layer);
+                return tt;
             }
-            return result;
 
         }
         private TThumb5 GetEditingGroupThumb(TThumb5 thumb)
