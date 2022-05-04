@@ -454,46 +454,22 @@ namespace _20220408
         public ContentPresenter ContentPresenter;
         private Canvas RootCanvas;
         public bool IsMoveItems;
-        private bool isEditing;
+        //private bool isEditing;
 
-        public bool IsEditing
-        {
-            get => isEditing;
-            set
-            {
-                if (value != isEditing)
-                {
-                    //var pastnext = GetPastAndNextThumb(this);
+        //public bool IsEditing
+        //{
+        //    get => isEditing;
+        //    set
+        //    {
+        //        if (value != isEditing)
+        //        {
 
-                    //TThumb5 editing = GetEditingThumb();
-                    ////編集中にする
-                    //if (value && editing != null)
-                    //{
-                    //    editing.IsEditing = false;
-                    //    //編集中グループのアイテムのドラッグイベントを削除
-                    //    foreach (var item in editing.Items)
-                    //    {
-                    //        RemoveDragEvent(item);
-                    //    }
-                    //    //新たに編集中にするグループを取得、そのアイテムにドラッグ移動イベント付加
-                    //    var next = GetNextEditingThumb(this);
-                    //    foreach (var item in next.Items)
-                    //    {
-                    //        AddDragEvent(item);
-                    //    }
-                    //}
-
-                    ////編集終了にする
-                    //else
-                    //{
-
-                    //}
-                    isEditing = value;
-                }
+        //            isEditing = value;
+        //        }
 
 
-            }
-        }
+        //    }
+        //}
 
 
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
@@ -509,14 +485,22 @@ namespace _20220408
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
 
             SetGroupThumbTemplate();
-            SetContextMenu();
+
 
             this.DataContext = this;
 
-            //子要素のParentを自身に指定する
+            //childrenの要素追加時
             Children.CollectionChanged += (a, b) =>
             {
-                if (b.NewItems != null && b.NewItems[0] is TThumb5 t) { t.ParentGroup = this; }
+                if (b.NewItems != null && b.NewItems[0] is TThumb5 thumb)
+                {
+                    thumb.ParentGroup = this;//子要素のParentを自身に指定する
+                    if (thumb.MyData.DataType != ThumbType.Group)
+                    {
+                        SetContextMenu(thumb, this);//Itemなら右クリックメニュー作成
+                    }
+                    
+                }
             };
             //子要素サイズ変更時にParentのサイズも変更する
             this.SizeChanged += (x, y) =>
@@ -606,11 +590,12 @@ namespace _20220408
                         break;
                 }
                 this.ContentPresenter.Content = element;
-
+                //SetContextMenu();//右クリックメニュー追加
 
             }
             //
-            if (data.DataType == ThumbType.Layer) { isEditing = true; }
+            if (data.DataType == ThumbType.Layer) { MyData.IsEditing = true; }
+            //if (data.DataType == ThumbType.Layer) { isEditing = true; }
 
         }
 
@@ -763,15 +748,7 @@ namespace _20220408
             }
         }
 
-        //public TThumb5 GetLayerThumb(TThumb5 thumb)
-        //{
-        //    //Parentを遡ってLayer型のThumbを返す
-        //    TThumb5 t = thumb.ParentGroup;
-        //    if (t == null) { return null; }
-        //    if (t.MyData.DataType == ThumbType.Layer) { return t; }
-        //    else { GetLayerThumb(t); }
-        //    return null;
-        //}
+
         public void RemoveItem(TThumb5 thumb)
         {
             MyData.ChildrenData.Remove(thumb.MyData);
@@ -787,32 +764,34 @@ namespace _20220408
             return $"{MyData.X}, {MyData.Y}, {MyData.Text}";
         }
 
-        private void SetContextMenu()
+        private void SetContextMenu(TThumb5 thumb,TThumb5 parent)
         {
             ContextMenu cm = new();
-            this.ContextMenu = cm;
+            thumb.ContextMenu = cm;
             MenuItem item = new() { Header = "BeginEdit" };
             item.Click += Item_ClickBeginEdit;
             cm.Items.Add(item);
+            Binding b = new();
+            b.Source = parent;
+            b.Path = new PropertyPath(nameof(MyData.IsEditing));
+            b.Converter = new MyConberterBool();
+            item.SetBinding(IsEnabledProperty, b);
+
             item = new() { Header = "EndEdit" };
             item.Click += Item_ClickEndEdit;
             cm.Items.Add(item);
-            item.Initialized += Item_Initialized;
-            item.ContextMenuOpening += Item_ContextMenuOpening;
-            グループThumbには付けないようにする
+
+            thumb.ContextMenuOpening += TThumb5_ContextMenuOpening;
         }
 
-        private void Item_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        private void TThumb5_ContextMenuOpening(object sender, ContextMenuEventArgs e)
         {
-            MenuItem mi = sender as MenuItem;
-            mi.IsEnabled = !this.ParentGroup.IsEnabled;
-            //if (this.ParentGroup.IsEditing) { mi.IsEnabled = false; }
+            TThumb5 t = sender as TThumb5;
+            var neko = t.ContextMenu.Items[0] as MenuItem;
+            var inu = neko.IsEnabled;
         }
 
-        private void Item_Initialized(object sender, EventArgs e)
-        {
-            
-        }
+
 
         private void Item_ClickEndEdit(object sender, RoutedEventArgs e)
         {
@@ -829,8 +808,8 @@ namespace _20220408
 
             if (now != next && next != null)
             {
-                now.IsEditing = false;
-                next.IsEditing = true;
+                now.MyData.IsEditing = false;
+                next.MyData.IsEditing = true;
                 foreach (var item in now.Items)
                 {
                     RemoveDragEvent(item);
@@ -886,7 +865,7 @@ namespace _20220408
             if (parent == null) { return (null, null); }//同系統にはなかった
             else
             {
-                if (parent.isEditing)
+                if (parent.MyData.IsEditing)
                 {
                     if (thumb.MyData.DataType == ThumbType.Group)
                     {
@@ -912,7 +891,7 @@ namespace _20220408
         {
             //リーフ方向へ探索
             TThumb5 result = null;
-            if (thumb.isEditing) { return thumb; }
+            if (thumb.MyData.IsEditing) { return thumb; }
             else if (thumb.Items.Count == 0) { return null; }
             else
             {
@@ -956,19 +935,23 @@ namespace _20220408
     }
 
 
-    public class BBH : IValueConverter
+    public class AAA : Thumb {
+        public AAA()
+        {
+            AAA2 aAA2 = new AAA2();
+            AAA3 aAA = new();
+
+        }
+    }
+    public class AAA2 : AAA { }
+    public class AAA3 : AAA { }
+
+    public class MyConberterBool : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var children = (ReadOnlyObservableCollection<TThumb5>)parameter;
-            double min = double.MaxValue;
-            double max = double.MinValue;
-            foreach (var item in children)
-            {
-                min = Math.Min(min, item.MyData.Y);
-                max = Math.Max(max, item.MyData.Y + item.ActualHeight);
-            }
-            return max - min;
+            bool b = (bool)value;
+            return !b;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

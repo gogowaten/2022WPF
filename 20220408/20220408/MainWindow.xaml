@@ -68,7 +68,7 @@
     
     <Canvas x:Name="MyGrid" UseLayoutRounding="True">
       <!--<local:Class1 x:Name="MyClass1" Width="100" Height="100"/>-->
-      <local:TThumb5 x:Name="MyLayer" IsEditing="True"/>
+      <local:TThumb5 x:Name="MyLayer"/>
       
     </Canvas>
   </Grid>

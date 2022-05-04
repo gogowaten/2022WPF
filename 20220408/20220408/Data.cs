@@ -173,6 +173,7 @@ namespace _20220408
         public ThumbType DataType { get; set; }
         [DataMember]
         public ObservableCollection<Data4> ChildrenData { get; set; } = new();
+        public bool IsEditing { get; set; }//trueの場合は直下のItemが移動可能状態
         [DataMember]
         public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
         [DataMember]
