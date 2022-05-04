@@ -15,6 +15,8 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Windows.Controls.Primitives;
 using System.Globalization;
+using System.ComponentModel;
+using System.Runtime.Serialization;
 
 namespace _20220408
 {
@@ -499,7 +501,7 @@ namespace _20220408
                     {
                         SetContextMenu(thumb, this);//Itemなら右クリックメニュー作成
                     }
-                    
+
                 }
             };
             //子要素サイズ変更時にParentのサイズも変更する
@@ -764,7 +766,7 @@ namespace _20220408
             return $"{MyData.X}, {MyData.Y}, {MyData.Text}";
         }
 
-        private void SetContextMenu(TThumb5 thumb,TThumb5 parent)
+        private void SetContextMenu(TThumb5 thumb, TThumb5 parent)
         {
             ContextMenu cm = new();
             thumb.ContextMenu = cm;
@@ -774,7 +776,7 @@ namespace _20220408
             Binding b = new();
             b.Source = parent;
             b.Path = new PropertyPath(nameof(MyData.IsEditing));
-            b.Converter = new MyConberterBool();
+            b.Converter = new MyConverterBool();
             item.SetBinding(IsEnabledProperty, b);
 
             item = new() { Header = "EndEdit" };
@@ -935,18 +937,169 @@ namespace _20220408
     }
 
 
-    public class AAA : Thumb {
-        public AAA()
+    public enum DataType
+    {
+        Layer = 0,
+        Group,
+        TextBlock,
+        Path,
+        Image,
+
+    }
+    //System.Runtime.Serialization.DataContract]
+    //System.ComponentModel.INotifyPropertyChanged
+    [DataContract]
+    [KnownType(typeof(MatrixTransform)),
+        KnownType(typeof(EllipseGeometry))]
+    public class TThumb6 : Thumb, INotifyPropertyChanged
+    {
+        private double _x;
+        private double _y;
+        private string _text;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
         {
-            AAA2 aAA2 = new AAA2();
-            AAA3 aAA = new();
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public TTGroup MyParent { get; private set; }
+        [DataMember]
+        public DataType DataType { get; set; }
+        [DataMember]
+        //public ObservableCollection<Data4> ChildrenData { get; set; } = new();
+        public bool IsEditing { get; set; }//trueの場合は直下のItemが移動可能状態
+        [DataMember]
+        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+        [DataMember]
+        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+        [DataMember]
+        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
+        [DataMember]
+        public Brush BackgroundBrush { get; set; }
+        [DataMember]
+        public Geometry Geometry { get; set; }
+        [DataMember]
+        public Brush Fill { get; set; }
+
+
+
+        public TThumb6()
+        {
+
 
         }
-    }
-    public class AAA2 : AAA { }
-    public class AAA3 : AAA { }
+        //Parentのサイズ変更
+        protected static void AjustParentSize(TTItem item)
+        {
+            var (w, h) = GetParentSize(item);
+            item.MyParent.Width = w;
+            item.MyParent.Height = h;
+        }
+        private static (double w, double y) GetParentSize(TTItem tti)
+        {
+            double w = double.MinValue;
+            double h = double.MinValue;
+            foreach (var item in tti.MyParent.Items)
+            {
+                w = Math.Max(w, item.MyData.X + item.ActualWidth);
+                h = Math.Max(h, item.MyData.Y + item.ActualHeight);
+            }
+            return (w, h);
+        }
+        /// <summary>
+        /// 位置調整、画面内に収まるように、余白ができないようにする
+        /// 子要素を処理したあとに親要素を遡って処理、Layerまでたどる
+        /// ドラッグ移動後や要素追加後などに実行
+        /// </summary>
+        /// <param name="groupThumb">グループ型Thumb</param>       
+        private void AjustLocate2(TTGroup groupThumb)
+        {
+            //子要素の左端と上端を取得
+            double left = double.MaxValue;
+            double top = double.MaxValue;
+            foreach (var item in groupThumb.Items)
+            {
+                if (item.MyData.X < left) { left = item.MyData.X; }
+                if (item.MyData.Y < top) { top = item.MyData.Y; }
+            }
+            //0以外なら位置調整
+            if (left != 0 || top != 0)
+            {
+                foreach (var item in groupThumb.Items)
+                {
+                    item.MyData.X -= left;
+                    item.MyData.Y -= top;
+                }
+                //自身がレイヤー型ではなければ自身も調整して、さらに親要素も処理する
+                if (groupThumb.DataType != DataType.Layer)
+                {
+                    groupThumb.X += left;
+                    groupThumb.Y += top;
+                    //親要素をたどる
+                    AjustLocate2(groupThumb.MyParent);
+                }
+            }
+        }
 
-    public class MyConberterBool : IValueConverter
+        #region ドラッグイベント
+        protected void TThumb6_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            this.X += e.HorizontalChange;
+            this.Y += e.VerticalChange;            
+        }
+        private void TThumb6_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            TTItem tti = (TTItem)sender;
+            AjustLocate2(tti.MyParent);//位置調整
+            //Parentのサイズ再計算、設定
+            AjustParentSize(tti);
+        }
+        private static void AddDragEvent(TTItem tti)
+        {
+            tti.DragDelta += tti.TThumb6_DragDelta;
+            tti.DragCompleted += tti.TThumb6_DragCompleted;
+        }
+        private static void RemoveDragEvent(TTItem tti)
+        {
+            tti.DragDelta -= tti.TThumb6_DragDelta;
+            tti.DragCompleted -= tti.TThumb6_DragCompleted;
+
+        }
+
+        #endregion ドラッグイベント
+
+
+    }
+
+    public class TTItem : TThumb6
+    {
+        //private ItemsControl ItemsControl;
+        private Canvas MyCanvas;
+        
+
+        public TTItem()
+        {
+            this.DataContext = this;
+            this.SizeChanged += (a, b) =>
+            {
+                if (this.MyParent != null) { AjustParentSize(this); }
+            };
+        }
+    }
+
+
+    public class TTGroup : TThumb6 { }
+    public class TTLayer : TThumb6 { }
+
+
+
+
+
+
+
+
+    public class MyConverterBool : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
