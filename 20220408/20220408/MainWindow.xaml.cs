@@ -28,11 +28,44 @@ namespace _20220408
     {
         TThumb5 thumb5_1;
         TThumb5 thumb5_2;
+        TTItem TTItem1;
+        TTItem TTItem2;
 
         public MainWindow()
         {
             InitializeComponent();
+            //Init5();
+            TTItem1 = new(DataType.TextBlock) { Text = "testtti" };
+            MyLayer2.AddItem(TTItem1);
+            TTItem2 = new(DataType.TextBlock) { Text = "item2" };
+            MyLayer2.AddItem(TTItem2);
 
+
+            //TTGroup group = new();
+            //TTLayer layer = new();
+            //var neko = group.GetType();
+            //var inu = layer.GetType();
+            //var uma = layer is TTGroup;
+            //var tako = layer is TTLayer;
+            //var gtype = group is TTLayer;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Button1_Click(object sender, RoutedEventArgs e)
+        {
+            //Check5();
+            var neko = TTItem1.Text;
+            var inu = TTItem1.DataType;
+            var uma = TTItem1.Width;
+
+        }
+        #region thumb5
+        private void Init5()
+        {
             Data4 data1 = new(ThumbType.TextBlock, 0, 0, "Item1");
             thumb5_1 = new TThumb5(data1);
             MyLayer.AddItem(thumb5_1);
@@ -62,15 +95,8 @@ namespace _20220408
             TThumb5 g2 = new(data12);
             MyLayer.AddItem(g2);
         }
-
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void Check5()
         {
-            
-        }
-
-        private void Button1_Click(object sender, RoutedEventArgs e)
-        {
-            
             var items = MyLayer.Items;
             var datas = MyLayer.MyData;
             var width = MyLayer.Width;
@@ -89,6 +115,7 @@ namespace _20220408
             TThumb5.AjustParentSize(thumb5_2.Items[0]);//位置調整、必須
 
         }
+        #endregion
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
@@ -119,9 +146,11 @@ namespace _20220408
 
         private void Button2_Click(object sender, RoutedEventArgs e)
         {
-            DataSave($"E:\\MyData.xml", MyLayer.MyData);
+            //DataSave($"E:\\MyData.xml", MyLayer.MyData);//data4
+            DataSave2($"E:\\MyData.xml", TTItem1);//data4
+
         }
-        private void DataSave(string fileName, Data4 data)
+        private static void DataSave(string fileName, Data4 data)
         {
             System.Xml.XmlWriterSettings settings = new()
             {
@@ -157,7 +186,7 @@ namespace _20220408
             }
 
         }
-        private Data4 DataLoad(string fileName)
+        private static Data4 DataLoad(string fileName)
         {
             System.Runtime.Serialization.DataContractSerializer serializer = new(typeof(Data4));
             try
@@ -170,6 +199,30 @@ namespace _20220408
 
                 MessageBox.Show(ex.Message);
                 return null;
+            }
+        }
+        private static void DataSave2(string fileName, TThumb6 thumb)
+        {
+            System.Xml.XmlWriterSettings settings = new()
+            {
+                Encoding = new UTF8Encoding(false),
+                Indent = true,
+                NewLineOnAttributes = false,
+                ConformanceLevel = System.Xml.ConformanceLevel.Fragment
+            };
+            System.Xml.XmlWriter xmlWriter;
+            System.Runtime.Serialization.DataContractSerializer serializer = new(typeof(TThumb6));
+            using (xmlWriter = System.Xml.XmlWriter.Create(fileName, settings))
+            {
+                try
+                {
+                    serializer.WriteObject(xmlWriter, thumb);
+                }
+                catch (Exception ex)
+                {
+
+                    MessageBox.Show(ex.Message);
+                }
             }
         }
 
