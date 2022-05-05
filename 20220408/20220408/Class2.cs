@@ -954,7 +954,7 @@ namespace _20220408
     //System.Runtime.Serialization.DataContract]
     //System.ComponentModel.INotifyPropertyChanged
     #region TThumb6
-    
+
     [DataContract]
     [KnownType(typeof(MatrixTransform)),
         KnownType(typeof(EllipseGeometry)),
@@ -975,7 +975,7 @@ namespace _20220408
         public TTGroup6 MyParent { get; set; }
         [DataMember]
         public DataType DataType { get; set; }
-        
+
         [DataMember]
         public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
         [DataMember]
@@ -1410,63 +1410,124 @@ namespace _20220408
 
     public class TThumb7 : Thumb
     {
+        public TThumb7 MyParent { get; set; }
+        public Data7 MyData { get; set; }
         public TThumb7()
         {
+            this.DataContext = this;
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+
+        }
+    }
+    public class TTItem7 : TThumb7
+    {
+        private Canvas MyRootCanvas;
+        public FrameworkElement MyElement { get; private set; }
+        public TTItem7(Data7 data)
+        {
+            this.MyData = data;
+            this.DataContext = MyData;
             
         }
-    }
-    public class TTItem:INotifyPropertyChanged
-    {
-        #region フィールド
+
         
-        private double _x;
-        private double _y;
-        private string _text;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        #region ドラッグイベント
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+            var neko = e.Source;
+            var inu = e.OriginalSource;
+            var tt = (TThumb7)e.OriginalSource;
+            //var uma = tt.MyData.Parent;
         }
-        [IgnoreDataMember]
-        //public TTGroup6 MyParent { get; set; }
-        [DataMember]
-        public DataType DataType { get; set; }
-
-        [DataMember]
-        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
-        [DataMember]
-        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
-        [DataMember]
-        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
-        [DataMember]
-        public Brush BackgroundBrush { get; set; }
-        [DataMember]
-        public Geometry Geometry { get; set; }
-        [DataMember]
-        public Brush Fill { get; set; }
-
-        #endregion フィールド
-
-        public TTItem() { 
-        
-        }
-        //public delegate void MyDragDeltaEventHandler(object sender,  e);
-        //public event MyDragDeltaEventHandler MyDragDelta;
-        protected void OnMyDragDeltaEventHandler()
+        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            MyDragDelta?.Invoke(this, new DragDeltaEventArgs(X,Y));
+            TThumb7 thumb = (TThumb7)sender;
+            AjustLocate2(thumb.MyParent);//位置調整
+                                            //Parentのサイズ再計算、設定
+            AjustParentSize(thumb);
         }
-        public event DragDeltaEventHandler MyDragDelta;
+        private static void AddDragEvent(TTItem7 item)
+        {
+            item.DragDelta += item.TThumb_DragDelta;
+            item.DragCompleted += item.TThumb_DragCompleted;
+        }
+        private static void RemoveDragEvent(TTItem7 item)
+        {
+            item.DragDelta -= item.TThumb_DragDelta;
+            item.DragCompleted -= item.TThumb_DragCompleted;
+
+        }
+
+        #endregion ドラッグイベント
+
+        #region テンプレート作成
+
+        //単一要素表示用テンプレートに書き換える
+        private void SetItemThumbTemplate()
+        {
+            //Canvas
+            //  Element
+            FrameworkElementFactory waku = MakeWaku();
+            //FrameworkElementFactory contentPresenter = new(typeof(ContentPresenter), nameof(ContentPresenter));
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyRootCanvas));
+
+            //baseCanvas.AppendChild(contentPresenter);
+            baseCanvas.AppendChild(waku);
+            ControlTemplate template = new();
+            template.VisualTree = baseCanvas;
+
+            this.Template = template;
+            this.ApplyTemplate();
+            //ContentPresenter = (ContentPresenter)template.FindName(nameof(ContentPresenter), this);
+            //ContentPresenter.SetValue(ContentPresenter.ContentProperty, new Binding(nameof(MyContet)));
+            MyRootCanvas = (Canvas)template.FindName(nameof(MyRootCanvas), this);
+
+        }
+
+        #endregion テンプレート作成
+
+
     }
-    public class MyDragDeltaEventArgs : DragDeltaEventArgs
+    public class TTGroup7 : TThumb7
     {
-        public MyDragDeltaEventArgs(double horizontalChange, double verticalChange) : base(horizontalChange, verticalChange)
-        {
+        //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
+        //Thumbの追加や削除は別メソッドにした
+        private ObservableCollection<TThumb7> Children { get; set; } = new();
+        public ReadOnlyObservableCollection<TThumb7> Items { get; set; }
+        private ItemsControl MyItemsControl;
 
+        public TTGroup7()
+        {
+            MyData.DataType = DataType.Group;
+            Items = new(Children);
+
+            Children.CollectionChanged += (a, b) =>
+            {
+                if (b.NewItems != null && b.NewItems[0] is TThumb7 thumb)
+                {
+                    thumb.MyParent = this;
+                    if (thumb.GetType() == typeof(TTItem7))
+                    {
+                        //Itemなら右クリックメニュー作成
+                    }
+                }
+            };
+            //子要素サイズ変更時にParentのサイズも変更する
+            this.SizeChanged += (x, y) =>
+            {
+                if (this.MyParent != null) { AjustParentSize(this); }
+            };
         }
     }
-
+    public class TTLayer7 : TThumb7
+    {
+        public TTLayer7()
+        {
+            MyData.DataType = DataType.Layer;
+        }
+    }
 
     public class MyConverterBool : IValueConverter
     {

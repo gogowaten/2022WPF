@@ -213,17 +213,17 @@ namespace _20220408
     //System.Runtime.Serialization.DataContract
     //System.Runtime.Serialization.KnownType
     [DataContract]
-    [KnownType(typeof(Data5)),
+    [KnownType(typeof(Data7)),
         KnownType(typeof(MatrixTransform)),
         KnownType(typeof(EllipseGeometry))]
     //System.ComponentModel.INotifyPropertyChanged
-    public class Data5 : INotifyPropertyChanged
+    public class Data7 : INotifyPropertyChanged
     {
         private double _x;
         private double _y;
         private string _text;
 
-        public TThumb6 Parent { get; set; }
+        
         [DataMember]
         public DataType DataType { get; set; }
         
@@ -241,12 +241,12 @@ namespace _20220408
         [DataMember]
         public Brush Fill { get; set; }
 
-        public Data5() { }
-        public Data5(DataType type, double x, double y)
+        public Data7() { }
+        public Data7(DataType type, double x, double y)
         {
             DataType = type; X = x; Y = y;
         }
-        public Data5(DataType type, double x, double y, string text)
+        public Data7(DataType type, double x, double y, string text)
         {
             DataType = type; X = x; Y = y;
             Text = text;
@@ -258,10 +258,10 @@ namespace _20220408
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
-    public class Data5Group : Data5
+    public class Data5Group : Data7
     {
         [DataMember]
-        public ObservableCollection<Data5> ChildrenData { get; set; } = new();
+        public ObservableCollection<Data7> ChildrenData { get; set; } = new();
         public bool IsEditing { get; set; }//trueの場合は直下のItemが移動可能状態
         public Data5Group() { DataType = DataType.Group; }
     }
