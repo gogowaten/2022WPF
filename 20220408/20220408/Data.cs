@@ -155,6 +155,8 @@ namespace _20220408
         }
     }
 
+    #region Data4
+    
     //System.Runtime.Serialization.DataContract
     //System.Runtime.Serialization.KnownType
     [DataContract]
@@ -204,4 +206,69 @@ namespace _20220408
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
+    #endregion Data4
+ 
+    #region Data5
+
+    //System.Runtime.Serialization.DataContract
+    //System.Runtime.Serialization.KnownType
+    [DataContract]
+    [KnownType(typeof(Data5)),
+        KnownType(typeof(MatrixTransform)),
+        KnownType(typeof(EllipseGeometry))]
+    //System.ComponentModel.INotifyPropertyChanged
+    public class Data5 : INotifyPropertyChanged
+    {
+        private double _x;
+        private double _y;
+        private string _text;
+
+        public TThumb6 Parent { get; set; }
+        [DataMember]
+        public DataType DataType { get; set; }
+        
+        
+        [DataMember]
+        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+        [DataMember]
+        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+        [DataMember]
+        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
+        [DataMember]
+        public Brush Background { get; set; }
+        [DataMember]
+        public Geometry Geometry { get; set; }
+        [DataMember]
+        public Brush Fill { get; set; }
+
+        public Data5() { }
+        public Data5(DataType type, double x, double y)
+        {
+            DataType = type; X = x; Y = y;
+        }
+        public Data5(DataType type, double x, double y, string text)
+        {
+            DataType = type; X = x; Y = y;
+            Text = text;
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+    }
+    public class Data5Group : Data5
+    {
+        [DataMember]
+        public ObservableCollection<Data5> ChildrenData { get; set; } = new();
+        public bool IsEditing { get; set; }//trueの場合は直下のItemが移動可能状態
+        public Data5Group() { DataType = DataType.Group; }
+    }
+    public class Data5Layer : Data5Group
+    {
+        public Data5Layer() { DataType = DataType.Layer; }
+    }
+    #endregion Data5
+
 }

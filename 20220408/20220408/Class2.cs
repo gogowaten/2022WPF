@@ -949,7 +949,8 @@ namespace _20220408
 
     //データもThumbの方にまとめたら、シリアライズができなくなった
     //Thumbを継承しているからThumb自体もシリアライズしようとして失敗しているみたい
-    //解決方法はわからず、中止
+    //指定したフィールドだけシリアライズしてくれれば良いんだけど
+    //解決方法はわからないので、これは中止
     //System.Runtime.Serialization.DataContract]
     //System.ComponentModel.INotifyPropertyChanged
     #region TThumb6
@@ -1409,11 +1410,61 @@ namespace _20220408
 
     public class TThumb7 : Thumb
     {
-
+        public TThumb7()
+        {
+            
+        }
     }
-    public class TTItem
+    public class TTItem:INotifyPropertyChanged
     {
+        #region フィールド
+        
+        private double _x;
+        private double _y;
+        private string _text;
 
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        [IgnoreDataMember]
+        //public TTGroup6 MyParent { get; set; }
+        [DataMember]
+        public DataType DataType { get; set; }
+
+        [DataMember]
+        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+        [DataMember]
+        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+        [DataMember]
+        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
+        [DataMember]
+        public Brush BackgroundBrush { get; set; }
+        [DataMember]
+        public Geometry Geometry { get; set; }
+        [DataMember]
+        public Brush Fill { get; set; }
+
+        #endregion フィールド
+
+        public TTItem() { 
+        
+        }
+        //public delegate void MyDragDeltaEventHandler(object sender,  e);
+        //public event MyDragDeltaEventHandler MyDragDelta;
+        protected void OnMyDragDeltaEventHandler()
+        {
+            MyDragDelta?.Invoke(this, new DragDeltaEventArgs(X,Y));
+        }
+        public event DragDeltaEventHandler MyDragDelta;
+    }
+    public class MyDragDeltaEventArgs : DragDeltaEventArgs
+    {
+        public MyDragDeltaEventArgs(double horizontalChange, double verticalChange) : base(horizontalChange, verticalChange)
+        {
+
+        }
     }
 
 
