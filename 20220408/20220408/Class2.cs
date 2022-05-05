@@ -946,12 +946,19 @@ namespace _20220408
         Image,
 
     }
+
+    //データもThumbの方にまとめたら、シリアライズができなくなった
+    //Thumbを継承しているからThumb自体もシリアライズしようとして失敗しているみたい
+    //解決方法はわからず、中止
     //System.Runtime.Serialization.DataContract]
     //System.ComponentModel.INotifyPropertyChanged
+    #region TThumb6
+    
     [DataContract]
     [KnownType(typeof(MatrixTransform)),
         KnownType(typeof(EllipseGeometry)),
-        KnownType(typeof(TThumb6))]
+        KnownType(typeof(TThumb6)),
+        ]
     public class TThumb6 : Thumb, INotifyPropertyChanged
     {
         private double _x;
@@ -963,8 +970,8 @@ namespace _20220408
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        public TTGroup MyParent { get; set; }
+        [IgnoreDataMember]
+        public TTGroup6 MyParent { get; set; }
         [DataMember]
         public DataType DataType { get; set; }
         
@@ -1024,7 +1031,7 @@ namespace _20220408
             thumb.MyParent.Width = w;
             thumb.MyParent.Height = h;
         }
-        protected static (double w, double y) GetParentSize(TTItem tti)
+        protected static (double w, double y) GetParentSize(TTItem6 tti)
         {
             double w = double.MinValue;
             double h = double.MinValue;
@@ -1041,7 +1048,7 @@ namespace _20220408
         /// ドラッグ移動後や要素追加後などに実行
         /// </summary>
         /// <param name="groupThumb">グループ型Thumb</param>       
-        protected void AjustLocate2(TTGroup groupThumb)
+        protected void AjustLocate2(TTGroup6 groupThumb)
         {
             //子要素の左端と上端を取得
             double left = double.MaxValue;
@@ -1078,17 +1085,17 @@ namespace _20220408
         }
         protected void TThumb6_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            TTItem tti = (TTItem)sender;
+            TTItem6 tti = (TTItem6)sender;
             AjustLocate2(tti.MyParent);//位置調整
             //Parentのサイズ再計算、設定
             AjustParentSize(tti);
         }
-        protected static void AddDragEvent(TTItem tti)
+        protected static void AddDragEvent(TTItem6 tti)
         {
             tti.DragDelta += tti.TThumb6_DragDelta;
             tti.DragCompleted += tti.TThumb6_DragCompleted;
         }
-        protected static void RemoveDragEvent(TTItem tti)
+        protected static void RemoveDragEvent(TTItem6 tti)
         {
             tti.DragDelta -= tti.TThumb6_DragDelta;
             tti.DragCompleted -= tti.TThumb6_DragCompleted;
@@ -1100,13 +1107,13 @@ namespace _20220408
 
     }
 
-    public class TTItem : TThumb6
+    public class TTItem6 : TThumb6
     {
 
         private Canvas MyRootCanvas;
         public FrameworkElement MyElement { get; private set; }
 
-        public TTItem(DataType dataType)
+        public TTItem6(DataType dataType)
         {
             SetItemThumbTemplate();
 
@@ -1320,7 +1327,7 @@ namespace _20220408
     }
 
 
-    public class TTGroup : TThumb6
+    public class TTGroup6 : TThumb6
     {
         #region フィールド
         private ItemsControl MyItemsControl;
@@ -1331,7 +1338,7 @@ namespace _20220408
         public bool IsEditing { get; set; }//trueの場合は直下のItemが移動可能状態
         #endregion フィールド
 
-        public TTGroup()
+        public TTGroup6()
         {
             Items = new(Children);
             DataType = DataType.Group;
@@ -1340,7 +1347,7 @@ namespace _20220408
             //childrenの要素追加時
             Children.CollectionChanged += (a, b) =>
             {
-                if (b.NewItems != null && b.NewItems[0] is TTItem thumb)
+                if (b.NewItems != null && b.NewItems[0] is TTItem6 thumb)
                 {
                     thumb.MyParent = this;//子要素のParentに自身を登録
                     //IsEditingなら追加要素をドラッグ移動できるようにする
@@ -1381,27 +1388,33 @@ namespace _20220408
 
         }
 
-        public void AddItem(TTItem item)
+        public void AddItem(TTItem6 item)
         {
             Children.Add(item);
         }
 
     }
 
-    public class TTLayer : TTGroup
+    public class TTLayer6 : TTGroup6
     {
-        public TTLayer()
+        public TTLayer6()
         {
             DataType = DataType.Layer;
             IsEditing = true;
 
         }
     }
+    #endregion TThumb6
 
 
+    public class TThumb7 : Thumb
+    {
 
+    }
+    public class TTItem
+    {
 
-
+    }
 
 
     public class MyConverterBool : IValueConverter

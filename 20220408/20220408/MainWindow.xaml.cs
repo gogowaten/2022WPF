@@ -28,8 +28,8 @@ namespace _20220408
     {
         TThumb5 thumb5_1;
         TThumb5 thumb5_2;
-        TTItem TTItem1;
-        TTItem TTItem2;
+        TTItem6 TTItem1;
+        TTItem6 TTItem2;
 
         public MainWindow()
         {
@@ -40,7 +40,7 @@ namespace _20220408
             TTItem2 = new(DataType.TextBlock) { Text = "item2" };
             MyLayer2.AddItem(TTItem2);
 
-
+            DataSave2($"E:\\MyData.xml", TTItem1);
             //TTGroup group = new();
             //TTLayer layer = new();
             //var neko = group.GetType();
@@ -147,7 +147,7 @@ namespace _20220408
         private void Button2_Click(object sender, RoutedEventArgs e)
         {
             //DataSave($"E:\\MyData.xml", MyLayer.MyData);//data4
-            DataSave2($"E:\\MyData.xml", TTItem1);//data4
+            //DataSave2($"E:\\MyData.xml", TTItem1);
 
         }
         private static void DataSave(string fileName, Data4 data)
