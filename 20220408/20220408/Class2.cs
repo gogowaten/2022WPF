@@ -1410,14 +1410,126 @@ namespace _20220408
 
     public class TThumb7 : Thumb
     {
-        public TThumb7 MyParent { get; set; }
+        public TTGroup7 MyParent { get; set; }
+        public TTLayer7 MyLayer { get; set; }
         public Data7 MyData { get; set; }
+        public bool IsEditing { get; set; }
         public TThumb7()
         {
             this.DataContext = this;
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            //サイズ変更時にParentのサイズも変更する
+            this.SizeChanged += (x, y) =>
+            {
+                if (this.MyParent != null) { AjustParentSize(this); }
+            };
+        }
+
+        //テンプレート用
+        protected FrameworkElementFactory MakeWaku()
+        {
+            //枠表示
+            FrameworkElementFactory rect = new(typeof(Rectangle));
+            rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
+            Binding b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualWidthProperty);
+            rect.SetBinding(Rectangle.WidthProperty, b);
+            b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualHeightProperty);
+            rect.SetValue(Rectangle.HeightProperty, b);
+            return rect;
+        }
+
+        #region Parentグループのサイズ変更
+        //Parentのサイズ変更
+        protected static void AjustParentSize(TThumb7 thumb)
+        {
+            //var (w, h) = GetParentSize(item);
+            double w = double.MinValue;
+            double h = double.MinValue;
+            foreach (var item in thumb.MyParent.Items)
+            {
+                w = Math.Max(w, item.MyData.X + item.ActualWidth);
+                h = Math.Max(h, item.MyData.Y + item.ActualHeight);
+            }
+            thumb.MyParent.Width = w;
+            thumb.MyParent.Height = h;
+        }
+        protected static (double w, double y) GetParentSize(TTItem7 tti)
+        {
+            double w = double.MinValue;
+            double h = double.MinValue;
+            foreach (var item in tti.MyParent.Items)
+            {
+                w = Math.Max(w, item.MyData.X + item.ActualWidth);
+                h = Math.Max(h, item.MyData.Y + item.ActualHeight);
+            }
+            return (w, h);
+        }
+        /// <summary>
+        /// 位置調整、画面内に収まるように、余白ができないようにする
+        /// 子要素を処理したあとに親要素を遡って処理、Layerまでたどる
+        /// ドラッグ移動後や要素追加後などに実行
+        /// </summary>
+        /// <param name="groupThumb">グループ型Thumb</param>       
+        protected void AjustLocate2(TTGroup7 groupThumb)
+        {
+            //子要素の左端と上端を取得
+            double left = double.MaxValue;
+            double top = double.MaxValue;
+            foreach (var item in groupThumb.Items)
+            {
+                if (item.MyData.X < left) { left = item.MyData.X; }
+                if (item.MyData.Y < top) { top = item.MyData.Y; }
+            }
+            //0以外なら位置調整
+            if (left != 0 || top != 0)
+            {
+                foreach (var item in groupThumb.Items)
+                {
+                    item.MyData.X -= left;
+                    item.MyData.Y -= top;
+                }
+                //自身がレイヤー型ではなければ自身も調整して、さらに親要素も処理する
+                if (groupThumb.MyData.DataType != DataType.Layer)
+                {
+                    groupThumb.MyData.X += left;
+                    groupThumb.MyData.Y += top;
+                    //親要素をたどる
+                    AjustLocate2(groupThumb.MyParent);
+                }
+            }
+        }
+
+        #endregion Parentグループのサイズ変更
+
+        #region ドラッグイベント
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+        }
+        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            TThumb7 thumb = (TThumb7)sender;
+            AjustLocate2(thumb.MyParent);//位置調整                                         
+            AjustParentSize(thumb);//Parentのサイズ再計算、設定
+        }
+        protected void AddDragEvent(TThumb7 thumb)
+        {
+            thumb.DragDelta += thumb.TThumb_DragDelta;
+            thumb.DragCompleted += thumb.TThumb_DragCompleted;
+        }
+        protected void RemoveDragEvent(TThumb7 thumb)
+        {
+            thumb.DragDelta -= thumb.TThumb_DragDelta;
+            thumb.DragCompleted -= thumb.TThumb_DragCompleted;
 
         }
+
+        #endregion ドラッグイベント
     }
     public class TTItem7 : TThumb7
     {
@@ -1427,40 +1539,42 @@ namespace _20220408
         {
             this.MyData = data;
             this.DataContext = MyData;
-            
+            SetItemThumbTemplate();
+
+            //データに合わせて要素作成とバインド
+            switch (MyData.DataType)
+            {
+                case DataType.Layer:
+                    break;
+                case DataType.Group:
+                    break;
+                case DataType.TextBlock:
+                    MyElement = new TextBlock();
+                    MyElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+                    break;
+                case DataType.Path:
+                    break;
+                case DataType.Image:
+                    break;
+            }
+
+            MyRootCanvas.Children.Add(MyElement);
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
+            //Canvasと自身のサイズを表示要素のサイズにバインドする
+            Binding b = new() { Source = MyElement, Path = new PropertyPath(ActualWidthProperty) };
+            MyRootCanvas.SetBinding(WidthProperty, b);
+            this.SetBinding(WidthProperty, b);
+            b = new() { Source = MyElement, Path = new PropertyPath(ActualHeightProperty) };
+            MyRootCanvas.SetBinding(HeightProperty, b);
+            this.SetBinding(HeightProperty, b);
+
+            //SetContextMenu();
+
         }
 
-        
-        #region ドラッグイベント
-        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            MyData.X += e.HorizontalChange;
-            MyData.Y += e.VerticalChange;
-            var neko = e.Source;
-            var inu = e.OriginalSource;
-            var tt = (TThumb7)e.OriginalSource;
-            //var uma = tt.MyData.Parent;
-        }
-        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            TThumb7 thumb = (TThumb7)sender;
-            AjustLocate2(thumb.MyParent);//位置調整
-                                            //Parentのサイズ再計算、設定
-            AjustParentSize(thumb);
-        }
-        private static void AddDragEvent(TTItem7 item)
-        {
-            item.DragDelta += item.TThumb_DragDelta;
-            item.DragCompleted += item.TThumb_DragCompleted;
-        }
-        private static void RemoveDragEvent(TTItem7 item)
-        {
-            item.DragDelta -= item.TThumb_DragDelta;
-            item.DragCompleted -= item.TThumb_DragCompleted;
 
-        }
 
-        #endregion ドラッグイベント
 
         #region テンプレート作成
 
@@ -1489,43 +1603,263 @@ namespace _20220408
         #endregion テンプレート作成
 
 
+
+        //#region 右クリックメニュー
+
+        //private void SetContextMenu()
+        //{
+        //    ContextMenu cm = new();
+        //    this.ContextMenu = cm;
+        //    MenuItem item = new() { Header = "編集開始" };
+        //    item.Click += Item_ClickBeginEdit;
+        //    cm.Items.Add(item);
+        //    Binding b = new();
+        //    b.Source = this;
+        //    b.Path = new PropertyPath(nameof(MyParent.IsEditing));
+        //    b.Converter = new MyConverterBool();
+        //    item.SetBinding(IsEnabledProperty, b);
+
+        //    item = new() { Header = "編集終了" };
+        //    item.Click += Item_ClickEndEdit;
+        //    cm.Items.Add(item);
+        //}
+        //private void Item_ClickEndEdit(object sender, RoutedEventArgs e)
+        //{
+        //    //編集状態解除
+
+
+        //}
+
+        //private void Item_ClickBeginEdit(object sender, RoutedEventArgs e)
+        //{
+        //    //編集状態(グループ内Thumbにドラッグ移動イベント付加)にする
+        //    //編集状態のグループと次に編集状態にするグループを取得
+        //    (TTGroup7 now, TTGroup7 next) = GetEditingGroupThumbToLeaf22(this);
+
+        //    if (now != next && next != null)
+        //    {
+        //        now.IsEditing = false;
+        //        next.IsEditing = true;
+        //        foreach (var item in now.Items)
+        //        {
+        //            RemoveDragEvent(item);
+        //        }
+        //        foreach (var item in next.Items)
+        //        {
+        //            AddDragEvent(item);
+        //        }
+        //    }
+
+        //}
+        ///// <summary>
+        ///// 編集状態のグループThumbと次に編集状態にするグループThumbを返す
+        ///// 指定ThumbからParentを辿る同系統探索なので、別系統にある場合はnullを返す
+        ///// </summary>
+        ///// <param name="thumb"></param>
+        ///// <returns></returns>
+        //private (TTGroup7 now, TTGroup7 next) GetEditingGroupThumbToRoot2(TThumb7 thumb)
+        //{
+        //    //ルート方向へ探索(Parentをたどる同系統探索)
+        //    TTGroup7 parent = thumb.MyParent;
+        //    if (parent == null) { return (null, null); }//同系統にはなかった
+        //    else
+        //    {
+        //        if (parent.IsEditing)
+        //        {
+        //            if (thumb.MyData.DataType == DataType.Group)
+        //            {
+        //                return (parent, thumb);//今と次の両方見つかった
+        //            }
+        //            else return (parent, null);//今のグループが先端だった(変更する必要なし)
+        //        }
+        //        else
+        //        {
+        //            return GetEditingGroupThumbToRoot2(parent);
+        //        }
+        //    }
+        //}
+
+        ///// <summary>
+        ///// 編集状態のグループThumbを返す、探索方向は指定Thumbからリーフに行う
+        ///// 見つからない場合はnullを返す
+        ///// </summary>
+        ///// <param name="thumb"></param>
+        ///// <returns></returns>
+        //private TTGroup GetEditingGroupThumbToLeaf(TTGroup thumb)
+        //{
+        //    //リーフ方向へ探索
+        //    TTGroup result = null;
+        //    if (thumb == null) { return null; }
+        //    else if (thumb.IsEditing) { return thumb; }
+        //    else
+        //    {
+        //        foreach (TThumb6 item in thumb.Items)
+        //        {
+        //            TTGroup group = item as TTGroup;
+        //            result = GetEditingGroupThumbToLeaf(group);
+        //            if (result != null) { break; }
+        //        }
+        //    }
+        //    return result;
+        //}
+
+        ///// <summary>
+        ///// 指定ThumbからParentを辿ってLayerと直下のGroupを返す、このときのGroupは指定Thumbの系統のもの
+        ///// </summary>
+        ///// <param name="thumb"></param>
+        ///// <returns></returns>
+        //private (TThumb6 layer, TThumb6 group) GetLayerAndRelationalGroup(TThumb6 thumb)
+        //{
+        //    TThumb6 parent = thumb.MyParent;
+        //    if (parent.DataType == DataType.Layer)
+        //    {
+        //        TThumb6 child = null;
+        //        if (thumb.DataType == DataType.Group)
+        //        {
+        //            child = thumb;
+        //        }
+        //        return (parent, child);//直下がItemだった場合はchildはnullで返す
+        //    }
+        //    else
+        //    {
+        //        return GetLayerAndRelationalGroup(parent);
+        //    }
+        //}
+
+        ///// <summary>
+        ///// 編集状態のグループThumbと、次に変状態にするグループThumbを返す
+        ///// 指定Thumbの同系統から探索する、見つからない場合は全体から探索する
+        ///// nextがnullの場合は変更する必要なしの意味になる
+        ///// </summary>
+        ///// <param name="thumb"></param>
+        ///// <returns></returns>
+        //private (TTGroup7 now, TTGroup7 next) GetEditingGroupThumbToLeaf22(TThumb7 thumb)
+        //{
+        //    //同系統から探索
+        //    var tt = GetEditingGroupThumbToRoot2(thumb);
+        //    if (tt.now != null && tt.next != null) { return tt; }//同系統にあった、完了            
+        //    else if (tt.now != null && tt.next == null) { return tt; }//変更の必要なし、完了
+        //    //同系統になかった場合、全体から今を探索、次はルートの直下になる
+        //    else
+        //    {
+        //        //Layerと同系統直下のGroup取得
+        //        (TThumb6 layer, TThumb6 group) = GetLayerAndRelationalGroup(thumb);
+        //        //直下がItemだった場合は次をLayerにする
+        //        if (group == null) { tt.next = layer; }
+        //        else { tt.next = group; }
+        //        tt.now = GetEditingGroupThumbToLeaf(layer);
+        //        return tt;
+        //    }
+
+        //}
+        ////今の編集状態のグループが指定Thumbと同じ？
+        //private void TEST(TThumb7 thumb,TThumb7 nowEditing)
+        //{
+
+        //}
+        //#endregion 右クリックメニュー
+
     }
+
+
     public class TTGroup7 : TThumb7
     {
         //Childrenは外部に公開しないで、リンクした読み取り専用Itemsを公開する
         //Thumbの追加や削除は別メソッドにした
-        private ObservableCollection<TThumb7> Children { get; set; } = new();
+        protected ObservableCollection<TThumb7> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb7> Items { get; set; }
-        private ItemsControl MyItemsControl;
-
+        protected ItemsControl MyItemsControl;
+        public new Data7Group MyData { get; set; } = new();
         public TTGroup7()
         {
-            MyData.DataType = DataType.Group;
+            //MyData = new() { DataType = DataType.Group };
             Items = new(Children);
+            SetGroupThumbTemplate();
 
+            //ThumbをChildrenに追加するとき、Thumbの設定
             Children.CollectionChanged += (a, b) =>
             {
                 if (b.NewItems != null && b.NewItems[0] is TThumb7 thumb)
                 {
-                    thumb.MyParent = this;
-                    if (thumb.GetType() == typeof(TTItem7))
+                    thumb.MyParent = this;//Parent設定
+                    SetMyLayer(thumb);//Layer設定
+                    MyData.ChildrenData.Add(thumb.MyData);
+
+                    //追加ThumbがItem型なら
+                    if (thumb is TTItem7 item)
                     {
-                        //Itemなら右クリックメニュー作成
+                        AddDragEvent(item);//ドラッグ移動
+                        //SetContextMenu(thumb);//右クリックメニュー作成
                     }
                 }
             };
-            //子要素サイズ変更時にParentのサイズも変更する
-            this.SizeChanged += (x, y) =>
+            ////子要素サイズ変更時にParentのサイズも変更する
+            //this.SizeChanged += (x, y) =>
+            //{
+            //    if (this.MyParent != null) { AjustParentSize(this); }
+            //};
+        }
+        protected void SetMyLayer(TThumb7 thumb)
+        {
+            if(this is TTLayer7 layer7)
             {
-                if (this.MyParent != null) { AjustParentSize(this); }
-            };
+                thumb.MyLayer = layer7;
+            }
+            else
+            {
+                thumb.MyLayer = this.MyLayer;
+            }
+            
+        }
+        //複数要素表示用テンプレートに書き換える
+        private void SetGroupThumbTemplate()
+        {
+            FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
+            //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
+            itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
+            //アイテムズコントロール
+            FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
+            itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
+            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
+            //枠追加
+            FrameworkElementFactory waku = MakeWaku();
+
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas));
+            baseCanvas.AppendChild(itemsControl);
+            baseCanvas.AppendChild(waku);
+
+            ControlTemplate template = new();
+            template.VisualTree = baseCanvas;
+
+            this.Template = template;
+            this.ApplyTemplate();
+            MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
+
+        }
+
+        public void AddItem(TTItem7 item)
+        {
+            Children.Add(item);
         }
     }
-    public class TTLayer7 : TThumb7
+    public class TTLayer7 : TTGroup7
     {
+        public TThumb7 NowEditingThumb { get; set; }//編集状態のThumb
+        //public new Data7Layer MyData { get; set; } = new();
         public TTLayer7()
         {
+            //MyData = new() { DataType = DataType.Layer };
             MyData.DataType = DataType.Layer;
+            NowEditingThumb = this;
+
+        }
+        protected new void SetMyLayer(TThumb7 thumb)
+        {
+            thumb.MyLayer = this;
+        }
+        public new void AddItem(TTItem7 item)
+        {
+            Children.Add(item);
         }
     }
 

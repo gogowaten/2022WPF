@@ -208,7 +208,7 @@ namespace _20220408
     }
     #endregion Data4
  
-    #region Data5
+    #region Data7
 
     //System.Runtime.Serialization.DataContract
     //System.Runtime.Serialization.KnownType
@@ -257,18 +257,23 @@ namespace _20220408
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
+        public override string ToString()
+        {
+            return $"{DataType} {X} {Y}";
+        }
     }
-    public class Data5Group : Data7
+    public class Data7Group : Data7
     {
         [DataMember]
         public ObservableCollection<Data7> ChildrenData { get; set; } = new();
         public bool IsEditing { get; set; }//trueの場合は直下のItemが移動可能状態
-        public Data5Group() { DataType = DataType.Group; }
+        public Data7Group() { DataType = DataType.Group; }
     }
-    public class Data5Layer : Data5Group
-    {
-        public Data5Layer() { DataType = DataType.Layer; }
-    }
-    #endregion Data5
+    //public class Data7Layer : Data7Group
+    //{
+    //    public Data7Layer() { DataType = DataType.Layer; }
+    //}
+    #endregion Data7
 
 }

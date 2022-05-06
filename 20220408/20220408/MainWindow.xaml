@@ -68,8 +68,10 @@
     
     <Canvas x:Name="MyGrid" UseLayoutRounding="True">
       <!--<local:Class1 x:Name="MyClass1" Width="100" Height="100"/>-->
-      <local:TThumb5 x:Name="MyLayer"/>
-      <local:TTLayer6 x:Name="MyLayer2"/>
+      <!--<local:TThumb5 x:Name="MyLayer"/>-->
+      <!--<local:TTLayer6 x:Name="MyLayer2"/>-->
+      <local:TTLayer7 x:Name="MyLayer2"/>
+      
     </Canvas>
   </Grid>
 </Window>

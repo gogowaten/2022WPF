@@ -28,19 +28,23 @@ namespace _20220408
     {
         TThumb5 thumb5_1;
         TThumb5 thumb5_2;
-        TTItem6 TTItem1;
-        TTItem6 TTItem2;
+        TTItem7 TTItem1;
+        TTItem7 TTItem2;
 
         public MainWindow()
         {
             InitializeComponent();
             //Init5();
-            TTItem1 = new(DataType.TextBlock) { Text = "testtti" };
+            Data7 data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
+            TTItem1 = new(data1);
             MyLayer2.AddItem(TTItem1);
-            TTItem2 = new(DataType.TextBlock) { Text = "item2" };
+
+            Data7 data2 = new() { DataType = DataType.TextBlock, Text = "TTT2", X = 100, Y = 100 };
+            TTItem2 = new(data2);
             MyLayer2.AddItem(TTItem2);
 
-            DataSave2($"E:\\MyData.xml", TTItem1);
+            //DataSave2($"E:\\MyData.xml", TTItem1.MyData,typeof(Data7));
+            DataSave2($"E:\\MyData.xml", MyLayer2.MyData, MyLayer2.MyData.GetType());
             //TTGroup group = new();
             //TTLayer layer = new();
             //var neko = group.GetType();
@@ -58,50 +62,51 @@ namespace _20220408
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
             //Check5();
-            var neko = TTItem1.Text;
-            var inu = TTItem1.DataType;
-            var uma = TTItem1.Width;
+            //var neko = TTItem1.Text;
+            //var inu = TTItem1.DataType;
+            //var uma = TTItem1.Width;
+            var layerdata = MyLayer2.MyData;
 
         }
         #region thumb5
         private void Init5()
         {
-            Data4 data1 = new(ThumbType.TextBlock, 0, 0, "Item1");
-            thumb5_1 = new TThumb5(data1);
-            MyLayer.AddItem(thumb5_1);
+            //Data4 data1 = new(ThumbType.TextBlock, 0, 0, "Item1");
+            //thumb5_1 = new TThumb5(data1);
+            //MyLayer.AddItem(thumb5_1);
 
-            Data4 data3 = new(ThumbType.TextBlock, 0, 0, "Item1-1");
-            Data4 data4 = new(ThumbType.TextBlock, 100, 100, "Item1-2");
-            Data4 data2 = new(ThumbType.Group, 40, 40, "Group1");
-            data2.ChildrenData.Add(data3);
-            data2.ChildrenData.Add(data4);
-            thumb5_2 = new(data2);
-            MyLayer.AddItem(thumb5_2);
-            Loaded += MainWindow_Loaded;
+            //Data4 data3 = new(ThumbType.TextBlock, 0, 0, "Item1-1");
+            //Data4 data4 = new(ThumbType.TextBlock, 100, 100, "Item1-2");
+            //Data4 data2 = new(ThumbType.Group, 40, 40, "Group1");
+            //data2.ChildrenData.Add(data3);
+            //data2.ChildrenData.Add(data4);
+            //thumb5_2 = new(data2);
+            //MyLayer.AddItem(thumb5_2);
+            //Loaded += MainWindow_Loaded;
 
-            Data4 data6 = new(ThumbType.TextBlock, 0, 0, "Item2-1-1");
-            Data4 data7 = new(ThumbType.TextBlock, 40, 40, "Item2-1-2");
-            Data4 data8 = new(ThumbType.Group, 0, 0, "Group2-1");
-            data8.ChildrenData.Add(data6);
-            data8.ChildrenData.Add(data7);
-            Data4 data9 = new(ThumbType.TextBlock, 0, 0, "Item2-2-1");
-            Data4 data10 = new(ThumbType.TextBlock, 40, 40, "Item2-2-2");
-            Data4 data11 = new(ThumbType.Group, 100, 100, "Group2-2");
-            data11.ChildrenData.Add(data9);
-            data11.ChildrenData.Add(data10);
-            Data4 data12 = new(ThumbType.Group, 40, 160, "Group2");
-            data12.ChildrenData.Add(data8);
-            data12.ChildrenData.Add(data11);
-            TThumb5 g2 = new(data12);
-            MyLayer.AddItem(g2);
+            //Data4 data6 = new(ThumbType.TextBlock, 0, 0, "Item2-1-1");
+            //Data4 data7 = new(ThumbType.TextBlock, 40, 40, "Item2-1-2");
+            //Data4 data8 = new(ThumbType.Group, 0, 0, "Group2-1");
+            //data8.ChildrenData.Add(data6);
+            //data8.ChildrenData.Add(data7);
+            //Data4 data9 = new(ThumbType.TextBlock, 0, 0, "Item2-2-1");
+            //Data4 data10 = new(ThumbType.TextBlock, 40, 40, "Item2-2-2");
+            //Data4 data11 = new(ThumbType.Group, 100, 100, "Group2-2");
+            //data11.ChildrenData.Add(data9);
+            //data11.ChildrenData.Add(data10);
+            //Data4 data12 = new(ThumbType.Group, 40, 160, "Group2");
+            //data12.ChildrenData.Add(data8);
+            //data12.ChildrenData.Add(data11);
+            //TThumb5 g2 = new(data12);
+            ////MyLayer.AddItem(g2);
         }
         private void Check5()
         {
-            var items = MyLayer.Items;
-            var datas = MyLayer.MyData;
-            var width = MyLayer.Width;
-            var item = MyLayer.Items[0];
-            var ww = item.ActualWidth;
+            //var items = MyLayer.Items;
+            //var datas = MyLayer.MyData;
+            //var width = MyLayer.Width;
+            //var item = MyLayer.Items[0];
+            //var ww = item.ActualWidth;
             var icaw = thumb5_2.MyItemsControl.ActualWidth;
             var conten = thumb5_1.ContentPresenter.Content;
             var w1 = thumb5_1.ActualWidth;
@@ -177,13 +182,13 @@ namespace _20220408
 
         private void Button3_Click(object sender, RoutedEventArgs e)
         {
-            Data4 d = DataLoad($"E:\\MyData.xml");
-            foreach (var item in d.ChildrenData)
-            {
-                TThumb5 t = new(item);
-                var neko = t.MyData;
-                MyLayer.AddItem(new TThumb5(item));
-            }
+            //Data4 d = DataLoad($"E:\\MyData.xml");
+            //foreach (var item in d.ChildrenData)
+            //{
+            //    TThumb5 t = new(item);
+            //    var neko = t.MyData;
+            //    MyLayer.AddItem(new TThumb5(item));
+            //}
 
         }
         private static Data4 DataLoad(string fileName)
@@ -201,7 +206,7 @@ namespace _20220408
                 return null;
             }
         }
-        private static void DataSave2(string fileName, TThumb6 thumb)
+        private static void DataSave2(string fileName, object data, Type type)
         {
             System.Xml.XmlWriterSettings settings = new()
             {
@@ -211,12 +216,12 @@ namespace _20220408
                 ConformanceLevel = System.Xml.ConformanceLevel.Fragment
             };
             System.Xml.XmlWriter xmlWriter;
-            System.Runtime.Serialization.DataContractSerializer serializer = new(typeof(TThumb6));
+            System.Runtime.Serialization.DataContractSerializer serializer = new(type);
             using (xmlWriter = System.Xml.XmlWriter.Create(fileName, settings))
             {
                 try
                 {
-                    serializer.WriteObject(xmlWriter, thumb);
+                    serializer.WriteObject(xmlWriter, data);
                 }
                 catch (Exception ex)
                 {
@@ -233,19 +238,19 @@ namespace _20220408
             double h = double.Parse(EllipseHeight.Text);
             d.Geometry = new EllipseGeometry(new Rect(0, 0, w, h));
             TThumb5 t = new(d);
-            MyLayer.AddItem(t);
+            //MyLayer.AddItem(t);
         }
 
         private void TextBlockButton_Click(object sender, RoutedEventArgs e)
         {
             Data4 data4 = new(ThumbType.TextBlock, 0, 0, MyTextBox.Text);
             TThumb5 thumb5 = new(data4);
-            MyLayer.AddItem(thumb5);
+            //MyLayer.AddItem(thumb5);
         }
 
         private void Button4_Click(object sender, RoutedEventArgs e)
         {
-            MyLayer.RemoveAllItem();
+            //MyLayer.RemoveAllItem();
         }
     }
 

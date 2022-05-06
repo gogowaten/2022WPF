@@ -19,7 +19,7 @@ namespace _20220408
 {
     internal class TCanvas:Canvas
     {
-        public ItemsControl MyItemsControl;
+        //public ItemsControl MyItemsControl;
 
         public TCanvas()
         {
