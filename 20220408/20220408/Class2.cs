@@ -1410,7 +1410,7 @@ namespace _20220408
 
     public abstract class TThumb7 : Thumb
     {
-        public string Name { get; set; }
+        //public string Name { get; set; }
         public TTGroup7 MyParent { get; set; }
         public TTLayer7 MyLayer { get; set; }
         public Data7 MyData { get; set; }
@@ -1451,30 +1451,20 @@ namespace _20220408
         //Parentのサイズ変更
         protected void AjustParentSize(TThumb7 thumb)
         {
-            //var (w, h) = GetParentSize(item);
             double w = double.MinValue;
             double h = double.MinValue;
             foreach (var item in thumb.MyParent.Items)
             {
                 var neko = thumb.MyParent.Items;
-                //w = Math.Max(w, item.MyData.X + item.ActualWidth);
-                w = Math.Max(w, ((Data7)(item.MyData)).X + item.ActualWidth);
+                var inu = item.MyData;
+
+                w = Math.Max(w, item.MyData.X + item.ActualWidth);
                 h = Math.Max(h, item.MyData.Y + item.ActualHeight);
             }
             thumb.MyParent.Width = w;
             thumb.MyParent.Height = h;
         }
-        protected static (double w, double y) GetParentSize(TTItem7 tti)
-        {
-            double w = double.MinValue;
-            double h = double.MinValue;
-            foreach (var item in tti.MyParent.Items)
-            {
-                w = Math.Max(w, item.MyData.X + item.ActualWidth);
-                h = Math.Max(h, item.MyData.Y + item.ActualHeight);
-            }
-            return (w, h);
-        }
+
         /// <summary>
         /// 位置調整、画面内に収まるように、余白ができないようにする
         /// 子要素を処理したあとに親要素を遡って処理、Layerまでたどる
@@ -1776,18 +1766,53 @@ namespace _20220408
         protected ObservableCollection<TThumb7> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb7> Items { get; set; }
         protected ItemsControl MyItemsControl;
-        public new Data7Group MyData { get; set; } = new();
-        
+        //public new Data7 MyData { get; set; } = new();
+
         public TTGroup7()
         {
-            //MyData = new() { DataType = DataType.Group };
+            MyData = new() { DataType = DataType.Group };
             Items = new(Children);
             SetGroupThumbTemplate();
-            
+
             //ThumbをChildrenに追加するとき、Thumbの設定
-            Children.CollectionChanged += (a, b) =>
+            Children.CollectionChanged += Children_CollectionChanged;
+            //Children.CollectionChanged += (a, b) =>
+            //{
+            //    if (b.NewItems != null && b.NewItems[0] is TThumb7 thumb)
+            //    {
+
+            //    }
+            //};
+            //////子要素サイズ変更時にParentのサイズも変更する
+            ////this.SizeChanged += (x, y) =>
+            ////{
+            ////    if (this.MyParent != null) { AjustParentSize(this); }
+            ////};
+        }
+
+
+        public TTGroup7(Data7 data) : this()
+        {
+
+            foreach (Data7 item in data.ChildrenData)
             {
-                if (b.NewItems != null && b.NewItems[0] is TThumb7 thumb)
+                if (item.DataType == DataType.Group)
+                {
+                    AddItem(new TTGroup7(item));
+                }
+                else
+                {
+                    AddItem(new TTItem7(item));
+                }
+            }
+            MyData = data;
+        }
+
+        private void Children_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                if (e.NewItems != null && e.NewItems[0] is TThumb7 thumb)
                 {
                     thumb.MyParent = this;//Parent設定
                     SetMyLayer(thumb);//Layer設定
@@ -1797,31 +1822,10 @@ namespace _20220408
                     if (thumb is TTItem7 item)
                     {
                         AddDragEvent(item);//ドラッグ移動
-                        //SetContextMenu(thumb);//右クリックメニュー作成
+                                           //SetContextMenu(thumb);//右クリックメニュー作成
                     }
                 }
-            };
-            ////子要素サイズ変更時にParentのサイズも変更する
-            //this.SizeChanged += (x, y) =>
-            //{
-            //    if (this.MyParent != null) { AjustParentSize(this); }
-            //};
-        }
-        public TTGroup7(Data7Group data) : this()
-        {
-
-            foreach (Data7 item in data.ChildrenData)
-            {
-                if (item is Data7Group groupData)
-                {
-                    AddItem(new TTGroup7(groupData));
-                }
-                else
-                {
-                    AddItem(new TTItem7((Data7Item)item));
-                }
             }
-            
         }
 
         protected void SetMyLayer(TThumb7 thumb)
@@ -1874,16 +1878,17 @@ namespace _20220408
         public TTLayer7()
         {
             //MyData = new() { DataType = DataType.Layer };
-            MyData.DataType = DataType.Layer;
+            //MyData.DataType = DataType.Layer;
             NowEditingThumb = this;
+            MyData = new(DataType.Layer, 0, 0);
 
         }
-        public TTLayer7(Data7Group data) : this()
+        public TTLayer7(Data7 data) : this()
         {
             MyData = data;
             foreach (Data7 item in data.ChildrenData)
             {
-                if (item is Data7Group groupData)
+                if (item is Data7 groupData)
                 {
                     AddItem(new TTGroup7(groupData));
                 }

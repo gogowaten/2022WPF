@@ -32,7 +32,7 @@ namespace _20220408
         TTItem7 TTItem2;
         private TThumb7 activeThumb;
 
-        TThumb7 ActiveThumb
+        private TThumb7 ActiveThumb
         {
             get => activeThumb; set
             {
@@ -47,27 +47,24 @@ namespace _20220408
         {
             InitializeComponent();
             this.DataContext = MyLayer2.MyData;
-
-            //Init5();
-            Data7Item data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
+            ////Init5();
+            Data7 data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
             TTItem1 = new(data1);
             MyLayer2.AddItem(TTItem1);
 
-            Data7Item data2 = new() { DataType = DataType.TextBlock, Text = "TTT2", X = 100, Y = 100 };
+            Data7 data2 = new() { DataType = DataType.TextBlock, Text = "TTT2", X = 100, Y = 100 };
             TTItem2 = new(data2);
             MyLayer2.AddItem(TTItem2);
 
-
-            TTItem1.PreviewMouseDown += (a, b) =>
-            {
-                ActiveThumb = (TThumb7)a;
-            };
+            TTItem1.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
             TTItem2.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
 
-            MyLayer2.AddItem(new TTItem7(new Data7Item(DataType.TextBlock, 0, 0) { Text = "Titem" }));
-            Data7Group gdata = new(100, 100);
-            gdata.ChildrenData.Add(new Data7Item(DataType.TextBlock, 0, 0) { Text="g111111"});
-            TTGroup7 tTGroup7 = new(gdata) { Name="Group1"};
+            //MyLayer2.AddItem(new TTItem7(new Data7(DataType.TextBlock, 0, 0) { Text = "Titem" }));
+
+            Data7 groupData = new(DataType.Group, 100, 100);
+            groupData.ChildrenData.Add(new Data7(DataType.TextBlock, 0, 0) { Text = "Item1" });
+            groupData.ChildrenData.Add(new Data7(DataType.TextBlock, 0, 70) { Text = "Item2" });
+            TTGroup7 tTGroup7 = new(groupData) { Name = "Group1" };
             MyLayer2.AddItem(tTGroup7);
         }
 
@@ -202,11 +199,11 @@ namespace _20220408
             //    var neko = t.MyData;
             //    MyLayer.AddItem(new TThumb5(item));
             //}
-            var data = DataLoad2($"E:\\MyData.xml", typeof(Data7Group));
-            Data7Group data7Group = (Data7Group)data;
-            if (data7Group.DataType == DataType.Layer)
+            var data = DataLoad2($"E:\\MyData.xml", typeof(Data7));
+            Data7 Data7 = (Data7)data;
+            if (Data7.DataType == DataType.Layer)
             {
-                TTLayer7 layer = new TTLayer7(data7Group);
+                TTLayer7 layer = new TTLayer7(Data7);
                 MyLayer2.Visibility = Visibility.Collapsed;
                 MyGrid.Children.Add(layer);
                 MyStackPanel.DataContext = layer.MyData;

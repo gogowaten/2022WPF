@@ -20,7 +20,7 @@
     </Grid.ColumnDefinitions>
     <StackPanel x:Name="MyStackPanel" Grid.Column="1">
       <StackPanel.DataContext>
-        <local:Data7Item/>
+        <local:Data7/>
       </StackPanel.DataContext>
       <StackPanel.Resources>
         <ControlTemplate x:Key="kk" TargetType="Button">
