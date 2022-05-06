@@ -214,10 +214,12 @@ namespace _20220408
     //System.Runtime.Serialization.KnownType
     [DataContract]
     [KnownType(typeof(Data7)),
+        KnownType(typeof(Data7Item)),
+        KnownType(typeof(Data7Group)),
         KnownType(typeof(MatrixTransform)),
         KnownType(typeof(EllipseGeometry))]
     //System.ComponentModel.INotifyPropertyChanged
-    public class Data7 : INotifyPropertyChanged
+    public abstract class Data7 : INotifyPropertyChanged
     {
         private double _x;
         private double _y;
@@ -263,6 +265,12 @@ namespace _20220408
             return $"{DataType} {X} {Y}";
         }
     }
+    [DataContract]
+    public class Data7Item : Data7
+    {
+
+    }
+    [DataContract]
     public class Data7Group : Data7
     {
         [DataMember]

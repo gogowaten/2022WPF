@@ -1408,7 +1408,7 @@ namespace _20220408
     #endregion TThumb6
 
 
-    public class TThumb7 : Thumb
+    public abstract class TThumb7 : Thumb
     {
         public TTGroup7 MyParent { get; set; }
         public TTLayer7 MyLayer { get; set; }
@@ -1799,9 +1799,21 @@ namespace _20220408
             //    if (this.MyParent != null) { AjustParentSize(this); }
             //};
         }
+        public TTGroup7(Data7 data) : this()
+        {
+            if (data is Data7Group groupData)
+            {
+                AddItem(new TTGroup7(groupData));
+            }
+            else
+            {
+                AddItem(new TTItem7((Data7Item)data));
+            }
+        }
+
         protected void SetMyLayer(TThumb7 thumb)
         {
-            if(this is TTLayer7 layer7)
+            if (this is TTLayer7 layer7)
             {
                 thumb.MyLayer = layer7;
             }
@@ -1809,7 +1821,7 @@ namespace _20220408
             {
                 thumb.MyLayer = this.MyLayer;
             }
-            
+
         }
         //複数要素表示用テンプレートに書き換える
         private void SetGroupThumbTemplate()
@@ -1837,7 +1849,7 @@ namespace _20220408
 
         }
 
-        public void AddItem(TTItem7 item)
+        public void AddItem(TThumb7 item)
         {
             Children.Add(item);
         }
@@ -1853,11 +1865,26 @@ namespace _20220408
             NowEditingThumb = this;
 
         }
+        public TTLayer7(Data7Group data) : this()
+        {
+            foreach (Data7 item in data.ChildrenData)
+            {
+                if (item.DataType == DataType.Group)
+                {
+                    AddItem(new TTGroup7(item));
+                }
+                else
+                {
+                    AddItem(new TTItem7(item));
+                }
+            }
+        }
+
         protected new void SetMyLayer(TThumb7 thumb)
         {
             thumb.MyLayer = this;
         }
-        public new void AddItem(TTItem7 item)
+        public new void AddItem(TThumb7 item)
         {
             Children.Add(item);
         }

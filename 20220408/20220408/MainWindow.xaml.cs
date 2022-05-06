@@ -35,16 +35,16 @@ namespace _20220408
         {
             InitializeComponent();
             //Init5();
-            Data7 data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
+            Data7Item data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
             TTItem1 = new(data1);
             MyLayer2.AddItem(TTItem1);
 
-            Data7 data2 = new() { DataType = DataType.TextBlock, Text = "TTT2", X = 100, Y = 100 };
+            Data7Item data2 = new() { DataType = DataType.TextBlock, Text = "TTT2", X = 100, Y = 100 };
             TTItem2 = new(data2);
             MyLayer2.AddItem(TTItem2);
 
             //DataSave2($"E:\\MyData.xml", TTItem1.MyData,typeof(Data7));
-            DataSave2($"E:\\MyData.xml", MyLayer2.MyData, MyLayer2.MyData.GetType());
+            
             //TTGroup group = new();
             //TTLayer layer = new();
             //var neko = group.GetType();
@@ -54,10 +54,6 @@ namespace _20220408
             //var gtype = group is TTLayer;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-
-        }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
@@ -153,7 +149,7 @@ namespace _20220408
         {
             //DataSave($"E:\\MyData.xml", MyLayer.MyData);//data4
             //DataSave2($"E:\\MyData.xml", TTItem1);
-
+            DataSave2($"E:\\MyData.xml", MyLayer2.MyData);
         }
         private static void DataSave(string fileName, Data4 data)
         {
@@ -189,7 +185,14 @@ namespace _20220408
             //    var neko = t.MyData;
             //    MyLayer.AddItem(new TThumb5(item));
             //}
-
+            var data = DataLoad2($"E:\\MyData.xml", typeof(Data7Group));
+            Data7Group data7Group = (Data7Group)data;
+            if (data7Group.DataType == DataType.Layer)
+            {
+                TTLayer7 layer = new TTLayer7(data7Group);
+                MyLayer2.Visibility = Visibility.Collapsed;
+                MyGrid.Children.Add(layer);
+            }
         }
         private static Data4 DataLoad(string fileName)
         {
@@ -206,7 +209,7 @@ namespace _20220408
                 return null;
             }
         }
-        private static void DataSave2(string fileName, object data, Type type)
+        private static void DataSave2(string fileName, object data)
         {
             System.Xml.XmlWriterSettings settings = new()
             {
@@ -216,7 +219,7 @@ namespace _20220408
                 ConformanceLevel = System.Xml.ConformanceLevel.Fragment
             };
             System.Xml.XmlWriter xmlWriter;
-            System.Runtime.Serialization.DataContractSerializer serializer = new(type);
+            System.Runtime.Serialization.DataContractSerializer serializer = new(data.GetType());
             using (xmlWriter = System.Xml.XmlWriter.Create(fileName, settings))
             {
                 try
@@ -228,6 +231,21 @@ namespace _20220408
 
                     MessageBox.Show(ex.Message);
                 }
+            }
+        }
+        private static object DataLoad2(string fileName, Type type)
+        {
+            System.Runtime.Serialization.DataContractSerializer serializer = new(type);
+            try
+            {
+                using System.Xml.XmlReader reader = System.Xml.XmlReader.Create(fileName);
+                return (object)serializer.ReadObject(reader);
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+                return null;
             }
         }
 
