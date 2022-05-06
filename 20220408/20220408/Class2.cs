@@ -1410,6 +1410,7 @@ namespace _20220408
 
     public abstract class TThumb7 : Thumb
     {
+        public string Name { get; set; }
         public TTGroup7 MyParent { get; set; }
         public TTLayer7 MyLayer { get; set; }
         public Data7 MyData { get; set; }
@@ -1425,6 +1426,10 @@ namespace _20220408
             };
         }
 
+        public override string ToString()
+        {
+            return $"{Name} {base.ToString()}";
+        }
         //テンプレート用
         protected FrameworkElementFactory MakeWaku()
         {
@@ -1444,14 +1449,16 @@ namespace _20220408
 
         #region Parentグループのサイズ変更
         //Parentのサイズ変更
-        protected static void AjustParentSize(TThumb7 thumb)
+        protected void AjustParentSize(TThumb7 thumb)
         {
             //var (w, h) = GetParentSize(item);
             double w = double.MinValue;
             double h = double.MinValue;
             foreach (var item in thumb.MyParent.Items)
             {
-                w = Math.Max(w, item.MyData.X + item.ActualWidth);
+                var neko = thumb.MyParent.Items;
+                //w = Math.Max(w, item.MyData.X + item.ActualWidth);
+                w = Math.Max(w, ((Data7)(item.MyData)).X + item.ActualWidth);
                 h = Math.Max(h, item.MyData.Y + item.ActualHeight);
             }
             thumb.MyParent.Width = w;
@@ -1549,7 +1556,7 @@ namespace _20220408
                 case DataType.Group:
                     break;
                 case DataType.TextBlock:
-                    MyElement = new TextBlock();
+                    MyElement = new TextBlock() { FontSize = 30 };
                     MyElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
                     break;
                 case DataType.Path:
@@ -1770,12 +1777,13 @@ namespace _20220408
         public ReadOnlyObservableCollection<TThumb7> Items { get; set; }
         protected ItemsControl MyItemsControl;
         public new Data7Group MyData { get; set; } = new();
+        
         public TTGroup7()
         {
             //MyData = new() { DataType = DataType.Group };
             Items = new(Children);
             SetGroupThumbTemplate();
-
+            
             //ThumbをChildrenに追加するとき、Thumbの設定
             Children.CollectionChanged += (a, b) =>
             {
@@ -1799,16 +1807,21 @@ namespace _20220408
             //    if (this.MyParent != null) { AjustParentSize(this); }
             //};
         }
-        public TTGroup7(Data7 data) : this()
+        public TTGroup7(Data7Group data) : this()
         {
-            if (data is Data7Group groupData)
+
+            foreach (Data7 item in data.ChildrenData)
             {
-                AddItem(new TTGroup7(groupData));
+                if (item is Data7Group groupData)
+                {
+                    AddItem(new TTGroup7(groupData));
+                }
+                else
+                {
+                    AddItem(new TTItem7((Data7Item)item));
+                }
             }
-            else
-            {
-                AddItem(new TTItem7((Data7Item)data));
-            }
+            
         }
 
         protected void SetMyLayer(TThumb7 thumb)
@@ -1867,11 +1880,12 @@ namespace _20220408
         }
         public TTLayer7(Data7Group data) : this()
         {
+            MyData = data;
             foreach (Data7 item in data.ChildrenData)
             {
-                if (item.DataType == DataType.Group)
+                if (item is Data7Group groupData)
                 {
-                    AddItem(new TTGroup7(item));
+                    AddItem(new TTGroup7(groupData));
                 }
                 else
                 {

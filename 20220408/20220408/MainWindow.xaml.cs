@@ -30,10 +30,24 @@ namespace _20220408
         TThumb5 thumb5_2;
         TTItem7 TTItem1;
         TTItem7 TTItem2;
+        private TThumb7 activeThumb;
 
+        TThumb7 ActiveThumb
+        {
+            get => activeThumb; set
+            {
+                if (activeThumb != value)
+                {
+                    activeThumb = value;
+                    MyStackPanel.DataContext = activeThumb.MyData;
+                }
+            }
+        }
         public MainWindow()
         {
             InitializeComponent();
+            this.DataContext = MyLayer2.MyData;
+
             //Init5();
             Data7Item data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
             TTItem1 = new(data1);
@@ -43,15 +57,18 @@ namespace _20220408
             TTItem2 = new(data2);
             MyLayer2.AddItem(TTItem2);
 
-            //DataSave2($"E:\\MyData.xml", TTItem1.MyData,typeof(Data7));
-            
-            //TTGroup group = new();
-            //TTLayer layer = new();
-            //var neko = group.GetType();
-            //var inu = layer.GetType();
-            //var uma = layer is TTGroup;
-            //var tako = layer is TTLayer;
-            //var gtype = group is TTLayer;
+
+            TTItem1.PreviewMouseDown += (a, b) =>
+            {
+                ActiveThumb = (TThumb7)a;
+            };
+            TTItem2.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
+
+            MyLayer2.AddItem(new TTItem7(new Data7Item(DataType.TextBlock, 0, 0) { Text = "Titem" }));
+            Data7Group gdata = new(100, 100);
+            gdata.ChildrenData.Add(new Data7Item(DataType.TextBlock, 0, 0) { Text="g111111"});
+            TTGroup7 tTGroup7 = new(gdata) { Name="Group1"};
+            MyLayer2.AddItem(tTGroup7);
         }
 
 
@@ -192,6 +209,7 @@ namespace _20220408
                 TTLayer7 layer = new TTLayer7(data7Group);
                 MyLayer2.Visibility = Visibility.Collapsed;
                 MyGrid.Children.Add(layer);
+                MyStackPanel.DataContext = layer.MyData;
             }
         }
         private static Data4 DataLoad(string fileName)

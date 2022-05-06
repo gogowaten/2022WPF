@@ -156,7 +156,7 @@ namespace _20220408
     }
 
     #region Data4
-    
+
     //System.Runtime.Serialization.DataContract
     //System.Runtime.Serialization.KnownType
     [DataContract]
@@ -188,7 +188,7 @@ namespace _20220408
         public Geometry Geometry { get; set; }
         [DataMember]
         public Brush Fill { get; set; }
-        
+
         public Data4() { }
         public Data4(ThumbType type, double x, double y)
         {
@@ -207,7 +207,7 @@ namespace _20220408
         }
     }
     #endregion Data4
- 
+
     #region Data7
 
     //System.Runtime.Serialization.DataContract
@@ -225,11 +225,12 @@ namespace _20220408
         private double _y;
         private string _text;
 
-        
+
         [DataMember]
         public DataType DataType { get; set; }
-        
-        
+
+        [DataMember]
+        public string Name { get; set; }
         [DataMember]
         public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
         [DataMember]
@@ -244,6 +245,7 @@ namespace _20220408
         public Brush Fill { get; set; }
 
         public Data7() { }
+
         public Data7(DataType type, double x, double y)
         {
             DataType = type; X = x; Y = y;
@@ -268,7 +270,8 @@ namespace _20220408
     [DataContract]
     public class Data7Item : Data7
     {
-
+        public Data7Item() { }
+        public Data7Item(DataType type, double x, double y) : base(type, x, y) { }
     }
     [DataContract]
     public class Data7Group : Data7
@@ -277,6 +280,10 @@ namespace _20220408
         public ObservableCollection<Data7> ChildrenData { get; set; } = new();
         public bool IsEditing { get; set; }//trueの場合は直下のItemが移動可能状態
         public Data7Group() { DataType = DataType.Group; }
+        public Data7Group(double x, double y) : base(DataType.Group, x, y)
+        {
+
+        }
     }
     //public class Data7Layer : Data7Group
     //{

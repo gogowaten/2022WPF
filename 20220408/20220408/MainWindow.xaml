@@ -20,7 +20,7 @@
     </Grid.ColumnDefinitions>
     <StackPanel x:Name="MyStackPanel" Grid.Column="1">
       <StackPanel.DataContext>
-        <local:Data2/>
+        <local:Data7Item/>
       </StackPanel.DataContext>
       <StackPanel.Resources>
         <ControlTemplate x:Key="kk" TargetType="Button">
@@ -42,6 +42,8 @@
       <Button Name="Button3" Content="load" Click="Button3_Click"/>
       <Button x:Name="Button4" Content="clear" Click="Button4_Click"/>
       <TextBlock Text="{Binding ElementName=MyLayer, Path=Width, StringFormat=Width \= 0}"/>
+      <TextBlock Text="{Binding Path= X, StringFormat=X \= 0}"/>
+      <TextBlock Text="{Binding Path= Y, StringFormat=Y \= 0}"/>
       
       <TabControl x:Name="MyTabControl">
         <TabItem Header="Text">
