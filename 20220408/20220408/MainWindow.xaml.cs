@@ -31,6 +31,7 @@ namespace _20220408
         TTItem7 TTItem1;
         TTItem7 TTItem2;
         private TThumb7 activeThumb;
+        private int AddItemCount = 0;
 
         private TThumb7 ActiveThumb
         {
@@ -48,26 +49,33 @@ namespace _20220408
             InitializeComponent();
             this.DataContext = MyLayer2.MyData;
             ////Init5();
-            Data7 data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
-            TTItem1 = new(data1);
-            MyLayer2.AddItem(TTItem1);
+            //Data7 data1 = new() { DataType = DataType.TextBlock, Text = "TTT", X = 0, Y = 0 };
+            //TTItem1 = new(data1);
+            //Data7 data2 = new() { DataType = DataType.TextBlock, Text = "TTT2", X = 100, Y = 100 };
+            //TTItem2 = new(data2);
+            //MyLayer2.AddItem(TTItem1);
+            //MyLayer2.AddItem(TTItem2);
 
-            Data7 data2 = new() { DataType = DataType.TextBlock, Text = "TTT2", X = 100, Y = 100 };
-            TTItem2 = new(data2);
-            MyLayer2.AddItem(TTItem2);
+            //TTItem1.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
+            //TTItem2.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
 
-            TTItem1.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
-            TTItem2.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
+            ////MyLayer2.AddItem(new TTItem7(new Data7(DataType.TextBlock, 0, 0) { Text = "Titem" }));
 
-            //MyLayer2.AddItem(new TTItem7(new Data7(DataType.TextBlock, 0, 0) { Text = "Titem" }));
-
-            Data7 groupData = new(DataType.Group, 100, 100);
+            Data7 groupData = new(DataType.Group, 0, 0);
             groupData.ChildrenData.Add(new Data7(DataType.TextBlock, 0, 0) { Text = "Item1" });
-            groupData.ChildrenData.Add(new Data7(DataType.TextBlock, 0, 70) { Text = "Item2" });
+            groupData.ChildrenData.Add(new Data7(DataType.TextBlock, 100, 70) { Text = "Item2" });
             TTGroup7 tTGroup7 = new(groupData) { Name = "Group1" };
             MyLayer2.AddItem(tTGroup7);
         }
-
+        private void MyLayerAddItem7()
+        {
+            Data7 data = new(DataType.TextBlock, AddItemCount * 10, AddItemCount * 40, $"AddItem{AddItemCount}");
+            TTItem7 item = new(data);
+            item.PreviewMouseDown += (a, b) => { ActiveThumb = (TThumb7)a; };
+            MyLayer2.AddItem(item);
+            ActiveThumb = item;
+            AddItemCount++;
+        }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
@@ -264,20 +272,22 @@ namespace _20220408
             }
         }
 
+
         private void EllipseButton_Click(object sender, RoutedEventArgs e)
         {
-            Data4 d = new(ThumbType.Path, 0, 0);
-            double w = double.Parse(EllipseWidth.Text);
-            double h = double.Parse(EllipseHeight.Text);
-            d.Geometry = new EllipseGeometry(new Rect(0, 0, w, h));
-            TThumb5 t = new(d);
+            //Data4 d = new(ThumbType.Path, 0, 0);
+            //double w = double.Parse(EllipseWidth.Text);
+            //double h = double.Parse(EllipseHeight.Text);
+            //d.Geometry = new EllipseGeometry(new Rect(0, 0, w, h));
+            //TThumb5 t = new(d);
             //MyLayer.AddItem(t);
         }
 
         private void TextBlockButton_Click(object sender, RoutedEventArgs e)
         {
-            Data4 data4 = new(ThumbType.TextBlock, 0, 0, MyTextBox.Text);
-            TThumb5 thumb5 = new(data4);
+            MyLayerAddItem7();
+            //Data4 data4 = new(ThumbType.TextBlock, 0, 0, MyTextBox.Text);
+            //TThumb5 thumb5 = new(data4);
             //MyLayer.AddItem(thumb5);
         }
 
@@ -285,6 +295,7 @@ namespace _20220408
         {
             //MyLayer.RemoveAllItem();
         }
+
     }
 
     public class AThumb : Thumb
