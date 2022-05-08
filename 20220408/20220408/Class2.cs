@@ -17,6 +17,7 @@ using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+//2022年5月8日、わけがわからんくなってきたので仕切り直し
 
 namespace _20220408
 {
