@@ -1420,21 +1420,45 @@ namespace _20220408
             this.DataContext = this;
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
             //サイズ変更時にParentのサイズも変更する
-            this.SizeChanged += (x, y) =>
+            //this.SizeChanged += (x, y) =>
+            //{
+            //    if (y.PreviousSize.Width == 0 || y.PreviousSize.Height == 0)
+            //    {
+            //        if (this.MyParent != null)
+            //        {
+            //            AjustParentSize(this);
+            //        }
+            //    }
+            //};
+
+            this.Loaded += (x, y) =>
             {
-                if (y.PreviousSize.Width == 0 || y.PreviousSize.Height == 0)
+                //if (this.MyParent != null) { AjustParentSize(this); }
+                if (this.MyParent != null)
                 {
-                    if (this.MyParent != null)
+                    double w = double.MinValue;
+                    double h = double.MinValue;
+                    //新しいサイズ
+                    if (this.MyParent is TTGroup7 group)
                     {
-                        AjustParentSize(this);
+                        foreach (var item in group.Items)
+                        {
+                            w = Math.Max(w, item.MyData.X + item.ActualWidth);
+                            h = Math.Max(h, item.MyData.Y + item.ActualHeight);
+                        }
+                        //今のサイズと違っていたら更新、同じなら終了
+                        if (group.Width != w || group.Height != h)
+                        {
+                            group.Width = w; group.Height = h;
+                            //Parentを遡って再帰処理
+                            if (group.MyParent != null)
+                            {
+                                AjustSize(group.MyParent);
+                            }
+                        }
                     }
                 }
 
-            };
-            this.Loaded += (x, y) =>
-            {
-                var neko = 0;
-                if (this.MyParent != null) { AjustParentSize(this); }
             };
         }
 
@@ -1456,6 +1480,7 @@ namespace _20220408
             if (this.MyData.DataType == DataType.Group)
             {
                 rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
+                rect.SetValue(Rectangle.StrokeThicknessProperty, 2.0);
             }
             Binding b = new();
             b.Source = this;
@@ -1467,23 +1492,45 @@ namespace _20220408
             rect.SetValue(Rectangle.HeightProperty, b);
             return rect;
         }
-        
+
         #region Parentグループのサイズ変更
-        //Parentのサイズ変更
-        protected void AjustParentSize(TThumb7 thumb)
+        ////Parentのサイズ変更
+        //protected void AjustParentSize(TThumb7 thumb)
+        //{
+        //    double w = double.MinValue;
+        //    double h = double.MinValue;
+        //    foreach (var item in thumb.MyParent.Items)
+        //    {
+        //        w = Math.Max(w, item.MyData.X + item.ActualWidth);
+        //        h = Math.Max(h, item.MyData.Y + item.ActualHeight);
+        //    }
+
+        //    thumb.MyParent.Width = w;
+        //    thumb.MyParent.Height = h;
+        //}
+
+        protected void AjustSize(TTGroup7 thumb)
         {
             double w = double.MinValue;
             double h = double.MinValue;
-            foreach (var item in thumb.MyParent.Items)
+            //新しいサイズ
+            foreach (var item in thumb.Items)
             {
-                w = Math.Max(w, item.MyData.X + item.ActualWidth);
-                h = Math.Max(h, item.MyData.Y + item.ActualHeight);
+                w = Math.Max(w, item.MyData.X + item.Width);
+                h = Math.Max(h, item.MyData.Y + item.Height);
+            }
+            //今のサイズと違っていたら更新、同じなら終了
+            if (thumb.Width != w || thumb.Height != h)
+            {
+                thumb.Width = w; thumb.Height = h;
+                //Parentを遡って再帰処理
+                if (thumb.MyParent != null)
+                {
+                    AjustSize(thumb.MyParent);
+                }
             }
 
-            thumb.MyParent.Width = w;
-            thumb.MyParent.Height = h;
         }
-
         /// <summary>
         /// 位置調整、画面内に収まるように、余白ができないようにする
         /// 子要素を処理したあとに親要素を遡って処理、Layerまでたどる
@@ -1530,14 +1577,16 @@ namespace _20220408
         private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             TThumb7 thumb = (TThumb7)sender;
-            AjustLocate(thumb.MyParent);//位置調整                                         
-            AjustParentSize(thumb);//Parentのサイズ再計算、設定
+            AjustLocate(thumb.MyParent);//位置調整
+            //AjustParentSize(thumb);//Parentのサイズ再計算、設定
+            AjustSize(thumb.MyParent);
         }
-        protected void AddDragEvent(TThumb7 thumb)
+        public void AddDragEvent(TThumb7 thumb)
         {
             thumb.DragDelta += thumb.TThumb_DragDelta;
             thumb.DragCompleted += thumb.TThumb_DragCompleted;
         }
+
         protected void RemoveDragEvent(TThumb7 thumb)
         {
             thumb.DragDelta -= thumb.TThumb_DragDelta;
@@ -1792,11 +1841,11 @@ namespace _20220408
             MyData = new() { DataType = DataType.Group };
             Items = new(Children);
             SetGroupThumbTemplate();
-
             ////ThumbをChildrenに追加するとき、Thumbの設定
             //Children.CollectionChanged += Children_CollectionChanged;
-           
+
         }
+
 
 
         public TTGroup7(Data7 data) : this()
@@ -1881,14 +1930,23 @@ namespace _20220408
             this.MyData.ChildrenData.Add(thumb.MyData);
             thumb.MyParent = this;//Parent設定
             SetMyLayer(thumb);//Layer設定
-            //AjustLocate(this);
-            //AjustParentSize(thumb);
-            //追加ThumbがItem型なら
-            if (thumb is TTItem7 item)
+
+
+            if (this.IsEditing && thumb is TTGroup7 group)
             {
-                AddDragEvent(item);//ドラッグ移動
-                                   //SetContextMenu(thumb);//右クリックメニュー作成
+                //foreach (TThumb7 item in group.Items)
+                //{
+                //   item.AddDragEvent(item);
+                //}
+                thumb.AddDragEvent(thumb);//ドラッグ移動
             }
+
+            ////追加ThumbがItem型なら
+            //if (thumb is TTItem7 item)
+            //{
+
+            //    //SetContextMenu(thumb);//右クリックメニュー作成
+            //}
         }
     }
     public class TTLayer7 : TTGroup7
@@ -1900,6 +1958,7 @@ namespace _20220408
             //MyData = new() { DataType = DataType.Layer };
             //MyData.DataType = DataType.Layer;
             NowEditingThumb = this;
+            IsEditing = true;
             MyData = new(DataType.Layer, 0, 0);
 
         }
@@ -1923,9 +1982,24 @@ namespace _20220408
         {
             thumb.MyLayer = this;
         }
-        //public new void AddItem(TThumb7 item)
+        //public new void AddItem(TThumb7 thumb)
         //{
-        //    Children.Add(item);
+        //    this.Children.Add(thumb);
+        //    if (this.IsEditing) { AddDragEvent(thumb); }
+        //    this.MyData.ChildrenData.Add(thumb.MyData);
+        //    thumb.MyParent = this;//Parent設定
+        //    SetMyLayer(thumb);//Layer設定
+
+        //    if (this.IsEditing)
+        //    {
+        //        AddDragEvent(thumb);//ドラッグ移動
+        //    }
+        //    //追加ThumbがItem型なら
+        //    if (thumb is TTItem7 item)
+        //    {
+
+        //        //SetContextMenu(thumb);//右クリックメニュー作成
+        //    }
         //}
     }
 

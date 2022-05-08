@@ -44,7 +44,7 @@
       <TextBlock Text="{Binding ElementName=MyLayer, Path=Width, StringFormat=Width \= 0}"/>
       <TextBlock Text="{Binding Path= X, StringFormat=X \= 0}"/>
       <TextBlock Text="{Binding Path= Y, StringFormat=Y \= 0}"/>
-      
+      <TextBlock Text="{Binding ElementName=MyLayer2, Path=Width, StringFormat=LayerWidth 0}"/>
       <TabControl x:Name="MyTabControl">
         <TabItem Header="Text">
           <Grid>
