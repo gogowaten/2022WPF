@@ -50,7 +50,7 @@ namespace _20220508
     }
 
     #region //データも含めたThumbのシリアライズテスト
-    
+
     //データも含めたThumbのシリアライズテスト
     //シリアライズはこのままだとできないので、別クラスで行うようにしたけど
     //シリアライズする項目が重複になるので冗長
@@ -150,22 +150,210 @@ namespace _20220508
     #endregion //データも含めたThumbのシリアライズテスト
 
 
-    public class TThumb2 : Thumb
+    public abstract class TThumb2 : Thumb
     {
-        public T2Group MyParentGroup;
-        public T2Layer MyLayer;
-        public TThumb2() { }
-        
+        public T2Group? MyParentGroup;
+        public T2Layer? MyLayer;
+        public Data2? MyData;
+        public TThumb2()
+        {
+
+        }
+        public TThumb2(Data2 data):this()
+        {
+            
+            this = new T2Layer();
+        }
+
+        public override string ToString()
+        {
+            string str = Name;
+            if (string.IsNullOrEmpty(Name))
+            {
+                str = MyData.Text;
+            }
+            return $"{MyData.DataType}, {str}";
+        }
+        //テンプレート用
+        protected FrameworkElementFactory MakeWaku()
+        {
+            //枠表示            
+            FrameworkElementFactory rect = new(typeof(Rectangle));
+            rect.SetValue(Rectangle.StrokeProperty, Brushes.Orange);
+            if (this.MyData.DataType == DataType.Group)
+            {
+                rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
+                rect.SetValue(Rectangle.StrokeThicknessProperty, 2.0);
+            }
+            Binding b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualWidthProperty);
+            rect.SetBinding(Rectangle.WidthProperty, b);
+            b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualHeightProperty);
+            rect.SetValue(Rectangle.HeightProperty, b);
+            return rect;
+        }
     }
-    public class T2Item : TThumb2 { }
-    public class T2Group : TThumb2 {
+    public class T2Item : TThumb2
+    {
+        private Canvas? MyRootCanvas;
+        public FrameworkElement? MyElement { get; private set; }
+        public T2Item()
+        {
+            bool result = SetTemplate();
+            if (result == false) { throw new Exception(); }
+        }
+        public T2Item(Data2 data) : this()
+        {
+            this.MyData = data;
+            this.DataContext = MyData;
+
+            switch (MyData.DataType)
+            {
+                case DataType.Layer:
+                    break;
+                case DataType.Group:
+                    break;
+                case DataType.TextBlock:
+                    MyElement = new TextBlock() { FontSize = 24 };
+                    MyElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+                    break;
+                case DataType.Path:
+                    break;
+                case DataType.Image:
+                    break;
+                default:
+                    break;
+            }
+            if (MyRootCanvas == null)
+            {
+                throw new ArgumentNullException("テンプレートがうまくできんかった");
+            }
+            MyRootCanvas.Children.Add(MyElement);
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
+            //Canvasと自身のサイズを表示要素のサイズにバインドする
+            Binding b = new() { Source = MyElement, Path = new PropertyPath(ActualWidthProperty) };
+            MyRootCanvas.SetBinding(WidthProperty, b);
+            this.SetBinding(WidthProperty, b);
+            b = new() { Source = MyElement, Path = new PropertyPath(ActualHeightProperty) };
+            MyRootCanvas.SetBinding(HeightProperty, b);
+            this.SetBinding(HeightProperty, b);
+
+        }
+
+        #region テンプレート作成
+        //単一要素表示用テンプレートに書き換える
+        private bool SetTemplate()
+        {
+            //Canvas
+            //  Element
+            FrameworkElementFactory waku = MakeWaku();
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyRootCanvas));
+
+            baseCanvas.AppendChild(waku);
+            ControlTemplate template = new();
+            template.VisualTree = baseCanvas;
+
+            this.Template = template;
+            this.ApplyTemplate();
+            MyRootCanvas = (Canvas)template.FindName(nameof(MyRootCanvas), this);
+            if (MyRootCanvas != null) { return true; }
+            else { return false; }
+        }
+        #endregion テンプレート作成
+
+
+    }
+    public class T2Group : TThumb2
+    {
         public bool IsNowEditing { get; private set; }
+        private ItemsControl? MyItemsControl;
+        private ObservableCollection<TThumb2> Children = new();//内部用
+        public ReadOnlyObservableCollection<TThumb2> Items;//公開用
+        #region コンストラクタ
+
+        public T2Group()
+        {
+            SetTemplate();
+            Items = new(Children);
+        }
+        public T2Group(Data2 data) : this()
+        {
+            if (data.ChildrenData == null)
+            {
+                throw new ArgumentNullException(nameof(data));
+            }
+            MyData = data;
+            foreach (var item in data.ChildrenData)
+            {
+                if (item.DataType == DataType.Group)
+                {
+                    T2Group group = new(item);
+                    this.Children.Add(group);
+                    group.MyParentGroup = this;                    
+                }
+                else if (item.DataType == DataType.Layer){
+                    T2Group group = new(item);
+                    this.Children.Add(group);
+                    group.MyParentGroup = this;
+                    group.MyLayer = this;
+                }
+                else
+                {
+                    T2Item item1 = new(item);
+                    this.Children.Add(item1);
+                }
+            }
+
+        }
+
+        #endregion コンストラクタ
+
         public void SetEditing()
         {
             IsNowEditing = true;
         }
+
+        #region テンプレート        
+        //複数要素表示用テンプレートに書き換える
+        private void SetTemplate()
+        {
+            FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
+            //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
+            itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
+            //アイテムズコントロール
+            FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
+            itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
+            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
+            //枠追加
+            FrameworkElementFactory waku = MakeWaku();
+
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas));
+            baseCanvas.AppendChild(itemsControl);
+            baseCanvas.AppendChild(waku);
+
+            ControlTemplate template = new();
+            template.VisualTree = baseCanvas;
+
+            this.Template = template;
+            this.ApplyTemplate();
+            MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
+
+        }
+        #endregion テンプレート
+
     }
-    public class T2Layer : T2Group { }
+    public class T2Layer : T2Group
+    {
+        public T2Layer() : base()
+        {
+
+        }
+
+    }
 
     [DataContract]
     [KnownType(typeof(RectangleGeometry)),
