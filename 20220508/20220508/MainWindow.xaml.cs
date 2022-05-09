@@ -25,6 +25,10 @@ namespace _20220508
         public MainWindow()
         {
             InitializeComponent();
+           
+           
+          
+
             #region T1
             TThumb1 thumb1 = new TThumb1();
             thumb1.Text = "serialTest";
@@ -38,6 +42,62 @@ namespace _20220508
 
         }
     }
+
+    public abstract class TTAb0
+    {
+        public abstract D D { get; set; }        
+    }
+    public class TTAb1 : TTAb0
+    {
+        public override D D { get; set; } = new();
+        public TTAb1() { }
+    }
+    public class TTAb2 : TTAb0
+    {
+        public TTAb2()
+        {
+        }
+
+        public TTAb2(D1 d1)
+        {
+            D1 = d1 ?? throw new ArgumentNullException(nameof(d1));
+        }
+
+        public D1 D1 { get; set; } = new();
+        public override D D { get; set; } = new();
+    }
+
+    public class TT0
+    {
+        public D D { get; set; } = new();
+        public virtual D DD { get; set; } = new();        
+        public TT0() { }
+    }
+    public class TT1 : TT0
+    {
+        public new D1 D { get; set; } = new();
+        public new D1 DD { get; set; } = new();
+        public TT1() { }
+
+    }
+    public class D
+    {
+        public int X { get; set; }
+        public D() { }
+    }
+    public class D1:D
+    {
+        public int XX { get; set; } = 10;
+        public D1() { }
+    }
+    public class D2:D1
+    {
+        public int XXX { get; set; } = 100;
+        public D2() { }
+    }
+
+
+
 
     public enum DataType
     {
@@ -149,6 +209,7 @@ namespace _20220508
     }
     #endregion //データも含めたThumbのシリアライズテスト
 
+  
 
     public abstract class TThumb2 : Thumb
     {
@@ -159,11 +220,11 @@ namespace _20220508
         {
 
         }
-        public TThumb2(Data2 data):this()
+        public TThumb2(Data2 data) : this()
         {
-            
-            this = new T2Layer();
+
         }
+
 
         public override string ToString()
         {
@@ -175,6 +236,7 @@ namespace _20220508
             return $"{MyData.DataType}, {str}";
         }
         //テンプレート用
+        protected abstract void SetTemplate();
         protected FrameworkElementFactory MakeWaku()
         {
             //枠表示            
@@ -202,8 +264,8 @@ namespace _20220508
         public FrameworkElement? MyElement { get; private set; }
         public T2Item()
         {
-            bool result = SetTemplate();
-            if (result == false) { throw new Exception(); }
+            SetTemplate();
+            //if (result == false) { throw new Exception(); }
         }
         public T2Item(Data2 data) : this()
         {
@@ -246,7 +308,8 @@ namespace _20220508
 
         #region テンプレート作成
         //単一要素表示用テンプレートに書き換える
-        private bool SetTemplate()
+
+        protected override void SetTemplate()
         {
             //Canvas
             //  Element
@@ -260,9 +323,8 @@ namespace _20220508
             this.Template = template;
             this.ApplyTemplate();
             MyRootCanvas = (Canvas)template.FindName(nameof(MyRootCanvas), this);
-            if (MyRootCanvas != null) { return true; }
-            else { return false; }
         }
+
         #endregion テンプレート作成
 
 
@@ -293,13 +355,14 @@ namespace _20220508
                 {
                     T2Group group = new(item);
                     this.Children.Add(group);
-                    group.MyParentGroup = this;                    
+                    group.MyParentGroup = this;
                 }
-                else if (item.DataType == DataType.Layer){
+                else if (item.DataType == DataType.Layer)
+                {
                     T2Group group = new(item);
                     this.Children.Add(group);
                     group.MyParentGroup = this;
-                    group.MyLayer = this;
+                    //group.MyLayer = this;
                 }
                 else
                 {
@@ -319,7 +382,8 @@ namespace _20220508
 
         #region テンプレート        
         //複数要素表示用テンプレートに書き換える
-        private void SetTemplate()
+
+        protected override void SetTemplate()
         {
             FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
             //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
