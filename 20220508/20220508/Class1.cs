@@ -479,6 +479,7 @@ namespace _20220508
             MyItemCanvas.SetBinding(HeightProperty, b);
             this.SetBinding(HeightProperty, b);
 
+            DragEventAdd(this);
             //SetContextMenu();
         }
 
@@ -575,7 +576,7 @@ namespace _20220508
         }
         #endregion その他
 
-        #region グループとレイヤー専用
+        #region アイテム専用
         public void AddItem(TThumb3 thumb)
         {
             if (this.MyData.DataTypeMain == DataTypeMain.Group)
@@ -585,6 +586,17 @@ namespace _20220508
             }
             else throw new Exception("Itemを追加できるのはグループだけ");
         }
+
+        #endregion アイテム専用
+        #region グループとレイヤー専用
+        #region サイズ修正、位置修正
+        //アイテム移動後に実行
+        //アイテム追加時に実行
+        private void AjustLocate()
+        {
+
+        }
+        #endregion サイズ修正、位置修正
         #endregion グループとレイヤー専用
     }
 

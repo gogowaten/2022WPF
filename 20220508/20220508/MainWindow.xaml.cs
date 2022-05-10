@@ -28,16 +28,18 @@ namespace _20220508
             InitializeComponent();
 
 
-            Data3 data1 = new(DataType.Layer);
-            TThumb3 layer = new(data1) { Name = "MyLayer" };
+            TThumb3 layer = new(new(DataType.Layer)) { Name = "MyLayer" };
             MyCanvas.Children.Add(layer);
+
             layer.AddItem(MakeTT3TextBlock("AddItem1", 0, 0));
             layer.AddItem(MakeTT3TextBlock("AddItem2", 100, 100));
 
 
-            //MyCanvas.Children.Add(MakeTT3TextBlock("Item1", 0, 0));
-            //MyCanvas.Children.Add(MakeTT3TextBlock("Item2", 100, 100));
-            //MyCanvas.Children.Add(MakeTT3TextBlock("Item3", 50, 50));
+            //TThumb3 group = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
+            //layer.AddItem(group);
+            //group.AddItem(MakeTT3TextBlock("Group1-1",0,0));
+            //group.AddItem(MakeTT3TextBlock("Group1-2",100,100));
+
 
             //#region T1
             //TThumb1 thumb1 = new TThumb1();
