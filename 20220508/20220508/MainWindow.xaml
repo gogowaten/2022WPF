@@ -15,9 +15,14 @@
     <StackPanel Name="MyStackPanel" Grid.Column="1">
       <Button x:Name="ButtonCheck" Content="Check" Click="ButtonCheck_Click"/>
       <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
-      <TextBlock Text="{Binding Path=Text, StringFormat=Text 0}"/>
-      <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
-      <TextBlock Text="{Binding Path=Y, StringFormat=Y 0}"/>
+      <GroupBox x:Name="MyGroupBox" Header="ActiveThumb">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=Text, StringFormat=Text 0}"/>
+          <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
+          <TextBlock Text="{Binding Path=Y, StringFormat=Y 0}"/>
+        </StackPanel>
+      </GroupBox>
+      <TextBlock Text="{Binding Path=Width}"/>
     </StackPanel>
   </Grid>
 </Window>

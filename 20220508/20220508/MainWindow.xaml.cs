@@ -30,15 +30,17 @@ namespace _20220508
 
             TThumb3 layer = new(new(DataType.Layer)) { Name = "MyLayer" };
             MyCanvas.Children.Add(layer);
+            layer.IsEditing = true;//編集状態にする(追加されたアイテムはドラッグ移動可能)
+            MyStackPanel.DataContext = layer;
 
-            layer.AddItem(MakeTT3TextBlock("AddItem1", 0, 0));
-            layer.AddItem(MakeTT3TextBlock("AddItem2", 100, 100));
+            //layer.AddItem(MakeTT3TextBlock("AddItem1", 0, 0));
+            //layer.AddItem(MakeTT3TextBlock("AddItem2", 100, 100));
 
 
-            //TThumb3 group = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
-            //layer.AddItem(group);
-            //group.AddItem(MakeTT3TextBlock("Group1-1",0,0));
-            //group.AddItem(MakeTT3TextBlock("Group1-2",100,100));
+            TThumb3 group = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
+            layer.AddItem(group);
+            group.AddItem(MakeTT3TextBlock("Group1-1", 0, 0));
+            group.AddItem(MakeTT3TextBlock("Group1-2", 100, 100));
 
 
             //#region T1
@@ -60,7 +62,7 @@ namespace _20220508
             thumb.PreviewMouseDown += (sender, e) =>
             {
                 this.ActiveThumb = thumb;
-                MyStackPanel.DataContext = thumb.MyData;
+                MyGroupBox.DataContext = thumb.MyData;
             };
             return thumb;
         }

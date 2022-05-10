@@ -391,7 +391,7 @@ namespace _20220508
     public class TThumb3 : Thumb
     {
         #region 共通
-        public TThumb3? MyparentGroup;
+        public TThumb3? MyParentGroup;
         public TThumb3? MyLayer;
         public Data3 MyData { get; private set; }
         #endregion
@@ -415,6 +415,12 @@ namespace _20220508
             MyData = new(DataType.None);
             Children = new();
             Items = new(Children);
+            Loaded += (a, b) =>
+            {
+                var w = this.ActualWidth; var h = this.ActualHeight;
+                AjustLocate(this);
+                //AjustSize(this.MyParentGroup);
+            };
         }
         public TThumb3(Data3 data) : this()
         {
@@ -479,7 +485,7 @@ namespace _20220508
             MyItemCanvas.SetBinding(HeightProperty, b);
             this.SetBinding(HeightProperty, b);
 
-            DragEventAdd(this);
+
             //SetContextMenu();
         }
 
@@ -547,17 +553,17 @@ namespace _20220508
 
         private void DragEventAdd(TThumb3 thumb)
         {
-            thumb.DragDelta += TThumb3_DragDelta;
-            thumb.DragCompleted += TThumb3_DragCompleted;
+            thumb.DragDelta += thumb.TThumb3_DragDelta;
+            thumb.DragCompleted += thumb.TThumb3_DragCompleted;
         }
         private void DragEventRemove(TThumb3 thumb)
         {
-            thumb.DragCompleted -= TThumb3_DragCompleted;
-            thumb.DragDelta -= TThumb3_DragDelta;
+            thumb.DragCompleted -= thumb.TThumb3_DragCompleted;
+            thumb.DragDelta -= thumb.TThumb3_DragDelta;
         }
         private void TThumb3_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-
+            AjustLocate(this);
         }
 
         private void TThumb3_DragDelta(object sender, DragDeltaEventArgs e)
@@ -577,25 +583,106 @@ namespace _20220508
         #endregion その他
 
         #region アイテム専用
-        public void AddItem(TThumb3 thumb)
+        public void AddItem(TThumb3 itemThumb)
         {
             if (this.MyData.DataTypeMain == DataTypeMain.Group)
             {
-                this.Children.Add(thumb);
-                this.MyData.ChildrenData.Add(thumb.MyData);
+                this.Children.Add(itemThumb);
+                this.MyData.ChildrenData.Add(itemThumb.MyData);
+                itemThumb.MyParentGroup = this;
+
+                if (MyData.DataType == DataType.Layer && MyParentGroup == null)
+                {
+                    itemThumb.MyLayer = this;
+                }
+                else { itemThumb.MyLayer = this.MyParentGroup; }
+                //Parentが編集状態なら追加アイテム自身をドラッグ移動可能にする
+                if (itemThumb.MyParentGroup.IsEditing)
+                {
+                    DragEventAdd(itemThumb);
+                }
             }
             else throw new Exception("Itemを追加できるのはグループだけ");
         }
 
         #endregion アイテム専用
+
+
         #region グループとレイヤー専用
         #region サイズ修正、位置修正
         //アイテム移動後に実行
         //アイテム追加時に実行
-        private void AjustLocate()
+        /// <summary>
+        /// 位置調整、画面内に収まるように、余白ができないようにする
+        /// 子要素を処理したあとに親要素を遡って処理、Layerまでたどる
+        /// ドラッグ移動後などに実行
+        /// </summary>
+        /// <param name="thumb">子要素</param>
+        protected void AjustLocate(TThumb3? thumb)
         {
+            TThumb3? parentThumb = thumb?.MyParentGroup;
+            if (parentThumb == null) { return; }
 
+            //左端と上端を取得(同レベル子要素全体から)
+            double left = double.MaxValue;
+            double top = double.MaxValue;
+            foreach (var item in parentThumb.Items)
+            {
+                if (item.MyData.X < left) { left = item.MyData.X; }
+                if (item.MyData.Y < top) { top = item.MyData.Y; }
+            }
+            //0以外なら位置調整、同レベル子要素全部
+            if (left != 0 || top != 0)
+            {
+                foreach (var item in parentThumb.Items)
+                {
+                    item.MyData.X -= left;
+                    item.MyData.Y -= top;
+                }
+            }
+
+            //親要素のサイズ修正
+            AjustSize(parentThumb);
+
+            if (left != 0 || top != 0)
+            {
+                //親要素の位置修正、ただし親要素がLayerの場合は除く
+                if (parentThumb.MyData.DataType != DataType.Layer)
+                {
+                    //親要素の位置修正
+                    parentThumb.MyData.X += left;
+                    parentThumb.MyData.Y += top;
+                    //親要素をたどる
+                    AjustLocate(parentThumb.MyParentGroup);
+                }
+            }
         }
+
+        protected void AjustSize(TThumb3? thumb)
+        {
+            if(thumb == null) { return; }
+            
+            double w = double.MinValue;
+            double h = double.MinValue;
+            //新しいサイズ
+            foreach (var item in thumb.Items)
+            {
+                w = Math.Max(w, item.MyData.X + item.Width);
+                h = Math.Max(h, item.MyData.Y + item.Height);
+            }
+            //今のサイズと違っていたら更新、同じなら終了
+            if (thumb.Width != w || thumb.Height != h)
+            {
+                thumb.Width = w; thumb.Height = h;
+                ////Parentを遡って再帰処理
+                //if (parentThumb.MyParentGroup != null)
+                //{
+                //    AjustParentSize(parentThumb.MyParentGroup);
+                //}
+            }
+        }
+
+
         #endregion サイズ修正、位置修正
         #endregion グループとレイヤー専用
     }
