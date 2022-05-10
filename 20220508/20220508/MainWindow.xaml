@@ -6,7 +6,18 @@
         xmlns:local="clr-namespace:_20220508"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas Name="MyCanvas"/>
+    <StackPanel Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="ButtonCheck" Content="Check" Click="ButtonCheck_Click"/>
+      <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
+      <TextBlock Text="{Binding Path=Text, StringFormat=Text 0}"/>
+      <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
+      <TextBlock Text="{Binding Path=Y, StringFormat=Y 0}"/>
+    </StackPanel>
+  </Grid>
 </Window>

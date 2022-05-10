@@ -24,13 +24,20 @@ namespace _20220508
 
     public enum DataType
     {
-        Layer = 0,
+        None = 0,
+        Layer,
         Group,
         TextBlock,
         Path,
         Image,
 
     }
+    public enum DataTypeMain
+    {
+        Item = 1,
+        Group
+    }
+
     #region //データも含めたThumbのシリアライズテスト、終了、使わない
 
     //データも含めたThumbのシリアライズテスト
@@ -386,38 +393,102 @@ namespace _20220508
         #region 共通
         public TThumb3? MyparentGroup;
         public TThumb3? MyLayer;
-        public Data3? MyData { get; private set; }
+        public Data3 MyData { get; private set; }
         #endregion
 
         #region アイテム専用
-        public Canvas? MyItemCanvas;
+        public Canvas MyItemCanvas = new();
         public FrameworkElement? MyItemElement;
         #endregion アイテム専用
 
         #region グループとレイヤー専用
         public ItemsControl? MyItemsControl;
-        public ObservableCollection<TThumb3>? Children { get; private set; }
-        public ReadOnlyObservableCollection<TThumb3>? Items { get; set; }
-        #endregion グループとレイヤー専用
+        private ObservableCollection<TThumb3> Children { get; set; }
+        public ReadOnlyObservableCollection<TThumb3> Items { get; set; }
         public bool IsEditing;
+        #endregion グループとレイヤー専用
         //public ContentControl? MyContent { get;private set; }
 
 
-        public TThumb3() { }
-        public TThumb3(Data3 data)
+        public TThumb3()
         {
-            MyData = data;
-            MyInitialize(data.DataType);
+            MyData = new(DataType.None);
+            Children = new();
+            Items = new(Children);
+        }
+        public TThumb3(Data3 data) : this()
+        {
+            MyData = data ?? throw new ArgumentNullException(nameof(data));
+            MyInitialize(data);
 
+        }
+        private void MyInitialize(Data3 data)
+        {
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+
+
+            //Template
+            var waku = MakeWaku(data.DataTypeMain);
+            if (data.DataTypeMain == DataTypeMain.Group)
+            {
+                this.DataContext = this;//グループタイプのデータコンテキストは自身
+                Items = new(Children);
+                SetGroupThumbTemplate(waku);
+                foreach (var item in data.ChildrenData)
+                {
+                    TThumb3 child = new(item);
+                    Children.Add(child);
+                }
+            }
+            else
+            {
+                this.DataContext = MyData;//アイテムタイプのデータコンテキストはデータ
+                SetItemThumbTemplate(waku);
+                MakeItem(data);
+            }
+        }
+        private void MakeItem(Data3 data)
+        {
+            switch (data.DataType)
+            {
+                case DataType.Layer:
+                    break;
+                case DataType.Group:
+                    break;
+                case DataType.TextBlock:
+                    MyItemElement = new TextBlock() { FontSize = 20, Background = Brushes.Orange, Opacity = 0.5 };
+                    MyItemElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(this.MyData.Text)));
+                    break;
+                case DataType.Path:
+                    break;
+                case DataType.Image:
+                    break;
+                default:
+                    break;
+            }
+            if (MyItemElement == null) { throw new ArgumentNullException(nameof(data)); }
+            MyItemCanvas.Children.Add(MyItemElement);
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
+
+            //Canvasと自身のサイズを表示要素のサイズにバインドする
+            Binding b = new() { Source = MyItemElement, Path = new PropertyPath(ActualWidthProperty) };
+            MyItemCanvas.SetBinding(WidthProperty, b);
+            this.SetBinding(WidthProperty, b);
+            b = new() { Source = MyItemElement, Path = new PropertyPath(ActualHeightProperty) };
+            MyItemCanvas.SetBinding(HeightProperty, b);
+            this.SetBinding(HeightProperty, b);
+
+            //SetContextMenu();
         }
 
         #region Template
-        protected FrameworkElementFactory MakeWaku(DataType dataType)
+        protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
         {
             //枠表示            
             FrameworkElementFactory rect = new(typeof(Rectangle));
             rect.SetValue(Rectangle.StrokeProperty, Brushes.Orange);
-            if (dataType == DataType.Group)
+            if (dataType == DataTypeMain.Group)
             {
                 rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
                 rect.SetValue(Rectangle.StrokeThicknessProperty, 2.0);
@@ -442,16 +513,18 @@ namespace _20220508
 
             this.Template = template;
             this.ApplyTemplate();
-            MyItemCanvas = (Canvas)template.FindName(nameof(MyItemCanvas), this);
+            MyItemCanvas = (Canvas)template.FindName(nameof(MyItemCanvas), this) ?? throw new ArgumentNullException(nameof(MyItemCanvas));
+
         }
         //複数要素表示用テンプレートに書き換える
         private void SetGroupThumbTemplate(FrameworkElementFactory waku)
         {
-            FrameworkElementFactory itemsCanvas = new(typeof(Canvas)); ;
-            itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
             //アイテムズコントロール
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
             itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
+
+            FrameworkElementFactory itemsCanvas = new(typeof(Canvas)); ;
+            itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
             itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
 
             FrameworkElementFactory baseCanvas = new(typeof(Canvas));
@@ -466,22 +539,55 @@ namespace _20220508
             MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
 
         }
-        private void MyInitialize(DataType type)
-        {
-            var waku = MakeWaku(type);
-            if (type == DataType.Group || type == DataType.Layer)
-            {
-                SetGroupThumbTemplate(waku);
-            }
-            else
-            {
-                SetItemThumbTemplate(waku);
-            }
-        }
+
         #endregion Template
 
+        #region ドラッグ移動
 
+        private void DragEventAdd(TThumb3 thumb)
+        {
+            thumb.DragDelta += TThumb3_DragDelta;
+            thumb.DragCompleted += TThumb3_DragCompleted;
+        }
+        private void DragEventRemove(TThumb3 thumb)
+        {
+            thumb.DragCompleted -= TThumb3_DragCompleted;
+            thumb.DragDelta -= TThumb3_DragDelta;
+        }
+        private void TThumb3_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+
+        }
+
+        private void TThumb3_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+        }
+
+        #endregion ドラッグ移動
+
+        #region その他
+        public override string ToString()
+        {
+            string str = MyData?.Text ?? Name;
+            return $"{MyData?.DataType}, {str}";
+        }
+        #endregion その他
+
+        #region グループとレイヤー専用
+        public void AddItem(TThumb3 thumb)
+        {
+            if (this.MyData.DataTypeMain == DataTypeMain.Group)
+            {
+                this.Children.Add(thumb);
+                this.MyData.ChildrenData.Add(thumb.MyData);
+            }
+            else throw new Exception("Itemを追加できるのはグループだけ");
+        }
+        #endregion グループとレイヤー専用
     }
+
     #region Data3
 
     [DataContract]
@@ -497,12 +603,14 @@ namespace _20220508
         private double _x;
         private double _y;
         private string _text = "";
-        public TThumb1? ParentGroup { get; set; }
+
 
         [DataMember]
-        public ObservableCollection<Data3>? ChildrenData { get; set; }
+        public ObservableCollection<Data3> ChildrenData { get; set; } = new();
         [DataMember]
         public DataType DataType { get; set; }
+        [DataMember]
+        public DataTypeMain DataTypeMain { get; set; }
         [DataMember]
         public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
         [DataMember]
@@ -513,6 +621,17 @@ namespace _20220508
         public Brush? Brush { get; set; }
         [DataMember]
         public Geometry? Geometry { get; set; }
+
+        //public Data3() { }
+        public Data3(DataType type)
+        {
+            DataType = type;
+            if (type == DataType.Group || type == DataType.Layer)
+            {
+                DataTypeMain = DataTypeMain.Group;
+            }
+            else DataTypeMain = DataTypeMain.Item;
+        }
     }
     #endregion Data3
     #endregion TThumb3
