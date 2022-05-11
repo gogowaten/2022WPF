@@ -23,6 +23,7 @@ namespace _20220508
     public partial class MainWindow : Window
     {
         private TThumb3? ActiveThumb;
+        private TThumb3 MyGroup1;
         public MainWindow()
         {
             InitializeComponent();
@@ -33,15 +34,16 @@ namespace _20220508
             layer.IsEditing = true;//編集状態にする(追加されたアイテムはドラッグ移動可能)
             MyStackPanel.DataContext = layer;
 
-            //layer.AddItem(MakeTT3TextBlock("AddItem1", 0, 0));
-            //layer.AddItem(MakeTT3TextBlock("AddItem2", 100, 100));
 
+            layer.AddItem(MakeTT3TextBlock("Item1", 0, 0));
+            layer.AddItem(MakeTT3TextBlock("Item2", 100, 100));
 
-            TThumb3 group = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
-            layer.AddItem(group);
-            group.AddItem(MakeTT3TextBlock("Group1-1", 0, 0));
-            group.AddItem(MakeTT3TextBlock("Group1-2", 100, 100));
-
+            MyGroup1 = new(new Data3(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
+            //MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
+            layer.AddItem(MyGroup1);
+            MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item1", 0, 0));
+            MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item2", 200, 150));
+            MyGroupBoxGroup.DataContext = MyGroup1.MyData;
 
             //#region T1
             //TThumb1 thumb1 = new TThumb1();
@@ -73,7 +75,9 @@ namespace _20220508
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
-
+            var neko = MyGroup1;
+            var gw = MyGroup1.Width;
+            var left = Canvas.GetLeft(MyGroup1);
         }
     }
 

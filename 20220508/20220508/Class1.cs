@@ -139,252 +139,252 @@ namespace _20220508
     #endregion //データも含めたThumbのシリアライズテスト
 
 
-    #region TThumb2
+    //#region TThumb2
 
 
 
 
 
 
-    public abstract class TThumb2 : Thumb
-    {
-        public T2Group? MyParentGroup;
-        public T2Layer? MyLayer;
-        public Data2? MyData;
-        public TThumb2()
-        {
+    //public abstract class TThumb2 : Thumb
+    //{
+    //    public T2Group? MyParentGroup;
+    //    public T2Layer? MyLayer;
+    //    public Data2? MyData;
+    //    public TThumb2()
+    //    {
 
-        }
-        public TThumb2(Data2 data) : this()
-        {
+    //    }
+    //    public TThumb2(Data2 data) : this()
+    //    {
 
-        }
-
-
-        public override string ToString()
-        {
-            string str = Name;
-            if (string.IsNullOrEmpty(Name))
-            {
-                str = MyData.Text;
-            }
-            return $"{MyData.DataType}, {str}";
-        }
-        //テンプレート用
-        protected abstract void SetTemplate();
-        protected FrameworkElementFactory MakeWaku()
-        {
-            //枠表示            
-            FrameworkElementFactory rect = new(typeof(Rectangle));
-            rect.SetValue(Rectangle.StrokeProperty, Brushes.Orange);
-            if (this.MyData.DataType == DataType.Group)
-            {
-                rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
-                rect.SetValue(Rectangle.StrokeThicknessProperty, 2.0);
-            }
-            Binding b = new();
-            b.Source = this;
-            b.Path = new PropertyPath(ActualWidthProperty);
-            rect.SetBinding(Rectangle.WidthProperty, b);
-            b = new();
-            b.Source = this;
-            b.Path = new PropertyPath(ActualHeightProperty);
-            rect.SetValue(Rectangle.HeightProperty, b);
-            return rect;
-        }
-    }
-    public class T2Item : TThumb2
-    {
-        private Canvas? MyRootCanvas;
-        public FrameworkElement? MyElement { get; private set; }
-        public T2Item()
-        {
-            SetTemplate();
-            //if (result == false) { throw new Exception(); }
-        }
-        public T2Item(Data2 data) : this()
-        {
-            this.MyData = data;
-            this.DataContext = MyData;
-
-            switch (MyData.DataType)
-            {
-                case DataType.Layer:
-                    break;
-                case DataType.Group:
-                    break;
-                case DataType.TextBlock:
-                    MyElement = new TextBlock() { FontSize = 24 };
-                    MyElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
-                    break;
-                case DataType.Path:
-                    break;
-                case DataType.Image:
-                    break;
-                default:
-                    break;
-            }
-            if (MyRootCanvas == null)
-            {
-                throw new ArgumentNullException("テンプレートがうまくできんかった");
-            }
-            MyRootCanvas.Children.Add(MyElement);
-            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
-            this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
-            //Canvasと自身のサイズを表示要素のサイズにバインドする
-            Binding b = new() { Source = MyElement, Path = new PropertyPath(ActualWidthProperty) };
-            MyRootCanvas.SetBinding(WidthProperty, b);
-            this.SetBinding(WidthProperty, b);
-            b = new() { Source = MyElement, Path = new PropertyPath(ActualHeightProperty) };
-            MyRootCanvas.SetBinding(HeightProperty, b);
-            this.SetBinding(HeightProperty, b);
-
-        }
-
-        #region テンプレート作成
-        //単一要素表示用テンプレートに書き換える
-
-        protected override void SetTemplate()
-        {
-            //Canvas
-            //  Element
-            FrameworkElementFactory waku = MakeWaku();
-            FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyRootCanvas));
-
-            baseCanvas.AppendChild(waku);
-            ControlTemplate template = new();
-            template.VisualTree = baseCanvas;
-
-            this.Template = template;
-            this.ApplyTemplate();
-            MyRootCanvas = (Canvas)template.FindName(nameof(MyRootCanvas), this);
-        }
-
-        #endregion テンプレート作成
+    //    }
 
 
-    }
-    public class T2Group : TThumb2
-    {
-        public bool IsNowEditing { get; private set; }
-        private ItemsControl? MyItemsControl;
-        private ObservableCollection<TThumb2> Children = new();//内部用
-        public ReadOnlyObservableCollection<TThumb2> Items;//公開用
-        #region コンストラクタ
+    //    public override string ToString()
+    //    {
+    //        string str = Name;
+    //        if (string.IsNullOrEmpty(Name))
+    //        {
+    //            str = MyData.Text;
+    //        }
+    //        return $"{MyData.DataType}, {str}";
+    //    }
+    //    //テンプレート用
+    //    protected abstract void SetTemplate();
+    //    protected FrameworkElementFactory MakeWaku()
+    //    {
+    //        //枠表示            
+    //        FrameworkElementFactory rect = new(typeof(Rectangle));
+    //        rect.SetValue(Rectangle.StrokeProperty, Brushes.Orange);
+    //        if (this.MyData.DataType == DataType.Group)
+    //        {
+    //            rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
+    //            rect.SetValue(Rectangle.StrokeThicknessProperty, 2.0);
+    //        }
+    //        Binding b = new();
+    //        b.Source = this;
+    //        b.Path = new PropertyPath(ActualWidthProperty);
+    //        rect.SetBinding(Rectangle.WidthProperty, b);
+    //        b = new();
+    //        b.Source = this;
+    //        b.Path = new PropertyPath(ActualHeightProperty);
+    //        rect.SetValue(Rectangle.HeightProperty, b);
+    //        return rect;
+    //    }
+    //}
+    //public class T2Item : TThumb2
+    //{
+    //    private Canvas? MyRootCanvas;
+    //    public FrameworkElement? MyElement { get; private set; }
+    //    public T2Item()
+    //    {
+    //        SetTemplate();
+    //        //if (result == false) { throw new Exception(); }
+    //    }
+    //    public T2Item(Data2 data) : this()
+    //    {
+    //        this.MyData = data;
+    //        this.DataContext = MyData;
 
-        public T2Group()
-        {
-            SetTemplate();
-            Items = new(Children);
-        }
-        public T2Group(Data2 data) : this()
-        {
-            if (data.ChildrenData == null)
-            {
-                throw new ArgumentNullException(nameof(data));
-            }
-            MyData = data;
-            foreach (var item in data.ChildrenData)
-            {
-                if (item.DataType == DataType.Group)
-                {
-                    T2Group group = new(item);
-                    this.Children.Add(group);
-                    group.MyParentGroup = this;
-                }
-                else if (item.DataType == DataType.Layer)
-                {
-                    T2Group group = new(item);
-                    this.Children.Add(group);
-                    group.MyParentGroup = this;
-                    //group.MyLayer = this;
-                }
-                else
-                {
-                    T2Item item1 = new(item);
-                    this.Children.Add(item1);
-                }
-            }
+    //        switch (MyData.DataType)
+    //        {
+    //            case DataType.Layer:
+    //                break;
+    //            case DataType.Group:
+    //                break;
+    //            case DataType.TextBlock:
+    //                MyElement = new TextBlock() { FontSize = 24 };
+    //                MyElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+    //                break;
+    //            case DataType.Path:
+    //                break;
+    //            case DataType.Image:
+    //                break;
+    //            default:
+    //                break;
+    //        }
+    //        if (MyRootCanvas == null)
+    //        {
+    //            throw new ArgumentNullException("テンプレートがうまくできんかった");
+    //        }
+    //        MyRootCanvas.Children.Add(MyElement);
+    //        this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
+    //        this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
+    //        //Canvasと自身のサイズを表示要素のサイズにバインドする
+    //        Binding b = new() { Source = MyElement, Path = new PropertyPath(ActualWidthProperty) };
+    //        MyRootCanvas.SetBinding(WidthProperty, b);
+    //        this.SetBinding(WidthProperty, b);
+    //        b = new() { Source = MyElement, Path = new PropertyPath(ActualHeightProperty) };
+    //        MyRootCanvas.SetBinding(HeightProperty, b);
+    //        this.SetBinding(HeightProperty, b);
 
-        }
+    //    }
 
-        #endregion コンストラクタ
+    //    #region テンプレート作成
+    //    //単一要素表示用テンプレートに書き換える
 
-        public void SetEditing()
-        {
-            IsNowEditing = true;
-        }
+    //    protected override void SetTemplate()
+    //    {
+    //        //Canvas
+    //        //  Element
+    //        FrameworkElementFactory waku = MakeWaku();
+    //        FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyRootCanvas));
 
-        #region テンプレート        
-        //複数要素表示用テンプレートに書き換える
+    //        baseCanvas.AppendChild(waku);
+    //        ControlTemplate template = new();
+    //        template.VisualTree = baseCanvas;
 
-        protected override void SetTemplate()
-        {
-            FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
-            //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
-            itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
-            //アイテムズコントロール
-            FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
-            itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
-            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
-            //枠追加
-            FrameworkElementFactory waku = MakeWaku();
+    //        this.Template = template;
+    //        this.ApplyTemplate();
+    //        MyRootCanvas = (Canvas)template.FindName(nameof(MyRootCanvas), this);
+    //    }
 
-            FrameworkElementFactory baseCanvas = new(typeof(Canvas));
-            baseCanvas.AppendChild(itemsControl);
-            baseCanvas.AppendChild(waku);
+    //    #endregion テンプレート作成
 
-            ControlTemplate template = new();
-            template.VisualTree = baseCanvas;
 
-            this.Template = template;
-            this.ApplyTemplate();
-            MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
+    //}
+    //public class T2Group : TThumb2
+    //{
+    //    public bool IsNowEditing { get; private set; }
+    //    private ItemsControl? MyItemsControl;
+    //    private ObservableCollection<TThumb2> Children = new();//内部用
+    //    public ReadOnlyObservableCollection<TThumb2> Items;//公開用
+    //    #region コンストラクタ
 
-        }
-        #endregion テンプレート
+    //    public T2Group()
+    //    {
+    //        SetTemplate();
+    //        Items = new(Children);
+    //    }
+    //    public T2Group(Data2 data) : this()
+    //    {
+    //        if (data.ChildrenData == null)
+    //        {
+    //            throw new ArgumentNullException(nameof(data));
+    //        }
+    //        MyData = data;
+    //        foreach (var item in data.ChildrenData)
+    //        {
+    //            if (item.DataType == DataType.Group)
+    //            {
+    //                T2Group group = new(item);
+    //                this.Children.Add(group);
+    //                group.MyParentGroup = this;
+    //            }
+    //            else if (item.DataType == DataType.Layer)
+    //            {
+    //                T2Group group = new(item);
+    //                this.Children.Add(group);
+    //                group.MyParentGroup = this;
+    //                //group.MyLayer = this;
+    //            }
+    //            else
+    //            {
+    //                T2Item item1 = new(item);
+    //                this.Children.Add(item1);
+    //            }
+    //        }
 
-    }
-    public class T2Layer : T2Group
-    {
-        public T2Layer() : base()
-        {
+    //    }
 
-        }
+    //    #endregion コンストラクタ
 
-    }
+    //    public void SetEditing()
+    //    {
+    //        IsNowEditing = true;
+    //    }
 
-    [DataContract]
-    [KnownType(typeof(RectangleGeometry)),
-        KnownType(typeof(MatrixTransform))]
-    public class Data2 : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-        private double _x;
-        private double _y;
-        private string _text = "";
-        public TThumb1? ParentGroup { get; set; }
+    //    #region テンプレート        
+    //    //複数要素表示用テンプレートに書き換える
 
-        [DataMember]
-        public ObservableCollection<Data2>? ChildrenData { get; set; }
-        [DataMember]
-        public DataType DataType { get; set; }
-        [DataMember]
-        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
-        [DataMember]
-        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
-        [DataMember]
-        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
-        [DataMember]
-        public Brush? Brush { get; set; }
-        [DataMember]
-        public Geometry? Geometry { get; set; }
-    }
-    #endregion TThumb2
+    //    protected override void SetTemplate()
+    //    {
+    //        FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
+    //        //canvas.SetValue(BackgroundProperty, Brushes.Transparent);
+    //        itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
+    //        //アイテムズコントロール
+    //        FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
+    //        itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
+    //        itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
+    //        //枠追加
+    //        FrameworkElementFactory waku = MakeWaku();
+
+    //        FrameworkElementFactory baseCanvas = new(typeof(Canvas));
+    //        baseCanvas.AppendChild(itemsControl);
+    //        baseCanvas.AppendChild(waku);
+
+    //        ControlTemplate template = new();
+    //        template.VisualTree = baseCanvas;
+
+    //        this.Template = template;
+    //        this.ApplyTemplate();
+    //        MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
+
+    //    }
+    //    #endregion テンプレート
+
+    //}
+    //public class T2Layer : T2Group
+    //{
+    //    public T2Layer() : base()
+    //    {
+
+    //    }
+
+    //}
+
+    //[DataContract]
+    //[KnownType(typeof(RectangleGeometry)),
+    //    KnownType(typeof(MatrixTransform))]
+    //public class Data2 : INotifyPropertyChanged
+    //{
+    //    public event PropertyChangedEventHandler? PropertyChanged;
+    //    protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    //    }
+    //    private double _x;
+    //    private double _y;
+    //    private string _text = "";
+    //    public TThumb1? ParentGroup { get; set; }
+
+    //    [DataMember]
+    //    public ObservableCollection<Data2>? ChildrenData { get; set; }
+    //    [DataMember]
+    //    public DataType DataType { get; set; }
+    //    [DataMember]
+    //    public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+    //    [DataMember]
+    //    public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+    //    [DataMember]
+    //    public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
+    //    [DataMember]
+    //    public Brush? Brush { get; set; }
+    //    [DataMember]
+    //    public Geometry? Geometry { get; set; }
+    //}
+    //#endregion TThumb2
 
 
     #region TThumb3
@@ -431,21 +431,31 @@ namespace _20220508
         private void MyInitialize(Data3 data)
         {
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
 
 
             //Template
             var waku = MakeWaku(data.DataTypeMain);
+            //グループタイプの場合
             if (data.DataTypeMain == DataTypeMain.Group)
             {
-                this.DataContext = this;//グループタイプのデータコンテキストは自身
                 Items = new(Children);
                 SetGroupThumbTemplate(waku);
+                if (MyItemsControl == null) { throw new Exception("neko"); }
+
+                //Binding
+                this.MyItemsControl.DataContext = this;
+                this.DataContext = MyData;//グループタイプのデータコンテキストは自身
+
+                //子要素の作成、追加
                 foreach (var item in data.ChildrenData)
                 {
                     TThumb3 child = new(item);
                     Children.Add(child);
                 }
             }
+            //アイテムタイプ
             else
             {
                 this.DataContext = MyData;//アイテムタイプのデータコンテキストはデータ
@@ -474,8 +484,6 @@ namespace _20220508
             }
             if (MyItemElement == null) { throw new ArgumentNullException(nameof(data)); }
             MyItemCanvas.Children.Add(MyItemElement);
-            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
-            this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
 
             //Canvasと自身のサイズを表示要素のサイズにバインドする
             Binding b = new() { Source = MyItemElement, Path = new PropertyPath(ActualWidthProperty) };
@@ -489,16 +497,16 @@ namespace _20220508
             //SetContextMenu();
         }
 
-        #region Template
+        #region テンプレート
         protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
         {
             //枠表示            
             FrameworkElementFactory rect = new(typeof(Rectangle));
-            rect.SetValue(Rectangle.StrokeProperty, Brushes.Orange);
+            rect.SetValue(Rectangle.StrokeProperty, Brushes.OrangeRed);
             if (dataType == DataTypeMain.Group)
             {
-                rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumBlue);
-                rect.SetValue(Rectangle.StrokeThicknessProperty, 2.0);
+                rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
+                rect.SetValue(Rectangle.StrokeThicknessProperty, 4.0);
             }
             Binding b = new();
             b.Source = this;
@@ -524,19 +532,18 @@ namespace _20220508
 
         }
         //複数要素表示用テンプレートに書き換える
-        private void SetGroupThumbTemplate(FrameworkElementFactory waku)
+        private bool SetGroupThumbTemplate(FrameworkElementFactory waku)
         {
             //アイテムズコントロール
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
             itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
 
-            FrameworkElementFactory itemsCanvas = new(typeof(Canvas)); ;
-            itemsCanvas.SetValue(BackgroundProperty, Brushes.Beige);
+            FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
             itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
 
             FrameworkElementFactory baseCanvas = new(typeof(Canvas));
-            baseCanvas.AppendChild(itemsControl);
             baseCanvas.AppendChild(waku);//枠追加
+            baseCanvas.AppendChild(itemsControl);
 
             ControlTemplate template = new();
             template.VisualTree = baseCanvas;
@@ -544,10 +551,11 @@ namespace _20220508
             this.Template = template;
             this.ApplyTemplate();
             MyItemsControl = (ItemsControl)template.FindName(nameof(MyItemsControl), this);
-
+            if (MyItemsControl == null) { return false; }
+            else return true;
         }
 
-        #endregion Template
+        #endregion テンプレート
 
         #region ドラッグ移動
 
@@ -583,6 +591,14 @@ namespace _20220508
         #endregion その他
 
         #region アイテム専用
+
+
+        #endregion アイテム専用
+
+
+        #region グループとレイヤー専用
+        #region アイテム追加
+        
         public void AddItem(TThumb3 itemThumb)
         {
             if (this.MyData.DataTypeMain == DataTypeMain.Group)
@@ -596,19 +612,19 @@ namespace _20220508
                     itemThumb.MyLayer = this;
                 }
                 else { itemThumb.MyLayer = this.MyParentGroup; }
+
+                //ドラッグ移動イベント付加
                 //Parentが編集状態なら追加アイテム自身をドラッグ移動可能にする
                 if (itemThumb.MyParentGroup.IsEditing)
                 {
                     DragEventAdd(itemThumb);
                 }
+
             }
             else throw new Exception("Itemを追加できるのはグループだけ");
         }
+        #endregion アイテム追加
 
-        #endregion アイテム専用
-
-
-        #region グループとレイヤー専用
         #region サイズ修正、位置修正
         //アイテム移動後に実行
         //アイテム追加時に実行
@@ -660,8 +676,8 @@ namespace _20220508
 
         protected void AjustSize(TThumb3? thumb)
         {
-            if(thumb == null) { return; }
-            
+            if (thumb == null) { return; }
+
             double w = double.MinValue;
             double h = double.MinValue;
             //新しいサイズ
@@ -684,6 +700,7 @@ namespace _20220508
 
 
         #endregion サイズ修正、位置修正
+
         #endregion グループとレイヤー専用
     }
 
