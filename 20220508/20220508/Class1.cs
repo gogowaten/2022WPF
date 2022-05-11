@@ -418,9 +418,10 @@ namespace _20220508
             Loaded += (a, b) =>
             {
                 var w = this.ActualWidth; var h = this.ActualHeight;
-                AjustLocate(this);
+                AjustLocate2(this);
                 //AjustSize(this.MyParentGroup);
             };
+
         }
         public TThumb3(Data3 data) : this()
         {
@@ -539,7 +540,7 @@ namespace _20220508
         }
         private void TThumb3_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            AjustLocate(this);
+            AjustLocate2(this);
         }
 
         private void TThumb3_DragDelta(object sender, DragDeltaEventArgs e)
@@ -553,8 +554,10 @@ namespace _20220508
         #region その他
         public override string ToString()
         {
-            string str = MyData?.Text ?? Name;
-            return $"{MyData?.DataType}, {str}";
+            string ss = MyData.Text;
+            if (string.IsNullOrEmpty(ss)) { ss = this.Name; }
+
+            return $"{MyData?.DataType}, {ss}";
         }
         #endregion その他
 
@@ -629,74 +632,70 @@ namespace _20220508
         //アイテム移動後に実行
         //アイテム追加時に実行
         /// <summary>
-        /// 位置調整、画面内に収まるように、余白ができないようにする
-        /// 子要素を処理したあとに親要素を遡って処理、Layerまでたどる
+        /// 指定Thumbと同レベルThumbとParentの位置とサイズ修正、
+        /// 画面内に収まるように、余白ができないようにする
         /// ドラッグ移動後などに実行
         /// </summary>
-        /// <param name="thumb">子要素</param>
-        protected void AjustLocate(TThumb3? thumb)
-        {
-            TThumb3? parentThumb = thumb?.MyParentGroup;
-            if (parentThumb == null) { return; }
-
-            //左端と上端を取得(同レベル子要素全体から)
-            double left = double.MaxValue;
-            double top = double.MaxValue;
-            foreach (var item in parentThumb.Items)
-            {
-                if (item.MyData.X < left) { left = item.MyData.X; }
-                if (item.MyData.Y < top) { top = item.MyData.Y; }
-            }
-            //0以外なら位置調整、同レベル子要素全部
-            if (left != 0 || top != 0)
-            {
-                foreach (var item in parentThumb.Items)
-                {
-                    item.MyData.X -= left;
-                    item.MyData.Y -= top;
-                }
-            }
-
-            //親要素のサイズ修正
-            AjustSize(parentThumb);
-
-            if (left != 0 || top != 0)
-            {
-                //親要素の位置修正、ただし親要素がLayerの場合は除く
-                if (parentThumb.MyData.DataType != DataType.Layer)
-                {
-                    //親要素の位置修正
-                    parentThumb.MyData.X += left;
-                    parentThumb.MyData.Y += top;
-                    //親要素をたどる
-                    AjustLocate(parentThumb.MyParentGroup);
-                }
-            }
-        }
-
-        protected void AjustSize(TThumb3? thumb)
+        /// <param name="thumb">指定Thumb</param>
+        protected void AjustLocate2(TThumb3 thumb)
         {
             if (thumb == null) { return; }
+            if (thumb.MyParentGroup == null) { return; }
+            TThumb3 parentThumb = thumb.MyParentGroup;
+            //Parentの位置とサイズを取得、Parentがnullの場合は0が返ってくる
+            (double x, double y, double w, double h) = GetParentRectValues(thumb);
+            //位置とサイズともに変化無ければ終了
+            if (w == 0 && h == 0) { return; }
+            if (x == parentThumb.MyData.X &&
+                y == parentThumb.MyData.Y &&
+                w == parentThumb.Width &&
+                h == parentThumb.Height) { return; }
 
-            double w = double.MinValue;
-            double h = double.MinValue;
-            //新しいサイズ
-            foreach (var item in thumb.Items)
+            //位置が変化していた場合はParentとItemsの位置修正
+            if (x != 0 || y != 0)
             {
-                w = Math.Max(w, item.MyData.X + item.Width);
-                h = Math.Max(h, item.MyData.Y + item.Height);
+                //Layerは位置修正しない
+                if (parentThumb.MyData.DataType == DataType.Group)
+                {
+                    parentThumb.MyData.X -= x; parentThumb.MyData.Y -= y;
+                }
+                foreach (var item in parentThumb.Items)
+                {
+                    item.MyData.X -= x; item.MyData.Y -= y;
+                }
             }
-            //今のサイズと違っていたら更新、同じなら終了
-            if (thumb.Width != w || thumb.Height != h)
+            //Parentのサイズが異なっていた場合は修正
+            if (w != parentThumb.Width || h != parentThumb.Height)
             {
-                thumb.Width = w; thumb.Height = h;
-                ////Parentを遡って再帰処理
-                //if (parentThumb.MyParentGroup != null)
-                //{
-                //    AjustParentSize(parentThumb.MyParentGroup);
-                //}
+                parentThumb.Width = w; parentThumb.Height = h;
             }
+            //Parentを辿り、再帰処理する
+            AjustLocate2(parentThumb);
         }
+
+        /// <summary>
+        /// 指定ThumbのParentの位置とサイズを返す、Parentがない場合は0を返す
+        /// </summary>
+        /// <param name="thumb">指定Thumb</param>
+        /// <returns></returns>
+        private (double x, double y, double w, double h) GetParentRectValues(TThumb3 thumb)
+        {
+            if (thumb.MyParentGroup == null) { return (0, 0, 0, 0); }
+
+            double x = double.MaxValue; double y = double.MaxValue;
+            double width = double.MinValue; double height = double.MinValue;
+            foreach (var item in thumb.MyParentGroup.Items)
+            {
+                x = Math.Min(x, item.MyData.X);
+                y = Math.Min(y, item.MyData.Y);
+                width = Math.Max(width, item.MyData.X + item.Width);
+                height = Math.Max(height, item.MyData.Y + item.Height);
+            }
+            width -= x; height -= y;
+            return (x, y, width, height);
+        }
+
+
 
 
         #endregion サイズ修正、位置修正
