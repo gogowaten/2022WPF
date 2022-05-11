@@ -45,16 +45,7 @@ namespace _20220508
             MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item2", 200, 150));
             MyGroupBoxGroup.DataContext = MyGroup1.MyData;
 
-            //#region T1
-            //TThumb1 thumb1 = new TThumb1();
-            //thumb1.Text = "serialTest";
-            //thumb1.X = 100;
-            //thumb1.Y = 100;
-            //thumb1.Geometry = new RectangleGeometry(new Rect(0, 20, 10, 40));
-            //thumb1.DataSave();
-            //#endregion T1
-            //T2Layer t2l = new();
-            //t2l.SetEditing();
+
 
         }
         private TThumb3 MakeTT3TextBlock(string text, double x, double y)

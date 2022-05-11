@@ -434,7 +434,6 @@ namespace _20220508
             this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
             this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
 
-
             //Template
             var waku = MakeWaku(data.DataTypeMain);
             //グループタイプの場合
@@ -445,8 +444,8 @@ namespace _20220508
                 if (MyItemsControl == null) { throw new Exception("neko"); }
 
                 //Binding
-                this.MyItemsControl.DataContext = this;
-                this.DataContext = MyData;//グループタイプのデータコンテキストは自身
+                this.MyItemsControl.DataContext = this;//子要素コレクションは自身をソース
+                this.DataContext = MyData;//自身はデータをソースにする                                          
 
                 //子要素の作成、追加
                 foreach (var item in data.ChildrenData)
@@ -455,47 +454,16 @@ namespace _20220508
                     Children.Add(child);
                 }
             }
+
             //アイテムタイプ
             else
             {
-                this.DataContext = MyData;//アイテムタイプのデータコンテキストはデータ
+                this.DataContext = MyData;//アイテムタイプのBindingソースはデータ
                 SetItemThumbTemplate(waku);
-                MakeItem(data);
+                MakeAndSetItem(data);
             }
         }
-        private void MakeItem(Data3 data)
-        {
-            switch (data.DataType)
-            {
-                case DataType.Layer:
-                    break;
-                case DataType.Group:
-                    break;
-                case DataType.TextBlock:
-                    MyItemElement = new TextBlock() { FontSize = 20, Background = Brushes.Orange, Opacity = 0.5 };
-                    MyItemElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(this.MyData.Text)));
-                    break;
-                case DataType.Path:
-                    break;
-                case DataType.Image:
-                    break;
-                default:
-                    break;
-            }
-            if (MyItemElement == null) { throw new ArgumentNullException(nameof(data)); }
-            MyItemCanvas.Children.Add(MyItemElement);
 
-            //Canvasと自身のサイズを表示要素のサイズにバインドする
-            Binding b = new() { Source = MyItemElement, Path = new PropertyPath(ActualWidthProperty) };
-            MyItemCanvas.SetBinding(WidthProperty, b);
-            this.SetBinding(WidthProperty, b);
-            b = new() { Source = MyItemElement, Path = new PropertyPath(ActualHeightProperty) };
-            MyItemCanvas.SetBinding(HeightProperty, b);
-            this.SetBinding(HeightProperty, b);
-
-
-            //SetContextMenu();
-        }
 
         #region テンプレート
         protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
@@ -591,14 +559,46 @@ namespace _20220508
         #endregion その他
 
         #region アイテム専用
+        private void MakeAndSetItem(Data3 data)
+        {
+            switch (data.DataType)
+            {
+                case DataType.Layer:
+                    break;
+                case DataType.Group:
+                    break;
+                case DataType.TextBlock:
+                    MyItemElement = new TextBlock() { FontSize = 20, Background = Brushes.Orange, Opacity = 0.5 };
+                    MyItemElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(this.MyData.Text)));
+                    break;
+                case DataType.Path:
+                    break;
+                case DataType.Image:
+                    break;
+                default:
+                    break;
+            }
+            if (MyItemElement == null) { throw new ArgumentNullException(nameof(data)); }
+            MyItemCanvas.Children.Add(MyItemElement);
 
+            //Canvasと自身のサイズを表示要素のサイズにバインドする
+            Binding b = new() { Source = MyItemElement, Path = new PropertyPath(ActualWidthProperty) };
+            MyItemCanvas.SetBinding(WidthProperty, b);
+            this.SetBinding(WidthProperty, b);
+            b = new() { Source = MyItemElement, Path = new PropertyPath(ActualHeightProperty) };
+            MyItemCanvas.SetBinding(HeightProperty, b);
+            this.SetBinding(HeightProperty, b);
+
+
+            //SetContextMenu();
+        }
 
         #endregion アイテム専用
 
 
         #region グループとレイヤー専用
         #region アイテム追加
-        
+
         public void AddItem(TThumb3 itemThumb)
         {
             if (this.MyData.DataTypeMain == DataTypeMain.Group)
