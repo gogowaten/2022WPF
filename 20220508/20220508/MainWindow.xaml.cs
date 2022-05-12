@@ -22,6 +22,8 @@ namespace _20220508
 {
     public partial class MainWindow : Window
     {
+        private int AddThumbCount = 0;
+        private List<TThumb3> MyThumbs = new();
         private TThumb3? ActiveThumb;
         private TThumb3 MyLayer;
         private TThumb3 MyGroup1;
@@ -81,6 +83,23 @@ namespace _20220508
             var neko = MyGroup1;
             var gw = MyGroup1.Width;
             var left = Canvas.GetLeft(MyGroup1);
+        }
+
+        private void ButtonAdd2_Click(object sender, RoutedEventArgs e)
+        {
+            var thumb = MakeTT3TextBlock($"AddItem{AddThumbCount}", AddThumbCount * 10, AddThumbCount * 20);
+            MyLayer.AddItem(thumb);
+            MyThumbs.Add(thumb);
+            AddThumbCount++;
+        }
+
+        private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
+        {
+            List<TThumb3> thumbs = new();
+            thumbs.Add(MyThumbs[0]);
+            thumbs.Add(MyThumbs[1]);
+            MyLayer.MakeGroup(thumbs);
+
         }
     }
 

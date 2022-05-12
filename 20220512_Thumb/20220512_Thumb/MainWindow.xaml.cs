@@ -37,10 +37,11 @@ namespace _20220512_Thumb
             MyLayer.IsEditing = true;//編集状態にする(追加されたアイテムはドラッグ移動可能)
             MyStackPanel.DataContext = MyLayer;
 
-
+            //アイテムを追加
             MyLayer.AddItem(MakeTT3TextBlock("Item1", 0, 0));
             MyLayer.AddItem(MakeTT3TextBlock("Item2", 100, 100));
 
+            //グループを追加
             MyGroup1 = new(new Data3(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
             //MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
             MyLayer.AddItem(MyGroup1);
@@ -65,6 +66,14 @@ namespace _20220512_Thumb
         }
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
+            //Group2
+            // Group2_1
+            //  Item2-1-1
+            //  Item2-1-2
+            // Group2_2
+            //  Item2-2-1
+            //  Item2-2-2
+            //グループを含んだグループを追加
             MyGroup2 = new(new Data3(DataType.Group) { X = 100, Y = 100 }) { Name = "MyGroup2" };
             TThumb3 group21 = new(new Data3(DataType.Group) { X = 0, Y = 0 }) { Name = "MyGroup2_1" };
             TThumb3 group22 = new(new Data3(DataType.Group) { X = 100, Y = 100 }) { Name = "MyGroup2_2" };

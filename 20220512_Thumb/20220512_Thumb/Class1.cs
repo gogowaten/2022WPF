@@ -18,6 +18,10 @@ using System.Globalization;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 
+
+//Thumbを継承したクラス、データクラスどちらも一個
+//ドラッグ移動後とThumb追加時の位置とサイズ修正できた
+
 namespace _20220512_Thumb
 {
     public enum DataType

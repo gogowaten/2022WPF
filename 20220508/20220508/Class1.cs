@@ -390,6 +390,8 @@ namespace _20220508
     #region TThumb3
     public class TThumb3 : Thumb
     {
+        #region フィールド
+
         #region 共通
         public TThumb3? MyParentGroup;
         public TThumb3? MyLayer;
@@ -408,7 +410,9 @@ namespace _20220508
         public bool IsEditing;
         #endregion グループとレイヤー専用
         //public ContentControl? MyContent { get;private set; }
+        #endregion フィールド
 
+        #region コンストラクタ
 
         public TThumb3()
         {
@@ -434,6 +438,7 @@ namespace _20220508
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
             this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
             this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
+            this.SetBinding(Panel.ZIndexProperty, new Binding(nameof(MyData.Z)));
 
             //Template
             var waku = MakeWaku(data.DataTypeMain);
@@ -464,7 +469,7 @@ namespace _20220508
                 MakeAndSetItem(data);
             }
         }
-
+        #endregion コンストラクタ
 
         #region テンプレート
         protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
@@ -525,6 +530,43 @@ namespace _20220508
         }
 
         #endregion テンプレート
+
+        #region グループ化
+        public void MakeGroup(List<TThumb3> thumbs)
+        {
+            //異なるParentのThumb同士はグループ化できない
+            TThumb3 parentThumb = thumbs[0]?.MyParentGroup ?? throw new ArgumentNullException("");
+            foreach (var item in thumbs)
+            {
+                if (item.MyParentGroup != parentThumb)
+                {
+                    throw new ArgumentException("異なるParentのThumb同士はグループ化できない");
+                }
+            }
+            //外す            
+            foreach (var item in thumbs)
+            {
+                parentThumb.RemoveItem(item);
+            }
+            //新規作成
+            Data3 data = new(DataType.Group);
+            var rect = GetThumbsRectValues(thumbs);
+            data.X = rect.x; data.Y = rect.y;
+            foreach (var item in thumbs)
+            {
+                data.ChildrenData.Add(item.MyData);
+            }
+            TThumb3 group = new TThumb3(data);
+            parentThumb.AddItem(group);
+
+            //TThumb3 group = new(new Data3(DataType.Group));
+            //foreach (var item in thumbs)
+            //{
+            //    group.AddItem(item);
+            //}
+            //parentThumb.AddItem(group);
+        }
+        #endregion グループ化
 
         #region ドラッグ移動
 
@@ -600,7 +642,7 @@ namespace _20220508
 
 
         #region グループとレイヤー専用
-        #region アイテム追加
+        #region アイテム追加と削除
 
         public void AddItem(TThumb3 itemThumb)
         {
@@ -626,7 +668,16 @@ namespace _20220508
             }
             else throw new Exception("Itemを追加できるのはグループだけ");
         }
-        #endregion アイテム追加
+        public void RemoveItem(TThumb3 thumb)
+        {
+            if (this.MyData.DataTypeMain == DataTypeMain.Group)
+            {
+                this.Children.Remove(thumb);
+                this.MyData.ChildrenData.Remove(thumb.MyData);
+                thumb.MyParentGroup = null;
+            }
+        }
+        #endregion アイテム追加と削除
 
         #region サイズ修正、位置修正
         //アイテム移動後に実行
@@ -678,13 +729,30 @@ namespace _20220508
         /// </summary>
         /// <param name="thumb">指定Thumb</param>
         /// <returns></returns>
-        private (double x, double y, double w, double h) GetParentRectValues(TThumb3 thumb)
+        private static (double x, double y, double w, double h) GetParentRectValues(TThumb3 thumb)
         {
             if (thumb.MyParentGroup == null) { return (0, 0, 0, 0); }
 
             double x = double.MaxValue; double y = double.MaxValue;
             double width = double.MinValue; double height = double.MinValue;
             foreach (var item in thumb.MyParentGroup.Items)
+            {
+                x = Math.Min(x, item.MyData.X);
+                y = Math.Min(y, item.MyData.Y);
+                width = Math.Max(width, item.MyData.X + item.Width);
+                height = Math.Max(height, item.MyData.Y + item.Height);
+            }
+            width -= x; height -= y;
+            return (x, y, width, height);
+        }
+
+        private static (double x, double y, double w, double h) GetThumbsRectValues(List<TThumb3> thumbs)
+        {
+            if (thumbs.Count == 0) { return (0, 0, 0, 0); }
+
+            double x = double.MaxValue; double y = double.MaxValue;
+            double width = double.MinValue; double height = double.MinValue;
+            foreach (var item in thumbs)
             {
                 x = Math.Min(x, item.MyData.X);
                 y = Math.Min(y, item.MyData.Y);
@@ -717,6 +785,7 @@ namespace _20220508
         }
         private double _x;
         private double _y;
+        private double _z;
         private string _text = "";
 
 
@@ -730,6 +799,9 @@ namespace _20220508
         public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
         [DataMember]
         public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+        [DataMember]
+        public double Z { get => _z; set { if (_z == value) { return; } _z = value; OnPropertyChanged(); } }
+
         [DataMember]
         public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
         [DataMember]
