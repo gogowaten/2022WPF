@@ -1,0 +1,33 @@
+﻿<Window x:Class="_20220512_Thumb.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220512_Thumb"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas Name="MyCanvas" UseLayoutRounding="True"/>
+    <StackPanel Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="ButtonCheck" Content="Check" Click="ButtonCheck_Click"/>
+      <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
+      <GroupBox x:Name="MyGroupBox" Header="ActiveThumb">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=Text, StringFormat=Text 0}"/>
+          <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
+          <TextBlock Text="{Binding Path=Y, StringFormat=Y 0}"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox x:Name="MyGroupBoxGroup" Header="Group">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
+        </StackPanel>
+      </GroupBox>
+      <TextBlock Text="{Binding Path=Width}"/>
+    </StackPanel>
+  </Grid>
+</Window>
