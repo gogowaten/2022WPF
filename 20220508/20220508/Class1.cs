@@ -422,7 +422,8 @@ namespace _20220508
             Loaded += (a, b) =>
             {
                 var w = this.ActualWidth; var h = this.ActualHeight;
-                AjustLocate2(this);
+                //AjustLocate2(this);
+                AjustLocate3(this.MyParentGroup);
                 //AjustSize(this.MyParentGroup);
             };
 
@@ -551,7 +552,8 @@ namespace _20220508
             }
             //新規作成
             Data3 data = new(DataType.Group);
-            var rect = GetThumbsRectValues(thumbs);
+            //var rect = GetThumbsRectValues(thumbs);
+            var rect = GetThumbRectValues(thumbs[0]);
             data.X = rect.x; data.Y = rect.y;
             foreach (var item in thumbs)
             {
@@ -583,7 +585,7 @@ namespace _20220508
         }
         private void TThumb3_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            AjustLocate2(this);
+            AjustLocate3(this.MyParentGroup);
         }
 
         private void TThumb3_DragDelta(object sender, DragDeltaEventArgs e)
@@ -762,13 +764,13 @@ namespace _20220508
             if (this.MyData.DataType != DataType.Layer && this.Items.Count == 1)
             {
                 //Parentから自身をを削除
-                if(MyParentGroup is TThumb3 parent)
+                if (MyParentGroup is TThumb3 parent)
                 {
                     parent.RemoveItem(this);
-                    parent.AddItemInsert(this.Children[0],this.MyData.Z);
+                    parent.AddItemInsert(this.Children[0], this.MyData.Z);
                 }
-                
-                
+
+
                 ////Item削除
                 //TThumb3 lastThumb = this.Children[0];
                 //this.Children.Remove(lastThumb);
@@ -782,7 +784,7 @@ namespace _20220508
                 //    PP.AddItemInsert(lastThumb, parent.MyData.Z);
                 //}
             }
-            AjustLocate2(this);
+            AjustLocate3(this);
         }
 
         #endregion アイテム追加と削除
@@ -796,41 +798,81 @@ namespace _20220508
         /// ドラッグ移動後などに実行
         /// </summary>
         /// <param name="thumb">指定Thumb</param>
-        protected void AjustLocate2(TThumb3 thumb)
+        //protected void AjustLocate2(TThumb3 thumb)
+        //{
+        //    if (thumb == null) { return; }
+        //    //var neko = GetParentRectValues(thumb);
+        //    //var inu=GetThumbsRectValues(thumb.Children.ToList());
+        //    var uma = GetThumbRectValues(thumb);
+        //    if (thumb.MyParentGroup == null) { return; }
+        //    TThumb3 parentThumb = thumb.MyParentGroup;
+        //    //Parentの位置とサイズを取得、Parentがnullの場合は0が返ってくる
+        //    //(double x, double y, double w, double h) = GetParentRectValues(thumb);
+        //    (double x, double y, double w, double h) = GetThumbRectValues(thumb);
+
+        //    //位置とサイズともに変化無ければ終了
+        //    if (w == 0 && h == 0) { return; }
+        //    if (x == parentThumb.MyData.X &&
+        //        y == parentThumb.MyData.Y &&
+        //        w == parentThumb.Width &&
+        //        h == parentThumb.Height) { return; }
+
+        //    //位置が変化していた場合はParentとItemsの位置修正
+        //    if (x != 0 || y != 0)
+        //    {
+        //        //ParentがGroupなら位置修正する
+        //        if (parentThumb.MyData.DataType == DataType.Group)
+        //        {
+        //            parentThumb.MyData.X -= x; parentThumb.MyData.Y -= y;
+        //        }
+        //        //Itemの位置修正
+        //        foreach (var item in parentThumb.Items)
+        //        {
+        //            item.MyData.X -= x; item.MyData.Y -= y;
+        //        }
+        //    }
+        //    //Parentのサイズが異なっていた場合は修正
+        //    if (w != parentThumb.Width || h != parentThumb.Height)
+        //    {
+        //        parentThumb.Width = w; parentThumb.Height = h;
+        //    }
+        //    //Parentを辿り、再帰処理する
+        //    AjustLocate2(parentThumb);
+        //}
+        protected void AjustLocate3()
         {
-            if (thumb == null) { return; }
-            if (thumb.MyParentGroup == null) { return; }
-            TThumb3 parentThumb = thumb.MyParentGroup;
-            //Parentの位置とサイズを取得、Parentがnullの場合は0が返ってくる
-            (double x, double y, double w, double h) = GetParentRectValues(thumb);
+            var uma = GetThumbRectValues();
+            //新しいRect取得、Parentがnullの場合は0が返ってくる
+            (double x, double y, double w, double h) = GetThumbRectValues();
+
             //位置とサイズともに変化無ければ終了
             if (w == 0 && h == 0) { return; }
-            if (x == parentThumb.MyData.X &&
-                y == parentThumb.MyData.Y &&
-                w == parentThumb.Width &&
-                h == parentThumb.Height) { return; }
+            if (x == MyData.X &&
+                y == MyData.Y &&
+                w == Width &&
+                h == Height) { return; }
 
-            //位置が変化していた場合はParentとItemsの位置修正
+            //位置が変化していた場合は自身とItemsの位置修正
             if (x != 0 || y != 0)
             {
-                //ParentがGroupなら位置修正する
-                if (parentThumb.MyData.DataType == DataType.Group)
+                //自身がGroupタイプなら位置修正する
+                if (MyData.DataType == DataType.Group)
                 {
-                    parentThumb.MyData.X -= x; parentThumb.MyData.Y -= y;
+                    MyData.X -= x; MyData.Y -= y;
                 }
                 //Itemの位置修正
-                foreach (var item in parentThumb.Items)
+                foreach (var item in Items)
                 {
                     item.MyData.X -= x; item.MyData.Y -= y;
                 }
             }
-            //Parentのサイズが異なっていた場合は修正
-            if (w != parentThumb.Width || h != parentThumb.Height)
+            //自身のサイズが異なっていた場合は修正
+            if (w != Width || h != Height)
             {
-                parentThumb.Width = w; parentThumb.Height = h;
+                Width = w; Height = h;
             }
             //Parentを辿り、再帰処理する
-            AjustLocate2(parentThumb);
+            if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
         }
 
         /// <summary>
@@ -838,30 +880,47 @@ namespace _20220508
         /// </summary>
         /// <param name="thumb">指定Thumb</param>
         /// <returns></returns>
-        private static (double x, double y, double w, double h) GetParentRectValues(TThumb3 thumb)
+        //private static (double x, double y, double w, double h) GetParentRectValues(TThumb3 thumb)
+        //{
+        //    if (thumb.MyParentGroup == null) { return (0, 0, 0, 0); }
+
+        //    double x = double.MaxValue; double y = double.MaxValue;
+        //    double width = double.MinValue; double height = double.MinValue;
+        //    foreach (var item in thumb.MyParentGroup.Items)
+        //    {
+        //        x = Math.Min(x, item.MyData.X);
+        //        y = Math.Min(y, item.MyData.Y);
+        //        width = Math.Max(width, item.MyData.X + item.Width);
+        //        height = Math.Max(height, item.MyData.Y + item.Height);
+        //    }
+        //    width -= x; height -= y;
+        //    return (x, y, width, height);
+        //}
+
+        //private static (double x, double y, double w, double h) GetThumbsRectValues(List<TThumb3> thumbs)
+        //{
+        //    if (thumbs.Count == 0) { return (0, 0, 0, 0); }
+
+        //    double x = double.MaxValue; double y = double.MaxValue;
+        //    double width = double.MinValue; double height = double.MinValue;
+        //    foreach (var item in thumbs)
+        //    {
+        //        x = Math.Min(x, item.MyData.X);
+        //        y = Math.Min(y, item.MyData.Y);
+        //        width = Math.Max(width, item.MyData.X + item.Width);
+        //        height = Math.Max(height, item.MyData.Y + item.Height);
+        //    }
+        //    width -= x; height -= y;
+        //    return (x, y, width, height);
+        //}
+
+        private (double x, double y, double w, double h) GetThumbRectValues()
         {
-            if (thumb.MyParentGroup == null) { return (0, 0, 0, 0); }
+            if (Children.Count == 0) { return (0, 0, 0, 0); }
 
             double x = double.MaxValue; double y = double.MaxValue;
             double width = double.MinValue; double height = double.MinValue;
-            foreach (var item in thumb.MyParentGroup.Items)
-            {
-                x = Math.Min(x, item.MyData.X);
-                y = Math.Min(y, item.MyData.Y);
-                width = Math.Max(width, item.MyData.X + item.Width);
-                height = Math.Max(height, item.MyData.Y + item.Height);
-            }
-            width -= x; height -= y;
-            return (x, y, width, height);
-        }
-
-        private static (double x, double y, double w, double h) GetThumbsRectValues(List<TThumb3> thumbs)
-        {
-            if (thumbs.Count == 0) { return (0, 0, 0, 0); }
-
-            double x = double.MaxValue; double y = double.MaxValue;
-            double width = double.MinValue; double height = double.MinValue;
-            foreach (var item in thumbs)
+            foreach (var item in Children)
             {
                 x = Math.Min(x, item.MyData.X);
                 y = Math.Min(y, item.MyData.Y);
