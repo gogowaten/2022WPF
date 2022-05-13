@@ -16,12 +16,15 @@
       <Button x:Name="ButtonCheck" Content="Check" Click="ButtonCheck_Click"/>
       <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
       <Button x:Name="ButtonAdd2" Content="Add2" Click="ButtonAdd2_Click"/>
+      <Button x:Name="ButtonAddG1" Content="AddG1" Click="ButtonAddG1_Click"/>
+      <Button x:Name="ButtonRemove" Content="remove" Click="ButtonRemove_Click"/>
       <Button x:Name="ButtonAddGroup" Content="Group1" Click="ButtonAddGroup_Click"/>
       <GroupBox x:Name="MyGroupBox" Header="ActiveThumb">
         <StackPanel>
           <TextBlock Text="{Binding Path=Text, StringFormat=Text 0}"/>
           <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
           <TextBlock Text="{Binding Path=Y, StringFormat=Y 0}"/>
+          <TextBlock Text="{Binding Path=Z, StringFormat=Z 0}"/>
         </StackPanel>
       </GroupBox>
       <GroupBox x:Name="MyGroupBoxGroup" Header="Group">

@@ -546,7 +546,8 @@ namespace _20220508
             //外す            
             foreach (var item in thumbs)
             {
-                parentThumb.RemoveItem(item);
+                item.MyParentGroup?.RemoveItem(item);
+                //item.RemoveItem();
             }
             //新規作成
             Data3 data = new(DataType.Group);
@@ -648,6 +649,7 @@ namespace _20220508
         {
             if (this.MyData.DataTypeMain == DataTypeMain.Group)
             {
+                itemThumb.MyData.Z = this.Children.Count;
                 this.Children.Add(itemThumb);
                 this.MyData.ChildrenData.Add(itemThumb.MyData);
                 itemThumb.MyParentGroup = this;
@@ -668,15 +670,121 @@ namespace _20220508
             }
             else throw new Exception("Itemを追加できるのはグループだけ");
         }
+        public void AddItemInsert(TThumb3 itemThumb, int z)
+        {
+            if (this.MyData.DataTypeMain == DataTypeMain.Group)
+            {
+                //itemThumb.MyData.Z = this.Children.Count;
+                //this.Children.Add(itemThumb);
+                //this.MyData.ChildrenData.Add(itemThumb.MyData);
+                this.Children.Insert(z, itemThumb);
+                this.MyData.ChildrenData.Insert(z, itemThumb.MyData);
+                for (int i = z + 1; i < Children.Count; i++)
+                {
+                    this.Children[i].MyData.Z++;
+                    this.MyData.ChildrenData[i].Z++;
+                }
+
+                itemThumb.MyParentGroup = this;
+
+                if (MyData.DataType == DataType.Layer && MyParentGroup == null)
+                {
+                    itemThumb.MyLayer = this;
+                }
+                else { itemThumb.MyLayer = this.MyParentGroup; }
+
+                //ドラッグ移動イベント付加
+                //Parentが編集状態なら追加アイテム自身をドラッグ移動可能にする
+                if (itemThumb.MyParentGroup.IsEditing)
+                {
+                    DragEventAdd(itemThumb);
+                }
+
+            }
+            else throw new Exception("Itemを追加できるのはグループだけ");
+        }
+
+        //Item削除
+        //public void RemoveItem()
+        //{
+        //    TThumb3 parent = this.MyParentGroup ?? throw new ArgumentNullException("");
+        //    //ZOrder、削除するThumbより上にあるThumbのZを-1する
+        //    int z = this.MyData.Z;
+        //    var ol = parent.MyData.ChildrenData.OrderBy(x => x.Z).ToList();
+        //    for (int i = z + 1; i < parent.MyData.ChildrenData.Count; i++)
+        //    {
+        //        parent.MyData.ChildrenData[i].Z--;
+        //    }
+        //    //削除
+        //    if (parent.MyData.DataTypeMain == DataTypeMain.Group)
+        //    {
+        //        parent.Children.Remove(this);
+        //        parent.MyData.ChildrenData.Remove(this.MyData);
+        //        //this.MyParentGroup = null;
+        //    }
+        //    //Itemsが1個ならグループ解除
+        //    if (parent.MyData.DataType != DataType.Layer && parent.Items.Count == 1)
+        //    {
+        //        //ParentからItem削除
+        //        TThumb3 last = parent.Children[0];
+        //        parent.Children.Remove(last);
+        //        parent.MyData.ChildrenData.Remove(last.MyData);
+        //        //ParentのParentからParentを削除
+        //        if (parent.MyParentGroup != null)
+        //        {
+        //            TThumb3 PP = parent.MyParentGroup;
+        //            parent.RemoveItem();
+        //            //ParentのParentに自身を追加、このとき元のParentのZに挿入する
+        //            PP.AddItemInsert(last, parent.MyData.Z);
+        //        }
+        //    }
+        //    AjustLocate2(this);
+        //}
         public void RemoveItem(TThumb3 thumb)
         {
+            int itemsCount = this.Items.Count;
+            if (itemsCount == 0) { return; }
+            //ZOrder、削除するThumbより上にあるThumbのZを-1する
+            int z = thumb.MyData.Z;
+            var ol = this.MyData.ChildrenData.OrderBy(x => x.Z).ToList();
+            for (int i = z + 1; i < itemsCount; i++)
+            {
+                this.MyData.ChildrenData[i].Z--;
+            }
+            //削除
             if (this.MyData.DataTypeMain == DataTypeMain.Group)
             {
                 this.Children.Remove(thumb);
                 this.MyData.ChildrenData.Remove(thumb.MyData);
-                thumb.MyParentGroup = null;
             }
+            //残りItems数が1個and自身がLayerじゃない、ならグループ解除
+            //自身をParentから削除して、ParentにThumbを追加
+            if (this.MyData.DataType != DataType.Layer && this.Items.Count == 1)
+            {
+                //Parentから自身をを削除
+                if(MyParentGroup is TThumb3 parent)
+                {
+                    parent.RemoveItem(this);
+                    parent.AddItemInsert(this.Children[0],this.MyData.Z);
+                }
+                
+                
+                ////Item削除
+                //TThumb3 lastThumb = this.Children[0];
+                //this.Children.Remove(lastThumb);
+                //this.MyData.ChildrenData.Remove(lastThumb.MyData);
+                ////Parentから自身をを削除
+                //if (this.MyParentGroup != null)
+                //{
+                //    TThumb3 PP = parent.MyParentGroup;
+                //    parent.RemoveItem();
+                //    //ParentのParentに自身を追加、このとき元のParentのZに挿入する
+                //    PP.AddItemInsert(lastThumb, parent.MyData.Z);
+                //}
+            }
+            AjustLocate2(this);
         }
+
         #endregion アイテム追加と削除
 
         #region サイズ修正、位置修正
@@ -705,11 +813,12 @@ namespace _20220508
             //位置が変化していた場合はParentとItemsの位置修正
             if (x != 0 || y != 0)
             {
-                //Layerは位置修正しない
+                //ParentがGroupなら位置修正する
                 if (parentThumb.MyData.DataType == DataType.Group)
                 {
                     parentThumb.MyData.X -= x; parentThumb.MyData.Y -= y;
                 }
+                //Itemの位置修正
                 foreach (var item in parentThumb.Items)
                 {
                     item.MyData.X -= x; item.MyData.Y -= y;
@@ -785,7 +894,7 @@ namespace _20220508
         }
         private double _x;
         private double _y;
-        private double _z;
+        private int _z;
         private string _text = "";
 
 
@@ -800,7 +909,7 @@ namespace _20220508
         [DataMember]
         public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
         [DataMember]
-        public double Z { get => _z; set { if (_z == value) { return; } _z = value; OnPropertyChanged(); } }
+        public int Z { get => _z; set { if (_z == value) { return; } _z = value; OnPropertyChanged(); } }
 
         [DataMember]
         public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
@@ -818,6 +927,10 @@ namespace _20220508
                 DataTypeMain = DataTypeMain.Group;
             }
             else DataTypeMain = DataTypeMain.Item;
+        }
+        public override string ToString()
+        {
+            return $"{X},{Y},{Z},{DataType},{Text}";
         }
     }
     #endregion Data3

@@ -39,15 +39,15 @@ namespace _20220508
             MyStackPanel.DataContext = MyLayer;
 
 
-            MyLayer.AddItem(MakeTT3TextBlock("Item1", 0, 0));
-            MyLayer.AddItem(MakeTT3TextBlock("Item2", 100, 100));
+            //MyLayer.AddItem(MakeTT3TextBlock("Item1", 0, 0));
+            //MyLayer.AddItem(MakeTT3TextBlock("Item2", 100, 100));
 
-            MyGroup1 = new(new Data3(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
-            //MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
-            MyLayer.AddItem(MyGroup1);
-            MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item1", 0, 0));
-            MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item2", 200, 150));
-            MyGroupBoxGroup.DataContext = MyGroup1.MyData;
+            //MyGroup1 = new(new Data3(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
+            ////MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
+            //MyLayer.AddItem(MyGroup1);
+            //MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item1", 0, 0));
+            //MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item2", 200, 150));
+            //MyGroupBoxGroup.DataContext = MyGroup1.MyData;
 
 
 
@@ -80,9 +80,10 @@ namespace _20220508
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
-            var neko = MyGroup1;
+            var neko = Panel.GetZIndex(ActiveThumb);
             var gw = MyGroup1.Width;
             var left = Canvas.GetLeft(MyGroup1);
+            var layerdata = MyLayer.MyData;
         }
 
         private void ButtonAdd2_Click(object sender, RoutedEventArgs e)
@@ -100,6 +101,25 @@ namespace _20220508
             thumbs.Add(MyThumbs[1]);
             MyLayer.MakeGroup(thumbs);
 
+        }
+
+        private void ButtonRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if(ActiveThumb != null)
+            {
+                //ActiveThumb.RemoveItem();
+                ActiveThumb.MyParentGroup?.RemoveItem(ActiveThumb);
+            }
+        }
+
+        private void ButtonAddG1_Click(object sender, RoutedEventArgs e)
+        {
+            MyGroup1 = new(new Data3(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
+            //MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
+            MyLayer.AddItem(MyGroup1);
+            MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item1", 0, 0));
+            MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item2", 200, 150));
+            MyGroupBoxGroup.DataContext = MyGroup1.MyData;
         }
     }
 
