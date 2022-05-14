@@ -710,8 +710,7 @@ namespace _20220508
         public void RemoveItem(TThumb3 thumb)
         {
             int itemsCount = this.Items.Count;
-            if (itemsCount == 0) { return; }
-            if(thumb.MyData.DataTypeMain!= DataTypeMain.Group) { return; }
+            if (itemsCount == 0) { return; }            
 
             //ZOrder、削除するThumbより上にあるThumbのZを-1する
             int z = thumb.MyData.Z;
