@@ -423,7 +423,7 @@ namespace _20220508
             {
                 var w = this.ActualWidth; var h = this.ActualHeight;
                 //AjustLocate2(this);
-                AjustLocate3(this.MyParentGroup);
+                MyParentGroup?.AjustLocate3();
                 //AjustSize(this.MyParentGroup);
             };
 
@@ -550,10 +550,10 @@ namespace _20220508
                 item.MyParentGroup?.RemoveItem(item);
                 //item.RemoveItem();
             }
-            //新規作成
+            //GroupThumb新規作成
             Data3 data = new(DataType.Group);
             //var rect = GetThumbsRectValues(thumbs);
-            var rect = GetThumbRectValues(thumbs[0]);
+            var rect = GetThumbsRectValues(thumbs);
             data.X = rect.x; data.Y = rect.y;
             foreach (var item in thumbs)
             {
@@ -585,7 +585,8 @@ namespace _20220508
         }
         private void TThumb3_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            AjustLocate3(this.MyParentGroup);
+            //AjustLocate3(this.MyParentGroup);
+            this.MyParentGroup?.AjustLocate3();
         }
 
         private void TThumb3_DragDelta(object sender, DragDeltaEventArgs e)
@@ -676,10 +677,9 @@ namespace _20220508
         {
             if (this.MyData.DataTypeMain == DataTypeMain.Group)
             {
-                //itemThumb.MyData.Z = this.Children.Count;
-                //this.Children.Add(itemThumb);
-                //this.MyData.ChildrenData.Add(itemThumb.MyData);
-                this.Children.Insert(z, itemThumb);
+
+                this.Children.Insert(z, itemThumb); //指定場所に挿入
+
                 this.MyData.ChildrenData.Insert(z, itemThumb.MyData);
                 for (int i = z + 1; i < Children.Count; i++)
                 {
@@ -707,45 +707,12 @@ namespace _20220508
         }
 
         //Item削除
-        //public void RemoveItem()
-        //{
-        //    TThumb3 parent = this.MyParentGroup ?? throw new ArgumentNullException("");
-        //    //ZOrder、削除するThumbより上にあるThumbのZを-1する
-        //    int z = this.MyData.Z;
-        //    var ol = parent.MyData.ChildrenData.OrderBy(x => x.Z).ToList();
-        //    for (int i = z + 1; i < parent.MyData.ChildrenData.Count; i++)
-        //    {
-        //        parent.MyData.ChildrenData[i].Z--;
-        //    }
-        //    //削除
-        //    if (parent.MyData.DataTypeMain == DataTypeMain.Group)
-        //    {
-        //        parent.Children.Remove(this);
-        //        parent.MyData.ChildrenData.Remove(this.MyData);
-        //        //this.MyParentGroup = null;
-        //    }
-        //    //Itemsが1個ならグループ解除
-        //    if (parent.MyData.DataType != DataType.Layer && parent.Items.Count == 1)
-        //    {
-        //        //ParentからItem削除
-        //        TThumb3 last = parent.Children[0];
-        //        parent.Children.Remove(last);
-        //        parent.MyData.ChildrenData.Remove(last.MyData);
-        //        //ParentのParentからParentを削除
-        //        if (parent.MyParentGroup != null)
-        //        {
-        //            TThumb3 PP = parent.MyParentGroup;
-        //            parent.RemoveItem();
-        //            //ParentのParentに自身を追加、このとき元のParentのZに挿入する
-        //            PP.AddItemInsert(last, parent.MyData.Z);
-        //        }
-        //    }
-        //    AjustLocate2(this);
-        //}
         public void RemoveItem(TThumb3 thumb)
         {
             int itemsCount = this.Items.Count;
             if (itemsCount == 0) { return; }
+            if(thumb.MyData.DataTypeMain!= DataTypeMain.Group) { return; }
+
             //ZOrder、削除するThumbより上にあるThumbのZを-1する
             int z = thumb.MyData.Z;
             var ol = this.MyData.ChildrenData.OrderBy(x => x.Z).ToList();
@@ -754,37 +721,33 @@ namespace _20220508
                 this.MyData.ChildrenData[i].Z--;
             }
             //削除
-            if (this.MyData.DataTypeMain == DataTypeMain.Group)
+            //残り2個だった場合はグループ解除するので
+            if (Items.Count == 2 && MyData.DataType == DataType.Group)
+            {
+                //処理順番
+                //グループからアイテムを削除
+                //アイテムをParentに追加する
+                //Parentからグループ削除
+
+                //グループからアイテムを削除
+                Children.Remove(thumb);
+                TThumb3 lastItem = Children[0];
+                Children.Remove(lastItem);
+                lastItem.MyData.X += MyData.X;
+                lastItem.MyData.Y += MyData.Y;
+                //アイテムをParentに追加する
+                MyParentGroup?.AddItemInsert(lastItem, z);
+                //Parentからグループ削除
+                MyParentGroup?.RemoveItem(this);
+            }
+
+            else if (this.MyData.DataTypeMain == DataTypeMain.Group)
             {
                 this.Children.Remove(thumb);
                 this.MyData.ChildrenData.Remove(thumb.MyData);
             }
-            //残りItems数が1個and自身がLayerじゃない、ならグループ解除
-            //自身をParentから削除して、ParentにThumbを追加
-            if (this.MyData.DataType != DataType.Layer && this.Items.Count == 1)
-            {
-                //Parentから自身をを削除
-                if (MyParentGroup is TThumb3 parent)
-                {
-                    parent.RemoveItem(this);
-                    parent.AddItemInsert(this.Children[0], this.MyData.Z);
-                }
 
-
-                ////Item削除
-                //TThumb3 lastThumb = this.Children[0];
-                //this.Children.Remove(lastThumb);
-                //this.MyData.ChildrenData.Remove(lastThumb.MyData);
-                ////Parentから自身をを削除
-                //if (this.MyParentGroup != null)
-                //{
-                //    TThumb3 PP = parent.MyParentGroup;
-                //    parent.RemoveItem();
-                //    //ParentのParentに自身を追加、このとき元のParentのZに挿入する
-                //    PP.AddItemInsert(lastThumb, parent.MyData.Z);
-                //}
-            }
-            AjustLocate3(this);
+            AjustLocate3();
         }
 
         #endregion アイテム追加と削除
@@ -841,7 +804,7 @@ namespace _20220508
         //}
         protected void AjustLocate3()
         {
-            var uma = GetThumbRectValues();
+            //var uma = GetThumbRectValues();
             //新しいRect取得、Parentがnullの場合は0が返ってくる
             (double x, double y, double w, double h) = GetThumbRectValues();
 
@@ -897,22 +860,22 @@ namespace _20220508
         //    return (x, y, width, height);
         //}
 
-        //private static (double x, double y, double w, double h) GetThumbsRectValues(List<TThumb3> thumbs)
-        //{
-        //    if (thumbs.Count == 0) { return (0, 0, 0, 0); }
+        private static (double x, double y, double w, double h) GetThumbsRectValues(List<TThumb3> thumbs)
+        {
+            if (thumbs.Count == 0) { return (0, 0, 0, 0); }
 
-        //    double x = double.MaxValue; double y = double.MaxValue;
-        //    double width = double.MinValue; double height = double.MinValue;
-        //    foreach (var item in thumbs)
-        //    {
-        //        x = Math.Min(x, item.MyData.X);
-        //        y = Math.Min(y, item.MyData.Y);
-        //        width = Math.Max(width, item.MyData.X + item.Width);
-        //        height = Math.Max(height, item.MyData.Y + item.Height);
-        //    }
-        //    width -= x; height -= y;
-        //    return (x, y, width, height);
-        //}
+            double x = double.MaxValue; double y = double.MaxValue;
+            double width = double.MinValue; double height = double.MinValue;
+            foreach (var item in thumbs)
+            {
+                x = Math.Min(x, item.MyData.X);
+                y = Math.Min(y, item.MyData.Y);
+                width = Math.Max(width, item.MyData.X + item.Width);
+                height = Math.Max(height, item.MyData.Y + item.Height);
+            }
+            width -= x; height -= y;
+            return (x, y, width, height);
+        }
 
         private (double x, double y, double w, double h) GetThumbRectValues()
         {
