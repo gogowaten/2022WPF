@@ -85,6 +85,8 @@ namespace _20220508
             var gw = MyGroup1?.Width;
             var left = Canvas.GetLeft(MyGroup1);
             var layerdata = MyLayer.MyData;
+            var inu = ActiveThumb?.MyParentGroup?.MyData;
+            var uma = ActiveThumb?.MyParentGroup?.Items;
         }
 
         private void ButtonAdd2_Click(object sender, RoutedEventArgs e)
@@ -127,7 +129,11 @@ namespace _20220508
         {            
             if (ActiveThumb?.MyParentGroup is TThumb3 group)
             {
-                group.Groupkaijo();
+                if(group.MyParentGroup is TThumb3 parent)
+                {
+                    parent.Groupkaijo(group);
+                }
+                
             }
         }
     }

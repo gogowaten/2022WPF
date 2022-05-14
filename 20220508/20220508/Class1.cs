@@ -481,7 +481,7 @@ namespace _20220508
             if (dataType == DataTypeMain.Group)
             {
                 rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
-                rect.SetValue(Rectangle.StrokeThicknessProperty, 4.0);
+                rect.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
             }
             Binding b = new();
             b.Source = this;
@@ -562,32 +562,59 @@ namespace _20220508
             TThumb3 group = new TThumb3(data);
             parentThumb.AddItem(group);
         }
-        public void Groupkaijo()
-        {
-            if (MyData.DataType != DataType.Group) { return; }
-            if(MyParentGroup is not TThumb3 parentG) { return; }
-            //処理順番
-            //グループからアイテムを削除
-            //アイテムをParentに追加する
-            //Parentからグループ削除
-            int z = MyData.Z;
-            for (int i = 0; i < Items.Count; i++)
-            {
-                var item = Items[i];
-                item.MyData.X += MyData.X;
-                item.MyData.Y += MyData.Y;
-                DragEventRemove(item);
-                parentG.AddItemInsert(Children[i], z + i);
-            }
-            Children.Clear();
-            MyData.ChildrenData.Clear();
-            parentG.RemoveItem(this);
+        ////解除
+        //public void Groupkaijo()
+        //{
+        //    if (MyData.DataType != DataType.Group) { return; }
+        //    if (MyParentGroup is not TThumb3 parentG) { return; }
+        //    //処理順番
+        //    //グループからアイテムを削除
+        //    //アイテムをParentに追加する
+        //    //Parentからグループ削除
+        //    for (int i = 0; i < Items.Count; i++)
+        //    {
+        //        TThumb3 item = Items[i];
+        //        item.MyData.X += MyData.X;
+        //        item.MyData.Y += MyData.Y;
+        //        item.MyData.Z += MyData.Z;
+        //        DragEventRemove(item);
+        //        var uma = parentG.Children;
+        //        parentG.AddItemInsert(item, item.MyData.Z + MyData.Z);
+        //        uma = parentG.Children;
+        //    }
+        //    Children.Clear();
+        //    MyData.ChildrenData.Clear();
+        //    parentG.RemoveItem(this);
 
-            var neko = this.Items;
-            var inu = this.MyData;
-            var pItems = parentG.Children;
-            var pData = parentG.MyData;
+        //    var neko = this.Items;
+        //    var inu = this.MyData;
+        //    var pItems = parentG.Children;
+        //    var pData = parentG.MyData;
+        //}
+        //解除
+        public void Groupkaijo(TThumb3 group)
+        {
+            if (group.MyData.DataType != DataType.Group) { return; }
+
+            //処理順番
+
+            int groupZ = group.MyData.Z;
+            for (int i = 0; i < group.Items.Count; i++)
+            {
+                TThumb3 item = group.Items[i];
+                item.MyData.X += group.MyData.X;
+                item.MyData.Y += group.MyData.Y;
+                item.MyData.Z += groupZ;
+                group.DragEventRemove(item);
+                AddItemInsert(item, item.MyData.Z);
+
+            }
+            group.Children.Clear();
+            group.MyData.ChildrenData.Clear();
+            RemoveItem(group);
+
         }
+
         #endregion グループ化、グループ解除
 
         #region ドラッグ移動
@@ -636,7 +663,7 @@ namespace _20220508
                 case DataType.Group:
                     break;
                 case DataType.TextBlock:
-                    MyItemElement = new TextBlock() { FontSize = 20, Background = Brushes.Orange, Opacity = 0.5 };
+                    MyItemElement = new TextBlock() { FontSize = 20, Background = Brushes.Orange, Opacity = 1.0 };
                     MyItemElement.SetBinding(TextBlock.TextProperty, new Binding(nameof(this.MyData.Text)));
                     break;
                 case DataType.Path:
@@ -702,7 +729,7 @@ namespace _20220508
                 this.MyData.ChildrenData.Insert(z, itemThumb.MyData);
                 for (int i = z + 1; i < Children.Count; i++)
                 {
-                    this.Children[i].MyData.Z++;
+                    //this.Children[i].MyData.Z++;
                     this.MyData.ChildrenData[i].Z++;
                 }
 
@@ -729,7 +756,7 @@ namespace _20220508
         public void RemoveItem(TThumb3 thumb)
         {
             int itemsCount = this.Items.Count;
-            if (itemsCount == 0) { return; }            
+            if (itemsCount == 0) { return; }
 
             //ZOrder、削除するThumbより上にあるThumbのZを-1する
             int z = thumb.MyData.Z;
@@ -751,6 +778,7 @@ namespace _20220508
                 Children.Remove(thumb);
                 TThumb3 lastItem = Children[0];
                 Children.Remove(lastItem);
+                DragEventRemove(lastItem);
                 lastItem.MyData.X += MyData.X;
                 lastItem.MyData.Y += MyData.Y;
                 //アイテムをParentに追加する
