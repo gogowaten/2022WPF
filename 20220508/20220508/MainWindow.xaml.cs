@@ -60,7 +60,8 @@ namespace _20220508
             thumb.PreviewMouseDown += (sender, e) =>
             {
                 this.ActiveThumb = thumb;
-                MyGroupBox.DataContext = thumb.MyData;
+                MyGroupBox.DataContext = thumb;
+                //MyGroupBox.DataContext = thumb.MyData;
             };
             return thumb;
         }
@@ -81,7 +82,7 @@ namespace _20220508
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
             var neko = Panel.GetZIndex(ActiveThumb);
-            var gw = MyGroup1.Width;
+            var gw = MyGroup1?.Width;
             var left = Canvas.GetLeft(MyGroup1);
             var layerdata = MyLayer.MyData;
         }
@@ -105,7 +106,7 @@ namespace _20220508
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            if(ActiveThumb != null)
+            if (ActiveThumb != null)
             {
                 //ActiveThumb.RemoveItem();
                 ActiveThumb.MyParentGroup?.RemoveItem(ActiveThumb);
@@ -120,6 +121,14 @@ namespace _20220508
             MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item1", 0, 0));
             MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item2", 200, 150));
             MyGroupBoxGroup.DataContext = MyGroup1.MyData;
+        }
+
+        private void ButtonKaijo_Click(object sender, RoutedEventArgs e)
+        {            
+            if (ActiveThumb?.MyParentGroup is TThumb3 group)
+            {
+                group.Groupkaijo();
+            }
         }
     }
 

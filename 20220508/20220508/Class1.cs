@@ -532,7 +532,7 @@ namespace _20220508
 
         #endregion テンプレート
 
-        #region グループ化
+        #region グループ化、グループ解除
         public void MakeGroup(List<TThumb3> thumbs)
         {
             //異なるParentのThumb同士はグループ化できない
@@ -561,15 +561,34 @@ namespace _20220508
             }
             TThumb3 group = new TThumb3(data);
             parentThumb.AddItem(group);
-
-            //TThumb3 group = new(new Data3(DataType.Group));
-            //foreach (var item in thumbs)
-            //{
-            //    group.AddItem(item);
-            //}
-            //parentThumb.AddItem(group);
         }
-        #endregion グループ化
+        public void Groupkaijo()
+        {
+            if (MyData.DataType != DataType.Group) { return; }
+            if(MyParentGroup is not TThumb3 parentG) { return; }
+            //処理順番
+            //グループからアイテムを削除
+            //アイテムをParentに追加する
+            //Parentからグループ削除
+            int z = MyData.Z;
+            for (int i = 0; i < Items.Count; i++)
+            {
+                var item = Items[i];
+                item.MyData.X += MyData.X;
+                item.MyData.Y += MyData.Y;
+                DragEventRemove(item);
+                parentG.AddItemInsert(Children[i], z + i);
+            }
+            Children.Clear();
+            MyData.ChildrenData.Clear();
+            parentG.RemoveItem(this);
+
+            var neko = this.Items;
+            var inu = this.MyData;
+            var pItems = parentG.Children;
+            var pData = parentG.MyData;
+        }
+        #endregion グループ化、グループ解除
 
         #region ドラッグ移動
 
@@ -755,55 +774,12 @@ namespace _20220508
         //アイテム移動後に実行
         //アイテム追加時に実行
         /// <summary>
-        /// 指定Thumbと同レベルThumbとParentの位置とサイズ修正、
+        /// 自身とchildrenの位置とサイズ修正、
         /// 画面内に収まるように、余白ができないようにする
         /// ドラッグ移動後などに実行
         /// </summary>
-        /// <param name="thumb">指定Thumb</param>
-        //protected void AjustLocate2(TThumb3 thumb)
-        //{
-        //    if (thumb == null) { return; }
-        //    //var neko = GetParentRectValues(thumb);
-        //    //var inu=GetThumbsRectValues(thumb.Children.ToList());
-        //    var uma = GetThumbRectValues(thumb);
-        //    if (thumb.MyParentGroup == null) { return; }
-        //    TThumb3 parentThumb = thumb.MyParentGroup;
-        //    //Parentの位置とサイズを取得、Parentがnullの場合は0が返ってくる
-        //    //(double x, double y, double w, double h) = GetParentRectValues(thumb);
-        //    (double x, double y, double w, double h) = GetThumbRectValues(thumb);
-
-        //    //位置とサイズともに変化無ければ終了
-        //    if (w == 0 && h == 0) { return; }
-        //    if (x == parentThumb.MyData.X &&
-        //        y == parentThumb.MyData.Y &&
-        //        w == parentThumb.Width &&
-        //        h == parentThumb.Height) { return; }
-
-        //    //位置が変化していた場合はParentとItemsの位置修正
-        //    if (x != 0 || y != 0)
-        //    {
-        //        //ParentがGroupなら位置修正する
-        //        if (parentThumb.MyData.DataType == DataType.Group)
-        //        {
-        //            parentThumb.MyData.X -= x; parentThumb.MyData.Y -= y;
-        //        }
-        //        //Itemの位置修正
-        //        foreach (var item in parentThumb.Items)
-        //        {
-        //            item.MyData.X -= x; item.MyData.Y -= y;
-        //        }
-        //    }
-        //    //Parentのサイズが異なっていた場合は修正
-        //    if (w != parentThumb.Width || h != parentThumb.Height)
-        //    {
-        //        parentThumb.Width = w; parentThumb.Height = h;
-        //    }
-        //    //Parentを辿り、再帰処理する
-        //    AjustLocate2(parentThumb);
-        //}
         protected void AjustLocate3()
         {
-            //var uma = GetThumbRectValues();
             //新しいRect取得、Parentがnullの場合は0が返ってくる
             (double x, double y, double w, double h) = GetThumbRectValues();
 
