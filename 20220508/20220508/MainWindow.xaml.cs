@@ -136,6 +136,12 @@ namespace _20220508
                 
             }
         }
+
+        private void ButtonCheck1_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyGroup2 == null) return;
+            MyLayer.NowEditingThumb = MyGroup2;
+        }
     }
 
 

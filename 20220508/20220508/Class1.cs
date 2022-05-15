@@ -432,7 +432,7 @@ namespace _20220508
                         DragEventAdd(item);
                     }
                 }
-                
+
                 _NowEditingThumb = value;
             }
         }
@@ -513,6 +513,12 @@ namespace _20220508
                 {
                     TThumb3 child = new(item);
                     Children.Add(child);
+                }
+                //Layerなら編集状態にする
+                if (data.DataType == DataType.Layer)
+                {
+                    NowEditingThumb = this;
+                    IsEditing = true;
                 }
             }
 
@@ -1040,4 +1046,91 @@ namespace _20220508
     }
     #endregion TThumb3
 
+
+    public abstract class TThumb4 : Thumb, INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        #region 共通
+        public TThumb4? MyParentGroup;
+        public TThumb4? MyLayer;
+        public Data4 MyData { get; set; }
+        #endregion
+
+        public TThumb4(Data4 data) { MyData = data; }
+    }
+    public class Item4 : TThumb4
+    {
+        public Item4(Data4 data) : base(data) { }
+    }
+    public abstract class Group4Base : TThumb4
+    {
+        public Group4Base(Data4 data) : base(data) { }
+    }
+    public class Group4 : Group4Base
+    {
+        public Group4(Data4 data) : base(data) { }
+    }
+    public class Layer4 : Group4Base
+    {
+        public Layer4(Data4 data) : base(data) { }
+    }
+
+    #region Data4
+
+    [DataContract]
+    [KnownType(typeof(RectangleGeometry)),
+     KnownType(typeof(MatrixTransform))]
+    public class Data4 : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        private double _x;
+        private double _y;
+        private int _z;
+        private string _text = "";
+
+
+        [DataMember]
+        public ObservableCollection<Data4> ChildrenData { get; set; } = new();
+        [DataMember]
+        public DataType DataType { get; set; }
+        [DataMember]
+        public DataTypeMain DataTypeMain { get; set; }
+        [DataMember]
+        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+        [DataMember]
+        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+        [DataMember]
+        public int Z { get => _z; set { if (_z == value) { return; } _z = value; OnPropertyChanged(); } }
+
+        [DataMember]
+        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
+        [DataMember]
+        public Brush? Brush { get; set; }
+        [DataMember]
+        public Geometry? Geometry { get; set; }
+
+        //public Data3() { }
+        public Data4(DataType type)
+        {
+            DataType = type;
+            if (type == DataType.Group || type == DataType.Layer)
+            {
+                DataTypeMain = DataTypeMain.Group;
+            }
+            else DataTypeMain = DataTypeMain.Item;
+        }
+        public override string ToString()
+        {
+            return $"{X},{Y},{Z},{DataType},{Text}";
+        }
+    }
+    #endregion Data4
 }
