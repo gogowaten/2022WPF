@@ -1058,17 +1058,171 @@ namespace _20220508
         public TThumb4? MyParentGroup;
         public TThumb4? MyLayer;
         public Data4 MyData { get; set; }
+        private bool isSelected;
+
+        public bool IsSelected
+        {
+            get => isSelected;
+            set { if (value == isSelected) { return; } isSelected = value; OnPropertyChanged(); }
+        }
         #endregion
 
-        public TThumb4(Data4 data) { MyData = data; }
+        public TThumb4(Data4 data)
+        {
+            MyData = data;
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
+            this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
+            this.SetBinding(Panel.ZIndexProperty, new Binding(nameof(MyData.X)));
+
+        }
+
+        //テンプレートの枠
+        protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
+        {
+            //枠表示            
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            waku.SetValue(Rectangle.StrokeProperty, Brushes.Cyan);
+            if (dataType == DataTypeMain.Group)
+            {
+                waku.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
+                waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
+            }
+            //枠サイズは自身のサイズに合わせる
+            Binding b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualWidthProperty);
+            waku.SetBinding(Rectangle.WidthProperty, b);
+            b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(ActualHeightProperty);
+            waku.SetValue(Rectangle.HeightProperty, b);
+            //枠表示は選択状態のときだけ
+            b = new(nameof(IsSelected));
+            b.Source = this;
+            b.Converter = new MyValueConverterVisible();
+            waku.SetValue(VisibilityProperty, b);
+            return waku;
+        }
+
     }
+
     public class Item4 : TThumb4
     {
-        public Item4(Data4 data) : base(data) { }
+        public Canvas MyTemplateCanvas;
+        public FrameworkElement MyItemElement;
+        public Item4(Data4 data) : base(data)
+        {
+            DataContext = MyData;
+            MyTemplateCanvas = InitializeTemplate();
+            //表示する要素をDataから作成
+            MyItemElement = MakeElement(data);
+            MyTemplateCanvas.Children.Add(MyItemElement);
+            //Canvasと自身のサイズを表示要素のサイズにバインドする
+            Binding b = new() { Source = MyItemElement, Path = new PropertyPath(ActualWidthProperty) };
+            MyTemplateCanvas.SetBinding(WidthProperty, b);
+            this.SetBinding(WidthProperty, b);
+            b = new() { Source = MyItemElement, Path = new PropertyPath(ActualHeightProperty) };
+            MyTemplateCanvas.SetBinding(HeightProperty, b);
+            this.SetBinding(HeightProperty, b);
+
+            Loaded += Item4_Loaded;
+        }
+        //表示された直後にサイズが決まるのでParentのサイズを修正する
+        private void Item4_Loaded(object sender, RoutedEventArgs e)
+        {
+            MyParentGroup?.aju
+        }
+
+        //単一要素表示用テンプレートに書き換える
+        private Canvas InitializeTemplate()
+        {
+            FrameworkElementFactory waku = MakeWaku(DataTypeMain.Item);
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyTemplateCanvas));
+            baseCanvas.AppendChild(waku);
+            waku.SetValue(Panel.ZIndexProperty, 1);//枠表示前面
+
+            ControlTemplate template = new();
+            template.VisualTree = baseCanvas;
+
+            this.Template = template;
+            this.ApplyTemplate();
+            //MyTemplateCanvas = (Canvas)template.FindName(nameof(MyTemplateCanvas), this) ?? throw new ArgumentNullException(nameof(MyTemplateCanvas));
+            return (Canvas)template.FindName(nameof(MyTemplateCanvas), this);
+        }
+
+        //表示する要素をDataから作成
+        private FrameworkElement MakeElement(Data4 data)
+        {
+            FrameworkElement? element = null;
+            switch (data.DataType)
+            {
+                case DataType.None:
+                    break;
+                case DataType.Layer:
+                    break;
+                case DataType.Group:
+                    break;
+                case DataType.TextBlock:
+                    element = new TextBlock() { FontSize = 20, Background = Brushes.Orange };
+                    element.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+                    break;
+                case DataType.Path:
+                    break;
+                case DataType.Image:
+                    break;
+                default:
+                    break;
+            }
+
+            return element ?? throw new ArgumentNullException($"{nameof(element)}", $"dataから要素が作れんかった");
+        }
     }
     public abstract class Group4Base : TThumb4
     {
-        public Group4Base(Data4 data) : base(data) { }
+        public ItemsControl MyItemsControl;
+        internal ObservableCollection<TThumb4> Children { get; set; } = new();
+        public ReadOnlyObservableCollection<TThumb4> Items { get; set; }
+        public bool IsEditing;
+        public Group4Base(Data4 data) : base(data)
+        {
+            Items = new(Children);
+            MyItemsControl = SetGroupThumbTemplate();
+            //Binding
+            this.MyItemsControl.DataContext = this;//子要素コレクションは自身をソース
+            this.DataContext = MyData;//自身はデータをソースにする                                          
+
+            //子要素の作成、追加
+            foreach (var item in data.ChildrenData)
+            {
+                Children.Add(new Item4(item));
+            }
+
+        }
+        //複数要素表示用テンプレートに書き換える
+        private ItemsControl SetGroupThumbTemplate()
+        {
+            FrameworkElementFactory waku = MakeWaku(DataTypeMain.Group);
+            //アイテムズコントロール
+            FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
+            itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
+
+            FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
+            itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
+
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas));
+            baseCanvas.AppendChild(waku);//枠追加
+            baseCanvas.AppendChild(itemsControl);
+
+            ControlTemplate template = new();
+            template.VisualTree = baseCanvas;
+
+            this.Template = template;
+            this.ApplyTemplate();
+
+            return (ItemsControl)template.FindName(nameof(MyItemsControl), this)
+                ?? throw new ArgumentNullException(nameof(MyItemsControl));
+        }
     }
     public class Group4 : Group4Base
     {
@@ -1076,7 +1230,38 @@ namespace _20220508
     }
     public class Layer4 : Group4Base
     {
-        public Layer4(Data4 data) : base(data) { }
+        private Group4Base? _NowEditingThumb;
+        public Group4Base? NowEditingThumb
+        {
+            get { return _NowEditingThumb; }
+            set
+            {
+                if (_NowEditingThumb != value) { return; }
+                //ドラッグ移動イベントの付け外し
+                if (_NowEditingThumb != null)
+                {
+                    foreach (var item in _NowEditingThumb.Children)
+                    {
+                        DragEventRemove(item);
+                    }
+                }
+                if (value != null)
+                {
+                    foreach (var item in value.Children)
+                    {
+                        DragEventAdd(item);
+                    }
+                }
+
+                _NowEditingThumb = value;
+            }
+        }
+        public Layer4(Data4 data) : base(data)
+        {
+            //Layerなので編集状態にする
+            NowEditingThumb = this;
+            IsEditing = true;
+        }
     }
 
     #region Data4
