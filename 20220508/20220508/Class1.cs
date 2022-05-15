@@ -388,7 +388,7 @@ namespace _20220508
 
 
     #region TThumb3
-    public class TThumb3 : Thumb
+    public class TThumb3 : Thumb, INotifyPropertyChanged
     {
         #region フィールド
 
@@ -408,7 +408,53 @@ namespace _20220508
         private ObservableCollection<TThumb3> Children { get; set; }
         public ReadOnlyObservableCollection<TThumb3> Items { get; set; }
         public bool IsEditing;
+        #region レイヤー専用
+        //編集状態のThumbの管理
+        private TThumb3? _NowEditingThumb;
+        public TThumb3? NowEditingThumb
+        {
+            get { return _NowEditingThumb; }
+            set
+            {
+                if (value == _NowEditingThumb) { return; }
+                //ドラッグ移動イベントの付け外し
+                if (_NowEditingThumb != null)
+                {
+                    foreach (var item in _NowEditingThumb.Children)
+                    {
+                        DragEventRemove(item);
+                    }
+                }
+                if (value != null)
+                {
+                    foreach (var item in value.Children)
+                    {
+                        DragEventAdd(item);
+                    }
+                }
+                
+                _NowEditingThumb = value;
+            }
+        }
+        #endregion レイヤー専用
+
         #endregion グループとレイヤー専用
+
+        #region 通知プロパティ
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        private bool isSelected;
+
+        public bool IsSelected
+        {
+            get => isSelected;
+            set { if (value == isSelected) { return; } isSelected = value; OnPropertyChanged(); }
+        }
+        #endregion 通知プロパティ
+
         //public ContentControl? MyContent { get;private set; }
         #endregion フィールド
 
@@ -422,12 +468,20 @@ namespace _20220508
             Loaded += (a, b) =>
             {
                 var w = this.ActualWidth; var h = this.ActualHeight;
-                //AjustLocate2(this);
                 MyParentGroup?.AjustLocate3();
-                //AjustSize(this.MyParentGroup);
             };
+            PreviewMouseDown += TThumb3_PreviewMouseDown;
 
         }
+
+        private void TThumb3_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            var neko = e.Source;
+            var inu = e.OriginalSource;
+            IsSelected = !IsSelected;
+            //e.Handled = true;
+        }
+
         public TThumb3(Data3 data) : this()
         {
             MyData = data ?? throw new ArgumentNullException(nameof(data));
@@ -476,28 +530,36 @@ namespace _20220508
         protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
         {
             //枠表示            
-            FrameworkElementFactory rect = new(typeof(Rectangle));
-            rect.SetValue(Rectangle.StrokeProperty, Brushes.OrangeRed);
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            waku.SetValue(Rectangle.StrokeProperty, Brushes.Cyan);
             if (dataType == DataTypeMain.Group)
             {
-                rect.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
-                rect.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
+                waku.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
+                waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
             }
+            //枠サイズは自身のサイズに合わせる
             Binding b = new();
             b.Source = this;
             b.Path = new PropertyPath(ActualWidthProperty);
-            rect.SetBinding(Rectangle.WidthProperty, b);
+            waku.SetBinding(Rectangle.WidthProperty, b);
             b = new();
             b.Source = this;
             b.Path = new PropertyPath(ActualHeightProperty);
-            rect.SetValue(Rectangle.HeightProperty, b);
-            return rect;
+            waku.SetValue(Rectangle.HeightProperty, b);
+            //枠表示は選択状態のときだけ
+            b = new(nameof(IsSelected));
+            b.Source = this;
+            b.Converter = new MyValueConverterVisible();
+            waku.SetValue(VisibilityProperty, b);
+            return waku;
         }
         //単一要素表示用テンプレートに書き換える
         private void SetItemThumbTemplate(FrameworkElementFactory waku)
         {
             FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyItemCanvas));
             baseCanvas.AppendChild(waku);
+            waku.SetValue(Panel.ZIndexProperty, 1);//枠表示前面
+
             ControlTemplate template = new();
             template.VisualTree = baseCanvas;
 
@@ -592,7 +654,7 @@ namespace _20220508
         //    var pData = parentG.MyData;
         //}
         //解除
-        public void Groupkaijo(TThumb3 group)
+        public void Groupkaijo(TThumb3? group)
         {
             if (group.MyData.DataType != DataType.Group) { return; }
 
@@ -609,10 +671,10 @@ namespace _20220508
                 AddItemInsert(item, item.MyData.Z);
 
             }
-            group.Children.Clear();
-            group.MyData.ChildrenData.Clear();
+            //group.Children.Clear();
+            //group.MyData.ChildrenData.Clear();
             RemoveItem(group);
-
+            group = null;//要る？
         }
 
         #endregion グループ化、グループ解除
@@ -624,6 +686,7 @@ namespace _20220508
             thumb.DragDelta += thumb.TThumb3_DragDelta;
             thumb.DragCompleted += thumb.TThumb3_DragCompleted;
         }
+
         private void DragEventRemove(TThumb3 thumb)
         {
             thumb.DragCompleted -= thumb.TThumb3_DragCompleted;
@@ -959,6 +1022,22 @@ namespace _20220508
         }
     }
     #endregion Data3
+
+
+    public class MyValueConverterVisible : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool b = (bool)value;
+            if (b) { return Visibility.Visible; }
+            else { return Visibility.Collapsed; }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
     #endregion TThumb3
 
 }
