@@ -35,6 +35,12 @@
           <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
         </StackPanel>
       </GroupBox>
+      <GroupBox x:Name="MyGroupBoxLayer" Header="Layer">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=Width, StringFormat=Width 0}"/>
+          <TextBlock Text="{Binding Path=Height, StringFormat=Height 0}"/>
+        </StackPanel>
+      </GroupBox>
       <TextBlock Text="{Binding Path=Width}"/>
     </StackPanel>
   </Grid>

@@ -1055,8 +1055,8 @@ namespace _20220508
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         #region 共通
-        public TThumb4? MyParentGroup;
-        public TThumb4? MyLayer;
+        public Group4Base? MyParentGroup;
+        public Layer4? MyLayer;
         public Data4 MyData { get; set; }
         private bool isSelected;
 
@@ -1076,6 +1076,15 @@ namespace _20220508
             this.SetBinding(Panel.ZIndexProperty, new Binding(nameof(MyData.X)));
 
         }
+        #region その他
+        public override string ToString()
+        {
+            string ss = MyData.Text;
+            if (string.IsNullOrEmpty(ss)) { ss = this.Name; }
+
+            return $"{MyData?.DataType}, {ss}";
+        }
+        #endregion その他
 
         //テンプレートの枠
         protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
@@ -1102,15 +1111,53 @@ namespace _20220508
             b.Source = this;
             b.Converter = new MyValueConverterVisible();
             waku.SetValue(VisibilityProperty, b);
+
             return waku;
         }
 
+        #region ドラッグ移動
+
+        protected void DragEventAdd(TThumb4 thumb)
+        {
+            thumb.DragDelta += thumb.TThumb_DragDelta;
+            thumb.DragCompleted += thumb.TThumb_DragCompleted;
+        }
+
+        protected void DragEventRemove(TThumb4 thumb)
+        {
+            thumb.DragCompleted -= thumb.TThumb_DragCompleted;
+            thumb.DragDelta -= thumb.TThumb_DragDelta;
+        }
+        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            //AjustLocate3(this.MyParentGroup);
+            this.MyParentGroup?.AjustLocate3();
+        }
+
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+        }
+
+        #endregion ドラッグ移動
     }
 
     public class Item4 : TThumb4
     {
         public Canvas MyTemplateCanvas;
         public FrameworkElement MyItemElement;
+        private bool _IsLastClicked;//最後にクリックされたThumb
+        public bool IsLastClicked
+        {
+            get => _IsLastClicked;
+            set
+            {
+                if (_IsLastClicked == value) { return; }
+                _IsLastClicked = value;
+                OnPropertyChanged();
+            }
+        }
         public Item4(Data4 data) : base(data)
         {
             DataContext = MyData;
@@ -1126,21 +1173,56 @@ namespace _20220508
             MyTemplateCanvas.SetBinding(HeightProperty, b);
             this.SetBinding(HeightProperty, b);
 
+
+
             Loaded += Item4_Loaded;
+            PreviewMouseDown += Item4_PreviewMouseDown;
         }
+
+        #region イベント  
+
         //表示された直後にサイズが決まるのでParentのサイズを修正する
         private void Item4_Loaded(object sender, RoutedEventArgs e)
         {
-            MyParentGroup?.aju
+            var neko = e.Source;
+            var inu = e.OriginalSource;
+            var uma = sender;
+            MyParentGroup?.AjustLocate3();
+        }
+        //クリックされたとき
+        private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (MyLayer is Layer4 layer)
+            {
+                layer.LastClickedItem = this;
+            }
         }
 
+        #endregion イベント  
         //単一要素表示用テンプレートに書き換える
         private Canvas InitializeTemplate()
         {
+            //共通枠
             FrameworkElementFactory waku = MakeWaku(DataTypeMain.Item);
             FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyTemplateCanvas));
             baseCanvas.AppendChild(waku);
             waku.SetValue(Panel.ZIndexProperty, 1);//枠表示前面
+            //Item専用枠、最後にクリックされた識別用
+            FrameworkElementFactory lastClickWaku = new(typeof(Rectangle));
+            lastClickWaku.SetValue(Panel.ZIndexProperty, 2);
+            lastClickWaku.SetValue(Rectangle.StrokeProperty, Brushes.OrangeRed);
+            lastClickWaku.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 5.0, 3.0 });
+            baseCanvas.AppendChild(lastClickWaku);
+            Binding b = new() { Source = this, Path = new PropertyPath(WidthProperty) };
+            lastClickWaku.SetBinding(WidthProperty, b);
+            b = new() { Source = this, Path = new PropertyPath(HeightProperty) };
+            lastClickWaku.SetBinding(HeightProperty, b);
+            //枠表示バインド
+            b = new();
+            b.Source = this;
+            b.Path = new PropertyPath(nameof(IsLastClicked));
+            b.Converter = new MyValueConverterVisible();
+            lastClickWaku.SetBinding(VisibilityProperty, b);
 
             ControlTemplate template = new();
             template.VisualTree = baseCanvas;
@@ -1164,7 +1246,7 @@ namespace _20220508
                 case DataType.Group:
                     break;
                 case DataType.TextBlock:
-                    element = new TextBlock() { FontSize = 20, Background = Brushes.Orange };
+                    element = new TextBlock() { FontSize = 20, Background = Brushes.Transparent };
                     element.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
                     break;
                 case DataType.Path:
@@ -1177,7 +1259,10 @@ namespace _20220508
 
             return element ?? throw new ArgumentNullException($"{nameof(element)}", $"dataから要素が作れんかった");
         }
+
+
     }
+
     public abstract class Group4Base : TThumb4
     {
         public ItemsControl MyItemsControl;
@@ -1223,6 +1308,79 @@ namespace _20220508
             return (ItemsControl)template.FindName(nameof(MyItemsControl), this)
                 ?? throw new ArgumentNullException(nameof(MyItemsControl));
         }
+
+        /// <summary>
+        /// 自身のRect(位置とサイズ)をchildrenから取得
+        /// </summary>
+        /// <returns></returns>
+        public (double x, double y, double w, double h) GetUnionRectForChildren()
+        {
+            if (Children.Count == 0) { return (0, 0, 0, 0); }
+
+            double x = double.MaxValue; double y = double.MaxValue;
+            double width = double.MinValue; double height = double.MinValue;
+            foreach (var item in Children)
+            {
+                x = Math.Min(x, item.MyData.X);
+                y = Math.Min(y, item.MyData.Y);
+                width = Math.Max(width, item.MyData.X + item.Width);
+                height = Math.Max(height, item.MyData.Y + item.Height);
+            }
+            width -= x; height -= y;
+            return (x, y, width, height);
+        }
+        public void AjustLocate3()
+        {
+            //新しいRect取得、Parentがnullの場合は0が返ってくる
+            (double x, double y, double w, double h) = GetUnionRectForChildren();
+
+            //位置とサイズともに変化無ければ終了
+            if (w == 0 && h == 0) { return; }
+            if (x == MyData.X &&
+                y == MyData.Y &&
+                w == Width &&
+                h == Height) { return; }
+
+            //位置が変化していた場合は自身とItemsの位置修正
+            if (x != 0 || y != 0)
+            {
+                //自身がGroupタイプなら位置修正する
+                if (MyData.DataType == DataType.Group)
+                {
+                    MyData.X -= x; MyData.Y -= y;
+                }
+                //Itemの位置修正
+                foreach (var item in Items)
+                {
+                    item.MyData.X -= x; item.MyData.Y -= y;
+                }
+            }
+            //自身のサイズが異なっていた場合は修正
+            if (w != Width || h != Height)
+            {
+                Width = w; Height = h;
+            }
+            //Parentを辿り、再帰処理する
+            if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
+        }
+        public void AddThumb(TThumb4 thumb)
+        {
+            //コレクションに追加
+            thumb.MyData.Z = Children.Count;
+            Children.Add(thumb);
+            MyData.ChildrenData.Add(thumb.MyData);
+            //ParentとLayerの指定
+            thumb.MyParentGroup = this;
+            if (MyData.DataType == DataType.Layer) { thumb.MyLayer = (Layer4)this; }
+            else { thumb.MyLayer = MyLayer; }
+            //ドラッグ移動イベント付加
+            //Parentが編集状態なら追加アイテム自身をドラッグ移動可能にする
+            if (thumb.MyParentGroup.IsEditing)
+            {
+                DragEventAdd(thumb);
+            }
+
+        }
     }
     public class Group4 : Group4Base
     {
@@ -1242,20 +1400,41 @@ namespace _20220508
                 {
                     foreach (var item in _NowEditingThumb.Children)
                     {
-                        DragEventRemove(item);
+                        //DragEventRemove(item);
                     }
                 }
                 if (value != null)
                 {
                     foreach (var item in value.Children)
                     {
-                        DragEventAdd(item);
+                        //DragEventAdd(item);
                     }
                 }
 
                 _NowEditingThumb = value;
             }
         }
+        //最後にクリックされたThumb
+        private Item4? _lastClickedItem;
+        public Item4? LastClickedItem
+        {
+            get => _lastClickedItem;
+            set
+            {
+                if (_lastClickedItem == value) { return; }
+
+                if (_lastClickedItem != null)
+                {
+                    _lastClickedItem.IsLastClicked = false;
+                }
+                if (value != null)
+                {
+                    value.IsLastClicked = true;
+                }
+                _lastClickedItem = value;
+            }
+        }
+
         public Layer4(Data4 data) : base(data)
         {
             //Layerなので編集状態にする
