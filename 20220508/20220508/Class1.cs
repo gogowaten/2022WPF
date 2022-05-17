@@ -1218,10 +1218,12 @@ namespace _20220508
             b = new() { Source = this, Path = new PropertyPath(HeightProperty) };
             lastClickWaku.SetBinding(HeightProperty, b);
             //枠表示バインド
-            b = new();
-            b.Source = this;
-            b.Path = new PropertyPath(nameof(IsLastClicked));
-            b.Converter = new MyValueConverterVisible();
+            b = new()
+            {
+                Source = this,
+                Path = new PropertyPath(nameof(IsLastClicked)),
+                Converter = new MyValueConverterVisible()
+            };
             lastClickWaku.SetBinding(VisibilityProperty, b);
 
             ControlTemplate template = new();
