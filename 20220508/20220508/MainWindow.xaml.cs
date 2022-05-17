@@ -57,12 +57,14 @@ namespace _20220508
             MyLayer.AddThumb(MakeTT4TextBlock("Item1", 0, 0));
             MyLayer.AddThumb(MakeTT4TextBlock("Item2", 100, 100));
 
-            //MyGroup1 = new(new Data3(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
-            ////MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
-            //MyLayer.AddItem(MyGroup1);
-            //MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item1", 0, 0));
-            //MyGroup1.AddItem(MakeTT3TextBlock("Group1_Item2", 200, 150));
-            //MyGroupBoxGroup.DataContext = MyGroup1.MyData;
+            MyGroup1 = new(new Data4(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
+            //MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
+            MyLayer.AddThumb(MyGroup1);
+            MyGroup1.AddThumb(MakeTT4TextBlock("Item1_1", 0, 0));
+            MyGroup1.AddThumb(MakeTT4TextBlock("Item1_2", 150, 150));
+            MyGroupBoxGroup.DataContext = MyGroup1.MyData;
+
+            //T4AddGroupGroup();
 
         }
         private Item4 MakeTT4TextBlock(string text, double x, double y)
@@ -71,13 +73,25 @@ namespace _20220508
             Item4 thumb = new(data);
             thumb.PreviewMouseDown += (sender, e) =>
             {
-                //this.ActiveThumb = thumb;
+                this.ActiveThumb = thumb;
                 MyGroupBox.DataContext = thumb;
                 //MyGroupBox.DataContext = thumb.MyData;
             };
             return thumb;
         }
-
+        private void T4AddGroupGroup()
+        {
+            MyGroup2 = new(new Data4(DataType.Group) { X = 100, Y = 10 }) { Name = "MyGroup2" };
+            Group4 group21 = new(new Data4(DataType.Group) { X = 0, Y = 0 }) { Name = "MyGroup2_1" };
+            Group4 group22 = new(new Data4(DataType.Group) { X = 100, Y = 100 }) { Name = "MyGroup2_2" };
+            group21.AddThumb(MakeTT4TextBlock("Item2-1-1", 0, 0));
+            group21.AddThumb(MakeTT4TextBlock("Item2-1-2", 30, 30));
+            group22.AddThumb(MakeTT4TextBlock("Item2-2-1", 0, 0));
+            group22.AddThumb(MakeTT4TextBlock("Item2-2-2", 30, 30));
+            MyGroup2.AddThumb(group21);
+            MyGroup2.AddThumb(group22);
+            MyLayer.AddThumb(MyGroup2);
+        }
         #region TThumb3用
         private TThumb3 MakeTT3TextBlock(string text, double x, double y)
         {
@@ -169,11 +183,12 @@ namespace _20220508
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
-            var neko = Panel.GetZIndex(ActiveThumb);
+            var move = ActiveThumb?.GetMovableGroup();
             var gw = MyGroup1?.Width;
             var left = Canvas.GetLeft(MyGroup1);
             var layerdata = MyLayer.MyData;
             var inu = ActiveThumb?.MyParentGroup?.MyData;
+            var atpg = ActiveThumb?.MyParentGroup;
             //var uma = ActiveThumb?.MyParentGroup?.Items;
         }
 

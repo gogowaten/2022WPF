@@ -1106,9 +1106,8 @@ namespace _20220508
             b.Source = this;
             b.Path = new PropertyPath(ActualHeightProperty);
             waku.SetValue(Rectangle.HeightProperty, b);
-            //枠表示は選択状態のときだけ
-            b = new(nameof(IsSelected));
-            b.Source = this;
+            //枠表示バインド、選択状態のときだけ表示する
+            b = new(nameof(IsSelected)) { Source = this };
             b.Converter = new MyValueConverterVisible();
             waku.SetValue(VisibilityProperty, b);
 
@@ -1141,6 +1140,25 @@ namespace _20220508
         }
 
         #endregion ドラッグ移動
+
+        #region メソッド
+        //自身が属する移動可能状態のグループThumbを取得
+        public Group4? GetMovableGroup()
+        {
+            if (MyParentGroup is Group4 gg)
+            {
+                if (gg.MyParentGroup?.IsEditing == true)
+                {
+                    return gg;
+                }
+                else
+                {
+                    return gg.GetMovableGroup();
+                }
+            }
+            else { return null; }
+        }
+        #endregion メソッド
     }
 
     public class Item4 : TThumb4
@@ -1390,6 +1408,8 @@ namespace _20220508
     }
     public class Layer4 : Group4Base
     {
+        #region 通知プロパティ        
+        //今編集状態(子要素の移動可能)のGroup
         private Group4Base? _NowEditingThumb;
         public Group4Base? NowEditingThumb
         {
@@ -1423,25 +1443,59 @@ namespace _20220508
             get => _lastClickedItem;
             set
             {
-                if (_lastClickedItem == value) { return; }
+                var mod = Keyboard.Modifiers == ModifierKeys.Shift;
 
+                //格納しているThumbと同じか、nullが来たら変更する必要なし、終了
+                if (_lastClickedItem == value || value == null) { return; }
+
+                //古い方のIsLastClickedをfalseに変更してから
                 if (_lastClickedItem != null)
                 {
                     _lastClickedItem.IsLastClicked = false;
                 }
-                if (value != null)
-                {
-                    value.IsLastClicked = true;
-                }
+                //新しい方のIsLastClickedをtrue
+                value.IsLastClicked = true;
+                //入れ替え
                 _lastClickedItem = value;
+
+                //選択枠表示
+                //グループ内Thumbだったら編集状態の直下のグループの枠表示
+                //単体Thumbなら自身の枠表示
+                //if (value.MyParentGroup == null)
+                //{
+                //    value.IsSelected = true;
+                //}
+                //else
+                //{
+                //    value.MyParentGroup.MyParentGroup?.IsEditing
+                //}
             }
         }
+        //選択状態のThumb群
+        public ObservableCollection<TThumb4> SelectedThumbs = new();
+        #endregion 通知プロパティ
 
         public Layer4(Data4 data) : base(data)
         {
             //Layerなので編集状態にする
             NowEditingThumb = this;
             IsEditing = true;
+
+            SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
+            PreviewMouseLeftButtonDown += Layer4_PreviewMouseLeftButtonDown;
+        }
+
+        private void Layer4_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var neko = sender;
+            var inu = e.OriginalSource;
+            var uma = e.Source;
+            //SelectedThumbs.Add(LastClickedItem);
+        }
+
+        private void SelectedThumbs_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+
         }
     }
 
