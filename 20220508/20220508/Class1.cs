@@ -1143,7 +1143,7 @@ namespace _20220508
 
         #region メソッド
         //自身が属する移動可能状態のグループThumbを取得
-        public Group4? GetMovableGroup()
+        public Group4? GetMovableTopGroup()
         {
             if (MyParentGroup is Group4 gg)
             {
@@ -1153,7 +1153,7 @@ namespace _20220508
                 }
                 else
                 {
-                    return gg.GetMovableGroup();
+                    return gg.GetMovableTopGroup();
                 }
             }
             else { return null; }
@@ -1212,7 +1212,12 @@ namespace _20220508
         {
             if (MyLayer is Layer4 layer)
             {
+                //最後にクリックされたThumbに自身を登録する
                 layer.LastClickedItem = this;
+                //所属するグループに枠表示
+                var neko = GetMovableTopGroup();
+                if (neko != null) { neko.IsSelected = true; }
+
             }
         }
 
@@ -1383,16 +1388,16 @@ namespace _20220508
             //Parentを辿り、再帰処理する
             if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
         }
-        public void AddThumb(TThumb4 thumb)
+        public virtual void AddThumb(TThumb4 thumb)
         {
             //コレクションに追加
             thumb.MyData.Z = Children.Count;
             Children.Add(thumb);
             MyData.ChildrenData.Add(thumb.MyData);
-            //ParentとLayerの指定
+            //Parentの指定
             thumb.MyParentGroup = this;
-            if (MyData.DataType == DataType.Layer) { thumb.MyLayer = (Layer4)this; }
-            else { thumb.MyLayer = MyLayer; }
+            //Layerの指定
+            thumb.MyLayer = this.MyLayer;
             //ドラッグ移動イベント付加
             //Parentが編集状態なら追加アイテム自身をドラッグ移動可能にする
             if (thumb.MyParentGroup.IsEditing)
@@ -1436,6 +1441,7 @@ namespace _20220508
                 _NowEditingThumb = value;
             }
         }
+
         //最後にクリックされたThumb
         private Item4? _lastClickedItem;
         public Item4? LastClickedItem
@@ -1458,7 +1464,7 @@ namespace _20220508
                 //入れ替え
                 _lastClickedItem = value;
 
-                //選択枠表示
+                ////選択枠表示
                 //グループ内Thumbだったら編集状態の直下のグループの枠表示
                 //単体Thumbなら自身の枠表示
                 //if (value.MyParentGroup == null)
@@ -1483,6 +1489,29 @@ namespace _20220508
 
             SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
             PreviewMouseLeftButtonDown += Layer4_PreviewMouseLeftButtonDown;
+        }
+
+        public override void AddThumb(TThumb4 thumb)
+        {
+            //基底クラスのメソッドを実行
+            base.AddThumb(thumb);
+            //すべてのThumbのMyLayerに自身を指定する
+            if (thumb is Group4 group)
+                SetMyLayer(group);
+            else if (thumb is Item4 item)
+                item.MyLayer = this;
+        }
+        //すべてのThumbのMyLayerに自身を指定する
+        private void SetMyLayer(Group4 group)
+        {
+            group.MyLayer = this;
+            foreach (var item in group.Children)
+            {
+                item.MyLayer = this;
+                if (item is Group4 group4)
+                    SetMyLayer(group4);
+            }
+
         }
 
         private void Layer4_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

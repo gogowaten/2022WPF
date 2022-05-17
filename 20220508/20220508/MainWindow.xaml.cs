@@ -64,7 +64,7 @@ namespace _20220508
             MyGroup1.AddThumb(MakeTT4TextBlock("Item1_2", 150, 150));
             MyGroupBoxGroup.DataContext = MyGroup1.MyData;
 
-            //T4AddGroupGroup();
+            T4AddGroupGroup();
 
         }
         private Item4 MakeTT4TextBlock(string text, double x, double y)
@@ -183,7 +183,7 @@ namespace _20220508
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
-            var move = ActiveThumb?.GetMovableGroup();
+            var move = ActiveThumb?.GetMovableTopGroup();
             var gw = MyGroup1?.Width;
             var left = Canvas.GetLeft(MyGroup1);
             var layerdata = MyLayer.MyData;
