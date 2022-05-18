@@ -55,13 +55,13 @@ namespace _20220508
             MyGroupBoxLayer.DataContext = MyLayer;
 
             MyLayer.AddThumb(MakeTT4TextBlock("Item1", 0, 0));
-            MyLayer.AddThumb(MakeTT4TextBlock("Item2", 100, 100));
+            MyLayer.AddThumb(MakeTT4TextBlock("Item2", 80, 50));
 
-            MyGroup1 = new(new Data4(DataType.Group) { X = 50, Y = 50 }) { Name = "MyGroup1" };
+            MyGroup1 = new(new Data4(DataType.Group) { X = 50, Y = 150 }) { Name = "MyGroup1" };
             //MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
             MyLayer.AddThumb(MyGroup1);
             MyGroup1.AddThumb(MakeTT4TextBlock("Item1_1", 0, 0));
-            MyGroup1.AddThumb(MakeTT4TextBlock("Item1_2", 150, 150));
+            MyGroup1.AddThumb(MakeTT4TextBlock("Item1_2", 100, 50));
             MyGroupBoxGroup.DataContext = MyGroup1.MyData;
 
             T4AddGroupGroup();
@@ -81,7 +81,7 @@ namespace _20220508
         }
         private void T4AddGroupGroup()
         {
-            MyGroup2 = new(new Data4(DataType.Group) { X = 100, Y = 10 }) { Name = "MyGroup2" };
+            MyGroup2 = new(new Data4(DataType.Group) { X = 120, Y = 10 }) { Name = "MyGroup2" };
             Group4 group21 = new(new Data4(DataType.Group) { X = 0, Y = 0 }) { Name = "MyGroup2_1" };
             Group4 group22 = new(new Data4(DataType.Group) { X = 100, Y = 100 }) { Name = "MyGroup2_2" };
             group21.AddThumb(MakeTT4TextBlock("Item2-1-1", 0, 0));

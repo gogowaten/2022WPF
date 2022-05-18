@@ -17,7 +17,7 @@ using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.ComponentModel;
 using System.Runtime.Serialization;
-
+using System.Collections.Specialized;
 
 namespace _20220508
 {
@@ -1165,7 +1165,7 @@ namespace _20220508
     {
         public Canvas MyTemplateCanvas;
         public FrameworkElement MyItemElement;
-        private bool _IsLastClicked;//最後にクリックされたThumb
+        private bool _IsLastClicked;//最後にクリックされたフラグ
         public bool IsLastClicked
         {
             get => _IsLastClicked;
@@ -1214,10 +1214,26 @@ namespace _20220508
             {
                 //最後にクリックされたThumbに自身を登録する
                 layer.LastClickedItem = this;
+                //自身が属するグループを選択状態に登録する
+                //layer.NowSelectGroup = GetMovableTopGroup();
+                //ctrlキーが押されていたら複数選択状態にする
+                if (Keyboard.Modifiers == ModifierKeys.Control)
+                {                    
+                    TThumb4 tt = (TThumb4?)GetMovableTopGroup() ?? this;
+                    layer.AddSelectThumb(tt);
+                }
+                ////所属するグループを選択状態Thumbに登録
+                //if (GetMovableTopGroup() is not TThumb4 select)
+                //{
+                //    select = this;
+                //}
+                //layer.AddSelectThumb(select);
                 //所属するグループに枠表示
-                var neko = GetMovableTopGroup();
-                if (neko != null) { neko.IsSelected = true; }
 
+                //if (GetMovableTopGroup() is TThumb4 group)
+                //{
+                //    group.IsSelected = true;
+                //}
             }
         }
 
@@ -1410,6 +1426,7 @@ namespace _20220508
     public class Group4 : Group4Base
     {
         public Group4(Data4 data) : base(data) { }
+
     }
     public class Layer4 : Group4Base
     {
@@ -1477,8 +1494,21 @@ namespace _20220508
                 //}
             }
         }
+        private Group4? _nowSelectGroup;
+        public Group4? NowSelectGroup
+        {
+            get => _nowSelectGroup;
+            set
+            {
+                if (value == _nowSelectGroup) { return; }
+                if (_nowSelectGroup != null) { _nowSelectGroup.IsSelected = false; }
+                if (value is Group4 group) { group.IsSelected = true; }
+                _nowSelectGroup = value;
+            }
+        }
         //選択状態のThumb群
-        public ObservableCollection<TThumb4> SelectedThumbs = new();
+        private readonly ObservableCollection<TThumb4> _SelectedThumbs = new();
+        public ReadOnlyObservableCollection<TThumb4> SelectedThumbs;
         #endregion 通知プロパティ
 
         public Layer4(Data4 data) : base(data)
@@ -1487,10 +1517,25 @@ namespace _20220508
             NowEditingThumb = this;
             IsEditing = true;
 
-            SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
+            _SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
             PreviewMouseLeftButtonDown += Layer4_PreviewMouseLeftButtonDown;
+            SelectedThumbs = new(_SelectedThumbs);
         }
-
+        #region メソッド
+        //選択状態Thumbの追加
+        public void AddSelectThumb(TThumb4? thumb)
+        {
+            //同じThumbがないかチェックしてから追加
+            if (thumb == null) { return; }
+            if (SelectedThumbs.Contains(thumb)) { return; }
+            _SelectedThumbs.Add(thumb);
+        }
+        public void RemoveSelecthumb(TThumb4 thumb)
+        {
+            if (!SelectedThumbs.Contains(thumb)) { return; }
+            _SelectedThumbs.Remove(thumb);
+        }
+        //追加
         public override void AddThumb(TThumb4 thumb)
         {
             //基底クラスのメソッドを実行
@@ -1513,6 +1558,7 @@ namespace _20220508
             }
 
         }
+        #endregion メソッド
 
         private void Layer4_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -1522,9 +1568,61 @@ namespace _20220508
             //SelectedThumbs.Add(LastClickedItem);
         }
 
-        private void SelectedThumbs_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
+            if (e.NewItems?[0] is not TThumb4 nItem) { return; }
 
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    nItem.IsSelected = true;
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    nItem.IsSelected = false;
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    if (e.OldItems?[0] is not TThumb4 oItem) { return; }
+                    oItem.IsSelected = false;
+                    nItem.IsSelected = true;
+                    var item0 = e.NewItems?[0];
+                    var item1 = e.OldItems?[0];
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    var item2 = e.NewItems?[0];
+                    var item3 = e.OldItems?[0];
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    var cleal = e.OldItems[0];
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+    //    C# ObservableCollection<T>で大量の要素を追加したいとき - Qiita
+    //https://qiita.com/Yuki4/items/0e73297db632376804dd
+
+    public class ObsevableCollectionEX<T> : ObservableCollection<T>
+    {
+        public void AddRange(IEnumerable<T> addItems)
+        {
+            if (addItems == null)
+            {
+                throw new ArgumentNullException(nameof(addItems));
+            }
+            foreach (var item in addItems)
+            {
+                Items.Add(item);
+            }
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        public void Replace(T newItem, T oldItem)
+        {
+            int num = Items.IndexOf(oldItem);
+            Items.Remove(oldItem);
+            Items.Insert(num, newItem);
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace));
         }
     }
 
@@ -1583,3 +1681,4 @@ namespace _20220508
     }
     #endregion Data4
 }
+
