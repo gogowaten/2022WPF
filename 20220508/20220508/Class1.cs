@@ -1065,6 +1065,18 @@ namespace _20220508
             get => isSelected;
             set { if (value == isSelected) { return; } isSelected = value; OnPropertyChanged(); }
         }
+        //移動対象フラグ、編集状態のGroupThumbの直下のThumb全てが対象になる
+        //Parentが編集状態(IsEditing)ならtrue
+        private bool _IsMoveTarget { get; set; }
+        public bool IsMoveTarget
+        {
+            get => _IsMoveTarget;
+            set
+            {
+                if (_IsMoveTarget == value) { return; }
+                _IsMoveTarget = value; OnPropertyChanged();
+            }
+        }
         #endregion
 
         public TThumb4(Data4 data)
@@ -1087,7 +1099,7 @@ namespace _20220508
         #endregion その他
 
         //テンプレートの枠
-        protected FrameworkElementFactory MakeWaku(DataTypeMain dataType)
+        protected FrameworkElementFactory MakeWaku1(DataTypeMain dataType)
         {
             //枠表示            
             FrameworkElementFactory waku = new(typeof(Rectangle));
@@ -1106,12 +1118,37 @@ namespace _20220508
             b.Source = this;
             b.Path = new PropertyPath(ActualHeightProperty);
             waku.SetValue(Rectangle.HeightProperty, b);
+
             //枠表示バインド、選択状態のときだけ表示する
             b = new(nameof(IsSelected)) { Source = this };
             b.Converter = new MyValueConverterVisible();
             waku.SetValue(VisibilityProperty, b);
 
             return waku;
+        }
+        protected FrameworkElementFactory MakeWaku2()
+        {
+            Binding b;
+            //移動対象Thumbに表示する枠
+            //枠サイズは自身のサイズに合わせる
+            FrameworkElementFactory movableRect = new(typeof(Rectangle));
+            movableRect.SetValue(Shape.StrokeProperty, Brushes.LightGray);
+            b = new() { Source = this };
+            b.Path = new PropertyPath(ActualWidthProperty);
+            movableRect.SetBinding(Shape.WidthProperty, b);
+            b = new() { Source = this };
+            b.Path = new PropertyPath(ActualHeightProperty);
+            movableRect.SetBinding(Shape.HeightProperty, b);
+            //枠表示バインド、選択状態のときだけ表示する
+            b = new(nameof(IsMoveTarget)) { Source = this };
+            b.Converter = new MyValueConverterVisible();
+            movableRect.SetValue(VisibilityProperty, b);
+
+            //b = new(nameof(Group4Base.IsEditing)) { Source = MyParentGroup };
+            //b.Converter = new MyValueConverterVisible();
+            //movableRect.SetValue(VisibilityProperty, b);
+            ////movableRect.SetBinding(VisibilityProperty, b);
+            return movableRect;
         }
 
         #region ドラッグ移動
@@ -1218,7 +1255,7 @@ namespace _20220508
                 //layer.NowSelectGroup = GetMovableTopGroup();
                 //ctrlキーが押されていたら複数選択状態にする
                 if (Keyboard.Modifiers == ModifierKeys.Control)
-                {                    
+                {
                     TThumb4 tt = (TThumb4?)GetMovableTopGroup() ?? this;
                     layer.AddSelectThumb(tt);
                 }
@@ -1242,10 +1279,11 @@ namespace _20220508
         private Canvas InitializeTemplate()
         {
             //共通枠
-            FrameworkElementFactory waku = MakeWaku(DataTypeMain.Item);
             FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyTemplateCanvas));
+            FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Item);
             baseCanvas.AppendChild(waku);
             waku.SetValue(Panel.ZIndexProperty, 1);//枠表示前面
+            baseCanvas.AppendChild(MakeWaku2());//枠2追加
             //Item専用枠、最後にクリックされた識別用
             FrameworkElementFactory lastClickWaku = new(typeof(Rectangle));
             lastClickWaku.SetValue(Panel.ZIndexProperty, 2);
@@ -1309,7 +1347,34 @@ namespace _20220508
         public ItemsControl MyItemsControl;
         internal ObservableCollection<TThumb4> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb4> Items { get; set; }
-        public bool IsEditing;
+        private bool _IsEditing { get; set; }
+        public bool IsEditing
+        {
+            get => _IsEditing;
+            set
+            {
+                if (_IsEditing == value) { return; }
+                ////旧直下のThumbの移動対象を解除false                
+                //if (MyLayer?.NowEditingThumb?.Children is Collection<TThumb4> items)
+                //{
+                //    foreach (var item in items)
+                //    {
+                //        item.IsMoveTarget = false;
+                //    }
+                //}
+
+                ////新直下のThumbの移動対象をtrue
+                //if (Children is Collection<TThumb4> newItems)
+                //{
+                //    foreach (var item in newItems)
+                //    {
+                //        item.IsMoveTarget = true;
+                //    }
+                //}
+
+                _IsEditing = value; OnPropertyChanged();
+            }
+        }
         public Group4Base(Data4 data) : base(data)
         {
             Items = new(Children);
@@ -1328,7 +1393,6 @@ namespace _20220508
         //複数要素表示用テンプレートに書き換える
         private ItemsControl SetGroupThumbTemplate()
         {
-            FrameworkElementFactory waku = MakeWaku(DataTypeMain.Group);
             //アイテムズコントロール
             FrameworkElementFactory itemsControl = new(typeof(ItemsControl), nameof(MyItemsControl));
             itemsControl.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Items)));
@@ -1337,7 +1401,9 @@ namespace _20220508
             itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
 
             FrameworkElementFactory baseCanvas = new(typeof(Canvas));
+            FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Group);
             baseCanvas.AppendChild(waku);//枠追加
+            baseCanvas.AppendChild(MakeWaku2());//枠2追加
             baseCanvas.AppendChild(itemsControl);
 
             ControlTemplate template = new();
@@ -1402,7 +1468,7 @@ namespace _20220508
                 Width = w; Height = h;
             }
             //Parentを辿り、再帰処理する
-            if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
+            //if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
         }
         public virtual void AddThumb(TThumb4 thumb)
         {
@@ -1420,7 +1486,8 @@ namespace _20220508
             {
                 DragEventAdd(thumb);
             }
-
+            //IsEditingなら移動対象にする
+            if (IsEditing) { thumb.IsMoveTarget = true; }
         }
     }
     public class Group4 : Group4Base
@@ -1438,20 +1505,24 @@ namespace _20220508
             get { return _NowEditingThumb; }
             set
             {
-                if (_NowEditingThumb != value) { return; }
+                if (_NowEditingThumb == value) { return; }
                 //ドラッグ移動イベントの付け外し
                 if (_NowEditingThumb != null)
                 {
+                    _NowEditingThumb.IsEditing = false;
                     foreach (var item in _NowEditingThumb.Children)
                     {
-                        //DragEventRemove(item);
+                        item.IsMoveTarget = false;
+                        DragEventRemove(item);
                     }
                 }
                 if (value != null)
                 {
+                    value.IsEditing = true;
                     foreach (var item in value.Children)
                     {
-                        //DragEventAdd(item);
+                        item.IsMoveTarget = true;
+                        DragEventAdd(item);
                     }
                 }
 

@@ -41,7 +41,7 @@ namespace _20220508
             InitializeComponent();
             T4Initialize();
 
-            
+
 
 
 
@@ -57,7 +57,7 @@ namespace _20220508
             MyLayer.AddThumb(MakeTT4TextBlock("Item1", 0, 0));
             MyLayer.AddThumb(MakeTT4TextBlock("Item2", 80, 50));
 
-            MyGroup1 = new(new Data4(DataType.Group) { X = 50, Y = 150 }) { Name = "MyGroup1" };
+            MyGroup1 = new(new Data4(DataType.Group) { X = 40, Y = 140 }) { Name = "MyGroup1" };
             //MyGroup1 = new(new Data3(DataType.Group)) { Name = "MyGroup1" };
             MyLayer.AddThumb(MyGroup1);
             MyGroup1.AddThumb(MakeTT4TextBlock("Item1_1", 0, 0));
@@ -174,16 +174,17 @@ namespace _20220508
         #endregion TThumb3用
 
 
-      
-    
+
+
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
             var move = ActiveThumb?.GetMovableTopGroup();
+            var neko = ActiveThumb?.MyParentGroup?.IsEditing;
             var gw = MyGroup1?.Width;
             var left = Canvas.GetLeft(MyGroup1);
             var layerdata = MyLayer.MyData;
@@ -194,12 +195,12 @@ namespace _20220508
 
         private void ButtonAdd2_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
         {
-            
+
         }
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
@@ -213,16 +214,30 @@ namespace _20220508
 
         private void ButtonAddG1_Click(object sender, RoutedEventArgs e)
         {
-           
+
         }
 
         private void ButtonKaijo_Click(object sender, RoutedEventArgs e)
-        {            
-           
+        {
+
         }
 
         private void ButtonCheck1_Click(object sender, RoutedEventArgs e)
         {
+
+            if (MyLayer.NowEditingThumb == MyLayer)
+            {
+                MyLayer.NowEditingThumb = MyGroup1;
+            }
+            else if (MyLayer.NowEditingThumb == MyGroup1)
+            {
+                MyLayer.NowEditingThumb = MyGroup2;
+            }
+            else
+            {
+                MyLayer.NowEditingThumb = MyLayer;
+            }
+            MyGroup1.IsEditing = !MyGroup1.IsEditing;
             if (MyGroup2 == null) return;
             //MyLayer.NowEditingThumb = MyGroup2;
         }
