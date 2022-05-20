@@ -1101,14 +1101,10 @@ namespace _20220508
         //テンプレートの枠
         protected FrameworkElementFactory MakeWaku1(DataTypeMain dataType)
         {
-            //枠表示            
+            //選択状態枠表示            
             FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Rectangle.StrokeProperty, Brushes.Cyan);
-            if (dataType == DataTypeMain.Group)
-            {
-                waku.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
-                waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
-            }
+            waku.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
+
             //枠サイズは自身のサイズに合わせる
             Binding b = new();
             b.Source = this;
@@ -1129,10 +1125,11 @@ namespace _20220508
         protected FrameworkElementFactory MakeWaku2()
         {
             Binding b;
-            //移動対象Thumbに表示する枠
+            //移動可能Thumbに表示する枠
             //枠サイズは自身のサイズに合わせる
             FrameworkElementFactory movableRect = new(typeof(Rectangle));
             movableRect.SetValue(Shape.StrokeProperty, Brushes.LightGray);
+            movableRect.SetValue(Shape.OpacityProperty, 0.5);
             b = new() { Source = this };
             b.Path = new PropertyPath(ActualWidthProperty);
             movableRect.SetBinding(Shape.WidthProperty, b);
@@ -1150,6 +1147,7 @@ namespace _20220508
             ////movableRect.SetBinding(VisibilityProperty, b);
             return movableRect;
         }
+
 
         #region ドラッグ移動
 
@@ -1182,15 +1180,15 @@ namespace _20220508
         //自身が属する移動可能状態のグループThumbを取得
         public Group4? GetMovableTopGroup()
         {
-            if (MyParentGroup is Group4 gg)
+            if (MyParentGroup is Group4 group)
             {
-                if (gg.MyParentGroup?.IsEditing == true)
+                if (group.MyParentGroup?.IsEditing == true)
                 {
-                    return gg;
+                    return group;
                 }
                 else
                 {
-                    return gg.GetMovableTopGroup();
+                    return group.GetMovableTopGroup();
                 }
             }
             else { return null; }
@@ -1251,26 +1249,30 @@ namespace _20220508
             {
                 //最後にクリックされたThumbに自身を登録する
                 layer.LastClickedItem = this;
-                //自身が属するグループを選択状態に登録する
-                //layer.NowSelectGroup = GetMovableTopGroup();
-                //ctrlキーが押されていたら複数選択状態にする
-                if (Keyboard.Modifiers == ModifierKeys.Control)
+
+                //編集状態直下の自身が属するグループを選択状態リストに登録する
+                TThumb4 tt = (TThumb4?)GetMovableTopGroup() ?? this;
+                //クリックだけのときは入れ替え
+                if (Keyboard.Modifiers == ModifierKeys.None)
                 {
-                    TThumb4 tt = (TThumb4?)GetMovableTopGroup() ?? this;
+                    layer.SelectThumbReplace(tt);
+                }
+                //ctrlキーが押されていたら複数選択状態にするので、追加
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
                     layer.AddSelectThumb(tt);
                 }
-                ////所属するグループを選択状態Thumbに登録
-                //if (GetMovableTopGroup() is not TThumb4 select)
-                //{
-                //    select = this;
-                //}
-                //layer.AddSelectThumb(select);
-                //所属するグループに枠表示
 
-                //if (GetMovableTopGroup() is TThumb4 group)
-                //{
-                //    group.IsSelected = true;
-                //}
+                //自身が編集状態Thumbの範囲外だった場合
+                var nowedit = MyLayer.NowEditingThumb;
+                var parent = MyParentGroup;
+                var movableParent = tt.MyParentGroup;
+                var selection = layer.SelectedThumbs;
+                if (nowedit != movableParent)
+                {
+                    //編集状態Thumbを切り替える、同時に選択リストはリセットされる
+                    layer.NowEditingThumb = movableParent;
+                }
             }
         }
 
@@ -1288,7 +1290,7 @@ namespace _20220508
             FrameworkElementFactory lastClickWaku = new(typeof(Rectangle));
             lastClickWaku.SetValue(Panel.ZIndexProperty, 2);
             lastClickWaku.SetValue(Rectangle.StrokeProperty, Brushes.OrangeRed);
-            lastClickWaku.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 5.0, 3.0 });
+            lastClickWaku.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 5.0, 5.0 });
             baseCanvas.AppendChild(lastClickWaku);
             Binding b = new() { Source = this, Path = new PropertyPath(WidthProperty) };
             lastClickWaku.SetBinding(WidthProperty, b);
@@ -1404,6 +1406,7 @@ namespace _20220508
             FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Group);
             baseCanvas.AppendChild(waku);//枠追加
             baseCanvas.AppendChild(MakeWaku2());//枠2追加
+            baseCanvas.AppendChild(MakeWaku3());//枠3追加
             baseCanvas.AppendChild(itemsControl);
 
             ControlTemplate template = new();
@@ -1414,6 +1417,26 @@ namespace _20220508
 
             return (ItemsControl)template.FindName(nameof(MyItemsControl), this)
                 ?? throw new ArgumentNullException(nameof(MyItemsControl));
+        }
+        protected FrameworkElementFactory MakeWaku3()
+        {
+            Binding b;
+            //移動対象Thumbに表示する枠
+            //枠サイズは自身のサイズに合わせる
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            waku.SetValue(Shape.StrokeProperty, Brushes.Green);
+            b = new() { Source = this };
+            b.Path = new PropertyPath(ActualWidthProperty);
+            waku.SetBinding(Shape.WidthProperty, b);
+            b = new() { Source = this };
+            b.Path = new PropertyPath(ActualHeightProperty);
+            waku.SetBinding(Shape.HeightProperty, b);
+            //枠表示バインド、編集状態のときだけ表示する
+            b = new(nameof(IsEditing)) { Source = this };
+            b.Converter = new MyValueConverterVisible();
+            waku.SetValue(VisibilityProperty, b);
+
+            return waku;
         }
 
         /// <summary>
@@ -1470,7 +1493,7 @@ namespace _20220508
             //Parentを辿り、再帰処理する
             if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
         }
-      
+
 
         public virtual void AddThumb(TThumb4 thumb)
         {
@@ -1508,6 +1531,15 @@ namespace _20220508
             set
             {
                 if (_NowEditingThumb == value) { return; }
+                //選択リストのリセット
+                if (_SelectedThumbs.Count > 0)
+                {
+                    foreach (var item in _SelectedThumbs)
+                    {
+                        item.IsSelected = false;
+                    }
+                    _SelectedThumbs.Clear();
+                }
                 //ドラッグ移動イベントの付け外し
                 if (_NowEditingThumb != null)
                 {
@@ -1567,18 +1599,18 @@ namespace _20220508
                 //}
             }
         }
-        private Group4? _nowSelectGroup;
-        public Group4? NowSelectGroup
-        {
-            get => _nowSelectGroup;
-            set
-            {
-                if (value == _nowSelectGroup) { return; }
-                if (_nowSelectGroup != null) { _nowSelectGroup.IsSelected = false; }
-                if (value is Group4 group) { group.IsSelected = true; }
-                _nowSelectGroup = value;
-            }
-        }
+        //private Group4? _nowSelectGroup;
+        //public Group4? NowSelectGroup
+        //{
+        //    get => _nowSelectGroup;
+        //    set
+        //    {
+        //        if (value == _nowSelectGroup) { return; }
+        //        if (_nowSelectGroup != null) { _nowSelectGroup.IsSelected = false; }
+        //        if (value is Group4 group) { group.IsSelected = true; }
+        //        _nowSelectGroup = value;
+        //    }
+        //}
         //選択状態のThumb群
         private readonly ObservableCollection<TThumb4> _SelectedThumbs = new();
         public ReadOnlyObservableCollection<TThumb4> SelectedThumbs;
@@ -1607,6 +1639,31 @@ namespace _20220508
         {
             if (!SelectedThumbs.Contains(thumb)) { return; }
             _SelectedThumbs.Remove(thumb);
+        }
+        public void SelectThumbReplace(TThumb4? thumb)
+        {
+            if (thumb == null) { return; }
+            if (SelectedThumbs.Count == 1)
+            {
+                if (SelectedThumbs[0] != thumb)
+                {
+                    _SelectedThumbs.Remove(SelectedThumbs[0]);
+                    _SelectedThumbs.Add(thumb);
+                }
+            }
+            else if (SelectedThumbs.Count > 1)
+            {
+                foreach (var item in SelectedThumbs)
+                {
+                    item.IsSelected = false;
+                }
+                _SelectedThumbs.Clear();
+                _SelectedThumbs.Add(thumb);
+            }
+            else
+            {
+                _SelectedThumbs.Add(thumb);
+            }
         }
         //追加
         public override void AddThumb(TThumb4 thumb)
@@ -1643,20 +1700,27 @@ namespace _20220508
 
         private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            if (e.NewItems?[0] is not TThumb4 nItem) { return; }
+            //if (e.NewItems?[0] is not TThumb4 nItem) { return; }
 
+            //TThumb4? thumb = e.NewItems?[0] as TThumb4;
+            //if (thumb == null) { thumb = e.OldItems?[0] as TThumb4; }
+            //if (thumb == null) { return; }
+            TThumb4? nn = e.NewItems?[0] as TThumb4;
+            TThumb4? oo = e.OldItems?[0] as TThumb4;
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    nItem.IsSelected = true;
+                    if (nn == null) { return; }
+                    nn.IsSelected = true;
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    nItem.IsSelected = false;
+                    if (oo == null) { return; }
+                    oo.IsSelected = false;
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    if (e.OldItems?[0] is not TThumb4 oItem) { return; }
-                    oItem.IsSelected = false;
-                    nItem.IsSelected = true;
+                    if (nn == null || oo == null) { return; }
+                    oo.IsSelected = false;
+                    nn.IsSelected = true;
                     var item0 = e.NewItems?[0];
                     var item1 = e.OldItems?[0];
                     break;
@@ -1665,7 +1729,7 @@ namespace _20220508
                     var item3 = e.OldItems?[0];
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    var cleal = e.OldItems[0];
+
                     break;
                 default:
                     break;
