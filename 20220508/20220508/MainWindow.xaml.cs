@@ -237,7 +237,7 @@ namespace _20220508
             {
                 MyLayer.NowEditingThumb = MyLayer;
             }
-            MyGroup1.IsEditing = !MyGroup1.IsEditing;
+            //MyGroup1.IsEditing = !MyGroup1.IsEditing;
             if (MyGroup2 == null) return;
             //MyLayer.NowEditingThumb = MyGroup2;
         }

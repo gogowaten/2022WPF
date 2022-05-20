@@ -1454,7 +1454,7 @@ namespace _20220508
                 //自身がGroupタイプなら位置修正する
                 if (MyData.DataType == DataType.Group)
                 {
-                    MyData.X -= x; MyData.Y -= y;
+                    MyData.X += x; MyData.Y += y;
                 }
                 //Itemの位置修正
                 foreach (var item in Items)
@@ -1468,8 +1468,10 @@ namespace _20220508
                 Width = w; Height = h;
             }
             //Parentを辿り、再帰処理する
-            //if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
+            if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
         }
+      
+
         public virtual void AddThumb(TThumb4 thumb)
         {
             //コレクションに追加
