@@ -183,7 +183,7 @@ namespace _20220508
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
-            var move = ActiveThumb?.GetMovableTopGroup();
+            var move = ActiveThumb?.GetMyMovableTopGroup();
             var neko = ActiveThumb?.MyParentGroup?.IsEditing;
             var gw = MyGroup1?.Width;
             var left = Canvas.GetLeft(MyGroup1);

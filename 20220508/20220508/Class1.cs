@@ -1178,7 +1178,8 @@ namespace _20220508
 
         #region メソッド
         //自身が属する移動可能状態のグループThumbを取得
-        public Group4? GetMovableTopGroup()
+        //編集状態のThumb直下のThumb群から自身が属するものを取得
+        public Group4? GetMyMovableTopGroup()
         {
             if (MyParentGroup is Group4 group)
             {
@@ -1188,10 +1189,23 @@ namespace _20220508
                 }
                 else
                 {
-                    return group.GetMovableTopGroup();
+                    return group.GetMyMovableTopGroup();
                 }
             }
             else { return null; }
+        }
+        //Layer直下のThumb群から自身に関連するThumbを取得            
+        public Group4Base? GetMyUnderLayerThumb(TThumb4? thumb)
+        {
+            if (thumb == null) { return null; }
+            if (thumb.MyParentGroup?.MyData.DataType == DataType.Layer)
+            {
+                return thumb.MyParentGroup;
+            }
+            else
+            {
+                return GetMyUnderLayerThumb(thumb.MyParentGroup);
+            }
         }
         #endregion メソッド
     }
@@ -1250,29 +1264,34 @@ namespace _20220508
                 //最後にクリックされたThumbに自身を登録する
                 layer.LastClickedItem = this;
 
-                //編集状態直下の自身が属するグループを選択状態リストに登録する
-                TThumb4 tt = (TThumb4?)GetMovableTopGroup() ?? this;
-                //クリックだけのときは入れ替え
-                if (Keyboard.Modifiers == ModifierKeys.None)
-                {
-                    layer.SelectThumbReplace(tt);
-                }
-                //ctrlキーが押されていたら複数選択状態にするので、追加
-                else if (Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    layer.AddSelectThumb(tt);
-                }
-
+                //編集状態直下の自身が属するグループ
+                TThumb4 topMovable = (TThumb4?)GetMyMovableTopGroup() ?? this;
                 //自身が編集状態Thumbの範囲外だった場合
-                var nowedit = MyLayer.NowEditingThumb;
-                var parent = MyParentGroup;
-                var movableParent = tt.MyParentGroup;
-                var selection = layer.SelectedThumbs;
-                if (nowedit != movableParent)
+                if (MyLayer.NowEditingThumb != topMovable.MyParentGroup)
                 {
-                    //編集状態Thumbを切り替える、同時に選択リストはリセットされる
-                    layer.NowEditingThumb = movableParent;
+                    //編集状態ThumbをLayer直下のThumb群から自身が属するThumbに切り替える、
+                    //同時に選択リストはリセットされる
+                    Group4Base? nextEdit = GetMyUnderLayerThumb(this);
+                    if (nextEdit == null) { MessageBox.Show("次の編集状態Thumbが見つからん"); }
+                    layer.NowEditingThumb = nextEdit;
                 }
+                else
+                {
+                    //編集状態直下の自身が属するグループを選択状態リストに登録する
+                    //クリックだけのときは入れ替え
+                    if (Keyboard.Modifiers == ModifierKeys.None)
+                    {
+                        layer.SelectThumbReplace(topMovable);
+                    }
+                    //ctrlキーが押されていたら複数選択状態にするので、追加
+                    else if (Keyboard.Modifiers == ModifierKeys.Control)
+                    {
+                        layer.AddSelectThumb(topMovable);
+                    }
+                }
+                
+
+
             }
         }
 
