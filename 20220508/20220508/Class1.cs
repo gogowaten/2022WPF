@@ -1208,15 +1208,14 @@ namespace _20220508
             }
         }
 
+        //Parentから自身を削除
         public virtual void RemoveThumb()
         {
             if (MyParentGroup is Group4 group)
             {
                 //コレクションから削除
-                group.Children.Remove(this);
-                group.MyData.ChildrenData.Remove(this.MyData);
+                group.RemoveThumb(this);
             }
-
         }
         #endregion メソッド
     }
@@ -1380,7 +1379,7 @@ namespace _20220508
     public abstract class Group4Base : TThumb4
     {
         public ItemsControl MyItemsControl;
-        internal ObservableCollection<TThumb4> Children { get; set; } = new();
+        protected ObservableCollection<TThumb4> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb4> Items { get; set; }
         private bool _IsEditing { get; set; }
         public bool IsEditing
@@ -1529,7 +1528,33 @@ namespace _20220508
             //IsEditingなら移動対象にする
             if (IsEditing) { thumb.IsMoveTarget = true; }
         }
-
+        public virtual void RemoveThumb(TThumb4 thumb)
+        {
+            if (Children.Contains(thumb) == false)
+            {
+                throw new ArgumentNullException(nameof(thumb),
+                    "グループ内に対象Thumbが見つからない");
+            }
+            //コレクションから削除
+            Children.Remove(this);
+            MyData.ChildrenData.Remove(this.MyData);
+        }
+        internal void AddDragEventForChildren()
+        {
+            foreach (var item in Children)
+            {
+                DragEventAdd(item);
+                item.IsMoveTarget = true;
+            }
+        }
+        internal virtual void RemoveDragEventForChildren()
+        {
+            foreach (var item in Children)
+            {
+                DragEventRemove(item);
+                item.IsMoveTarget = false;
+            }
+        }
     }
     public class Group4 : Group4Base
     {
@@ -1546,9 +1571,10 @@ namespace _20220508
             //元グループと同レベルで元グループZより上にあるThumbZには
             //ChildrenThumbの個数を足し算する
             int motoZ = this.MyData.Z;
-            var neko = MyLayer?.NowEditingThumb;
-            MyLayer.item
-
+            Group4Base? parent = MyParentGroup;
+            Group4Base? editing = MyLayer?.NowEditingThumb;
+            if (parent != editing || parent == null) { return; }
+            parent.RemoveThumb(this);
         }
 
     }
@@ -1576,23 +1602,27 @@ namespace _20220508
                 if (_NowEditingThumb != null)
                 {
                     _NowEditingThumb.IsEditing = false;
-                    foreach (var item in _NowEditingThumb.Children)
-                    {
-                        item.IsMoveTarget = false;
-                        DragEventRemove(item);
-                    }
-                }
-                if (value != null)
-                {
-                    value.IsEditing = true;
-                    foreach (var item in value.Children)
-                    {
-                        item.IsMoveTarget = true;
-                        DragEventAdd(item);
-                    }
+                    _NowEditingThumb.RemoveDragEventForChildren();
+                    //foreach (var item in _NowEditingThumb.Children)
+                    //{
+                    //    item.IsMoveTarget = false;
+                    //    DragEventRemove(item);
+                    //}
                 }
 
                 _NowEditingThumb = value;
+
+                if (_NowEditingThumb != null)
+                {
+                    _NowEditingThumb.IsEditing = true;
+                    _NowEditingThumb.AddDragEventForChildren();
+                    //foreach (var item in _NowEditingThumb.Children)
+                    //{
+                    //    item.IsMoveTarget = true;
+                    //    DragEventAdd(item);
+                    //}
+                }
+
             }
         }
 
@@ -1645,11 +1675,13 @@ namespace _20220508
             if (SelectedThumbs.Contains(thumb)) { return; }
             _SelectedThumbs.Add(thumb);
         }
+        //選択状態Thumbの削除
         public void RemoveSelecthumb(TThumb4 thumb)
         {
             if (!SelectedThumbs.Contains(thumb)) { return; }
             _SelectedThumbs.Remove(thumb);
         }
+        //選択状態Thumbの入れ替え
         public void SelectThumbReplace(TThumb4? thumb)
         {
             if (thumb == null) { return; }
