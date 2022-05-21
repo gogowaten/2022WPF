@@ -219,7 +219,10 @@ namespace _20220508
 
         private void ButtonKaijo_Click(object sender, RoutedEventArgs e)
         {
-
+            if(ActiveThumb is Item4 item)
+            {
+                item.UngroupMyTopGroup();
+            }
         }
 
         private void ButtonCheck1_Click(object sender, RoutedEventArgs e)

@@ -1207,6 +1207,17 @@ namespace _20220508
                 return GetMyUnderLayerThumb(thumb.MyParentGroup);
             }
         }
+
+        public virtual void RemoveThumb()
+        {
+            if (MyParentGroup is Group4 group)
+            {
+                //コレクションから削除
+                group.Children.Remove(this);
+                group.MyData.ChildrenData.Remove(this.MyData);
+            }
+
+        }
         #endregion メソッド
     }
 
@@ -1259,39 +1270,34 @@ namespace _20220508
         //クリックされたとき
         private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (MyLayer is Layer4 layer)
+            if (MyLayer == null) { return; }
+            //最後にクリックされたThumbに自身を登録する
+            MyLayer.LastClickedItem = this;
+
+            //編集状態直下の自身が属するグループ
+            TThumb4 topMovable = (TThumb4?)GetMyMovableTopGroup() ?? this;
+            //自身が編集状態Thumbの範囲外だった場合
+            if (MyLayer.NowEditingThumb != topMovable.MyParentGroup)
             {
-                //最後にクリックされたThumbに自身を登録する
-                layer.LastClickedItem = this;
-
-                //編集状態直下の自身が属するグループ
-                TThumb4 topMovable = (TThumb4?)GetMyMovableTopGroup() ?? this;
-                //自身が編集状態Thumbの範囲外だった場合
-                if (MyLayer.NowEditingThumb != topMovable.MyParentGroup)
+                //編集状態ThumbをLayer直下のThumb群から自身が属するThumbに切り替える、
+                //同時に選択リストはリセットされる
+                Group4Base? nextEdit = GetMyUnderLayerThumb(this);
+                if (nextEdit == null) { MessageBox.Show("次の編集状態Thumbが見つからん"); }
+                MyLayer.NowEditingThumb = nextEdit;
+            }
+            else
+            {
+                //編集状態直下の自身が属するグループを選択状態リストに登録する
+                //クリックだけのときは入れ替え
+                if (Keyboard.Modifiers == ModifierKeys.None)
                 {
-                    //編集状態ThumbをLayer直下のThumb群から自身が属するThumbに切り替える、
-                    //同時に選択リストはリセットされる
-                    Group4Base? nextEdit = GetMyUnderLayerThumb(this);
-                    if (nextEdit == null) { MessageBox.Show("次の編集状態Thumbが見つからん"); }
-                    layer.NowEditingThumb = nextEdit;
+                    MyLayer.SelectThumbReplace(topMovable);
                 }
-                else
+                //ctrlキーが押されていたら複数選択状態にするので、追加
+                else if (Keyboard.Modifiers == ModifierKeys.Control)
                 {
-                    //編集状態直下の自身が属するグループを選択状態リストに登録する
-                    //クリックだけのときは入れ替え
-                    if (Keyboard.Modifiers == ModifierKeys.None)
-                    {
-                        layer.SelectThumbReplace(topMovable);
-                    }
-                    //ctrlキーが押されていたら複数選択状態にするので、追加
-                    else if (Keyboard.Modifiers == ModifierKeys.Control)
-                    {
-                        layer.AddSelectThumb(topMovable);
-                    }
+                    MyLayer.AddSelectThumb(topMovable);
                 }
-                
-
-
             }
         }
 
@@ -1360,7 +1366,15 @@ namespace _20220508
             return element ?? throw new ArgumentNullException($"{nameof(element)}", $"dataから要素が作れんかった");
         }
 
+        //グループ解除
+        public void UngroupMyTopGroup()
+        {
+            //解除対象にするのはクリックしたThumbのGetMyMovableTopGroup
+            Group4? myGroup = GetMyMovableTopGroup();
+            if (myGroup == null) { return; }
+            myGroup.Ungroup();
 
+        }
     }
 
     public abstract class Group4Base : TThumb4
@@ -1375,24 +1389,6 @@ namespace _20220508
             set
             {
                 if (_IsEditing == value) { return; }
-                ////旧直下のThumbの移動対象を解除false                
-                //if (MyLayer?.NowEditingThumb?.Children is Collection<TThumb4> items)
-                //{
-                //    foreach (var item in items)
-                //    {
-                //        item.IsMoveTarget = false;
-                //    }
-                //}
-
-                ////新直下のThumbの移動対象をtrue
-                //if (Children is Collection<TThumb4> newItems)
-                //{
-                //    foreach (var item in newItems)
-                //    {
-                //        item.IsMoveTarget = true;
-                //    }
-                //}
-
                 _IsEditing = value; OnPropertyChanged();
             }
         }
@@ -1533,10 +1529,27 @@ namespace _20220508
             //IsEditingなら移動対象にする
             if (IsEditing) { thumb.IsMoveTarget = true; }
         }
+
     }
     public class Group4 : Group4Base
     {
         public Group4(Data4 data) : base(data) { }
+
+        //グループ解除
+        public void Ungroup()
+        {
+            if (this.MyData.DataType == DataType.Layer) { return; }
+
+
+            //解除後はThumb群を選択状態にする
+            //Z、元のグループのZをChildrenThumbに足し算する、さらに
+            //元グループと同レベルで元グループZより上にあるThumbZには
+            //ChildrenThumbの個数を足し算する
+            int motoZ = this.MyData.Z;
+            var neko = MyLayer?.NowEditingThumb;
+            MyLayer.item
+
+        }
 
     }
     public class Layer4 : Group4Base
@@ -1604,32 +1617,9 @@ namespace _20220508
                 value.IsLastClicked = true;
                 //入れ替え
                 _lastClickedItem = value;
-
-                ////選択枠表示
-                //グループ内Thumbだったら編集状態の直下のグループの枠表示
-                //単体Thumbなら自身の枠表示
-                //if (value.MyParentGroup == null)
-                //{
-                //    value.IsSelected = true;
-                //}
-                //else
-                //{
-                //    value.MyParentGroup.MyParentGroup?.IsEditing
-                //}
             }
         }
-        //private Group4? _nowSelectGroup;
-        //public Group4? NowSelectGroup
-        //{
-        //    get => _nowSelectGroup;
-        //    set
-        //    {
-        //        if (value == _nowSelectGroup) { return; }
-        //        if (_nowSelectGroup != null) { _nowSelectGroup.IsSelected = false; }
-        //        if (value is Group4 group) { group.IsSelected = true; }
-        //        _nowSelectGroup = value;
-        //    }
-        //}
+
         //選択状態のThumb群
         private readonly ObservableCollection<TThumb4> _SelectedThumbs = new();
         public ReadOnlyObservableCollection<TThumb4> SelectedThumbs;
@@ -1646,6 +1636,7 @@ namespace _20220508
             SelectedThumbs = new(_SelectedThumbs);
         }
         #region メソッド
+
         //選択状態Thumbの追加
         public void AddSelectThumb(TThumb4? thumb)
         {
@@ -1719,11 +1710,6 @@ namespace _20220508
 
         private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            //if (e.NewItems?[0] is not TThumb4 nItem) { return; }
-
-            //TThumb4? thumb = e.NewItems?[0] as TThumb4;
-            //if (thumb == null) { thumb = e.OldItems?[0] as TThumb4; }
-            //if (thumb == null) { return; }
             TThumb4? nn = e.NewItems?[0] as TThumb4;
             TThumb4? oo = e.OldItems?[0] as TThumb4;
             switch (e.Action)
