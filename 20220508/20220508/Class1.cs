@@ -1185,7 +1185,7 @@ namespace _20220508
             if (clicked == null) { return; }
             Group4? group = clicked.GetMyMovableTopGroup();
             group?.RemoveThisThumb();
-
+            tuduki
             //解除後はThumb群を選択状態にする
             //Z、元のグループのZをChildrenThumbに足し算する、さらに
             //元グループと同レベルで元グループZより上にあるThumbZには
