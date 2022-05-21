@@ -221,7 +221,7 @@ namespace _20220508
         {
             if(ActiveThumb is Item4 item)
             {
-                item.UngroupMyTopGroup();
+                item.Ungroup();
             }
         }
 

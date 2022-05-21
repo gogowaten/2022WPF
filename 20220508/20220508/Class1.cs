@@ -1177,6 +1177,26 @@ namespace _20220508
         #endregion ドラッグ移動
 
         #region メソッド
+        //グループ解除
+        //解除対象となるグループは編集状態直下の中で最後にクリックされたThumbを含むもの
+        public void Ungroup()
+        {
+            Item4? clicked = MyLayer?.LastClickedItem;
+            if (clicked == null) { return; }
+            Group4? group = clicked.GetMyMovableTopGroup();
+            group?.RemoveThisThumb();
+
+            //解除後はThumb群を選択状態にする
+            //Z、元のグループのZをChildrenThumbに足し算する、さらに
+            //元グループと同レベルで元グループZより上にあるThumbZには
+            //ChildrenThumbの個数を足し算する
+            int motoZ = this.MyData.Z;
+            //Group4Base? parent = MyParentGroup;
+            //Group4Base? editing = MyLayer?.NowEditingThumb;
+            //if (parent != editing || parent == null) { return; }
+            //parent.RemoveThumb(this);
+        }
+
         //自身が属する移動可能状態のグループThumbを取得
         //編集状態のThumb直下のThumb群から自身が属するものを取得
         public Group4? GetMyMovableTopGroup()
@@ -1209,7 +1229,7 @@ namespace _20220508
         }
 
         //Parentから自身を削除
-        public virtual void RemoveThumb()
+        public virtual void RemoveThisThumb()
         {
             if (MyParentGroup is Group4 group)
             {
@@ -1365,15 +1385,15 @@ namespace _20220508
             return element ?? throw new ArgumentNullException($"{nameof(element)}", $"dataから要素が作れんかった");
         }
 
-        //グループ解除
-        public void UngroupMyTopGroup()
-        {
-            //解除対象にするのはクリックしたThumbのGetMyMovableTopGroup
-            Group4? myGroup = GetMyMovableTopGroup();
-            if (myGroup == null) { return; }
-            myGroup.Ungroup();
+        ////グループ解除
+        //public void UngroupMyTopGroup()
+        //{
+        //    //解除対象にするのはクリックしたThumbのGetMyMovableTopGroup
+        //    Group4? myGroup = GetMyMovableTopGroup();
+        //    if (myGroup == null) { return; }
+        //    myGroup.Ungroup();
 
-        }
+        //}
     }
 
     public abstract class Group4Base : TThumb4
@@ -1509,6 +1529,7 @@ namespace _20220508
         }
 
 
+        //Childrenに指定Thumbを追加
         public virtual void AddThumb(TThumb4 thumb)
         {
             //コレクションに追加
@@ -1528,6 +1549,7 @@ namespace _20220508
             //IsEditingなら移動対象にする
             if (IsEditing) { thumb.IsMoveTarget = true; }
         }
+        //Childrenから指定Thumbを削除
         public virtual void RemoveThumb(TThumb4 thumb)
         {
             if (Children.Contains(thumb) == false)
@@ -1539,6 +1561,8 @@ namespace _20220508
             Children.Remove(this);
             MyData.ChildrenData.Remove(this.MyData);
         }
+
+        //Childrenに対してドラッグ移動イベントの付加と削除
         internal void AddDragEventForChildren()
         {
             foreach (var item in Children)
@@ -1555,27 +1579,41 @@ namespace _20220508
                 item.IsMoveTarget = false;
             }
         }
+
+        //最下層まで全てのThumbのMyLayerの指定
+        internal void SetMyLayer2(Layer4 layer)
+        {
+            this.MyLayer = layer;
+            foreach (var item in Children)
+            {
+                item.MyLayer = layer;                
+                if(item is Group4Base group)
+                {
+                    group.SetMyLayer2(layer);
+                }
+            }
+        }
     }
     public class Group4 : Group4Base
     {
         public Group4(Data4 data) : base(data) { }
 
-        //グループ解除
-        public void Ungroup()
-        {
-            if (this.MyData.DataType == DataType.Layer) { return; }
+        ////グループ解除
+        //public void Ungroup()
+        //{
+        //    if (this.MyData.DataType == DataType.Layer) { return; }
 
 
-            //解除後はThumb群を選択状態にする
-            //Z、元のグループのZをChildrenThumbに足し算する、さらに
-            //元グループと同レベルで元グループZより上にあるThumbZには
-            //ChildrenThumbの個数を足し算する
-            int motoZ = this.MyData.Z;
-            Group4Base? parent = MyParentGroup;
-            Group4Base? editing = MyLayer?.NowEditingThumb;
-            if (parent != editing || parent == null) { return; }
-            parent.RemoveThumb(this);
-        }
+        //    //解除後はThumb群を選択状態にする
+        //    //Z、元のグループのZをChildrenThumbに足し算する、さらに
+        //    //元グループと同レベルで元グループZより上にあるThumbZには
+        //    //ChildrenThumbの個数を足し算する
+        //    int motoZ = this.MyData.Z;
+        //    Group4Base? parent = MyParentGroup;
+        //    Group4Base? editing = MyLayer?.NowEditingThumb;
+        //    if (parent != editing || parent == null) { return; }
+        //    parent.RemoveThumb(this);
+        //}
 
     }
     public class Layer4 : Group4Base
@@ -1713,23 +1751,16 @@ namespace _20220508
             //基底クラスのメソッドを実行
             base.AddThumb(thumb);
             //すべてのThumbのMyLayerに自身を指定する
-            if (thumb is Group4 group)
-                SetMyLayer(group);
-            else if (thumb is Item4 item)
-                item.MyLayer = this;
-        }
-        //すべてのThumbのMyLayerに自身を指定する
-        private void SetMyLayer(Group4 group)
-        {
-            group.MyLayer = this;
-            foreach (var item in group.Children)
+            if (thumb.MyData.DataType == DataType.Group)
             {
-                item.MyLayer = this;
-                if (item is Group4 group4)
-                    SetMyLayer(group4);
+                SetMyLayer2(this);
             }
-
+            else if (thumb.MyData.DataTypeMain == DataTypeMain.Item)
+            {
+                thumb.MyLayer = this;
+            }
         }
+
         #endregion メソッド
 
         private void Layer4_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
