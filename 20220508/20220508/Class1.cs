@@ -1177,25 +1177,6 @@ namespace _20220508
         #endregion ドラッグ移動
 
         #region メソッド
-        //グループ解除
-        //解除対象となるグループは編集状態直下の中で最後にクリックされたThumbを含むもの
-        public void Ungroup()
-        {
-            Item4? clicked = MyLayer?.LastClickedItem;
-            if (clicked == null) { return; }
-            Group4? group = clicked.GetMyMovableTopGroup();
-            group?.RemoveThisThumb();
-            tuduki
-            //解除後はThumb群を選択状態にする
-            //Z、元のグループのZをChildrenThumbに足し算する、さらに
-            //元グループと同レベルで元グループZより上にあるThumbZには
-            //ChildrenThumbの個数を足し算する
-            int motoZ = this.MyData.Z;
-            //Group4Base? parent = MyParentGroup;
-            //Group4Base? editing = MyLayer?.NowEditingThumb;
-            //if (parent != editing || parent == null) { return; }
-            //parent.RemoveThumb(this);
-        }
 
         //自身が属する移動可能状態のグループThumbを取得
         //編集状態のThumb直下のThumb群から自身が属するものを取得
@@ -1228,15 +1209,15 @@ namespace _20220508
             }
         }
 
-        //Parentから自身を削除
-        public virtual void RemoveThisThumb()
-        {
-            if (MyParentGroup is Group4 group)
-            {
-                //コレクションから削除
-                group.RemoveThumb(this);
-            }
-        }
+        ////Parentから自身を削除
+        //public virtual void RemoveThisThumb()
+        //{
+        //    if (MyParentGroup is Group4Base group)
+        //    {
+        //        //コレクションから削除
+        //        group.RemoveThumb(this);
+        //    }
+        //}
         #endregion メソッド
     }
 
@@ -1315,7 +1296,7 @@ namespace _20220508
                 //ctrlキーが押されていたら複数選択状態にするので、追加
                 else if (Keyboard.Modifiers == ModifierKeys.Control)
                 {
-                    MyLayer.AddSelectThumb(topMovable);
+                    MyLayer.SelectThumbAdd(topMovable);
                 }
             }
         }
@@ -1386,6 +1367,37 @@ namespace _20220508
         }
 
         ////グループ解除
+        ////解除対象となるグループは編集状態直下の中で最後にクリックされたThumbを含むもの
+        //public void Ungroup()
+        //{
+        //    Item4? clicked = MyLayer?.LastClickedItem;
+        //    if (clicked == null) { return; }
+        //    Group4? group = clicked.GetMyMovableTopGroup();
+        //    group?.MyParentGroup?.RemoveThumb(group);//削除
+        //    if (group?.MyParentGroup is Group4Base gg)
+        //    {
+        //        gg.RemoveThumb(group);
+        //    }
+
+
+        //    //foreach (var item in group.chil)
+        //    //{
+
+        //    //}
+
+
+        //    //解除後はThumb群を選択状態にする
+        //    //Z、元のグループのZをChildrenThumbに足し算する、さらに
+        //    //元グループと同レベルで元グループZより上にあるThumbZには
+        //    //ChildrenThumbの個数を足し算する
+        //    int motoZ = this.MyData.Z;
+        //    //Group4Base? parent = MyParentGroup;
+        //    //Group4Base? editing = MyLayer?.NowEditingThumb;
+        //    //if (parent != editing || parent == null) { return; }
+        //    //parent.RemoveThumb(this);
+        //}
+
+        ////グループ解除
         //public void UngroupMyTopGroup()
         //{
         //    //解除対象にするのはクリックしたThumbのGetMyMovableTopGroup
@@ -1411,6 +1423,9 @@ namespace _20220508
                 _IsEditing = value; OnPropertyChanged();
             }
         }
+
+        #region コンストラクタ、初期化
+
         public Group4Base(Data4 data) : base(data)
         {
             Items = new(Children);
@@ -1425,7 +1440,46 @@ namespace _20220508
                 Children.Add(new Item4(item));
             }
 
+            Children.CollectionChanged += Children_CollectionChanged;
         }
+
+
+        private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                if (e.NewItems?[0] is TThumb4 item)
+                {
+                    //Dataの追加
+                    if (item.MyData.Z == Children.Count)
+                    {
+                        MyData.ChildrenData.Add(item.MyData);
+                    }
+                    else
+                    {
+                        MyData.ChildrenData.Insert(item.MyData.Z, item.MyData);
+                    }
+                    //Parentの指定
+                    item.MyParentGroup = this;
+                    //Layerの指定
+                    item.MyLayer = this.MyLayer;
+                    //Parent(自身)が編集状態なら追加アイテムを
+                    if (this.IsEditing)
+                    {
+                        DragEventAdd(item);//ドラッグ移動可能にする
+                        item.IsMoveTarget = true;//移動対象にする
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                if (e.OldItems?[0] is TThumb4 item)
+                {
+                    MyData.ChildrenData.Remove(item.MyData);
+                }
+            }
+        }
+
         //複数要素表示用テンプレートに書き換える
         private ItemsControl SetGroupThumbTemplate()
         {
@@ -1472,6 +1526,9 @@ namespace _20220508
 
             return waku;
         }
+        #endregion コンストラクタ、初期化
+
+        #region publucメソッド
 
         /// <summary>
         /// 自身のRect(位置とサイズ)をchildrenから取得
@@ -1528,39 +1585,90 @@ namespace _20220508
             if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
         }
 
+        //グループ解除
+        //自身を解除
+        public void Ungroup()
+        {
+            if (MyParentGroup == null) { return; }
+            //上にあるThumbZの底上げ
+            for (int i = MyData.Z + 1; i < MyParentGroup.Children.Count; i++)
+            {
+                //削除対象子要素数-1ぶん底上げする
+                MyParentGroup.Children[i].MyData.Z += Children.Count - 1;
+            }
+            //子要素に対して
+            foreach (var item in Children)
+            {
+                item.MyData.Z += MyData.Z;//Zを削除対象のZぶん底上げする
+                DragEventRemove(item);//ドラッグ移動イベントの削除
+                item.MyData.X += MyData.X;
+                item.MyData.Y += MyData.Y;
+            }
 
-        //Childrenに指定Thumbを追加
+            MyParentGroup.RemoveThumb(this);//削除
+
+            //解除後は子要素群を選択状態にする
+            MyLayer?.SelectThumbsCleal();
+            foreach (var item in Children)
+            {
+                MyLayer?.SelectThumbAdd(item);
+            }
+            //子要素をParentの子要素に挿入
+            foreach (var item in Children)
+            {
+                //MyParentGroup.Children.Insert(item.MyData.Z, item);
+                MyParentGroup.InsertThumb(item);
+            }
+
+
+        }
+
+
+        //指定ThumbをChildrenに追加
         public virtual void AddThumb(TThumb4 thumb)
         {
             //コレクションに追加
             thumb.MyData.Z = Children.Count;
             Children.Add(thumb);
-            MyData.ChildrenData.Add(thumb.MyData);
-            //Parentの指定
-            thumb.MyParentGroup = this;
-            //Layerの指定
-            thumb.MyLayer = this.MyLayer;
-            //ドラッグ移動イベント付加
-            //Parentが編集状態なら追加アイテム自身をドラッグ移動可能にする
-            if (thumb.MyParentGroup.IsEditing)
-            {
-                DragEventAdd(thumb);
-            }
-            //IsEditingなら移動対象にする
-            if (IsEditing) { thumb.IsMoveTarget = true; }
+            //MyData.ChildrenData.Add(thumb.MyData);
         }
-        //Childrenから指定Thumbを削除
+        //指定ThumbをChildrenに挿入
+        public virtual void InsertThumb(TThumb4 thumb)
+        {
+            InsertThumb(thumb, thumb.MyData.Z);
+        }
+        public virtual void InsertThumb(TThumb4 thumb, int z)
+        {
+            //コレクションに挿入
+            if (z >= Children.Count)
+            {
+                AddThumb(thumb);
+            }
+            else
+            {
+                Children.Insert(z, thumb);
+            }
+
+            //MyData.ChildrenData.Insert(z, thumb.MyData);
+        }
+
+        //指定ThumbをChildrenから削除
         public virtual void RemoveThumb(TThumb4 thumb)
         {
-            if (Children.Contains(thumb) == false)
+            if (Children.Contains(thumb))
+            {
+                //コレクションから削除
+                Children.Remove(thumb);
+                //MyData.ChildrenData.Remove(thumb.MyData);
+            }
+            else
             {
                 throw new ArgumentNullException(nameof(thumb),
                     "グループ内に対象Thumbが見つからない");
             }
-            //コレクションから削除
-            Children.Remove(this);
-            MyData.ChildrenData.Remove(this.MyData);
+
         }
+        #endregion publucメソッド
 
         //Childrenに対してドラッグ移動イベントの付加と削除
         internal void AddDragEventForChildren()
@@ -1586,14 +1694,15 @@ namespace _20220508
             this.MyLayer = layer;
             foreach (var item in Children)
             {
-                item.MyLayer = layer;                
-                if(item is Group4Base group)
+                item.MyLayer = layer;
+                if (item is Group4Base group)
                 {
                     group.SetMyLayer2(layer);
                 }
             }
         }
     }
+
     public class Group4 : Group4Base
     {
         public Group4(Data4 data) : base(data) { }
@@ -1706,7 +1815,7 @@ namespace _20220508
         #region メソッド
 
         //選択状態Thumbの追加
-        public void AddSelectThumb(TThumb4? thumb)
+        public void SelectThumbAdd(TThumb4? thumb)
         {
             //同じThumbがないかチェックしてから追加
             if (thumb == null) { return; }
@@ -1714,7 +1823,7 @@ namespace _20220508
             _SelectedThumbs.Add(thumb);
         }
         //選択状態Thumbの削除
-        public void RemoveSelecthumb(TThumb4 thumb)
+        public void SelecthumbRemove(TThumb4 thumb)
         {
             if (!SelectedThumbs.Contains(thumb)) { return; }
             _SelectedThumbs.Remove(thumb);
@@ -1745,6 +1854,17 @@ namespace _20220508
                 _SelectedThumbs.Add(thumb);
             }
         }
+        //選択状態Thumbのクリア
+        public void SelectThumbsCleal()
+        {
+            if (_SelectedThumbs.Count == 0) { return; }
+            foreach (var item in _SelectedThumbs)
+            {
+                item.IsSelected = false;
+            }
+            _SelectedThumbs.Clear();
+        }
+
         //追加
         public override void AddThumb(TThumb4 thumb)
         {

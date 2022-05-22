@@ -75,6 +75,7 @@ namespace _20220508
             {
                 this.ActiveThumb = thumb;
                 MyGroupBox.DataContext = thumb;
+                MyGroupBoxGroup.DataContext = thumb.MyParentGroup;
                 //MyGroupBox.DataContext = thumb.MyData;
             };
             return thumb;
@@ -188,8 +189,14 @@ namespace _20220508
             var gw = MyGroup1?.Width;
             var left = Canvas.GetLeft(MyGroup1);
             var layerdata = MyLayer.MyData;
+            var litem = MyLayer.Items;
             var inu = ActiveThumb?.MyParentGroup?.MyData;
             var atpg = ActiveThumb?.MyParentGroup;
+            var g1layer = MyGroup1?.MyLayer;
+            var g2layer = MyGroup2?.MyLayer;
+            var g21layer = MyGroup2?.Items[0]?.MyLayer;
+            var g21z = MyGroup2?.Items[0].MyData.Z;
+            var g22z = MyGroup2?.Items[1].MyData.Z;
             //var uma = ActiveThumb?.MyParentGroup?.Items;
         }
 
@@ -219,10 +226,8 @@ namespace _20220508
 
         private void ButtonKaijo_Click(object sender, RoutedEventArgs e)
         {
-            if(ActiveThumb is Item4 item)
-            {
-                item.Ungroup();
-            }
+            //ActiveThumb?.MyParentGroup?.Ungroup();
+            ActiveThumb?.GetMyMovableTopGroup()?.Ungroup();
         }
 
         private void ButtonCheck1_Click(object sender, RoutedEventArgs e)

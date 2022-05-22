@@ -30,9 +30,10 @@
           <TextBlock Text="{Binding Path=MyParentGroup, StringFormat=X 0}"/>
         </StackPanel>
       </GroupBox>
-      <GroupBox x:Name="MyGroupBoxGroup" Header="Group">
+      <GroupBox x:Name="MyGroupBoxGroup" Header="ParentGroup">
         <StackPanel>
-          <TextBlock Text="{Binding Path=X, StringFormat=X 0}"/>
+          <TextBlock Text="{Binding Path=MyData.X, StringFormat=X 0}"/>
+          <TextBlock Text="{Binding Path=MyData.Z, StringFormat=Z 0}"/>
         </StackPanel>
       </GroupBox>
       <GroupBox x:Name="MyGroupBoxLayer" Header="Layer">
