@@ -1479,6 +1479,7 @@ namespace _20220508
                 if (e.OldItems?[0] is TThumb4 item)
                 {
                     MyData.ChildrenData.Remove(item.MyData);//Dataの削除
+                    DragEventRemove(item);
                 }
             }
         }
@@ -1625,10 +1626,15 @@ namespace _20220508
             }
         }
 
+        /// <summary>
+        /// 指定要素群からグループ作成
+        /// </summary>
+        /// <param name="thumbs">要素群は自身のChildrenから指定</param>
+        /// <returns></returns>
         public bool MakeGroup(List<TThumb4>? thumbs)
         {
-            if(thumbs == null) { return false; }
-            //指定子要素群のParentチェック、自身ではなかった場合は作成失敗
+            if (thumbs == null) { return false; }
+            //指定要素群のParentチェック、自身ではなかった場合は作成失敗
             foreach (var item in thumbs)
             {
                 if (item.MyParentGroup != this)
@@ -1636,34 +1642,46 @@ namespace _20220508
                     return false;
                 }
             }
-            //削除
-            var neko = thumbs.Max(x => x.MyData.Z);
-            foreach (var item in thumbs)
-            {
-                RemoveThumb(item);
-            }
-            for (int i = 0; i < MyLayer?.Children.Count; i++)
-            {
-                MyLayer.Children[i].MyData.Z = i;
-
-            }
             
-            //グループ作成、
-            //x,y位置は子要素群の一番右上に合わせる
-            //z位置は子要素軍の一番上に合わせる
-            Data4 data = new(DataType.Group);
-            double x = 0; double y = 0; int z = 0;
             foreach (var item in thumbs)
             {
+                RemoveThumb(item);//削除
+            }
 
-                data.ChildrenData.Add(item.MyData);
+            //Z順にソートした要素群作成、これを元に新グループ作成
+            var sortedThumbs = thumbs.OrderBy(x => x.MyData.Z).ToList();
+            
+            //新グループ
+            //x,y位置は要素群の一番右上に合わせる
+            //z位置は要素軍の一番上を基準にして
+            Data4 data = new(DataType.Group);
+            double x = 0; double y = 0; 
+            int maxZ = 0;int minZ = int.MaxValue;
+            foreach (var item in sortedThumbs)
+            {
                 x = Math.Min(x, item.MyData.X);
                 y = Math.Min(y, item.MyData.Y);
-                z = Math.Max(z, item.MyData.Z);
+                maxZ = Math.Max(maxZ, item.MyData.Z);//最上位Z
+                minZ = Math.Min(minZ, item.MyData.Z);//最下位Z
             }
-            data.X = x; data.Y = y; data.Z = z;
+            //新グループのZ = 要素群の最上位Z - (要素数 - 1)
+            maxZ -= sortedThumbs.Count - 1;
+
+            //新グループ作成
+            data.X = x; data.Y = y; data.Z = maxZ;
             Group4 group = new(data);//作成
-            InsertThumb(group);//追加
+            group.MyLayer = thumbs[0].MyLayer;
+            //新グループに要素群追加
+            foreach (var item in sortedThumbs)
+            {
+                group.AddThumb(item);
+            }
+            InsertThumb(group);//自身のこ要素に追加
+            //子要素全体のZ調整、歯抜けになっているので数値を詰める
+            for (int i = minZ; i < Children.Count; i++)
+            {
+                Children[i].MyData.Z = i;
+            }
             return true;
         }
 
@@ -1701,7 +1719,6 @@ namespace _20220508
             {
                 //コレクションから削除
                 Children.Remove(thumb);
-                //MyData.ChildrenData.Remove(thumb.MyData);
             }
             else
             {
@@ -1741,6 +1758,10 @@ namespace _20220508
                     group.SetMyLayer2(layer);
                 }
             }
+        }
+        public void SetMyLayer2(Group4 group,Layer4 layer)
+        {
+
         }
     }
 
