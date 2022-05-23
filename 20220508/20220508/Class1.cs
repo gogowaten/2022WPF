@@ -1085,7 +1085,7 @@ namespace _20220508
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
             this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
             this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
-            this.SetBinding(Panel.ZIndexProperty, new Binding(nameof(MyData.X)));
+            this.SetBinding(Panel.ZIndexProperty, new Binding(nameof(MyData.Z)));
 
         }
         #region その他
@@ -1155,12 +1155,14 @@ namespace _20220508
         {
             thumb.DragDelta += thumb.TThumb_DragDelta;
             thumb.DragCompleted += thumb.TThumb_DragCompleted;
+            thumb.IsMoveTarget = true;//移動対象にする
         }
 
         protected void DragEventRemove(TThumb4 thumb)
         {
             thumb.DragCompleted -= thumb.TThumb_DragCompleted;
             thumb.DragDelta -= thumb.TThumb_DragDelta;
+            thumb.IsMoveTarget = false;//移動対象から外す
         }
         private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
@@ -1352,8 +1354,10 @@ namespace _20220508
                 case DataType.Group:
                     break;
                 case DataType.TextBlock:
-                    element = new TextBlock() { FontSize = 20, Background = Brushes.Transparent };
+                    element = new TextBlock() { FontSize = 20 };
                     element.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+                    element.SetBinding(TextBlock.BackgroundProperty, new Binding(nameof(MyData.Background)));
+                    element.SetBinding(TextBlock.ForegroundProperty, new Binding(nameof(MyData.Foreground)));
                     break;
                 case DataType.Path:
                     break;
@@ -1467,7 +1471,6 @@ namespace _20220508
                     if (this.IsEditing)
                     {
                         DragEventAdd(item);//ドラッグ移動可能にする
-                        item.IsMoveTarget = true;//移動対象にする
                     }
                 }
             }
@@ -1475,7 +1478,7 @@ namespace _20220508
             {
                 if (e.OldItems?[0] is TThumb4 item)
                 {
-                    MyData.ChildrenData.Remove(item.MyData);
+                    MyData.ChildrenData.Remove(item.MyData);//Dataの削除
                 }
             }
         }
@@ -1585,8 +1588,10 @@ namespace _20220508
             if (MyParentGroup != null) { MyParentGroup.AjustLocate3(); };
         }
 
-        //グループ解除
-        //自身を解除
+
+        /// <summary>
+        /// グループ解除、自身を解除、子要素は親要素へ移動＋選択状態にする
+        /// </summary>
         public void Ungroup()
         {
             if (MyParentGroup == null) { return; }
@@ -1616,11 +1621,50 @@ namespace _20220508
             //子要素をParentの子要素に挿入
             foreach (var item in Children)
             {
-                //MyParentGroup.Children.Insert(item.MyData.Z, item);
                 MyParentGroup.InsertThumb(item);
             }
+        }
 
+        public bool MakeGroup(List<TThumb4>? thumbs)
+        {
+            if(thumbs == null) { return false; }
+            //指定子要素群のParentチェック、自身ではなかった場合は作成失敗
+            foreach (var item in thumbs)
+            {
+                if (item.MyParentGroup != this)
+                {
+                    return false;
+                }
+            }
+            //削除
+            var neko = thumbs.Max(x => x.MyData.Z);
+            foreach (var item in thumbs)
+            {
+                RemoveThumb(item);
+            }
+            for (int i = 0; i < MyLayer?.Children.Count; i++)
+            {
+                MyLayer.Children[i].MyData.Z = i;
 
+            }
+            
+            //グループ作成、
+            //x,y位置は子要素群の一番右上に合わせる
+            //z位置は子要素軍の一番上に合わせる
+            Data4 data = new(DataType.Group);
+            double x = 0; double y = 0; int z = 0;
+            foreach (var item in thumbs)
+            {
+
+                data.ChildrenData.Add(item.MyData);
+                x = Math.Min(x, item.MyData.X);
+                y = Math.Min(y, item.MyData.Y);
+                z = Math.Max(z, item.MyData.Z);
+            }
+            data.X = x; data.Y = y; data.Z = z;
+            Group4 group = new(data);//作成
+            InsertThumb(group);//追加
+            return true;
         }
 
 
@@ -1630,7 +1674,6 @@ namespace _20220508
             //コレクションに追加
             thumb.MyData.Z = Children.Count;
             Children.Add(thumb);
-            //MyData.ChildrenData.Add(thumb.MyData);
         }
         //指定ThumbをChildrenに挿入
         public virtual void InsertThumb(TThumb4 thumb)
@@ -1649,7 +1692,6 @@ namespace _20220508
                 Children.Insert(z, thumb);
             }
 
-            //MyData.ChildrenData.Insert(z, thumb.MyData);
         }
 
         //指定ThumbをChildrenから削除
@@ -1676,7 +1718,7 @@ namespace _20220508
             foreach (var item in Children)
             {
                 DragEventAdd(item);
-                item.IsMoveTarget = true;
+                //item.IsMoveTarget = true;
             }
         }
         internal virtual void RemoveDragEventForChildren()
@@ -1684,7 +1726,6 @@ namespace _20220508
             foreach (var item in Children)
             {
                 DragEventRemove(item);
-                item.IsMoveTarget = false;
             }
         }
 
@@ -1706,23 +1747,6 @@ namespace _20220508
     public class Group4 : Group4Base
     {
         public Group4(Data4 data) : base(data) { }
-
-        ////グループ解除
-        //public void Ungroup()
-        //{
-        //    if (this.MyData.DataType == DataType.Layer) { return; }
-
-
-        //    //解除後はThumb群を選択状態にする
-        //    //Z、元のグループのZをChildrenThumbに足し算する、さらに
-        //    //元グループと同レベルで元グループZより上にあるThumbZには
-        //    //ChildrenThumbの個数を足し算する
-        //    int motoZ = this.MyData.Z;
-        //    Group4Base? parent = MyParentGroup;
-        //    Group4Base? editing = MyLayer?.NowEditingThumb;
-        //    if (parent != editing || parent == null) { return; }
-        //    parent.RemoveThumb(this);
-        //}
 
     }
     public class Layer4 : Group4Base
@@ -1750,11 +1774,6 @@ namespace _20220508
                 {
                     _NowEditingThumb.IsEditing = false;
                     _NowEditingThumb.RemoveDragEventForChildren();
-                    //foreach (var item in _NowEditingThumb.Children)
-                    //{
-                    //    item.IsMoveTarget = false;
-                    //    DragEventRemove(item);
-                    //}
                 }
 
                 _NowEditingThumb = value;
@@ -1763,11 +1782,6 @@ namespace _20220508
                 {
                     _NowEditingThumb.IsEditing = true;
                     _NowEditingThumb.AddDragEventForChildren();
-                    //foreach (var item in _NowEditingThumb.Children)
-                    //{
-                    //    item.IsMoveTarget = true;
-                    //    DragEventAdd(item);
-                    //}
                 }
 
             }
@@ -1967,7 +1981,8 @@ namespace _20220508
         private double _y;
         private int _z;
         private string _text = "";
-
+        private Brush? _background;
+        private Brush? _foreground;
 
         [DataMember]
         public ObservableCollection<Data4> ChildrenData { get; set; } = new();
@@ -1985,7 +2000,23 @@ namespace _20220508
         [DataMember]
         public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
         [DataMember]
-        public Brush? Brush { get; set; }
+        public Brush? Background
+        {
+            get => _background; set
+            {
+                if (_background == value) { return; }
+                _background = value; OnPropertyChanged();
+            }
+        }
+        public Brush? Foreground
+        {
+            get => _foreground;
+            set
+            {
+                if (_foreground == value) { return; }
+                _foreground = value; OnPropertyChanged();
+            }
+        }
         [DataMember]
         public Geometry? Geometry { get; set; }
 

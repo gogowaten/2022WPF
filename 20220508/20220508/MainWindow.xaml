@@ -21,6 +21,7 @@
       <Button x:Name="ButtonAddGroup" Content="Group1" Click="ButtonAddGroup_Click"/>
       <Button x:Name="ButtonKaijo" Content="Kaijo" Click="ButtonKaijo_Click"/>
       <Button x:Name="ButtonCheck1" Content="check1" Click="ButtonCheck1_Click"/>
+      <Button x:Name="ButtonMakeGroup" Content="makeGroup" Click="ButtonMakeGroup_Click"/>
       <GroupBox x:Name="MyGroupBox" Header="ActiveThumb">
         <StackPanel>
           <TextBlock Text="{Binding Path=MyData.Text, StringFormat=Text 0}"/>

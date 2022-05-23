@@ -33,12 +33,14 @@ namespace _20220508
         private int AddThumbCount = 0;
         private List<TThumb4> MyThumbs = new();
         private TThumb4? ActiveThumb;
-        private Layer4 MyLayer;
-        private Group4 MyGroup1;
-        private Group4 MyGroup2;
+        private Layer4? MyLayer;
+        private Group4? MyGroup1;
+        private Group4? MyGroup2;
         public MainWindow()
         {
             InitializeComponent();
+            Left = 100;
+            Top = 100;
             T4Initialize();
 
 
@@ -70,14 +72,21 @@ namespace _20220508
         private Item4 MakeTT4TextBlock(string text, double x, double y)
         {
             Data4 data = new(DataType.TextBlock) { Text = text, X = x, Y = y };
+            data.Background = new SolidColorBrush(
+                Color.FromArgb(
+                    255,
+                    50,
+                    (byte)(AddThumbCount * 20 + 50),
+                    (byte)(AddThumbCount * 20 + 50)));
+            data.Foreground = Brushes.Snow;
             Item4 thumb = new(data);
             thumb.PreviewMouseDown += (sender, e) =>
             {
                 this.ActiveThumb = thumb;
                 MyGroupBox.DataContext = thumb;
                 MyGroupBoxGroup.DataContext = thumb.MyParentGroup;
-                //MyGroupBox.DataContext = thumb.MyData;
             };
+            AddThumbCount++;
             return thumb;
         }
         private void T4AddGroupGroup()
@@ -184,20 +193,17 @@ namespace _20220508
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
         {
-            var move = ActiveThumb?.GetMyMovableTopGroup();
-            var neko = ActiveThumb?.MyParentGroup?.IsEditing;
-            var gw = MyGroup1?.Width;
-            var left = Canvas.GetLeft(MyGroup1);
-            var layerdata = MyLayer.MyData;
-            var litem = MyLayer.Items;
-            var inu = ActiveThumb?.MyParentGroup?.MyData;
-            var atpg = ActiveThumb?.MyParentGroup;
-            var g1layer = MyGroup1?.MyLayer;
-            var g2layer = MyGroup2?.MyLayer;
-            var g21layer = MyGroup2?.Items[0]?.MyLayer;
-            var g21z = MyGroup2?.Items[0].MyData.Z;
-            var g22z = MyGroup2?.Items[1].MyData.Z;
-            //var uma = ActiveThumb?.MyParentGroup?.Items;
+            List<string> thumbsData = new();
+            GetDataList(MyLayer);
+            void GetDataList(Group4Base group)
+            {
+                if (group == null) { return; }
+                foreach (var item in group.Items)
+                {
+                    thumbsData.Add($"{item.MyData.Z}, {item.MyData.Text}, {item.Name}");
+                    if (item.MyData.DataTypeMain is DataTypeMain.Group) GetDataList((Group4Base)item);
+                }
+            }
         }
 
         private void ButtonAdd2_Click(object sender, RoutedEventArgs e)
@@ -248,6 +254,12 @@ namespace _20220508
             //MyGroup1.IsEditing = !MyGroup1.IsEditing;
             if (MyGroup2 == null) return;
             //MyLayer.NowEditingThumb = MyGroup2;
+        }
+
+        private void ButtonMakeGroup_Click(object sender, RoutedEventArgs e)
+        {
+            var neko = MyLayer?.SelectedThumbs.ToList();
+            MyLayer?.MakeGroup(neko);
         }
     }
 
