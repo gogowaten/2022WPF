@@ -1759,10 +1759,7 @@ namespace _20220508
                 }
             }
         }
-        public void SetMyLayer2(Group4 group,Layer4 layer)
-        {
-
-        }
+       
     }
 
     public class Group4 : Group4Base
