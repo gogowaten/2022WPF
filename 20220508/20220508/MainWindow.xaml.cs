@@ -233,7 +233,7 @@ namespace _20220508
         private void ButtonKaijo_Click(object sender, RoutedEventArgs e)
         {
             //ActiveThumb?.MyParentGroup?.Ungroup();
-            ActiveThumb?.GetMyMovableTopGroup()?.Ungroup();
+            ActiveThumb?.GetMyUnderEditingThumb()?.Ungroup();
         }
 
         private void ButtonCheck1_Click(object sender, RoutedEventArgs e)
@@ -260,6 +260,12 @@ namespace _20220508
         {
             var neko = MyLayer?.SelectedThumbs.ToList();
             MyLayer?.MakeGroup(neko);
+        }
+
+        private void ButtonReGroup_Click(object sender, RoutedEventArgs e)
+        {
+            //ActiveThumb?.MyParentGroup?.Regroup(ActiveThumb?.RegroupThumbs);
+            ActiveThumb?.Regroup();
         }
     }
 
