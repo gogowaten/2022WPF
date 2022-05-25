@@ -1614,12 +1614,12 @@ namespace _20220508
                 item.RegroupThumbs = Children.ToList();
             }
             //兄弟の再グループリストから自身を削除
-            foreach (var brother in MyParentGroup.Children)
+            foreach (var brothers in MyParentGroup.Children)
             {
-                brother.RegroupThumbs.Remove(this);
-                if (brother.RegroupThumbs.Count <= 1)
+                brothers.RegroupThumbs.Remove(this);
+                if (brothers.RegroupThumbs.Count <= 1)
                 {
-                    brother.RegroupThumbs.Clear();
+                    brothers.RegroupThumbs.Clear();
                 }
             }
         }
@@ -1652,7 +1652,6 @@ namespace _20220508
             //新グループ
             //x,y位置は要素群の一番右上に合わせる
             //z位置は要素軍の一番上を基準にして
-            Data4 data = new(DataType.Group);
             double x = 0; double y = 0;
             int maxZ = 0; int minZ = int.MaxValue;
             foreach (var item in sortedThumbs)
@@ -1666,6 +1665,7 @@ namespace _20220508
             maxZ -= sortedThumbs.Count - 1;
 
             //新グループ作成
+            Data4 data = new(DataType.Group);
             data.X = x; data.Y = y; data.Z = maxZ;
             Group4 group = new(data);//作成
             group.MyLayer = thumbs[0].MyLayer;
