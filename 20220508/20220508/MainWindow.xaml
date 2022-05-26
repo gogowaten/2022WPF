@@ -25,11 +25,14 @@
       <Button x:Name="ButtonReGroup" Content="ReGroup" Click="ButtonReGroup_Click"/>
       <GroupBox x:Name="MyGroupBox" Header="ActiveThumb">
         <StackPanel>
-          <TextBlock Text="{Binding Path=MyData.Text, StringFormat=Text 0}"/>
+          <TextBlock Text="{Binding Path=MyData.Text, StringFormat=Text \= {0}}"/>
           <TextBlock Text="{Binding Path=MyData.X, StringFormat=X 0}"/>
           <TextBlock Text="{Binding Path=MyData.Y, StringFormat=Y 0}"/>
           <TextBlock Text="{Binding Path=MyData.Z, StringFormat=Z 0}"/>
-          <TextBlock Text="{Binding Path=MyParentGroup, StringFormat=X 0}"/>
+          <TextBlock Text="{Binding Path=MyParentGroup.Name, StringFormat=ParentName \= {0}}"/>
+          <TextBlock Text="{Binding Path=MyLayer.Name, StringFormat=Layer \= {0}}"/>
+          <TextBlock Text="{Binding Path=MyLayer.NowEditingThumb.Name, StringFormat=Editing \= {0}}"/>
+          <TextBlock Text="{Binding Path=MyMovableThumb, StringFormat=MoveTarget \= {0}}"/>
         </StackPanel>
       </GroupBox>
       <GroupBox x:Name="MyGroupBoxGroup" Header="ParentGroup">

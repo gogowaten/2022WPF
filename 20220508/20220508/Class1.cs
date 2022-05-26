@@ -1055,8 +1055,28 @@ namespace _20220508
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         #region 共通
-        public Group4Base? MyParentGroup;
-        public Layer4? MyLayer;
+        private Group4Base? _myParentGroup;
+        public Group4Base? MyParentGroup
+        {
+            get => _myParentGroup;
+            set { if (value == _myParentGroup) { return; } _myParentGroup = value; OnPropertyChanged(); }
+        }
+        private Layer4? _myLayer;
+        public Layer4? MyLayer
+        {
+            get => _myLayer;
+            set { if (value == _myLayer) { return; } _myLayer = value; OnPropertyChanged(); }
+        }
+
+        //クリックされたThumbが属するグループの中で移動対象となるThumb
+        //更新タイミングはクリックされたときにしたけど、
+        //ホントはそれ以外にも編集状態Thumbが切り替わったときに全部のThumbに行いたい？
+        private TThumb4 _myMovableThumb;
+        public TThumb4 MyMovableThumb
+        {
+            get => _myMovableThumb;
+            set { if (value == _myMovableThumb) { return; } _myMovableThumb = value; OnPropertyChanged(); }
+        }
         public Data4 MyData { get; set; }
         public List<TThumb4> RegroupThumbs = new();//再グループ用
         private bool _IsSelected;
@@ -1105,7 +1125,7 @@ namespace _20220508
         {
             //選択状態枠表示            
             FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Rectangle.StrokeProperty, Brushes.MediumOrchid);
+            waku.SetValue(Rectangle.StrokeProperty, Brushes.SkyBlue);
 
             //枠サイズは自身のサイズに合わせる
             Binding b = new();
@@ -1131,7 +1151,7 @@ namespace _20220508
             //枠サイズは自身のサイズに合わせる
             FrameworkElementFactory movableRect = new(typeof(Rectangle));
             movableRect.SetValue(Shape.StrokeProperty, Brushes.LightGray);
-            movableRect.SetValue(Shape.OpacityProperty, 0.5);
+            
             b = new() { Source = this };
             b.Path = new PropertyPath(ActualWidthProperty);
             movableRect.SetBinding(Shape.WidthProperty, b);
@@ -1168,7 +1188,6 @@ namespace _20220508
         }
         private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            //AjustLocate3(this.MyParentGroup);
             this.MyParentGroup?.AjustLocate3();
         }
 
@@ -1184,7 +1203,7 @@ namespace _20220508
 
         //自身が属する移動可能状態のグループThumbを取得
         //編集状態のThumb直下のThumb群から自身が属するものを取得
-        public Group4? GetMyUnderEditingThumb()
+        public Group4? GetMyMoveTargetThumb()
         {
             if (MyParentGroup is Group4 group)
             {
@@ -1194,7 +1213,7 @@ namespace _20220508
                 }
                 else
                 {
-                    return group.GetMyUnderEditingThumb();
+                    return group.GetMyMoveTargetThumb();
                 }
             }
             else { return null; }
@@ -1215,23 +1234,12 @@ namespace _20220508
         public void Regroup()
         {
             //選択状態のThumbを基準に再グループ
-            var target = (TThumb4?)GetMyUnderEditingThumb() ?? this;
+            var target = (TThumb4?)GetMyMoveTargetThumb() ?? this;
             if (target == null) { return; }
             if (target.IsSelected == true && target.RegroupThumbs.Count >= 2)
             {
-                target.MyParentGroup?.MakeGroup(target.RegroupThumbs);
+                target.MyParentGroup?.MakeGroupFromChildren2(target.RegroupThumbs);
             }
-            ////Parentが選択状態ならそれを再グループ            
-            //if (MyParentGroup?.IsSelected == true)
-            //{
-            //    MyParentGroup?.MyParentGroup?.MakeGroup(MyParentGroup?.RegroupThumbs);
-            //}
-            ////自身を含んだものを再グループ
-            //else
-            //{
-            //    MyParentGroup?.MakeGroup(RegroupThumbs);
-            //}
-
         }
 
         #endregion メソッド
@@ -1273,7 +1281,7 @@ namespace _20220508
             PreviewMouseDown += Item4_PreviewMouseDown;
         }
 
-        #region イベント  
+        #region イベント
 
         //表示された直後にサイズが決まるのでParentのサイズを修正する
         private void Item4_Loaded(object sender, RoutedEventArgs e)
@@ -1291,7 +1299,8 @@ namespace _20220508
             MyLayer.LastClickedItem = this;
 
             //編集状態直下の自身が属するグループ
-            TThumb4 topMovable = (TThumb4?)GetMyUnderEditingThumb() ?? this;
+            TThumb4 topMovable = (TThumb4?)GetMyMoveTargetThumb() ?? this;
+            MyMovableThumb = topMovable;
             //自身が編集状態Thumbの範囲外だった場合
             if (MyLayer.NowEditingThumb != topMovable.MyParentGroup)
             {
@@ -1317,7 +1326,8 @@ namespace _20220508
             }
         }
 
-        #endregion イベント  
+        #endregion イベント
+
         //単一要素表示用テンプレートに書き換える
         private Canvas InitializeTemplate()
         {
@@ -1351,7 +1361,6 @@ namespace _20220508
 
             this.Template = template;
             this.ApplyTemplate();
-            //MyTemplateCanvas = (Canvas)template.FindName(nameof(MyTemplateCanvas), this) ?? throw new ArgumentNullException(nameof(MyTemplateCanvas));
             return (Canvas)template.FindName(nameof(MyTemplateCanvas), this);
         }
 
@@ -1455,20 +1464,6 @@ namespace _20220508
                 {
                     MyData.ChildrenData.Remove(removeItem.MyData);//Dataの削除
                     DragEventRemove(removeItem);
-                    ////再グループ用リストから削除
-                    //foreach (var child in Children)
-                    //{
-                    //    if (child.RegroupThumbs.Count <= 2)
-                    //    {
-                    //        child.RegroupThumbs.Clear();
-                    //    }
-                    //    else
-                    //    {
-                    //        child.RegroupThumbs.Remove(child);
-                    //    }
-                    //}
-                   
-
                 }
             }
         }
@@ -1579,10 +1574,12 @@ namespace _20220508
         }
 
 
+
+
         /// <summary>
         /// グループ解除、自身を解除、子要素は親要素へ移動＋選択状態にする
         /// </summary>
-        public void Ungroup()
+        public void Ungroup2()
         {
             if (MyParentGroup == null) { return; }
             //上にあるThumbZの底上げ
@@ -1591,28 +1588,28 @@ namespace _20220508
                 //削除対象子要素数-1ぶん底上げする
                 MyParentGroup.Children[i].MyData.Z += Children.Count - 1;
             }
-            //子要素に対して
+            //子要素に対してx,y,zの調整
             foreach (var item in Children)
             {
-                item.MyData.Z += MyData.Z;//Zを削除対象のZぶん底上げする
-                DragEventRemove(item);//ドラッグ移動イベントの削除
                 item.MyData.X += MyData.X;
                 item.MyData.Y += MyData.Y;
+                item.MyData.Z += MyData.Z;//Zを削除対象のZぶん底上げする
             }
 
-            MyParentGroup.RemoveThumb(this);//削除
-
+            //追加してから削除、しないと削除時点で要素数が2未満になった場合にそれも解除対象になってしまうから
             //解除後は子要素群を選択状態にするので今のはクリアする
             MyLayer?.SelectThumbsCleal();
             //子要素の処理
             foreach (var item in Children)
             {
-                MyLayer?.SelectThumbAdd(item);//選択状態にする
+                MyLayer?.SelectThumbAdd(item);//選択状態にする、必要ない
                 MyParentGroup.InsertThumb(item);//Parentの子要素に挿入
 
                 //再グループ用の情報を付加
                 item.RegroupThumbs = Children.ToList();
             }
+            MyParentGroup.RemoveThumb(this);//削除
+
             //兄弟の再グループリストから自身を削除
             foreach (var brothers in MyParentGroup.Children)
             {
@@ -1625,50 +1622,29 @@ namespace _20220508
         }
 
         /// <summary>
-        /// 指定要素群からグループ作成
+        /// 指定要素群からグループ作成して自身に挿入する
         /// </summary>
         /// <param name="thumbs">要素群は自身のChildrenから指定</param>
         /// <returns></returns>
-        public bool MakeGroup(List<TThumb4>? thumbs)
+        public bool MakeGroupFromChildren2(List<TThumb4>? thumbs)
         {
-            if (thumbs == null) { return false; }
-            //指定要素群のParentチェック、自身ではなかった場合は作成失敗
-            foreach (var item in thumbs)
-            {
-                if (item.MyParentGroup != this)
-                {
-                    return false;
-                }
-            }
+            if (thumbs == null || thumbs.Count < 2) { return false; }
+            //指定要素群のParentが自身ではなかった場合は作成失敗
+            foreach (var item in thumbs) { if (item.MyParentGroup != this) { return false; } }
 
-            foreach (var item in thumbs)
-            {
-                RemoveThumb(item);//削除
-            }
-
-            //Z順にソートした要素群作成、これを元に新グループ作成
-            var sortedThumbs = thumbs.OrderBy(x => x.MyData.Z).ToList();
-
-            //新グループ
-            //x,y位置は要素群の一番右上に合わせる
-            //z位置は要素軍の一番上を基準にして
-            double x = 0; double y = 0;
-            int maxZ = 0; int minZ = int.MaxValue;
-            foreach (var item in sortedThumbs)
-            {
-                x = Math.Min(x, item.MyData.X);
-                y = Math.Min(y, item.MyData.Y);
-                maxZ = Math.Max(maxZ, item.MyData.Z);//最上位Z
-                minZ = Math.Min(minZ, item.MyData.Z);//最下位Z
-            }
+            //新グループのX、Y、Zを要素群から計算取得
+            var (x, y, minZ, maxZ) = GetXYZForNewGroup(thumbs);
             //新グループのZ = 要素群の最上位Z - (要素数 - 1)
-            maxZ -= sortedThumbs.Count - 1;
-
-            //新グループ作成
+            maxZ -= thumbs.Count - 1;
+            //新グループのData作成
             Data4 data = new(DataType.Group);
             data.X = x; data.Y = y; data.Z = maxZ;
+
+            //新グループ作成            
             Group4 group = new(data);//作成
-            group.MyLayer = thumbs[0].MyLayer;
+            group.MyLayer = this.MyLayer;
+            //Z順にソートした要素群作成
+            var sortedThumbs = thumbs.OrderBy(x => x.MyData.Z).ToList();
             //新グループに要素群追加
             foreach (var item in sortedThumbs)
             {
@@ -1676,16 +1652,31 @@ namespace _20220508
                 //再グループ用の情報をクリア
                 item.RegroupThumbs.Clear();
             }
-            InsertThumb(group);//自身のこ要素に追加
+            //新グループを作成挿入してから、元の要素群削除、順番大切
+            //Childrenに新グループを挿入
+            InsertThumb(group);
+            //Childrenから要素群削除
+            foreach (var item in sortedThumbs) { RemoveThumb(item); }
+
             //子要素全体のZ調整、歯抜けになっているので数値を詰める
-            for (int i = minZ; i < Children.Count; i++)
-            {
-                Children[i].MyData.Z = i;
-            }
+            for (int i = minZ; i < Children.Count; i++) { Children[i].MyData.Z = i; }
 
             return true;
         }
 
+        private static (double x, double y, int minZ, int maxZ) GetXYZForNewGroup(List<TThumb4> thumbs)
+        {
+            double x = 0; double y = 0;//左上座標
+            int maxZ = 0; int minZ = int.MaxValue;
+            foreach (var item in thumbs)
+            {
+                x = Math.Min(x, item.MyData.X);
+                y = Math.Min(y, item.MyData.Y);
+                minZ = Math.Min(minZ, item.MyData.Z);//最下位Z
+                maxZ = Math.Max(maxZ, item.MyData.Z);//最上位Z
+            }
+            return (x, y, minZ, maxZ);
+        }
 
         //指定ThumbをChildrenに追加
         public virtual void AddThumb(TThumb4 thumb)
@@ -1720,6 +1711,12 @@ namespace _20220508
             {
                 //コレクションから削除
                 Children.Remove(thumb);
+                //2未満ならグループ解除
+                if (Children.Count < 2)
+                {
+                    Ungroup2();
+                    //Ungroup();
+                }
             }
             else
             {

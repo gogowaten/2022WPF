@@ -218,11 +218,7 @@ namespace _20220508
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            if (ActiveThumb != null)
-            {
-                //ActiveThumb.RemoveItem();
-                //ActiveThumb.MyParentGroup?.RemoveItem(ActiveThumb);
-            }
+            ActiveThumb?.MyParentGroup?.RemoveThumb(ActiveThumb);
         }
 
         private void ButtonAddG1_Click(object sender, RoutedEventArgs e)
@@ -233,7 +229,8 @@ namespace _20220508
         private void ButtonKaijo_Click(object sender, RoutedEventArgs e)
         {
             //ActiveThumb?.MyParentGroup?.Ungroup();
-            ActiveThumb?.GetMyUnderEditingThumb()?.Ungroup();
+            ActiveThumb?.GetMyMoveTargetThumb()?.Ungroup2();
+            //ActiveThumb?.GetMyUnderEditingThumb()?.Ungroup();
         }
 
         private void ButtonCheck1_Click(object sender, RoutedEventArgs e)
@@ -259,7 +256,8 @@ namespace _20220508
         private void ButtonMakeGroup_Click(object sender, RoutedEventArgs e)
         {
             var neko = MyLayer?.SelectedThumbs.ToList();
-            MyLayer?.MakeGroup(neko);
+            MyLayer?.MakeGroupFromChildren2(neko);
+            //MyLayer?.MakeGroupFromChildren(neko);
         }
 
         private void ButtonReGroup_Click(object sender, RoutedEventArgs e)
