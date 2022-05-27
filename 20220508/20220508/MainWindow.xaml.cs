@@ -35,7 +35,7 @@ namespace _20220508
         private TThumb4? ActiveThumb;
         private Layer4? MyLayer;
         private Group4? MyGroup1;
-        private Group4? MyGroup2;
+        private Group4? MyGroup2;WakuTest myWaku;
         public MainWindow()
         {
             InitializeComponent();
@@ -43,7 +43,8 @@ namespace _20220508
             Top = 100;
             T4Initialize();
 
-
+            myWaku=new() { Width = 100, Height = 100 };
+            MyCanvas.Children.Add(myWaku);
 
 
 
@@ -188,7 +189,7 @@ namespace _20220508
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
-
+            myWaku.Waku1 = true;
         }
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)

@@ -1071,8 +1071,8 @@ namespace _20220508
         //クリックされたThumbが属するグループの中で移動対象となるThumb
         //更新タイミングはクリックされたときにしたけど、
         //ホントはそれ以外にも編集状態Thumbが切り替わったときに全部のThumbに行いたい？
-        private TThumb4 _myMovableThumb;
-        public TThumb4 MyMovableThumb
+        private TThumb4? _myMovableThumb;
+        public TThumb4? MyMovableThumb
         {
             get => _myMovableThumb;
             set { if (value == _myMovableThumb) { return; } _myMovableThumb = value; OnPropertyChanged(); }
@@ -1151,7 +1151,7 @@ namespace _20220508
             //枠サイズは自身のサイズに合わせる
             FrameworkElementFactory movableRect = new(typeof(Rectangle));
             movableRect.SetValue(Shape.StrokeProperty, Brushes.LightGray);
-            
+
             b = new() { Source = this };
             b.Path = new PropertyPath(ActualWidthProperty);
             movableRect.SetBinding(Shape.WidthProperty, b);
@@ -2051,5 +2051,50 @@ namespace _20220508
         }
     }
     #endregion Data4
+
+    public class WakuTest :Border, INotifyPropertyChanged
+    {
+        private bool _waku1;
+        public bool Waku1
+        {
+            get => _waku1; set { if (value == _waku1) { return; } _waku1 = value; OnPropertyChanged(); }
+        }
+        private bool _waku2;
+        public bool Waku2
+        {
+            get => _waku2; set { if (value == _waku2) { return; }_waku2 = value;OnPropertyChanged(); }
+        }
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        public WakuTest()
+        {
+            Binding b1 = new(nameof(Waku1)) { Source = this };
+            Binding b2 = new(nameof(Waku2)) { Source = this };
+            MultiBinding mb = new();
+            mb.Bindings.Add(b1);mb.Bindings.Add(b2);
+            mb.Converter = new WakuWaku7();
+            this.SetBinding(Border.BorderBrushProperty, mb);
+            this.BorderThickness = new Thickness(1.0);
+        }
+    }
+    public class WakuWaku7 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool b1 = (bool)values[0];
+            bool b2 = (bool)values[1];
+            if (b2) { return Brushes.Red; }
+            else if(b1) { return Brushes.Green; }   
+            else { return Brushes.Blue; }
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }
 
