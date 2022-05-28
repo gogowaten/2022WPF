@@ -1079,23 +1079,23 @@ namespace _20220508
         }
         public Data4 MyData { get; set; }
         public List<TThumb4> RegroupThumbs = new();//再グループ用
-        private bool _IsSelected;
+        private bool _IsMySelected;
 
-        public bool IsSelected
+        public bool IsMySelected
         {
-            get => _IsSelected;
-            set { if (value == _IsSelected) { return; } _IsSelected = value; OnPropertyChanged(); }
+            get => _IsMySelected;
+            set { if (value == _IsMySelected) { return; } _IsMySelected = value; OnPropertyChanged(); }
         }
         //移動対象フラグ、編集状態のGroupThumbの直下のThumb全てが対象になる
         //Parentが編集状態(IsEditing)ならtrue
-        private bool _isMoveTarget;
-        public bool IsMoveTarget
+        private bool _isMyMoveTarget;
+        public bool IsMyMoveTarget
         {
-            get => _isMoveTarget;
+            get => _isMyMoveTarget;
             set
             {
-                if (_isMoveTarget == value) { return; }
-                _isMoveTarget = value; OnPropertyChanged();
+                if (_isMyMoveTarget == value) { return; }
+                _isMyMoveTarget = value; OnPropertyChanged();
             }
         }
 
@@ -1125,7 +1125,8 @@ namespace _20220508
         {
             //選択状態枠表示            
             FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Rectangle.StrokeProperty, Brushes.SkyBlue);
+            //waku.SetValue(Rectangle.StrokeProperty, Brushes.SkyBlue);
+            waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
 
             //枠サイズは自身のサイズに合わせる
             Binding b = new();
@@ -1137,38 +1138,38 @@ namespace _20220508
             b.Path = new PropertyPath(ActualHeightProperty);
             waku.SetValue(Rectangle.HeightProperty, b);
 
-            //枠表示バインド、選択状態のときだけ表示する
-            b = new(nameof(IsSelected)) { Source = this };
-            b.Converter = new MyValueConverterVisible();
-            waku.SetValue(VisibilityProperty, b);
+            ////枠表示バインド、選択状態のときだけ表示する
+            //b = new(nameof(IsMySelected)) { Source = this };
+            //b.Converter = new MyValueConverterVisible();
+            //waku.SetValue(VisibilityProperty, b);
 
             return waku;
         }
-        protected FrameworkElementFactory MakeWaku2()
-        {
-            Binding b;
-            //移動可能Thumbに表示する枠
-            //枠サイズは自身のサイズに合わせる
-            FrameworkElementFactory movableRect = new(typeof(Rectangle));
-            movableRect.SetValue(Shape.StrokeProperty, Brushes.LightGray);
+        //protected FrameworkElementFactory MakeWaku2()
+        //{
+        //    Binding b;
+        //    //移動可能Thumbに表示する枠
+        //    //枠サイズは自身のサイズに合わせる
+        //    FrameworkElementFactory movableRect = new(typeof(Rectangle));
+        //    movableRect.SetValue(Shape.StrokeProperty, Brushes.LightGray);
 
-            b = new() { Source = this };
-            b.Path = new PropertyPath(ActualWidthProperty);
-            movableRect.SetBinding(Shape.WidthProperty, b);
-            b = new() { Source = this };
-            b.Path = new PropertyPath(ActualHeightProperty);
-            movableRect.SetBinding(Shape.HeightProperty, b);
-            //枠表示バインド、選択状態のときだけ表示する
-            b = new(nameof(IsMoveTarget)) { Source = this };
-            b.Converter = new MyValueConverterVisible();
-            movableRect.SetValue(VisibilityProperty, b);
+        //    b = new() { Source = this };
+        //    b.Path = new PropertyPath(ActualWidthProperty);
+        //    movableRect.SetBinding(Shape.WidthProperty, b);
+        //    b = new() { Source = this };
+        //    b.Path = new PropertyPath(ActualHeightProperty);
+        //    movableRect.SetBinding(Shape.HeightProperty, b);
+        //    //枠表示バインド、選択状態のときだけ表示する
+        //    b = new(nameof(IsMyMoveTarget)) { Source = this };
+        //    b.Converter = new MyValueConverterVisible();
+        //    movableRect.SetValue(VisibilityProperty, b);
 
-            //b = new(nameof(Group4Base.IsEditing)) { Source = MyParentGroup };
-            //b.Converter = new MyValueConverterVisible();
-            //movableRect.SetValue(VisibilityProperty, b);
-            ////movableRect.SetBinding(VisibilityProperty, b);
-            return movableRect;
-        }
+        //    //b = new(nameof(Group4Base.IsEditing)) { Source = MyParentGroup };
+        //    //b.Converter = new MyValueConverterVisible();
+        //    //movableRect.SetValue(VisibilityProperty, b);
+        //    ////movableRect.SetBinding(VisibilityProperty, b);
+        //    return movableRect;
+        //}
 
 
         #region ドラッグ移動
@@ -1177,14 +1178,14 @@ namespace _20220508
         {
             thumb.DragDelta += thumb.TThumb_DragDelta;
             thumb.DragCompleted += thumb.TThumb_DragCompleted;
-            thumb.IsMoveTarget = true;//移動対象にする
+            thumb.IsMyMoveTarget = true;//移動対象にする
         }
 
         protected void DragEventRemove(TThumb4 thumb)
         {
             thumb.DragCompleted -= thumb.TThumb_DragCompleted;
             thumb.DragDelta -= thumb.TThumb_DragDelta;
-            thumb.IsMoveTarget = false;//移動対象から外す
+            thumb.IsMyMoveTarget = false;//移動対象から外す
         }
         private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
@@ -1207,7 +1208,7 @@ namespace _20220508
         {
             if (MyParentGroup is Group4 group)
             {
-                if (group.MyParentGroup?.IsEditing == true)
+                if (group.MyParentGroup?.IsMyEditing == true)
                 {
                     return group;
                 }
@@ -1236,7 +1237,7 @@ namespace _20220508
             //選択状態のThumbを基準に再グループ
             var target = (TThumb4?)GetMyMoveTargetThumb() ?? this;
             if (target == null) { return; }
-            if (target.IsSelected == true && target.RegroupThumbs.Count >= 2)
+            if (target.IsMySelected == true && target.RegroupThumbs.Count >= 2)
             {
                 target.MyParentGroup?.MakeGroupFromChildren2(target.RegroupThumbs);
             }
@@ -1249,14 +1250,14 @@ namespace _20220508
     {
         public Canvas MyTemplateCanvas;
         public FrameworkElement MyItemElement;
-        private bool _IsLastClicked;//最後にクリックされたフラグ
-        public bool IsLastClicked
+        private bool _IsMyLastClicked;//最後にクリックされたフラグ
+        public bool IsMyLastClicked
         {
-            get => _IsLastClicked;
+            get => _IsMyLastClicked;
             set
             {
-                if (_IsLastClicked == value) { return; }
-                _IsLastClicked = value;
+                if (_IsMyLastClicked == value) { return; }
+                _IsMyLastClicked = value;
                 OnPropertyChanged();
             }
         }
@@ -1332,29 +1333,39 @@ namespace _20220508
         private Canvas InitializeTemplate()
         {
             //共通枠
-            FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyTemplateCanvas));
+            Binding b1 = new(nameof(IsMyLastClicked)) { Source = this };
+            Binding b2 = new(nameof(IsMySelected)) { Source = this };
+            MultiBinding mb = new();
+            mb.Bindings.Add(b1); mb.Bindings.Add(b2);
+            mb.Converter = new MyConverterItemWaku4();
+            mb.ConverterParameter = My2ColorDashBrush();
             FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Item);
+            //waku.SetBinding(BorderBrushProperty, mb);
+            waku.SetBinding(Rectangle.StrokeProperty, mb);
+            //waku.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 2.0, 2.0 });
+
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas), nameof(MyTemplateCanvas));
             baseCanvas.AppendChild(waku);
             waku.SetValue(Panel.ZIndexProperty, 1);//枠表示前面
-            baseCanvas.AppendChild(MakeWaku2());//枠2追加
-            //Item専用枠、最後にクリックされた識別用
-            FrameworkElementFactory lastClickWaku = new(typeof(Rectangle));
-            lastClickWaku.SetValue(Panel.ZIndexProperty, 2);
-            lastClickWaku.SetValue(Rectangle.StrokeProperty, Brushes.OrangeRed);
-            lastClickWaku.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 5.0, 5.0 });
-            baseCanvas.AppendChild(lastClickWaku);
-            Binding b = new() { Source = this, Path = new PropertyPath(WidthProperty) };
-            lastClickWaku.SetBinding(WidthProperty, b);
-            b = new() { Source = this, Path = new PropertyPath(HeightProperty) };
-            lastClickWaku.SetBinding(HeightProperty, b);
-            //枠表示バインド
-            b = new()
-            {
-                Source = this,
-                Path = new PropertyPath(nameof(IsLastClicked)),
-                Converter = new MyValueConverterVisible()
-            };
-            lastClickWaku.SetBinding(VisibilityProperty, b);
+            //baseCanvas.AppendChild(MakeWaku2());//枠2追加
+            ////Item専用枠、最後にクリックされた識別用
+            //FrameworkElementFactory lastClickWaku = new(typeof(Rectangle));
+            //lastClickWaku.SetValue(Panel.ZIndexProperty, 2);
+            //lastClickWaku.SetValue(Rectangle.StrokeProperty, Brushes.OrangeRed);
+            //lastClickWaku.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 5.0, 5.0 });
+            //baseCanvas.AppendChild(lastClickWaku);
+            //Binding b = new() { Source = this, Path = new PropertyPath(WidthProperty) };
+            //lastClickWaku.SetBinding(WidthProperty, b);
+            //b = new() { Source = this, Path = new PropertyPath(HeightProperty) };
+            //lastClickWaku.SetBinding(HeightProperty, b);
+            ////枠表示バインド
+            //b = new()
+            //{
+            //    Source = this,
+            //    Path = new PropertyPath(nameof(IsMyLastClicked)),
+            //    Converter = new MyValueConverterVisible()
+            //};
+            //lastClickWaku.SetBinding(VisibilityProperty, b);
 
             ControlTemplate template = new();
             template.VisualTree = baseCanvas;
@@ -1362,6 +1373,48 @@ namespace _20220508
             this.Template = template;
             this.ApplyTemplate();
             return (Canvas)template.FindName(nameof(MyTemplateCanvas), this);
+
+            Brush My2ColorDashBrush()
+            {
+                var pattern = MakeCheckeredPattern(1, Colors.Black);
+                ImageBrush brush = new(pattern)
+                {
+                    Stretch = Stretch.None,
+                    TileMode = TileMode.Tile,
+                    Viewport = new Rect(0, 0, pattern.PixelWidth, pattern.PixelHeight),
+                    ViewportUnits = BrushMappingMode.Absolute
+                };
+                return brush;
+            }
+            WriteableBitmap MakeCheckeredPattern(int cellSize, Color gray)
+            {
+                int width = cellSize * 2;
+                int height = cellSize * 2;
+                var wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Rgb24, null);
+                int stride = wb.Format.BitsPerPixel / 8 * width;
+                byte[] pixels = new byte[stride * height];
+                int p = 0;
+                Color iro;
+                for (int y = 0; y < height; y++)
+                {
+                    for (int x = 0; x < width; x++)
+                    {
+                        if ((y < cellSize & x < cellSize) | (y >= cellSize & x >= cellSize))
+                        {
+                            iro = Colors.Red;
+                        }
+                        else { iro = gray; }
+
+                        p = y * stride + x * 3;
+                        pixels[p] = iro.R;
+                        pixels[p + 1] = iro.G;
+                        pixels[p + 2] = iro.B;
+                    }
+                }
+                wb.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
+                return wb;
+            }
+
         }
 
         //表示する要素をDataから作成
@@ -1401,14 +1454,14 @@ namespace _20220508
         public ItemsControl MyItemsControl;
         protected ObservableCollection<TThumb4> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb4> Items { get; set; }
-        private bool _IsEditing { get; set; }
-        public bool IsEditing
+        private bool _IsMyEditing { get; set; }
+        public bool IsMyEditing
         {
-            get => _IsEditing;
+            get => _IsMyEditing;
             set
             {
-                if (_IsEditing == value) { return; }
-                _IsEditing = value; OnPropertyChanged();
+                if (_IsMyEditing == value) { return; }
+                _IsMyEditing = value; OnPropertyChanged();
             }
         }
 
@@ -1452,7 +1505,7 @@ namespace _20220508
                     //Layerの指定
                     addItem.MyLayer = this.MyLayer;
                     //Parent(自身)が編集状態なら追加アイテムを
-                    if (this.IsEditing)
+                    if (this.IsMyEditing)
                     {
                         DragEventAdd(addItem);//ドラッグ移動可能にする
                     }
@@ -1478,11 +1531,18 @@ namespace _20220508
             FrameworkElementFactory itemsCanvas = new(typeof(Canvas));
             itemsControl.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(itemsCanvas));
 
-            FrameworkElementFactory baseCanvas = new(typeof(Canvas));
+            Binding b1 = new(nameof(IsMyEditing)) { Source = this };
+            Binding b2 = new(nameof(IsMySelected)) { Source = this };
+            MultiBinding mb = new();
+            mb.Bindings.Add(b1); mb.Bindings.Add(b2);
+            mb.Converter = new MyConverterGroupWaku4();
             FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Group);
+            waku.SetBinding(Rectangle.StrokeProperty, mb);
+            waku.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 5.0, 5.0 });
+            FrameworkElementFactory baseCanvas = new(typeof(Canvas));
             baseCanvas.AppendChild(waku);//枠追加
-            baseCanvas.AppendChild(MakeWaku2());//枠2追加
-            baseCanvas.AppendChild(MakeWaku3());//枠3追加
+            //baseCanvas.AppendChild(MakeWaku2());//枠2追加
+            //baseCanvas.AppendChild(MakeWaku3());//枠3追加
             baseCanvas.AppendChild(itemsControl);
 
             ControlTemplate template = new();
@@ -1494,26 +1554,26 @@ namespace _20220508
             return (ItemsControl)template.FindName(nameof(MyItemsControl), this)
                 ?? throw new ArgumentNullException(nameof(MyItemsControl));
         }
-        protected FrameworkElementFactory MakeWaku3()
-        {
-            Binding b;
-            //移動対象Thumbに表示する枠
-            //枠サイズは自身のサイズに合わせる
-            FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Shape.StrokeProperty, Brushes.Green);
-            b = new() { Source = this };
-            b.Path = new PropertyPath(ActualWidthProperty);
-            waku.SetBinding(Shape.WidthProperty, b);
-            b = new() { Source = this };
-            b.Path = new PropertyPath(ActualHeightProperty);
-            waku.SetBinding(Shape.HeightProperty, b);
-            //枠表示バインド、編集状態のときだけ表示する
-            b = new(nameof(IsEditing)) { Source = this };
-            b.Converter = new MyValueConverterVisible();
-            waku.SetValue(VisibilityProperty, b);
+        //protected FrameworkElementFactory MakeWaku3()
+        //{
+        //    Binding b;
+        //    //移動対象Thumbに表示する枠
+        //    //枠サイズは自身のサイズに合わせる
+        //    FrameworkElementFactory waku = new(typeof(Rectangle));
+        //    waku.SetValue(Shape.StrokeProperty, Brushes.Green);
+        //    b = new() { Source = this };
+        //    b.Path = new PropertyPath(ActualWidthProperty);
+        //    waku.SetBinding(Shape.WidthProperty, b);
+        //    b = new() { Source = this };
+        //    b.Path = new PropertyPath(ActualHeightProperty);
+        //    waku.SetBinding(Shape.HeightProperty, b);
+        //    //枠表示バインド、編集状態のときだけ表示する
+        //    b = new(nameof(IsEditing)) { Source = this };
+        //    b.Converter = new MyValueConverterVisible();
+        //    waku.SetValue(VisibilityProperty, b);
 
-            return waku;
-        }
+        //    return waku;
+        //}
         #endregion コンストラクタ、初期化
 
         #region publucメソッド
@@ -1780,14 +1840,14 @@ namespace _20220508
                 {
                     foreach (var item in _SelectedThumbs)
                     {
-                        item.IsSelected = false;
+                        item.IsMySelected = false;
                     }
                     _SelectedThumbs.Clear();
                 }
                 //ドラッグ移動イベントの付け外し
                 if (_NowEditingThumb != null)
                 {
-                    _NowEditingThumb.IsEditing = false;
+                    _NowEditingThumb.IsMyEditing = false;
                     _NowEditingThumb.RemoveDragEventForChildren();
                 }
 
@@ -1795,7 +1855,7 @@ namespace _20220508
 
                 if (_NowEditingThumb != null)
                 {
-                    _NowEditingThumb.IsEditing = true;
+                    _NowEditingThumb.IsMyEditing = true;
                     _NowEditingThumb.AddDragEventForChildren();
                 }
 
@@ -1817,10 +1877,10 @@ namespace _20220508
                 //古い方のIsLastClickedをfalseに変更してから
                 if (_lastClickedItem != null)
                 {
-                    _lastClickedItem.IsLastClicked = false;
+                    _lastClickedItem.IsMyLastClicked = false;
                 }
                 //新しい方のIsLastClickedをtrue
-                value.IsLastClicked = true;
+                value.IsMyLastClicked = true;
                 //入れ替え
                 _lastClickedItem = value;
             }
@@ -1835,7 +1895,7 @@ namespace _20220508
         {
             //Layerなので編集状態にする
             NowEditingThumb = this;
-            IsEditing = true;
+            IsMyEditing = true;
 
             _SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
             PreviewMouseLeftButtonDown += Layer4_PreviewMouseLeftButtonDown;
@@ -1873,7 +1933,7 @@ namespace _20220508
             {
                 foreach (var item in SelectedThumbs)
                 {
-                    item.IsSelected = false;
+                    item.IsMySelected = false;
                 }
                 _SelectedThumbs.Clear();
                 _SelectedThumbs.Add(thumb);
@@ -1889,7 +1949,7 @@ namespace _20220508
             if (_SelectedThumbs.Count == 0) { return; }
             foreach (var item in _SelectedThumbs)
             {
-                item.IsSelected = false;
+                item.IsMySelected = false;
             }
             _SelectedThumbs.Clear();
         }
@@ -1928,16 +1988,16 @@ namespace _20220508
             {
                 case NotifyCollectionChangedAction.Add:
                     if (nn == null) { return; }
-                    nn.IsSelected = true;
+                    nn.IsMySelected = true;
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     if (oo == null) { return; }
-                    oo.IsSelected = false;
+                    oo.IsMySelected = false;
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     if (nn == null || oo == null) { return; }
-                    oo.IsSelected = false;
-                    nn.IsSelected = true;
+                    oo.IsMySelected = false;
+                    nn.IsMySelected = true;
                     var item0 = e.NewItems?[0];
                     var item1 = e.OldItems?[0];
                     break;
@@ -2052,7 +2112,7 @@ namespace _20220508
     }
     #endregion Data4
 
-    public class WakuTest :Border, INotifyPropertyChanged
+    public class WakuTest : Border, INotifyPropertyChanged
     {
         private bool _waku1;
         public bool Waku1
@@ -2062,7 +2122,7 @@ namespace _20220508
         private bool _waku2;
         public bool Waku2
         {
-            get => _waku2; set { if (value == _waku2) { return; }_waku2 = value;OnPropertyChanged(); }
+            get => _waku2; set { if (value == _waku2) { return; } _waku2 = value; OnPropertyChanged(); }
         }
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
@@ -2074,20 +2134,20 @@ namespace _20220508
             Binding b1 = new(nameof(Waku1)) { Source = this };
             Binding b2 = new(nameof(Waku2)) { Source = this };
             MultiBinding mb = new();
-            mb.Bindings.Add(b1);mb.Bindings.Add(b2);
-            mb.Converter = new WakuWaku7();
+            mb.Bindings.Add(b1); mb.Bindings.Add(b2);
+            mb.Converter = new MyConverterWakuTest();
             this.SetBinding(Border.BorderBrushProperty, mb);
             this.BorderThickness = new Thickness(1.0);
         }
     }
-    public class WakuWaku7 : IMultiValueConverter
+    public class MyConverterWakuTest : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             bool b1 = (bool)values[0];
             bool b2 = (bool)values[1];
             if (b2) { return Brushes.Red; }
-            else if(b1) { return Brushes.Green; }   
+            else if (b1) { return Brushes.Green; }
             else { return Brushes.Blue; }
         }
 
@@ -2096,5 +2156,49 @@ namespace _20220508
             throw new NotImplementedException();
         }
     }
+    public class MyConverterItemWaku4 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            Brush b = (Brush)parameter;
+            LinearGradientBrush brush = new();
+            brush.GradientStops.Add(new GradientStop(Colors.Red, 0.5));
+            brush.GradientStops.Add(new GradientStop(Colors.Blue, 0.5));
+            brush.StartPoint = new Point(0.0, 0.0);
+            brush.EndPoint = new Point(0.1, 0.1);
+            //brush.MappingMode = BrushMappingMode.Absolute;
+            brush.SpreadMethod = GradientSpreadMethod.Repeat;
+            bool b1 = (bool)values[0];
+            bool b2 = (bool)values[1];
+            if (b1) { return Brushes.Orange; }
+            else if (b2) { return Brushes.SkyBlue; }
+            //else { return brush; }
+            else { return b; }
+            //else { return Brushes.Transparent; }
+            //else { return Brushes.LightGray; }
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class MyConverterGroupWaku4 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            bool b1 = (bool)values[0];
+            bool b2 = (bool)values[1];
+            if (b1) { return Brushes.Purple; }
+            else if (b2) { return Brushes.RoyalBlue; }
+            else { return Brushes.LightGray; }
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 }
 

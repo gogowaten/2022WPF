@@ -35,7 +35,7 @@ namespace _20220508
         private TThumb4? ActiveThumb;
         private Layer4? MyLayer;
         private Group4? MyGroup1;
-        private Group4? MyGroup2;WakuTest myWaku;
+        private Group4? MyGroup2; WakuTest myWaku;
         public MainWindow()
         {
             InitializeComponent();
@@ -43,17 +43,20 @@ namespace _20220508
             Top = 100;
             T4Initialize();
 
-            myWaku=new() { Width = 100, Height = 100 };
-            MyCanvas.Children.Add(myWaku);
+            //myWaku=new() { Width = 100, Height = 100 };
+            //MyCanvas.Children.Add(myWaku);
 
-
+            Rectangle rectangle = new() { Width = 100, Height = 100 ,Stroke=Brushes.Firebrick};
+            rectangle.StrokeDashArray = new DoubleCollection() { 5.0, 5.0 };
+            rectangle.StrokeDashOffset = 3;
+            MyCanvas.Children.Add(rectangle);
 
         }
         private void T4Initialize()
         {
             MyLayer = new(new(DataType.Layer)) { Name = "MyLayer" };
             MyCanvas.Children.Add(MyLayer);
-            MyLayer.IsEditing = true;//編集状態にする(追加されたアイテムはドラッグ移動可能)
+            MyLayer.IsMyEditing = true;//編集状態にする(追加されたアイテムはドラッグ移動可能)
             MyStackPanel.DataContext = MyLayer;
             MyGroupBoxLayer.DataContext = MyLayer;
 
@@ -75,7 +78,7 @@ namespace _20220508
             Data4 data = new(DataType.TextBlock) { Text = text, X = x, Y = y };
             data.Background = new SolidColorBrush(
                 Color.FromArgb(
-                    255,
+                    55,
                     50,
                     (byte)(AddThumbCount * 20 + 50),
                     (byte)(AddThumbCount * 20 + 50)));
@@ -119,7 +122,7 @@ namespace _20220508
         {
             MyLayer = new(new(DataType.Layer)) { Name = "MyLayer" };
             MyCanvas.Children.Add(MyLayer);
-            MyLayer.IsEditing = true;//編集状態にする(追加されたアイテムはドラッグ移動可能)
+            MyLayer.IsMyEditing = true;//編集状態にする(追加されたアイテムはドラッグ移動可能)
             MyStackPanel.DataContext = MyLayer;
 
 
@@ -189,7 +192,7 @@ namespace _20220508
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
-            myWaku.Waku1 = true;
+            //myWaku.Waku1 = true;
         }
 
         private void ButtonCheck_Click(object sender, RoutedEventArgs e)
