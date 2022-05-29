@@ -12,10 +12,52 @@ namespace _20220528_2ColorDashStroke
         public MainWindow()
         {
             InitializeComponent();
-            Test1VisualBrush();
-            Test2RectangleRectangle();
+            Test2VisualBrush();
+            Test1RectangleRectangle();
             Test3ImageBrush();
         }
+
+        //Rectangleを2つをそのまま使う
+        private void Test1RectangleRectangle()
+        {
+            Rectangle r1 = new() { Width = 100, Height = 50, Stroke = Brushes.Red };
+            Rectangle r2 = new()
+            {
+                Width = 100,
+                Height = 50,
+                Stroke = Brushes.White,
+                StrokeDashArray = new DoubleCollection() { 1.0 }
+            };
+
+            Grid g = new(); RenderOptions.SetEdgeMode(g, EdgeMode.Aliased);
+            Canvas.SetLeft(g, 120); Canvas.SetTop(g, 10);
+            g.Children.Add(r1); g.Children.Add(r2);
+            MyCanvas.Children.Add(g);
+        }
+
+        //Rectangleを2つをVisualBrushとして使う
+        private void Test2VisualBrush()
+        {
+            double w = 100; double h = 50;
+            Rectangle br1 = new() { Width = w, Height = h, Stroke = Brushes.Red };
+            Rectangle br2 = new()
+            {
+                Width = w,
+                Height = h,
+                Stroke = Brushes.White,
+                StrokeDashArray = new DoubleCollection() { 1.0 }
+            };
+            Grid g = new(); RenderOptions.SetEdgeMode(g, EdgeMode.Aliased);
+            g.Children.Add(br1); g.Children.Add(br2);
+            VisualBrush vb = new(g);
+
+            Rectangle r = new() { Width = w, Height = h };
+            Canvas.SetLeft(r, 120); Canvas.SetTop(r, 70);
+            r.Stroke = vb;
+            MyCanvas.Children.Add(r);
+        }
+
+        //bitmapで破線パターンを作成してImageBrushとして使う
         private void Test3ImageBrush()
         {
             ImageBrush? b = My2ColorDashBrush();
@@ -25,10 +67,7 @@ namespace _20220528_2ColorDashStroke
         }
         private ImageBrush My2ColorDashBrush()
         {
-            WriteableBitmap bitmap = MakeCheckPattern(1, Colors.Red, Colors.White);
-            //var pattern = MakeCheckPattern(1, Colors.White, Colors.Red);
-            //var pattern = MakePattern2(1, Colors.Red);
-            //var pattern = MakePattern(1, Colors.Red);
+            WriteableBitmap bitmap = MakeCheckPattern(1, Colors.Blue, Colors.White);
             ImageBrush brush = new(bitmap)
             {
                 Stretch = Stretch.None,
@@ -76,6 +115,7 @@ namespace _20220528_2ColorDashStroke
             return wb;
         }
 
+        //未使用
         //白と指定色を横に交互に並べた画像、縦1ピクセル
         private WriteableBitmap MakePattern2(int length, Color color)
         {
@@ -99,41 +139,5 @@ namespace _20220528_2ColorDashStroke
             return wb;
         }
 
-
-        private void Test2RectangleRectangle()
-        {
-            Rectangle r1 = new() { Width = 100, Height = 50, Stroke = Brushes.Red };
-            Rectangle r2 = new()
-            {
-                Width = 100,
-                Height = 50,
-                Stroke = Brushes.White,
-                StrokeDashArray = new DoubleCollection() { 1.0 }
-            };
-            Grid g = new(); RenderOptions.SetEdgeMode(g, EdgeMode.Aliased);
-            Canvas.SetLeft(g, 120); Canvas.SetTop(g, 70);
-            g.Children.Add(r1); g.Children.Add(r2);
-            MyCanvas.Children.Add(g);
-        }
-        private void Test1VisualBrush()
-        {
-            double w = 100; double h = 50;
-            Rectangle br1 = new() { Width = w, Height = h, Stroke = Brushes.Red };
-            Rectangle br2 = new()
-            {
-                Width = w,
-                Height = h,
-                Stroke = Brushes.White,
-                StrokeDashArray = new DoubleCollection() { 1.0 }
-            };
-            Grid g = new(); RenderOptions.SetEdgeMode(g, EdgeMode.Aliased);
-            g.Children.Add(br1); g.Children.Add(br2);
-            VisualBrush vb = new(g);
-
-            Rectangle r = new() { Width = w, Height = h };
-            Canvas.SetLeft(r, 120); Canvas.SetTop(r, 10);
-            r.Stroke = vb;
-            MyCanvas.Children.Add(r);
-        }
     }
 }

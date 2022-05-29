@@ -6,9 +6,15 @@
         xmlns:local="clr-namespace:_20220528_2ColorDashStroke"
         mc:Ignorable="d"
         Title="MainWindow" Height="250" Width="300">
-  <Canvas x:Name="MyCanvas" Background="Black" UseLayoutRounding="True">
-    
-    <Rectangle Width="100" Height="50" Canvas.Left="10" Canvas.Top="10">
+  <Canvas x:Name="MyCanvas" Background="Black"
+          UseLayoutRounding="True" RenderOptions.EdgeMode="Aliased">
+
+    <Grid Canvas.Left="10" Canvas.Top="10">
+      <Rectangle Stroke="Red" Width="100" Height="50"/>
+      <Rectangle Stroke="White" StrokeDashArray="1.0"/>
+    </Grid>
+
+    <Rectangle Width="100" Height="50" Canvas.Left="10" Canvas.Top="70">
       <Rectangle.Stroke>
         <VisualBrush Stretch="None">
           <VisualBrush.Visual>
@@ -21,10 +27,5 @@
       </Rectangle.Stroke>
     </Rectangle>
 
-    <Grid RenderOptions.EdgeMode="Aliased" Canvas.Left="10" Canvas.Top="70">
-      <Rectangle Stroke="Red" Width="100" Height="50"/>
-      <Rectangle Stroke="White" StrokeDashArray="1.0"/>
-    </Grid>
-    
   </Canvas>
 </Window>
