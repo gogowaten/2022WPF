@@ -1473,7 +1473,7 @@ namespace _20220508
         public ItemsControl MyItemsControl;
         protected ObservableCollection<TThumb4> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb4> Items { get; set; }
-        private bool _IsMyEditing { get; set; }
+        private bool _IsMyEditing;
         public bool IsMyEditing
         {
             get => _IsMyEditing;
@@ -1713,8 +1713,8 @@ namespace _20220508
 
             //新グループのX、Y、Zを要素群から計算取得
             var (x, y, minZ, maxZ) = GetXYZForNewGroup(thumbs);
-            //新グループのZ = 要素群の最上位Z - (要素数 - 1)
-            maxZ -= thumbs.Count - 1;
+            ////新グループのZ = 要素群の最上位Z - (要素数 - 1)
+            //maxZ -= thumbs.Count - 1;
             //新グループのData作成
             Data4 data = new(DataType.Group);
             data.X = x; data.Y = y; data.Z = maxZ;
