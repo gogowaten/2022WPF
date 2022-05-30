@@ -1,0 +1,53 @@
+﻿<Window x:Class="_20220530_Thumb.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220530_Thumb"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas Name="MyCanvas" UseLayoutRounding="True"/>
+    <StackPanel Name="MyStackPanel" Grid.Column="1">
+      <Button x:Name="ButtonCheck" Content="Check" Click="ButtonCheck_Click"/>
+      <!--<Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>-->
+      <!--<Button x:Name="ButtonAdd2" Content="Add2" Click="ButtonAdd2_Click"/>-->
+      <!--<Button x:Name="ButtonAddG1" Content="AddG1" Click="ButtonAddG1_Click"/>-->
+      <Button x:Name="ButtonRemove" Content="remove" Click="ButtonRemove_Click"/>
+      <!--<Button x:Name="ButtonAddGroup" Content="Group1" Click="ButtonAddGroup_Click"/>-->
+      <Button x:Name="ButtonKaijo" Content="Kaijo" Click="ButtonKaijo_Click"/>
+      <Button x:Name="ButtonCheck1" Content="check1" Click="ButtonCheck1_Click"/>
+      <Button x:Name="ButtonMakeGroup" Content="makeGroup" Click="ButtonMakeGroup_Click"/>
+      <Button x:Name="ButtonReGroup" Content="ReGroup" Click="ButtonReGroup_Click"/>
+      <GroupBox x:Name="MyGroupBox" Header="ActiveThumb">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=MyData.Text, StringFormat=Text \= {0}}"/>
+          <TextBlock Text="{Binding Path=MyData.X, StringFormat=X 0}"/>
+          <TextBlock Text="{Binding Path=MyData.Y, StringFormat=Y 0}"/>
+          <TextBlock Text="{Binding Path=MyData.Z, StringFormat=Z 0}"/>
+          <TextBlock Text="{Binding Path=MyParentGroup.Name, StringFormat=ParentName \= {0}}"/>
+          <TextBlock Text="{Binding Path=MyLayer.Name, StringFormat=Layer \= {0}}"/>
+          <TextBlock Text="{Binding Path=MyLayer.NowEditingThumb.Name, StringFormat=Editing \= {0}}"/>
+          <TextBlock Text="{Binding Path=MyMovableThumb, StringFormat=MoveTarget \= {0}}"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox x:Name="MyGroupBoxGroup" Header="ParentGroup">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=MyData.X, StringFormat=X 0}"/>
+          <TextBlock Text="{Binding Path=MyData.Z, StringFormat=Z 0}"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox x:Name="MyGroupBoxLayer" Header="Layer">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=Width, StringFormat=Width 0}"/>
+          <TextBlock Text="{Binding Path=Height, StringFormat=Height 0}"/>
+        </StackPanel>
+      </GroupBox>
+      <TextBlock Text="{Binding Path=Width}"/>
+    </StackPanel>
+  </Grid>
+</Window>
