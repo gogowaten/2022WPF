@@ -1338,7 +1338,14 @@ namespace _20220508
             MultiBinding mb = new();
             mb.Bindings.Add(b1); mb.Bindings.Add(b2);
             mb.Converter = new MyConverterItemWaku4();
-            mb.ConverterParameter = My2ColorDashBrush();
+
+            List<Brush> brushes = new()
+            {
+                My2ColorDashBrush(5,Colors.Red,Colors.White),
+                My2ColorDashBrush(5,Colors.Lime,Colors.White),
+                My2ColorDashBrush(5,Colors.LightGray,Colors.White)
+            };
+            mb.ConverterParameter = brushes;
             FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Item);
             //waku.SetBinding(BorderBrushProperty, mb);
             waku.SetBinding(Rectangle.StrokeProperty, mb);
@@ -1374,48 +1381,60 @@ namespace _20220508
             this.ApplyTemplate();
             return (Canvas)template.FindName(nameof(MyTemplateCanvas), this);
 
-            Brush My2ColorDashBrush()
-            {
-                var pattern = MakeCheckeredPattern(1, Colors.Black);
-                ImageBrush brush = new(pattern)
-                {
-                    Stretch = Stretch.None,
-                    TileMode = TileMode.Tile,
-                    Viewport = new Rect(0, 0, pattern.PixelWidth, pattern.PixelHeight),
-                    ViewportUnits = BrushMappingMode.Absolute
-                };
-                return brush;
-            }
-            WriteableBitmap MakeCheckeredPattern(int cellSize, Color gray)
-            {
-                int width = cellSize * 2;
-                int height = cellSize * 2;
-                var wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Rgb24, null);
-                int stride = wb.Format.BitsPerPixel / 8 * width;
-                byte[] pixels = new byte[stride * height];
-                int p = 0;
-                Color iro;
-                for (int y = 0; y < height; y++)
-                {
-                    for (int x = 0; x < width; x++)
-                    {
-                        if ((y < cellSize & x < cellSize) | (y >= cellSize & x >= cellSize))
-                        {
-                            iro = Colors.Red;
-                        }
-                        else { iro = gray; }
-
-                        p = y * stride + x * 3;
-                        pixels[p] = iro.R;
-                        pixels[p + 1] = iro.G;
-                        pixels[p + 2] = iro.B;
-                    }
-                }
-                wb.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
-                return wb;
-            }
-
         }
+        #region 枠線ブラシ作成
+        //        WPF、Rectangleとかに2色の破線(点線)枠表示 - 午後わてんのブログ
+        //https://gogowaten.hatenablog.com/entry/2022/05/29/140321
+
+        private ImageBrush My2ColorDashBrush(int thickness, Color c1, Color c2)
+        {
+            WriteableBitmap bitmap = MakeCheckPattern(thickness, c1, c2);
+            ImageBrush brush = new(bitmap)
+            {
+                Stretch = Stretch.None,
+                TileMode = TileMode.Tile,
+                Viewport = new Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight),
+                ViewportUnits = BrushMappingMode.Absolute
+            };
+            return brush;
+        }
+        /// <summary>
+        /// 指定した2色から市松模様のbitmapを作成
+        /// </summary>
+        /// <param name="cellSize">1以上を指定、1指定なら2x2ピクセル、2なら4x4ピクセルの画像作成</param>
+        /// <param name="c1"></param>
+        /// <param name="c2"></param>
+        /// <returns></returns>
+        private static WriteableBitmap MakeCheckPattern(int cellSize, Color c1, Color c2)
+        {
+            int width = cellSize * 2;
+            int height = cellSize * 2;
+            var wb = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
+            int stride = wb.Format.BitsPerPixel / 8 * width;
+            byte[] pixels = new byte[stride * height];
+            Color iro;
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if ((y < cellSize & x < cellSize) | (y >= cellSize & x >= cellSize))
+                    {
+                        iro = c1;
+                    }
+                    else { iro = c2; }
+
+                    int p = y * stride + x * 4;
+                    pixels[p] = iro.B;
+                    pixels[p + 1] = iro.G;
+                    pixels[p + 2] = iro.R;
+                    pixels[p + 3] = iro.A;
+                }
+            }
+            wb.WritePixels(new Int32Rect(0, 0, width, height), pixels, stride, 0);
+            return wb;
+        }
+        #endregion 枠線ブラシ作成
+
 
         //表示する要素をDataから作成
         private FrameworkElement MakeElement(Data4 data)
@@ -2160,28 +2179,19 @@ namespace _20220508
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            Brush b = (Brush)parameter;
-            LinearGradientBrush brush = new();
-            brush.GradientStops.Add(new GradientStop(Colors.Red, 0.5));
-            brush.GradientStops.Add(new GradientStop(Colors.Blue, 0.5));
-            brush.StartPoint = new Point(0.0, 0.0);
-            brush.EndPoint = new Point(0.1, 0.1);
-            //brush.MappingMode = BrushMappingMode.Absolute;
-            brush.SpreadMethod = GradientSpreadMethod.Repeat;
+            List<Brush> brushes = (List<Brush>)parameter;
             bool b1 = (bool)values[0];
             bool b2 = (bool)values[1];
-            if (b1) { return Brushes.Orange; }
-            else if (b2) { return Brushes.SkyBlue; }
-            //else { return brush; }
-            else { return b; }
-            //else { return Brushes.Transparent; }
-            //else { return Brushes.LightGray; }
+            if (b1) { return brushes[0]; }
+            else if (b2) { return brushes[1]; }
+            else { return brushes[2]; }
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
+
     }
     public class MyConverterGroupWaku4 : IMultiValueConverter
     {

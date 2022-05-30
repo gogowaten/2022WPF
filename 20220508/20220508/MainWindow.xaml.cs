@@ -35,7 +35,7 @@ namespace _20220508
         private TThumb4? ActiveThumb;
         private Layer4? MyLayer;
         private Group4? MyGroup1;
-        private Group4? MyGroup2; WakuTest myWaku;
+        private Group4? MyGroup2;
         public MainWindow()
         {
             InitializeComponent();
@@ -43,13 +43,6 @@ namespace _20220508
             Top = 100;
             T4Initialize();
 
-            //myWaku=new() { Width = 100, Height = 100 };
-            //MyCanvas.Children.Add(myWaku);
-
-            Rectangle rectangle = new() { Width = 100, Height = 100 ,Stroke=Brushes.Firebrick};
-            rectangle.StrokeDashArray = new DoubleCollection() { 5.0, 5.0 };
-            rectangle.StrokeDashOffset = 3;
-            MyCanvas.Children.Add(rectangle);
 
         }
         private void T4Initialize()
@@ -68,6 +61,7 @@ namespace _20220508
             MyLayer.AddThumb(MyGroup1);
             MyGroup1.AddThumb(MakeTT4TextBlock("Item1_1", 0, 0));
             MyGroup1.AddThumb(MakeTT4TextBlock("Item1_2", 100, 50));
+            MyGroup1.AddThumb(MakeTT4TextBlock("Item1_3", 50, 25));
             MyGroupBoxGroup.DataContext = MyGroup1.MyData;
 
             T4AddGroupGroup();
@@ -78,7 +72,7 @@ namespace _20220508
             Data4 data = new(DataType.TextBlock) { Text = text, X = x, Y = y };
             data.Background = new SolidColorBrush(
                 Color.FromArgb(
-                    55,
+                    255,
                     50,
                     (byte)(AddThumbCount * 20 + 50),
                     (byte)(AddThumbCount * 20 + 50)));
