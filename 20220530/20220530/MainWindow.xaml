@@ -3,21 +3,69 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:_20220530"
+        xmlns:local="clr-namespace:_20220530" d:DataContext="{d:DesignInstance Type=local:Data1}"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
   <Grid Background="White">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
-      <ColumnDefinition Width="200"/>
+      <ColumnDefinition Width="250"/>
     </Grid.ColumnDefinitions>
     <Canvas UseLayoutRounding="True">
       <local:Layer1 x:Name="MyLayer1"/>
     </Canvas>
     <StackPanel Grid.Column="1">
+      <StackPanel.Resources>
+        <Style TargetType="TextBlock">
+          <Setter Property="Margin" Value="0,2"/>
+        </Style>
+      </StackPanel.Resources>
       <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
       <TextBox x:Name="MyTextBox" Text="text"/>
       <Button x:Name="ButtonRemove" Content="remove" Click="ButtonRemove_Click"/>
+      <Button x:Name="MyButtonCheck1" Content="check1" Click="MyButtonCheck1_Click"/>
+      <GroupBox Header="LastClicked" Name="MyGroupBox1">
+        <StackPanel DataContext="{Binding ElementName=MyLayer1, Path=LastClickedItem}">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding MyData.Text, StringFormat= text\={0} }"/>
+            <TextBlock Text="{Binding MyData.DataType, StringFormat={} type\={0} }"/>
+            <TextBlock Text="{Binding MyData.X, StringFormat={}  x\=0}"/>
+            <TextBlock Text="{Binding MyData.Y, StringFormat={}  y\=0}"/>
+            <TextBlock Text="{Binding MyData.Z, StringFormat={}  z\=0}"/>
+          </StackPanel>
+          <StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="MyParent:  "/>
+              <TextBlock Text="{Binding MyParentGroup.MyData.DataType, StringFormat=type\={0}}"/>
+              <TextBlock Text="{Binding MyParentGroup.MyData.X, StringFormat={}  x\=0}"/>
+              <TextBlock Text="{Binding MyParentGroup.MyData.Y, StringFormat={}  y\=0}"/>
+              <TextBlock Text="{Binding MyParentGroup.MyData.Z, StringFormat={}  z\=0}"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+              <TextBlock Text="Active:  "/>
+              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.DataType, StringFormat=type\={0}}"/>
+              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.X, StringFormat={}  x\=0}"/>
+              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.Y, StringFormat={}  y\=0}"/>
+              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.Z, StringFormat={}  z\=0}"/>
+            </StackPanel>
+          </StackPanel>
+
+          <!--C#のWPFでTreeViewへデータをバインドする - Ararami Studio
+https://araramistudio.jimdo.com/2016/10/24/wpf%E3%81%AEtreeview%E3%81%B8%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E3%83%90%E3%82%A4%E3%83%B3%E3%83%89%E3%81%99%E3%82%8B/-->
+          <TreeView ItemsSource="{Binding ElementName=MyLayer1,Path= MyLayer.MyData.ChildrenData}">
+            <TreeView.ItemTemplate>
+              <HierarchicalDataTemplate DataType="{x:Type local:Data1}" ItemsSource="{Binding ChildrenData}">
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="{Binding Text, StringFormat= text\=0}" VerticalAlignment="Center"/>
+                  <TextBlock Text="{Binding X, StringFormat={} x\=0}"/>
+                  <TextBlock Text="{Binding Y, StringFormat={}  y\=0}"/>
+                  <TextBlock Text="{Binding Z, StringFormat={}  z\=0}"/>
+                </StackPanel>
+              </HierarchicalDataTemplate>
+            </TreeView.ItemTemplate>
+          </TreeView>
+        </StackPanel>
+      </GroupBox>
     </StackPanel>
   </Grid>
 </Window>

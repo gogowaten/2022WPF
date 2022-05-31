@@ -811,7 +811,7 @@ namespace _20220530
                     _NowEditingThumb.IsMyEditing = true;
                     _NowEditingThumb.AddDragEventForChildren();
                 }
-
+                OnPropertyChanged();
             }
         }
 
@@ -838,6 +838,7 @@ namespace _20220530
                 
                 //入れ替え
                 _lastClickedItem = value;
+                OnPropertyChanged();
             }
         }
 
