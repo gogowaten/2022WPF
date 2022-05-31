@@ -40,7 +40,7 @@ namespace _20220530
 
             Group4 group = new();
             MyLayer1.AddThumb(group);
-            group.MyData.X = 20;group.MyData.Y = 100;
+            group.MyData.X = 20; group.MyData.Y = 100;
             item1 = new(MakeTextBloclData1(0, 0, "Item3", 4));
             group.AddThumb(item1);
             item1 = new(MakeTextBloclData1(50, 20, "Item4", 4));
@@ -57,6 +57,23 @@ namespace _20220530
                     (byte)(MyItemsCount * 20 + 150)));
             MyItemsCount++;
             return data;
+        }
+
+        private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+        {
+            MyLayer1.AddThumb(new Item4(MakeTextBloclData1(MyItemsCount * 10, MyItemsCount * 10, MyTextBox.Text, 4)));
+        }
+
+        private void ButtonRemove_Click(object sender, RoutedEventArgs e)
+        {
+            if(MyLayer1.SelectedThumbs is not null)
+            {
+                foreach (var item in MyLayer1.SelectedThumbs)
+                {
+                    item.MyParentGroup?.RemoveThumb(item);
+                }
+            }
+            
         }
     }
 }

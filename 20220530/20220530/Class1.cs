@@ -718,6 +718,8 @@ namespace _20220530
         {
             if (Children.Contains(thumb))
             {
+                //LastClickedをクリア
+                if (MyLayer != null) MyLayer.LastClickedItem = null;
                 //コレクションから削除
                 Children.Remove(thumb);
                 //2未満ならグループ解除
@@ -731,7 +733,6 @@ namespace _20220530
             {
                 throw new AggregateException("グループ内に対象Thumbが見つからない");
             }
-
         }
         #endregion Childrenの操作
         #endregion publucメソッド
@@ -821,8 +822,8 @@ namespace _20220530
             get => _lastClickedItem;
             set
             {
-                //格納しているThumbと同じか、nullが来たら変更する必要なし、終了
-                if (_lastClickedItem == value || value == null) { return; }
+                //格納しているThumbと同じなら必要なし、終了
+                if (_lastClickedItem == value) { return; }
 
                 //古い方のIsLastClickedをfalseに変更してから
                 if (_lastClickedItem != null)
@@ -830,7 +831,11 @@ namespace _20220530
                     _lastClickedItem.IsMyLastClicked = false;
                 }
                 //新しい方のIsLastClickedをtrue
-                value.IsMyLastClicked = true;
+                if(value != null)
+                {
+                    value.IsMyLastClicked = true;
+                }
+                
                 //入れ替え
                 _lastClickedItem = value;
             }
@@ -994,6 +999,11 @@ namespace _20220530
             Items.Insert(num, newItem);
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace));
         }
+    }
+
+    public class TThumb1Manage
+    {
+
     }
 
     #region Data4

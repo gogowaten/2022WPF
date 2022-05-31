@@ -14,5 +14,10 @@
     <Canvas UseLayoutRounding="True">
       <local:Layer1 x:Name="MyLayer1"/>
     </Canvas>
+    <StackPanel Grid.Column="1">
+      <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
+      <TextBox x:Name="MyTextBox" Text="text"/>
+      <Button x:Name="ButtonRemove" Content="remove" Click="ButtonRemove_Click"/>
+    </StackPanel>
   </Grid>
 </Window>
