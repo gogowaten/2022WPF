@@ -165,7 +165,6 @@ namespace _20220530
                         //アクティブThumbを編集状態Thumbに指定
                         if (thumb?.GetMyActiveMoveThumb() is Group4 activeParent)
                         {
-                            //MyLayer.NowEditingThumb = activeParent;
                             MyLayer.SetNowEditingThumb(activeParent, thumb);
                         }
                     }
@@ -282,7 +281,14 @@ namespace _20220530
                 target.MyParentGroup?.MakeGroupFromChildren2(target.RegroupThumbs);
             }
         }
+        public void SetZIndex(int z)
+        {
+            if (MyParentGroup is null) { return; }
+            int count = MyParentGroup.Items.Count;
+            if (count == 0 || z < 0 || z >= count) { return; }
 
+            MyParentGroup.MoveThumbIndexWithZIndex(MyData.Z, z);
+        }
         #endregion メソッド
     }
 
@@ -809,6 +815,17 @@ namespace _20220530
             else
             {
                 throw new AggregateException("グループ内に対象Thumbが見つからない");
+            }
+        }
+        public virtual void MoveThumbIndexWithZIndex(int oldIndex, int newIndex)
+        {
+            Children.Move(oldIndex, newIndex);
+            int min; int max;
+            if (oldIndex < newIndex) { min = oldIndex; max = newIndex; }
+            else { min = newIndex; max = oldIndex; }
+            for (int i = min; i <= max; i++)
+            {
+                Children[i].MyData.Z = i;
             }
         }
         #endregion Childrenの操作

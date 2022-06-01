@@ -107,7 +107,7 @@ namespace _20220530
         {
             if(MyLayer1.LastClickedItem is TThumb1 thumb)
             {
-                thumb.MyData.Z++;
+                thumb.SetZIndex(thumb.MyData.Z + 1);
             }
         }
 
@@ -115,7 +115,7 @@ namespace _20220530
         {
             if (MyLayer1.LastClickedItem is TThumb1 thumb)
             {
-                thumb.MyData.Z--;
+                thumb.SetZIndex(thumb.MyData.Z - 1);
             }
         }
     }
