@@ -33,10 +33,10 @@ namespace _20220530
 #if DEBUG
             Left = 10; Top = 10;
 #endif
-            
+
             //MyGroupBox1.DataContext = MyLayer1.LastClickedItem;
-            MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(0,0,"Item1",4)));
-            MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(50,50,"Item2",4)));
+            MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(0, 0, "Item1", 4)));
+            MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(50, 50, "Item2", 4)));
 
             Group4 group = new();
             MyLayer1.AddThumb(group);
@@ -65,25 +65,30 @@ namespace _20220530
             data.Background = new SolidColorBrush(
                 Color.FromArgb(
                     255,
-                    100,
-                    (byte)(MyItemsCount * 10 + 100),
-                    (byte)(MyItemsCount * 20 + 150)));
+                    255,
+                    (byte)(MyItemsCount * 10),
+                    (byte)(255)));
             MyItemsCount++;
             return data;
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
-            MyLayer1.AddThumb(new Item4(MakeTextBloclData1(MyItemsCount * 10, MyItemsCount * 10, MyTextBox.Text, 4)));
+            MyLayer1.AddThumb(new Item4(
+                MakeTextBloclData1(MyItemsCount * 10, MyItemsCount * 10, MyTextBox.Text + MyItemsCount, 4)));
         }
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
             if (MyLayer1.SelectedThumbs is not null)
             {
-                foreach (var item in MyLayer1.SelectedThumbs)
+                //foreach (var item in MyLayer1.SelectedThumbs)
+                //{
+                //    item.MyParentGroup?.RemoveThumb(item);
+                //}
+                for (int i = MyLayer1.SelectedThumbs.Count - 1; i >= 0; i--)
                 {
-                    item.MyParentGroup?.RemoveThumb(item);
+                    MyLayer1.SelectedThumbs[i].MyParentGroup?.RemoveThumb(MyLayer1.SelectedThumbs[i]);
                 }
             }
 
@@ -96,6 +101,22 @@ namespace _20220530
             var item0data = items?[0].MyData;
             var item1data = items?[1].MyData;
             var item00data = MyLayer1.MyData.ChildrenData[1];
+        }
+
+        private void ButtonZUp_Click(object sender, RoutedEventArgs e)
+        {
+            if(MyLayer1.LastClickedItem is TThumb1 thumb)
+            {
+                thumb.MyData.Z++;
+            }
+        }
+
+        private void ButtonZDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyLayer1.LastClickedItem is TThumb1 thumb)
+            {
+                thumb.MyData.Z--;
+            }
         }
     }
 }

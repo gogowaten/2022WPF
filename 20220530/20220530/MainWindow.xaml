@@ -20,10 +20,17 @@
           <Setter Property="Margin" Value="0,2"/>
         </Style>
       </StackPanel.Resources>
-      <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
-      <TextBox x:Name="MyTextBox" Text="text"/>
+      <DockPanel LastChildFill="True">
+        <TextBox x:Name="MyTextBox" Text="text" Width="100"/>
+        <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
+      </DockPanel>
       <Button x:Name="ButtonRemove" Content="remove" Click="ButtonRemove_Click"/>
+      <Button x:Name="ButtonZUp" Content="Z++" Click="ButtonZUp_Click"/>
+      <Button x:Name="ButtonZDown" Content="Z--" Click="ButtonZDown_Click"/>
       <Button x:Name="MyButtonCheck1" Content="check1" Click="MyButtonCheck1_Click"/>
+      <TextBox Text="{Binding ElementName=MyLayer1, Path=LastClickedItem.MyData.Text, UpdateSourceTrigger=PropertyChanged}"/>
+      
+      
       <GroupBox Header="LastClicked" Name="MyGroupBox1">
         <StackPanel DataContext="{Binding ElementName=MyLayer1, Path=LastClickedItem}">
           <StackPanel Orientation="Horizontal">

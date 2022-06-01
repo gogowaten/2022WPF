@@ -62,7 +62,7 @@ namespace _20220530
         //更新タイミングはクリックされたときにしたけど、
         //ホントはそれ以外にも編集状態Thumbが切り替わったときに全部のThumbに行いたい？
         private TThumb1? _myMovableTargetThumb;
-        public TThumb1? MyMovableTargetThumb
+        public TThumb1? MyActiveMovableThumb
         {
             get => _myMovableTargetThumb;
             set { if (value == _myMovableTargetThumb) { return; } _myMovableTargetThumb = value; OnPropertyChanged(); }
@@ -151,7 +151,30 @@ namespace _20220530
         }
         private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            this.MyParentGroup?.AjustLocate3();
+            //移動がなかった
+            if (e.HorizontalChange == 0.0 && e.VerticalChange == 0.0)
+            {
+                if (MyLayer == null) { return; }
+                var thumb = e.OriginalSource as TThumb1;
+                //前回と同じThumbがクリックされた
+                if (MyLayer.LastPreviousClickedItem == thumb)
+                {
+                    //ParentThumbと編集状態Thumbが違う
+                    if (MyLayer.NowEditingThumb != thumb?.MyParentGroup)
+                    {
+                        //アクティブThumbを編集状態Thumbに指定
+                        if (thumb?.GetMyActiveMoveThumb() is Group4 activeParent)
+                        {
+                            //MyLayer.NowEditingThumb = activeParent;
+                            MyLayer.SetNowEditingThumb(activeParent, thumb);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                this.MyParentGroup?.AjustLocate3();
+            }
         }
 
         private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
@@ -216,9 +239,11 @@ namespace _20220530
         }
         #endregion 枠線ブラシ作成
 
-        //自身が属する移動可能状態のグループThumbを取得
-        //編集状態のThumb直下のThumb群から自身が属するものを取得
-        public Group4? GetMyMoveTargetThumb()
+        /// <summary>
+        /// 編集状態Thumb直下のChildrenから自身が属するGroupを取得、見つからない場合はnull
+        /// </summary>
+        /// <returns></returns>
+        public Group4? GetMyActiveMoveThumb()
         {
             if (MyParentGroup is Group4 group)
             {
@@ -228,11 +253,12 @@ namespace _20220530
                 }
                 else
                 {
-                    return group.GetMyMoveTargetThumb();
+                    return group.GetMyActiveMoveThumb();
                 }
             }
             else { return null; }
         }
+
         //Layer直下のThumb群から自身に関連するThumbを取得            
         public Group1Base? GetMyUnderLayerThumb(TThumb1? thumb)
         {
@@ -249,7 +275,7 @@ namespace _20220530
         public void Regroup()
         {
             //選択状態のThumbを基準に再グループ
-            var target = (TThumb1?)GetMyMoveTargetThumb() ?? this;
+            var target = (TThumb1?)GetMyActiveMoveThumb() ?? this;
             if (target == null) { return; }
             if (target.IsMySelected == true && target.RegroupThumbs.Count >= 2)
             {
@@ -295,7 +321,9 @@ namespace _20220530
 
             Loaded += Item4_Loaded;
             PreviewMouseDown += Item4_PreviewMouseDown;
+            PreviewMouseUp += Item4_PreviewMouseUp;
         }
+
 
         #region イベント
 
@@ -307,37 +335,76 @@ namespace _20220530
             var uma = sender;
             MyParentGroup?.AjustLocate3();
         }
+        //クリックでボタンが離されたときされたとき
+        private void Item4_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            //編集状態Thumbの切り替え
+
+        }
+
         //クリックされたとき
         private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (MyLayer == null) { return; }
+            //前回と同じThumbをクリックされたのかチェック
+            bool isEqual = false;
+            if (MyLayer.LastClickedItem == this) isEqual = true;
             //最後にクリックされたThumbに自身を登録する
             MyLayer.LastClickedItem = this;
 
             //編集状態直下の自身が属するグループ
-            TThumb1 topMovable = (TThumb1?)GetMyMoveTargetThumb() ?? this;
-            MyMovableTargetThumb = topMovable;
+            //TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb2() ?? this;
+            TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb() ?? this;
+            MyActiveMovableThumb = activeThumb;
             //自身が編集状態Thumbの範囲外だった場合
-            if (MyLayer.NowEditingThumb != topMovable.MyParentGroup)
+            if (MyLayer.NowEditingThumb != activeThumb.MyParentGroup)
             {
-                //編集状態ThumbをLayer直下のThumb群から自身が属するThumbに切り替える、
-                //同時に選択リストはリセットされる
-                Group1Base? nextEdit = GetMyUnderLayerThumb(this);
+                //編集状態Thumbの切り替え
+                //Layer直下のThumb群から自身が属するThumbに切り替える
+                Group1Base? nextEdit = GetMyUnderLayerThumb(this) as Group1Base;
                 if (nextEdit == null) { MessageBox.Show("次の編集状態Thumbが見つからん"); }
-                MyLayer.NowEditingThumb = nextEdit;
+                //MyLayer.NowEditingThumb = nextEdit;
+                MyLayer.SetNowEditingThumb(nextEdit, this);
             }
             else
             {
                 //編集状態直下の自身が属するグループを選択状態リストに登録する
-                //クリックだけのときは入れ替え
+                //通常クリック(修飾キーなし)のときは入れ替え
                 if (Keyboard.Modifiers == ModifierKeys.None)
                 {
-                    MyLayer.SelectThumbReplace(topMovable);
+                    //違うThumbクリックなら選択リストの入れ替え
+                    if (isEqual == false)
+                    {
+                        MyLayer.SelectThumbReplace(activeThumb);
+                    }
+                    ////同じThumbがクリックされた
+                    //else
+                    //{
+                    //    //ParentThumbと編集状態Thumbが違う
+                    //    if (MyLayer.NowEditingThumb != MyParentGroup)
+                    //    {
+                    //        //アクティブThumbを編集状態Thumbに指定
+                    //        if (activeThumb is Group4 activeParent)
+                    //        {
+                    //            if (isEqual) { MyLayer.NowEditingThumb = activeParent; }
+
+                    //        }
+                    //    }
+                    //}
+
                 }
-                //ctrlキーが押されていたら複数選択状態にするので、追加
+                //ctrlキーが押されていたら複数選択状態にするので、選択リストに追加
                 else if (Keyboard.Modifiers == ModifierKeys.Control)
                 {
-                    MyLayer.SelectThumbAdd(topMovable);
+                    //すでに選択中だった場合は選択解除
+                    if (MyLayer.SelectedThumbs.Contains(activeThumb))
+                    {
+                        MyLayer.SelectThumbRemove(activeThumb);
+                    }
+                    else
+                    {
+                        MyLayer.SelectThumbAdd(activeThumb);
+                    }
                 }
             }
         }
@@ -356,7 +423,7 @@ namespace _20220530
             List<Brush> brushes = new()
             {
                 My2ColorDashBrush(5,Colors.Red,Colors.White),
-                My2ColorDashBrush(5,Colors.Lime,Colors.White),
+                My2ColorDashBrush(5,Colors.DeepSkyBlue,Colors.PaleTurquoise),
                 My2ColorDashBrush(5,Colors.LightGray,Colors.White)
             };
             mb.ConverterParameter = brushes;
@@ -413,7 +480,7 @@ namespace _20220530
     {
         public ItemsControl? MyItemsControl;
         protected ObservableCollection<TThumb1> Children { get; set; } = new();
-        public ReadOnlyObservableCollection<TThumb1>? Items { get; set; }
+        public ReadOnlyObservableCollection<TThumb1> Items { get; set; }
         private bool _IsMyEditing;
         public bool IsMyEditing
         {
@@ -426,7 +493,7 @@ namespace _20220530
         }
 
         #region コンストラクタ、初期化
-        protected Group1Base() { }
+        protected Group1Base() { Items = new(Children); }
         public Group1Base(Data1 data) : base(data)
         {
 
@@ -718,8 +785,11 @@ namespace _20220530
         {
             if (Children.Contains(thumb))
             {
+                int z = thumb.MyData.Z;
                 //LastClickedをクリア
                 if (MyLayer != null) MyLayer.LastClickedItem = null;
+                //選択リストから削除
+                MyLayer?.SelectThumbRemove(thumb);
                 //コレクションから削除
                 Children.Remove(thumb);
                 //2未満ならグループ解除
@@ -727,6 +797,13 @@ namespace _20220530
                 {
                     Ungroup2();
                     //Ungroup();
+                }
+                else
+                {
+                    for (int i = z; i < Children.Count; i++)
+                    {
+                        Children[i].MyData.Z = i;
+                    }
                 }
             }
             else
@@ -785,43 +862,55 @@ namespace _20220530
         public Group1Base? NowEditingThumb
         {
             get { return _NowEditingThumb; }
-            set
+            private set
             {
                 if (_NowEditingThumb == value) { return; }
-                //選択リストのリセット
-                if (_SelectedThumbs.Count > 0)
-                {
-                    foreach (var item in _SelectedThumbs)
-                    {
-                        item.IsMySelected = false;
-                    }
-                    _SelectedThumbs.Clear();
-                }
-                //ドラッグ移動イベントの付け外し
-                if (_NowEditingThumb != null)
-                {
-                    _NowEditingThumb.IsMyEditing = false;
-                    _NowEditingThumb.RemoveDragEventForChildren();
-                }
-
-                _NowEditingThumb = value;
-
-                if (_NowEditingThumb != null)
-                {
-                    _NowEditingThumb.IsMyEditing = true;
-                    _NowEditingThumb.AddDragEventForChildren();
-                }
-                OnPropertyChanged();
+                _NowEditingThumb = value; OnPropertyChanged();
             }
         }
+        public void SetNowEditingThumb(Group1Base? newEditing, TThumb1 lastClicked)
+        {
+            if (NowEditingThumb == newEditing) { return; }
+            //選択リストのリセット
+            if (SelectedThumbs.Count > 0)
+            {
+                foreach (var item in _SelectedThumbs)
+                {
+                    item.IsMySelected = false;
+                }
+                _SelectedThumbs.Clear();
+            }
+            //ドラッグ移動イベントの付け外し
+            if (NowEditingThumb != null)
+            {
+                NowEditingThumb.IsMyEditing = false;
+                NowEditingThumb.RemoveDragEventForChildren();
+            }
 
-        //最後にクリックされたThumb
+            NowEditingThumb = newEditing;//切り替え
+
+            if (NowEditingThumb != null)
+            {
+                NowEditingThumb.IsMyEditing = true;
+                NowEditingThumb.AddDragEventForChildren();
+            }
+
+            TThumb1? active = lastClicked.GetMyActiveMoveThumb();
+            if (active == null) { active = lastClicked; }
+            SelectThumbAdd(active);
+        }
+
+        //最後の一個前に選択されたItem
+        public Item4? LastPreviousClickedItem;
+        //最後にクリックされたItem
         private Item4? _lastClickedItem;
         public Item4? LastClickedItem
         {
             get => _lastClickedItem;
             set
             {
+                //古い方を記録
+                LastPreviousClickedItem = _lastClickedItem;
                 //格納しているThumbと同じなら必要なし、終了
                 if (_lastClickedItem == value) { return; }
 
@@ -831,12 +920,12 @@ namespace _20220530
                     _lastClickedItem.IsMyLastClicked = false;
                 }
                 //新しい方のIsLastClickedをtrue
-                if(value != null)
+                if (value != null)
                 {
                     value.IsMyLastClicked = true;
                 }
-                
-                //入れ替え
+
+                //新旧入れ替え
                 _lastClickedItem = value;
                 OnPropertyChanged();
             }
@@ -844,7 +933,7 @@ namespace _20220530
 
         //選択状態のThumb群
         private readonly ObservableCollection<TThumb1> _SelectedThumbs = new();
-        public ReadOnlyObservableCollection<TThumb1>? SelectedThumbs;
+        public ReadOnlyObservableCollection<TThumb1> SelectedThumbs;
         #endregion 通知プロパティ
 
         public Layer1() : this(new Data1(DataType.Layer)) { }
@@ -905,7 +994,7 @@ namespace _20220530
             _SelectedThumbs.Add(thumb);
         }
         //選択状態Thumbの削除
-        public void SelecthumbRemove(TThumb1 thumb)
+        public void SelectThumbRemove(TThumb1 thumb)
         {
             if (!SelectedThumbs.Contains(thumb)) { return; }
             _SelectedThumbs.Remove(thumb);
@@ -1091,11 +1180,16 @@ namespace _20220530
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
+            //List<Brush> brushes = (List<Brush>)parameter;
+            //bool b1 = (bool)values[0];
+            //bool b2 = (bool)values[1];
+            //if (b1) { return brushes[0]; }
+            //else if (b2) { return brushes[1]; }
+            //else { return Brushes.Transparent; }
+
             List<Brush> brushes = (List<Brush>)parameter;
-            bool b1 = (bool)values[0];
             bool b2 = (bool)values[1];
-            if (b1) { return brushes[0]; }
-            else if (b2) { return brushes[1]; }
+            if (b2) { return brushes[1]; }
             else { return Brushes.Transparent; }
         }
 
