@@ -1019,7 +1019,6 @@ namespace _20220530
             IsMyEditing = true;
 
             _SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
-            PreviewMouseLeftButtonDown += Layer4_PreviewMouseLeftButtonDown;
             SelectedThumbs = new(_SelectedThumbs);
             SetMyLayer2(this);
         }
@@ -1130,13 +1129,6 @@ namespace _20220530
 
         #endregion メソッド
 
-        private void Layer4_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            var neko = sender;
-            var inu = e.OriginalSource;
-            var uma = e.Source;
-            //SelectedThumbs.Add(LastClickedItem);
-        }
 
 
     }
