@@ -25,35 +25,39 @@
         <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
       </DockPanel>
       <Button x:Name="ButtonRemove" Content="remove" Click="ButtonRemove_Click"/>
-      <Button x:Name="ButtonZUp" Content="Z++" Click="ButtonZUp_Click"/>
-      <Button x:Name="ButtonZDown" Content="Z--" Click="ButtonZDown_Click"/>
+      <Button x:Name="ButtonZUp" Content="Z age" Click="ButtonZUp_Click"/>
+      <Button x:Name="ButtonZDown" Content="Z sage" Click="ButtonZDown_Click"/>
+      <Button x:Name="ButtonGroup" Content="Group" Click="ButtonGroup_Click"/>
+      <Button x:Name="ButtonUngroup" Content="UnGroup" Click="ButtonUngroup_Click"/>
+      <Button x:Name="ButtonRegroup" Content="Regroup" Click="ButtonRegroup_Click"/>
+      <Separator Margin="10"/>
       <Button x:Name="MyButtonCheck1" Content="check1" Click="MyButtonCheck1_Click"/>
       <TextBox Text="{Binding ElementName=MyLayer1, Path=LastClickedItem.MyData.Text, UpdateSourceTrigger=PropertyChanged}"/>
-      
-      
-      <GroupBox Header="LastClicked" Name="MyGroupBox1">
+
+
+      <GroupBox Header="ClickedThumb" Name="MyGroupBox1">
         <StackPanel DataContext="{Binding ElementName=MyLayer1, Path=LastClickedItem}">
           <StackPanel Orientation="Horizontal">
-            <TextBlock Text="{Binding MyData.Text, StringFormat= text\={0} }"/>
-            <TextBlock Text="{Binding MyData.DataType, StringFormat={} type\={0} }"/>
-            <TextBlock Text="{Binding MyData.X, StringFormat={}  x\=0}"/>
-            <TextBlock Text="{Binding MyData.Y, StringFormat={}  y\=0}"/>
-            <TextBlock Text="{Binding MyData.Z, StringFormat={}  z\=0}"/>
+            <TextBlock Text="{Binding MyData.Text, StringFormat= text\:{0} }"/>
+            <TextBlock Text="{Binding MyData.DataType, StringFormat={} type\:{0} }"/>
+            <TextBlock Text="{Binding MyData.X, StringFormat={} x\:0}"/>
+            <TextBlock Text="{Binding MyData.Y, StringFormat={} y\:0}"/>
+            <TextBlock Text="{Binding MyData.Z, StringFormat={} z\:0}"/>
           </StackPanel>
           <StackPanel>
             <StackPanel Orientation="Horizontal">
               <TextBlock Text="MyParent:  "/>
               <TextBlock Text="{Binding MyParentGroup.MyData.DataType, StringFormat=type\={0}}"/>
-              <TextBlock Text="{Binding MyParentGroup.MyData.X, StringFormat={}  x\=0}"/>
-              <TextBlock Text="{Binding MyParentGroup.MyData.Y, StringFormat={}  y\=0}"/>
-              <TextBlock Text="{Binding MyParentGroup.MyData.Z, StringFormat={}  z\=0}"/>
+              <TextBlock Text="{Binding MyParentGroup.MyData.X, StringFormat={} x\=0}"/>
+              <TextBlock Text="{Binding MyParentGroup.MyData.Y, StringFormat={} y\=0}"/>
+              <TextBlock Text="{Binding MyParentGroup.MyData.Z, StringFormat={} z\=0}"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal">
               <TextBlock Text="Active:  "/>
-              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.DataType, StringFormat=type\={0}}"/>
-              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.X, StringFormat={}  x\=0}"/>
-              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.Y, StringFormat={}  y\=0}"/>
-              <TextBlock Text="{Binding MyMovableTargetThumb.MyData.Z, StringFormat={}  z\=0}"/>
+              <TextBlock Text="{Binding MyActiveMovableThumb.MyData.DataType, StringFormat=type\={0}}"/>
+              <TextBlock Text="{Binding MyActiveMovableThumb.MyData.X, StringFormat={} x\=0}"/>
+              <TextBlock Text="{Binding MyActiveMovableThumb.MyData.Y, StringFormat={} y\=0}"/>
+              <TextBlock Text="{Binding MyActiveMovableThumb.MyData.Z, StringFormat={} z\=0}"/>
             </StackPanel>
           </StackPanel>
 
@@ -64,7 +68,7 @@ https://araramistudio.jimdo.com/2016/10/24/wpf%E3%81%AEtreeview%E3%81%B8%E3%83%8
               <HierarchicalDataTemplate DataType="{x:Type local:Data1}" ItemsSource="{Binding ChildrenData}">
                 <StackPanel Orientation="Horizontal">
                   <TextBlock Text="{Binding Text, StringFormat= text\=0}" VerticalAlignment="Center"/>
-                  <TextBlock Text="{Binding X, StringFormat={} x\=0}"/>
+                  <TextBlock Text="{Binding X, StringFormat={}  x\=0}"/>
                   <TextBlock Text="{Binding Y, StringFormat={}  y\=0}"/>
                   <TextBlock Text="{Binding Z, StringFormat={}  z\=0}"/>
                 </StackPanel>

@@ -278,7 +278,7 @@ namespace _20220530
             if (target == null) { return; }
             if (target.IsMySelected == true && target.RegroupThumbs.Count >= 2)
             {
-                target.MyParentGroup?.MakeGroupFromChildren2(target.RegroupThumbs);
+                target.MyParentGroup?.MakeGroupFromChildren3(target.RegroupThumbs);
             }
         }
         public void SetZIndex(int z)
@@ -315,7 +315,8 @@ namespace _20220530
             //表示する要素をDataから作成
             MyItemElement = MakeElement(data);
             MyTemplateCanvas.Children.Add(MyItemElement);
-            //Canvasと自身のサイズを表示要素のサイズにバインドする
+            //サイズのBinding
+            //表示する要素のサイズに自身を合わせる
             Binding b = new() { Source = MyItemElement, Path = new PropertyPath(ActualWidthProperty) };
             MyTemplateCanvas.SetBinding(WidthProperty, b);
             this.SetBinding(WidthProperty, b);
@@ -336,9 +337,6 @@ namespace _20220530
         //表示された直後にサイズが決まるのでParentのサイズを修正する
         private void Item4_Loaded(object sender, RoutedEventArgs e)
         {
-            var neko = e.Source;
-            var inu = e.OriginalSource;
-            var uma = sender;
             MyParentGroup?.AjustLocate3();
         }
         //クリックでボタンが離されたときされたとき
@@ -428,9 +426,9 @@ namespace _20220530
             mb.Converter = new MyConverterItemWaku1();
             List<Brush> brushes = new()
             {
-                My2ColorDashBrush(5,Colors.Red,Colors.White),
-                My2ColorDashBrush(5,Colors.DeepSkyBlue,Colors.PaleTurquoise),
-                My2ColorDashBrush(5,Colors.LightGray,Colors.White)
+                My2ColorDashBrush(4,Colors.Red,Colors.White),
+                My2ColorDashBrush(4,Colors.DodgerBlue,Colors.MintCream),
+                My2ColorDashBrush(4,Colors.LightGray,Colors.White)
             };
             mb.ConverterParameter = brushes;
             FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Item);
@@ -484,6 +482,8 @@ namespace _20220530
 
     public abstract class Group1Base : TThumb1
     {
+        #region フィールド
+
         public ItemsControl? MyItemsControl;
         protected ObservableCollection<TThumb1> Children { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb1> Items { get; set; }
@@ -497,6 +497,7 @@ namespace _20220530
                 _IsMyEditing = value; OnPropertyChanged();
             }
         }
+        #endregion フィールド
 
         #region コンストラクタ、初期化
         protected Group1Base() { Items = new(Children); }
@@ -517,6 +518,8 @@ namespace _20220530
             }
 
             Children.CollectionChanged += Children_CollectionChanged;
+
+
         }
 
 
@@ -573,13 +576,15 @@ namespace _20220530
             mb.Converter = new MyConverterGroupWaku4();
             List<Brush> brushes = new()
             {
-                My2ColorDashBrush(3,Color.FromArgb(255,255,0,200),Colors.White),
-                My2ColorDashBrush(3,Color.FromArgb(255,0,255,255),Colors.LightGray),
-                My2ColorDashBrush(3,Color.FromArgb(255,200,200,200),Colors.White),
+                My2ColorDashBrush(4,Color.FromArgb(255,255,0,200),Colors.White),
+                My2ColorDashBrush(4,Colors.DodgerBlue,Colors.White),
+                //My2ColorDashBrush(4,Color.FromArgb(255,0,255,255),Colors.White),
+                My2ColorDashBrush(4,Color.FromArgb(255,200,200,200),Colors.White),
             };
             mb.ConverterParameter = brushes;
             FrameworkElementFactory waku = MakeWaku1(DataTypeMain.Group);
             waku.SetBinding(Rectangle.StrokeProperty, mb);
+            waku.SetValue(Panel.ZIndexProperty, 1);//枠は前面表示
             FrameworkElementFactory baseCanvas = new(typeof(Canvas));
             baseCanvas.AppendChild(waku);//枠追加
             baseCanvas.AppendChild(itemsControl);
@@ -706,11 +711,17 @@ namespace _20220530
         /// </summary>
         /// <param name="thumbs">要素群は自身のChildrenから指定</param>
         /// <returns></returns>
-        public bool MakeGroupFromChildren2(List<TThumb1>? thumbs)
+        public bool MakeGroupFromChildren3(ReadOnlyObservableCollection<TThumb1>? thumbs)
+        {
+            return MakeGroupFromChildren3(thumbs?.ToList());
+        }
+       
+        public bool MakeGroupFromChildren3(List<TThumb1>? thumbs)
         {
             if (thumbs == null || thumbs.Count < 2) { return false; }
             //指定要素群のParentが自身ではなかった場合は作成失敗
-            foreach (var item in thumbs) { if (item.MyParentGroup != this) { return false; } }
+            foreach (var item in thumbs)
+            { if (item.MyParentGroup != this) { return false; } }
 
             //新グループのX、Y、Zを要素群から計算取得
             var (x, y, minZ, maxZ) = GetXYZForNewGroup(thumbs);
@@ -725,6 +736,12 @@ namespace _20220530
             group.MyLayer = this.MyLayer;
             //Z順にソートした要素群作成
             var sortedThumbs = thumbs.OrderBy(x => x.MyData.Z).ToList();
+
+            //新グループを作成挿入してから、元の要素群削除、新グループに要素追加、順番大切
+            //Childrenに新グループを挿入
+            InsertThumb(group);
+            //Childrenから要素群削除
+            foreach (var item in sortedThumbs) { RemoveThumb(item); }
             //新グループに要素群追加
             foreach (var item in sortedThumbs)
             {
@@ -732,11 +749,6 @@ namespace _20220530
                 //再グループ用の情報をクリア
                 item.RegroupThumbs.Clear();
             }
-            //新グループを作成挿入してから、元の要素群削除、順番大切
-            //Childrenに新グループを挿入
-            InsertThumb(group);
-            //Childrenから要素群削除
-            foreach (var item in sortedThumbs) { RemoveThumb(item); }
 
             //子要素全体のZ調整、歯抜けになっているので数値を詰める
             for (int i = minZ; i < Children.Count; i++) { Children[i].MyData.Z = i; }

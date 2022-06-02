@@ -27,6 +27,7 @@ namespace _20220530
     public partial class MainWindow : Window
     {
         private int MyItemsCount = 0;
+        private Item4? MyActiveItemThumb;
         public MainWindow()
         {
             InitializeComponent();
@@ -47,7 +48,8 @@ namespace _20220530
 
         private void Item1_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            MyGroupBox1.DataContext = MyLayer1.LastClickedItem;
+            if (sender is Item4 item) { MyActiveItemThumb = item; }
+            //MyGroupBox1.DataContext = MyLayer1.LastClickedItem;
             //if (sender is Item4 item)
             //{
             //    MyGroupBox1.DataContext = item;
@@ -56,7 +58,7 @@ namespace _20220530
         private Item4 MakeItem4(Data1 data)
         {
             Item4 item = new(data);
-            //item.PreviewMouseDown += Item1_PreviewMouseDown;
+            item.PreviewMouseDown += Item1_PreviewMouseDown;
             return item;
         }
         private Data1 MakeTextBloclData1(double x, double y, string text, double padding)
@@ -65,17 +67,20 @@ namespace _20220530
             data.Background = new SolidColorBrush(
                 Color.FromArgb(
                     255,
-                    255,
-                    (byte)(MyItemsCount * 10),
-                    (byte)(255)));
+                    (byte)((MyItemsCount * 20)),
+                    (byte)((255 - MyItemsCount * 20)),
+                    (byte)(255)
+                    ));
             MyItemsCount++;
             return data;
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
-            MyLayer1.AddThumb(new Item4(
-                MakeTextBloclData1(MyItemsCount * 10, MyItemsCount * 10, MyTextBox.Text + MyItemsCount, 4)));
+            Item4 item = new Item4(
+                MakeTextBloclData1(MyItemsCount * 10 + 100, MyItemsCount * 10, MyTextBox.Text + MyItemsCount, 4));
+            item.PreviewMouseDown += Item1_PreviewMouseDown;
+            MyLayer1.AddThumb(item);
         }
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
@@ -105,7 +110,14 @@ namespace _20220530
 
         private void ButtonZUp_Click(object sender, RoutedEventArgs e)
         {
-            if(MyLayer1.LastClickedItem is TThumb1 thumb)
+            //最後にクリックされたThumbのZを1上げる
+            //if (MyLayer1.LastClickedItem is TThumb1 thumb)
+            //{
+            //    thumb.GetMyActiveMoveThumb()?.SetZIndex(thumb.MyData.Z + 1);
+            //}
+
+            //ActiveMoveThumbのZを1上げる
+            if (MyActiveItemThumb?.MyActiveMovableThumb is TThumb1 thumb)
             {
                 thumb.SetZIndex(thumb.MyData.Z + 1);
             }
@@ -113,10 +125,42 @@ namespace _20220530
 
         private void ButtonZDown_Click(object sender, RoutedEventArgs e)
         {
-            if (MyLayer1.LastClickedItem is TThumb1 thumb)
+            //ActiveMoveThumbのZを1下げる
+            if (MyActiveItemThumb?.MyActiveMovableThumb is TThumb1 thumb)
             {
                 thumb.SetZIndex(thumb.MyData.Z - 1);
             }
+        }
+
+        private void ButtonGroup_Click(object sender, RoutedEventArgs e)
+        {
+            //グループ化
+            //選択されているThumbをグループ化
+            //最後にクリックしたThumbの親グループに新グループ追加
+            //MyActiveItemThumb?.MyParentGroup?.MakeGroupFromChildren2(MyLayer1.SelectedThumbs);
+
+            //選択Thumbの親グループに新グループ追加
+            //MyLayer1.SelectedThumbs[0]?.MyParentGroup?.MakeGroupFromChildren2(MyLayer1.SelectedThumbs);
+            MyLayer1.SelectedThumbs[0]?.MyParentGroup?.MakeGroupFromChildren3(MyLayer1.SelectedThumbs.ToList());
+
+        }
+
+        private void ButtonUngroup_Click(object sender, RoutedEventArgs e)
+        {
+            //グループ解除
+            //クリックしたThumbの親グループ解除
+            //MyActiveItemThumb?.MyParentGroup?.Ungroup2();
+
+            //クリックしたThumbに関連した移動可能グループThumbを解除
+            Group4? target = MyActiveItemThumb?.GetMyActiveMoveThumb();
+            target?.Ungroup2();
+            //MyActiveItemThumb?.GetMyActiveMoveThumb()?.Ungroup2();
+        }
+
+        private void ButtonRegroup_Click(object sender, RoutedEventArgs e)
+        {
+            //再グループ化
+            MyActiveItemThumb?.Regroup();
         }
     }
 }
