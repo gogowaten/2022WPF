@@ -11,8 +11,8 @@
       <ColumnDefinition/>
       <ColumnDefinition Width="250"/>
     </Grid.ColumnDefinitions>
-    <Canvas UseLayoutRounding="True">
-      <local:Layer1 x:Name="MyLayer1"/>
+    <Canvas x:Name="MyCanvas" UseLayoutRounding="True">
+      <!--<local:Layer1 x:Name="MyLayer1"/>-->
     </Canvas>
     <StackPanel Grid.Column="1">
       <StackPanel.Resources>
@@ -30,13 +30,16 @@
       <Button x:Name="ButtonGroup" Content="Group" Click="ButtonGroup_Click"/>
       <Button x:Name="ButtonUngroup" Content="UnGroup" Click="ButtonUngroup_Click"/>
       <Button x:Name="ButtonRegroup" Content="Regroup" Click="ButtonRegroup_Click"/>
+      <Button x:Name="ButtonSave" Content="Save" Click="ButtonSave_Click"/>
+      <Button x:Name="ButtonLoad" Content="Load" Click="ButtonLoad_Click"/>
+      <Button x:Name="ButtonSaveGroup" Content="SaveGroup" Click="ButtonSaveGroup_Click"/>
+      <Button x:Name="ButtonAddGroupFromFile" Content="AddGroupFromFile" Click="ButtonAddGroupFromFile_Click"/>
       <Separator Margin="10"/>
       <Button x:Name="MyButtonCheck1" Content="check1" Click="MyButtonCheck1_Click"/>
-      <TextBox Text="{Binding ElementName=MyLayer1, Path=LastClickedItem.MyData.Text, UpdateSourceTrigger=PropertyChanged}"/>
-
+      <TextBox Text="{Binding Path=LastClickedItem.MyData.Text, UpdateSourceTrigger=PropertyChanged}"/>
 
       <GroupBox Header="ClickedThumb" Name="MyGroupBox1">
-        <StackPanel DataContext="{Binding ElementName=MyLayer1, Path=LastClickedItem}">
+        <StackPanel x:Name="MyStackPanel" DataContext="{Binding Path=LastClickedItem}">
           <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding MyData.Text, StringFormat= text\:{0} }"/>
             <TextBlock Text="{Binding MyData.DataType, StringFormat={} type\:{0} }"/>
@@ -63,7 +66,7 @@
 
           <!--C#のWPFでTreeViewへデータをバインドする - Ararami Studio
 https://araramistudio.jimdo.com/2016/10/24/wpf%E3%81%AEtreeview%E3%81%B8%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E3%83%90%E3%82%A4%E3%83%B3%E3%83%89%E3%81%99%E3%82%8B/-->
-          <TreeView ItemsSource="{Binding ElementName=MyLayer1,Path= MyLayer.MyData.ChildrenData}">
+          <TreeView ItemsSource="{Binding Path= MyLayer.MyData.ChildrenData}">
             <TreeView.ItemTemplate>
               <HierarchicalDataTemplate DataType="{x:Type local:Data1}" ItemsSource="{Binding ChildrenData}">
                 <StackPanel Orientation="Horizontal">

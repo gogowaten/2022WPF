@@ -145,7 +145,7 @@ namespace _20220530
             //MyActiveItemThumb?.MyParentGroup?.MakeGroupFromChildren2(MyLayer1.SelectedThumbs);
 
             //選択Thumbの親グループに新グループ追加
-            if (MyLayer1?.SelectedThumbs[0]?.MyParentGroup is Group4 group)
+            if (MyLayer1?.SelectedThumbs[0]?.MyParentGroup is Group1Base group)
             {
                 group.MakeGroupFromChildren3(MyLayer1.SelectedThumbs);
             }
@@ -158,9 +158,8 @@ namespace _20220530
             //MyActiveItemThumb?.MyParentGroup?.Ungroup2();
 
             //クリックしたThumbに関連した移動可能グループThumbを解除
-            Group4? target = MyActiveItemThumb?.GetMyActiveMoveThumb();
-            target?.Ungroup2();
-            //MyActiveItemThumb?.GetMyActiveMoveThumb()?.Ungroup2();
+            
+            MyActiveItemThumb?.GetMyActiveMoveThumb()?.Ungroup2();
         }
 
         private void ButtonRegroup_Click(object sender, RoutedEventArgs e)
@@ -216,6 +215,9 @@ namespace _20220530
             MyLayer1 = layer;            
             MyCanvas.Children.Add(layer);
 
+            //全てのItemThumbにマウスダウンイベント付加
+            AddMouseDownEvent(layer);
+
             //再Binding
             DataContext = MyLayer1;
         }
@@ -248,6 +250,23 @@ namespace _20220530
             if (data == null) { return; }
             Group4 group = new(data);
             MyLayer1?.AddThumb(group);
+
+            //全てのItemThumbにマウスダウンイベント付加
+            AddMouseDownEvent(group);
+        }
+        private void AddMouseDownEvent(Group1Base thumb)
+        {
+            foreach (var item in thumb.Items)
+            {
+                if(item is Group1Base group)
+                {
+                    AddMouseDownEvent(group);
+                }
+                else
+                {
+                    item.PreviewMouseDown += Item1_PreviewMouseDown;
+                }
+            }
         }
     }
 }
