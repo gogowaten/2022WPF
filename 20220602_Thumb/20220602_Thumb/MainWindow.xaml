@@ -1,9 +1,9 @@
-﻿<Window x:Class="_20220530.MainWindow"
+﻿<Window x:Class="_20220602_Thumb.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:_20220530" d:DataContext="{d:DesignInstance Type=local:Data1}"
+        xmlns:local="clr-namespace:_20220602_Thumb"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
   <Grid Background="White">
@@ -11,8 +11,8 @@
       <ColumnDefinition/>
       <ColumnDefinition Width="250"/>
     </Grid.ColumnDefinitions>
-    <Canvas x:Name="MyCanvas" UseLayoutRounding="True">
-      <!--<local:Layer1 x:Name="MyLayer1"/>-->
+    <Canvas UseLayoutRounding="True">
+      <local:Layer1 x:Name="MyLayer1"/>
     </Canvas>
     <StackPanel Grid.Column="1">
       <StackPanel.Resources>
@@ -30,8 +30,6 @@
       <Button x:Name="ButtonGroup" Content="Group" Click="ButtonGroup_Click"/>
       <Button x:Name="ButtonUngroup" Content="UnGroup" Click="ButtonUngroup_Click"/>
       <Button x:Name="ButtonRegroup" Content="Regroup" Click="ButtonRegroup_Click"/>
-      <Button x:Name="ButtonSave" Content="Save" Click="ButtonSave_Click"/>
-      <Button x:Name="ButtonLoad" Content="Load" Click="ButtonLoad_Click"/>
       <Separator Margin="10"/>
       <Button x:Name="MyButtonCheck1" Content="check1" Click="MyButtonCheck1_Click"/>
       <TextBox Text="{Binding ElementName=MyLayer1, Path=LastClickedItem.MyData.Text, UpdateSourceTrigger=PropertyChanged}"/>

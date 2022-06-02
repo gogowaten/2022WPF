@@ -19,7 +19,7 @@ using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Collections.Specialized;
 
-namespace _20220530
+namespace _20220602_Thumb
 {
     public enum DataType
     {
@@ -44,7 +44,7 @@ namespace _20220530
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        #region フィールド
+        #region 共通
         private Group1Base? _myParentGroup;
         public Group1Base? MyParentGroup
         {
@@ -91,7 +91,6 @@ namespace _20220530
         }
 
         #endregion
-
         public TThumb1() { MyData = new Data1(DataType.None); }
         public TThumb1(Data1 data)
         {
@@ -100,12 +99,15 @@ namespace _20220530
             this.SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)));
             this.SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)));
             this.SetBinding(Panel.ZIndexProperty, new Binding(nameof(MyData.Z)));
+
         }
         #region その他
         public override string ToString()
         {
+            string? ss = MyData?.Text;
+            if (string.IsNullOrEmpty(ss)) { ss = this.Name; }
 
-            return $"{MyData?.DataType}, x{MyData?.X}, y{MyData?.Y}, z{MyData?.Z}";
+            return $"{MyData?.DataType}, {ss}, x{MyData?.X}, y{MyData?.Y}, z{MyData?.Z}";
         }
         #endregion その他
 
@@ -501,8 +503,6 @@ namespace _20220530
         protected Group1Base() { Items = new(Children); }
         public Group1Base(Data1 data) : base(data)
         {
-            //Layerなら編集状態にする
-            if (data.DataType == DataType.Layer) { IsMyEditing = true; }
 
             Items = new(Children);
             MyItemsControl = SetGroupThumbTemplate();
@@ -512,49 +512,15 @@ namespace _20220530
             this.DataContext = MyData;//自身はデータをソースにする                                          
 
             //子要素の作成、追加
-            Children.CollectionChanged += Children_CollectionChanged;
-            foreach (Data1 childData in data.ChildrenData)
+            foreach (var item in data.ChildrenData)
             {
-                if (childData.DataTypeMain == DataTypeMain.Item)
-                {
-                    Item4 thumb = new(childData);
-                    thumb.MyParentGroup = this;
-                    AddThumb(thumb);
-                    //Children.Add(thumb);
-                }
-                else
-                {
-                    Group4 thumb = new(childData);
-                    thumb.MyParentGroup = this;
-                    AddThumb(thumb);
-                    //Children.Add(thumb);
-                }
+                Children.Add(new Item4(item));
             }
-            //Children.CollectionChanged += Children_CollectionChanged;
 
+            Children.CollectionChanged += Children_CollectionChanged;
 
 
         }
-        //public Group1Base(Data1 data) : base(data)
-        //{
-
-        //    Items = new(Children);
-        //    MyItemsControl = SetGroupThumbTemplate();
-
-        //    //Binding
-        //    MyItemsControl.DataContext = this;//子要素コレクションは自身をソース
-        //    this.DataContext = MyData;//自身はデータをソースにする                                          
-
-        //    //子要素の作成、追加
-        //    foreach (var item in data.ChildrenData)
-        //    {
-        //        Children.Add(new Item4(item));
-        //    }
-
-        //    Children.CollectionChanged += Children_CollectionChanged;
-
-
-        //}
 
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -563,31 +529,19 @@ namespace _20220530
             {
                 if (e.NewItems?[0] is TThumb1 addItem)
                 {
-                    //ChildrenDataへData追加、同じのがあれば追加しない
-                    if (MyData.ChildrenData.Contains(addItem.MyData) == false)
+                    //Dataの追加
+                    if (addItem.MyData.Z == Children.Count)
                     {
-                        if (addItem.MyData.Z == Children.Count)
-                        {
-                            MyData.ChildrenData.Add(addItem.MyData);
-                        }
-                        else
-                        {
-                            MyData.ChildrenData.Insert(addItem.MyData.Z, addItem.MyData);
-                        }
-                    }
-
-                    //Parentの指定
-                    addItem.MyParentGroup = this;
-                    //Layerの指定
-                    if (MyData.DataType == DataType.Layer)
-                    {
-                        addItem.MyLayer = (Layer1)this;
+                        MyData.ChildrenData.Add(addItem.MyData);
                     }
                     else
                     {
-                        addItem.MyLayer = this.MyLayer;
+                        MyData.ChildrenData.Insert(addItem.MyData.Z, addItem.MyData);
                     }
-
+                    //Parentの指定
+                    addItem.MyParentGroup = this;
+                    //Layerの指定
+                    addItem.MyLayer = this.MyLayer;
                     //Parent(自身)が編集状態なら追加アイテムを
                     if (this.IsMyEditing)
                     {
@@ -1021,7 +975,6 @@ namespace _20220530
             _SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
             PreviewMouseLeftButtonDown += Layer4_PreviewMouseLeftButtonDown;
             SelectedThumbs = new(_SelectedThumbs);
-            SetMyLayer2(this);
         }
 
 
@@ -1167,14 +1120,16 @@ namespace _20220530
         }
     }
 
+    public class TThumb1Manage
+    {
 
+    }
 
     #region Data4
 
     [DataContract]
     [KnownType(typeof(RectangleGeometry)),
-     KnownType(typeof(MatrixTransform)),
-        KnownType(typeof(SolidColorBrush))]
+     KnownType(typeof(MatrixTransform))]
     public class Data1 : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;

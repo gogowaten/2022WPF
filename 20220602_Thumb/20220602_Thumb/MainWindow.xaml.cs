@@ -18,10 +18,8 @@ using System.Globalization;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Collections.Specialized;
-using System.Xml;
 
-
-namespace _20220530
+namespace _20220602_Thumb
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -30,24 +28,21 @@ namespace _20220530
     {
         private int MyItemsCount = 0;
         private Item4? MyActiveItemThumb;
-        private Layer1? MyLayer1;
         public MainWindow()
         {
             InitializeComponent();
 #if DEBUG
             Left = 10; Top = 10;
 #endif
-
-            MyLayer1 = new Layer1();
-            MyCanvas.Children.Add(MyLayer1);
+            //MyGroupBox1.DataContext = MyLayer1.LastClickedItem;
             MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(0, 0, "Item1", 4)));
             MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(50, 50, "Item2", 4)));
 
-            //Group4 group = new();
-            //MyLayer1.AddThumb(group);
-            //group.MyData.X = 20; group.MyData.Y = 100;
-            //group.AddThumb(MakeItem4(MakeTextBloclData1(0, 0, "Item3", 4)));
-            //group.AddThumb(MakeItem4(MakeTextBloclData1(50, 20, "Item4", 4)));
+            Group4 group = new();
+            MyLayer1.AddThumb(group);
+            group.MyData.X = 20; group.MyData.Y = 100;
+            group.AddThumb(MakeItem4(MakeTextBloclData1(0, 0, "Item3", 4)));
+            group.AddThumb(MakeItem4(MakeTextBloclData1(50, 20, "Item4", 4)));
         }
 
         private void Item1_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -110,7 +105,6 @@ namespace _20220530
             var item0data = items?[0].MyData;
             var item1data = items?[1].MyData;
             var item00data = MyLayer1.MyData.ChildrenData[1];
-            var tost = MyLayer1.ToString();
         }
 
         private void ButtonZUp_Click(object sender, RoutedEventArgs e)
@@ -166,64 +160,6 @@ namespace _20220530
         {
             //再グループ化
             MyActiveItemThumb?.Regroup();
-        }
-
-        private void ButtonSave_Click(object sender, RoutedEventArgs e)
-        {
-            //状態をファイに保存
-            DataSave($"E:\\MyData.xml", MyLayer1.MyData);
-        }
-        private void DataSave(string fileName, Data1 data)
-        {
-            XmlWriterSettings settings = new()
-            {
-                Encoding = new UTF8Encoding(false),
-                Indent = true,
-                NewLineOnAttributes = false,
-                ConformanceLevel = ConformanceLevel.Fragment
-            };
-            XmlWriter writer;
-            DataContractSerializer serializer = new(typeof(Data1));
-            using (writer = XmlWriter.Create(fileName, settings))
-            {
-                try
-                {
-                    serializer.WriteObject(writer, data);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
-        }
-
-        //ファイルから読み込み
-        private void ButtonLoad_Click(object sender, RoutedEventArgs e)
-        {
-            //古い方を削除
-            MyCanvas.Children.Remove(MyLayer1);
-            MyLayer1 = null;
-
-            //ファイルから読み込み
-            Data1? data = DataLoad($"E:\\MyData.xml");
-            if(data == null) { return; }
-            Layer1? layer = new(data);
-            MyLayer1 = layer;            
-            MyCanvas.Children.Add(layer);
-        }
-        private Data1? DataLoad(string fileName)
-        {
-            DataContractSerializer serializer = new(typeof(Data1));
-            try
-            {
-                using XmlReader reader = XmlReader.Create(fileName); ;
-                return (Data1?)serializer.ReadObject(reader);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message);
-                return null;
-            }
         }
     }
 }
