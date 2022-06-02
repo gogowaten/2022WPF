@@ -84,12 +84,12 @@ namespace _20220530
             Item4 item = new Item4(
                 MakeTextBloclData1(MyItemsCount * 10 + 100, MyItemsCount * 10, MyTextBox.Text + MyItemsCount, 4));
             item.PreviewMouseDown += Item1_PreviewMouseDown;
-            MyLayer1.AddThumb(item);
+            MyLayer1?.AddThumb(item);
         }
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            if (MyLayer1.SelectedThumbs is not null)
+            if (MyLayer1?.SelectedThumbs is not null)
             {
                 //foreach (var item in MyLayer1.SelectedThumbs)
                 //{
@@ -106,11 +106,11 @@ namespace _20220530
         private void MyButtonCheck1_Click(object sender, RoutedEventArgs e)
         {
             var layer = MyLayer1;
-            var items = MyLayer1.Items;
+            var items = MyLayer1?.Items;
             var item0data = items?[0].MyData;
             var item1data = items?[1].MyData;
-            var item00data = MyLayer1.MyData.ChildrenData[1];
-            var tost = MyLayer1.ToString();
+            var item00data = MyLayer1?.MyData.ChildrenData[1];
+            var tost = MyLayer1?.ToString();
         }
 
         private void ButtonZUp_Click(object sender, RoutedEventArgs e)
@@ -145,9 +145,10 @@ namespace _20220530
             //MyActiveItemThumb?.MyParentGroup?.MakeGroupFromChildren2(MyLayer1.SelectedThumbs);
 
             //選択Thumbの親グループに新グループ追加
-            //MyLayer1.SelectedThumbs[0]?.MyParentGroup?.MakeGroupFromChildren2(MyLayer1.SelectedThumbs);
-            MyLayer1.SelectedThumbs[0]?.MyParentGroup?.MakeGroupFromChildren3(MyLayer1.SelectedThumbs.ToList());
-
+            if (MyLayer1?.SelectedThumbs[0]?.MyParentGroup is Group4 group)
+            {
+                group.MakeGroupFromChildren3(MyLayer1.SelectedThumbs);
+            }
         }
 
         private void ButtonUngroup_Click(object sender, RoutedEventArgs e)
@@ -171,7 +172,11 @@ namespace _20220530
         private void ButtonSave_Click(object sender, RoutedEventArgs e)
         {
             //状態をファイに保存
-            DataSave($"E:\\MyData.xml", MyLayer1.MyData);
+            if(MyLayer1?.MyData is Data1 data)
+            {
+                DataSave($"E:\\MyData.xml", data);
+            }
+            
         }
         private void DataSave(string fileName, Data1 data)
         {
@@ -211,16 +216,8 @@ namespace _20220530
             MyLayer1 = layer;            
             MyCanvas.Children.Add(layer);
 
+            //再Binding
             DataContext = MyLayer1;
-
-            ////MyStackPanel.DataContext = MyLayer1;
-            //Binding b = new(nameof(MyLayer1.LastClickedItem));
-            ////Binding b = new();
-            ////b.Source = MyLayer1.LastClickedItem;
-            //b.ElementName = nameof(MyLayer1);
-            //b.Path = new PropertyPath(nameof(MyLayer1.LastClickedItem));
-            //MyStackPanel.SetBinding(DataContextProperty, b);
-            
         }
         private Data1? DataLoad(string fileName)
         {
