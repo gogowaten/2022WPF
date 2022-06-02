@@ -9,7 +9,7 @@
   <Grid Background="White">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
-      <ColumnDefinition Width="250"/>
+      <ColumnDefinition Width="240"/>
     </Grid.ColumnDefinitions>
     <Canvas x:Name="MyCanvas" UseLayoutRounding="True">
       <!--<local:Layer1 x:Name="MyLayer1"/>-->
@@ -19,21 +19,32 @@
         <Style TargetType="TextBlock">
           <Setter Property="Margin" Value="0,2"/>
         </Style>
+        <Style TargetType="DockPanel">
+          <Setter Property="Margin" Value="0,4,0,0"/>
+        </Style>
       </StackPanel.Resources>
       <DockPanel LastChildFill="True">
-        <TextBox x:Name="MyTextBox" Text="text" Width="100"/>
+        <TextBox x:Name="MyTextBox" Text="text" Width="120"/>
         <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
       </DockPanel>
       <Button x:Name="ButtonRemove" Content="remove" Click="ButtonRemove_Click"/>
-      <Button x:Name="ButtonZUp" Content="Z age" Click="ButtonZUp_Click"/>
-      <Button x:Name="ButtonZDown" Content="Z sage" Click="ButtonZDown_Click"/>
-      <Button x:Name="ButtonGroup" Content="Group" Click="ButtonGroup_Click"/>
-      <Button x:Name="ButtonUngroup" Content="UnGroup" Click="ButtonUngroup_Click"/>
-      <Button x:Name="ButtonRegroup" Content="Regroup" Click="ButtonRegroup_Click"/>
-      <Button x:Name="ButtonSave" Content="Save" Click="ButtonSave_Click"/>
-      <Button x:Name="ButtonLoad" Content="Load" Click="ButtonLoad_Click"/>
-      <Button x:Name="ButtonSaveGroup" Content="SaveGroup" Click="ButtonSaveGroup_Click"/>
-      <Button x:Name="ButtonAddGroupFromFile" Content="AddGroupFromFile" Click="ButtonAddGroupFromFile_Click"/>
+      <DockPanel>
+        <Button x:Name="ButtonZUp" Content="Z age" Click="ButtonZUp_Click" Width="120"/>
+        <Button x:Name="ButtonZDown" Content="Z sage" Click="ButtonZDown_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="ButtonGroup" Content="Group" Click="ButtonGroup_Click" Width="80"/>
+        <Button x:Name="ButtonUngroup" Content="UnGroup" Click="ButtonUngroup_Click" Width="80"/>
+        <Button x:Name="ButtonRegroup" Content="Regroup" Click="ButtonRegroup_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="ButtonSave" Content="Save" Click="ButtonSave_Click" Width="120"/>
+        <Button x:Name="ButtonLoad" Content="Load" Click="ButtonLoad_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="ButtonSaveGroup" Content="SaveGroup" Click="ButtonSaveGroup_Click" Width="120"/>
+        <Button x:Name="ButtonAddGroupFromFile" Content="LoadGroup" Click="ButtonAddGroupFromFile_Click"/>
+      </DockPanel>
       <Separator Margin="10"/>
       <Button x:Name="MyButtonCheck1" Content="check1" Click="MyButtonCheck1_Click"/>
       <TextBox Text="{Binding Path=LastClickedItem.MyData.Text, UpdateSourceTrigger=PropertyChanged}"/>
@@ -66,11 +77,34 @@
 
           <!--C#のWPFでTreeViewへデータをバインドする - Ararami Studio
 https://araramistudio.jimdo.com/2016/10/24/wpf%E3%81%AEtreeview%E3%81%B8%E3%83%87%E3%83%BC%E3%82%BF%E3%82%92%E3%83%90%E3%82%A4%E3%83%B3%E3%83%89%E3%81%99%E3%82%8B/-->
-          <TreeView ItemsSource="{Binding Path= MyLayer.MyData.ChildrenData}">
+          <!--akjoshi's Blog - Resolving harmless binding errors in WPF
+https://weblogs.asp.net/akjoshi/resolving-un-harmful-binding-errors-in-wpf-->
+          <!--変数 - wpf オブジェクト バインド - 入門サンプル
+https://code-examples.net/ja/q/2d7ebe-->
+
+          <TreeView x:Name="MyTreeView" ItemsSource="{Binding Path= MyLayer.MyData.ChildrenData}">
+            <!--データ変更時のBindingエラー対策-->
+            <TreeView.Resources>
+              <Style TargetType="TreeViewItem">
+                <!--<Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>-->
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+              </Style>
+            </TreeView.Resources>
+            <!--データ変更時のBindingエラー対策-->
+            <TreeView.ItemContainerStyle>
+              <Style TargetType="TreeViewItem">
+                <!--<Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Center"/>-->
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Setter Property="HorizontalContentAlignment" Value="Center"/>
+              </Style>
+            </TreeView.ItemContainerStyle>
             <TreeView.ItemTemplate>
               <HierarchicalDataTemplate DataType="{x:Type local:Data1}" ItemsSource="{Binding ChildrenData}">
                 <StackPanel Orientation="Horizontal">
-                  <TextBlock Text="{Binding Text, StringFormat= text\=0}" VerticalAlignment="Center"/>
+                  <TextBlock Text="{Binding Text, StringFormat= text\=0}"/>
                   <TextBlock Text="{Binding X, StringFormat={}  x\=0}"/>
                   <TextBlock Text="{Binding Y, StringFormat={}  y\=0}"/>
                   <TextBlock Text="{Binding Z, StringFormat={}  z\=0}"/>
