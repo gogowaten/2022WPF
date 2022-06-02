@@ -30,15 +30,15 @@ namespace _20220530
     {
         private int MyItemsCount = 0;
         private Item4? MyActiveItemThumb;
-        private Layer1? MyLayer1;
+        public Layer1? MyLayer1;
         public MainWindow()
         {
             InitializeComponent();
 #if DEBUG
             Left = 10; Top = 10;
 #endif
-
             MyLayer1 = new Layer1();
+            DataContext = MyLayer1;
             MyCanvas.Children.Add(MyLayer1);
             MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(0, 0, "Item1", 4)));
             MyLayer1.AddThumb(MakeItem4(MakeTextBloclData1(50, 50, "Item2", 4)));
@@ -202,7 +202,7 @@ namespace _20220530
         {
             //古い方を削除
             MyCanvas.Children.Remove(MyLayer1);
-            MyLayer1 = null;
+            //MyLayer1 = null;
 
             //ファイルから読み込み
             Data1? data = DataLoad($"E:\\MyData.xml");
@@ -210,6 +210,17 @@ namespace _20220530
             Layer1? layer = new(data);
             MyLayer1 = layer;            
             MyCanvas.Children.Add(layer);
+
+            DataContext = MyLayer1;
+
+            ////MyStackPanel.DataContext = MyLayer1;
+            //Binding b = new(nameof(MyLayer1.LastClickedItem));
+            ////Binding b = new();
+            ////b.Source = MyLayer1.LastClickedItem;
+            //b.ElementName = nameof(MyLayer1);
+            //b.Path = new PropertyPath(nameof(MyLayer1.LastClickedItem));
+            //MyStackPanel.SetBinding(DataContextProperty, b);
+            
         }
         private Data1? DataLoad(string fileName)
         {
@@ -224,6 +235,22 @@ namespace _20220530
                 MessageBox.Show(ex.Message);
                 return null;
             }
+        }
+        //グループをファイルに保存
+        private void ButtonSaveGroup_Click(object sender, RoutedEventArgs e)
+        {
+            if(MyActiveItemThumb?.MyActiveMovableThumb is Group4 group)
+            {
+                DataSave($"E:\\MyDataGroup.xml",group.MyData);
+            }
+        }
+        //ファイルからグループを追加
+        private void ButtonAddGroupFromFile_Click(object sender, RoutedEventArgs e)
+        {
+            Data1? data = DataLoad($"E:\\MyDataGroup.xml");
+            if (data == null) { return; }
+            Group4 group = new(data);
+            MyLayer1?.AddThumb(group);
         }
     }
 }
