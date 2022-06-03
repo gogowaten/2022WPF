@@ -10,15 +10,18 @@
     <Canvas Name="MyCanvas">
       <Canvas.Resources>
         <Style TargetType="Thumb">
-          <Setter Property="Width" Value="10"/>
-          <Setter Property="Height" Value="10"/>
+          <Setter Property="Width" Value="20"/>
+          <Setter Property="Height" Value="20"/>
           <Setter Property="Opacity" Value="0.2"/>
           <Setter Property="Background" Value="Black"/>
         </Style>
       </Canvas.Resources>
-      <Path Name="MyPath" Stroke="Red" StrokeThickness="5"/>
-      <Thumb Name="MyThumb1" DragDelta="MyThumb1_DragDelta"/>
-      <Thumb Name="MyThumb2" DragDelta="MyThumb1_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
+      <Rectangle Name="MyRectangle" Fill="MediumAquamarine"
+                 Width="100" Height="100" Canvas.Left="50" Canvas.Top="50"/>
+
+      <Thumb Name="MyThumb1" DragDelta="MyThumb_DragDeltaHorizontal" Canvas.Left="0" Canvas.Top="0"/>
+      <Thumb Name="MyThumb2" DragDelta="MyThumb_DragDelta" Canvas.Left="200" Canvas.Top="200"/>
+      <Thumb Name="MyThumb3" DragDelta="MyThumb_DragDeltaVertical" Canvas.Left="0" Canvas.Top="0"/>
     </Canvas>
   </Grid>
 </Window>
