@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20220602_Thumb"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="600">
   <Grid Background="White">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
@@ -35,7 +35,7 @@
       <DockPanel>
         <Button x:Name="ButtonGroup" Content="Group" Click="ButtonGroup_Click" Width="80"/>
         <Button x:Name="ButtonUngroup" Content="UnGroup" Click="ButtonUngroup_Click" Width="80"/>
-        <Button x:Name="ButtonRegroup" Content="Regroup" Click="ButtonRegroup_Click"/>
+        <Button x:Name="ButtonRegroup" Content="ReGroup" Click="ButtonRegroup_Click"/>
       </DockPanel>
       <DockPanel>
         <Button x:Name="ButtonSave" Content="Save" Click="ButtonSave_Click" Width="120"/>
@@ -86,8 +86,6 @@ https://code-examples.net/ja/q/2d7ebe-->
             <!--データ変更時のBindingエラー対策-->
             <TreeView.Resources>
               <Style TargetType="TreeViewItem">
-                <!--<Setter Property="VerticalAlignment" Value="Center"/>
-                <Setter Property="HorizontalAlignment" Value="Left"/>-->
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
               </Style>
@@ -95,8 +93,6 @@ https://code-examples.net/ja/q/2d7ebe-->
             <!--データ変更時のBindingエラー対策-->
             <TreeView.ItemContainerStyle>
               <Style TargetType="TreeViewItem">
-                <!--<Setter Property="VerticalAlignment" Value="Center"/>
-                <Setter Property="HorizontalAlignment" Value="Center"/>-->
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
               </Style>
