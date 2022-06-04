@@ -28,70 +28,149 @@ namespace _20220603
         {
             InitializeComponent();
 
-            Test1();
+            //Test1();
+            //Test2();
+
         }
+
+
+        #region Test1, 2
+        
+        private Thumb MakeAndSetThumb(Panel panel, double size, double opa, Brush brush)
+        {
+            Thumb t = new() { Width = size, Height = size, Opacity = opa, Background = brush };
+            panel.Children.Add(t);
+            return t;
+        }
+        private Rectangle MakeAndSetRectangle(Panel panel, double size, double opa, Brush brush)
+        {
+            Rectangle r = new() { Width = size, Height = size, Opacity = opa, Fill = brush };
+            panel.Children.Add(r);
+            return r;
+        }
+
+        //通知プロパティを介した方法
         private void Test1()
         {
-            MyData.X = 200;
-            Binding b0 = new(nameof(MyData.X));
-            b0.Source = MyData;
-            MyRectangle.SetBinding(LeftProperty, b0);
-            //右ThumbのBinding
-            Binding b1 = new();
-            b1.Source = MyRectangle;
-            b1.Path = new PropertyPath(WidthProperty);
-            b1.ConverterParameter = Canvas.GetLeft(MyRectangle);
-            b1.Converter = new MM();
-            b1.Mode = BindingMode.TwoWay;
-            //MyThumb1.SetBinding(LeftProperty, b1);
-            Binding b2 = new();
-            b2.Source = MyRectangle;
-            b2.Path = new PropertyPath(HeightProperty);
-            b2.Converter = new MMHalf();
-            b2.ConverterParameter = Canvas.GetTop(MyRectangle);
-            //MyThumb1.SetBinding(TopProperty, b2);
+            Rectangle element = MakeAndSetRectangle(MyCanvas, 100, 1.0, Brushes.MediumAquamarine);
+            MyData.X = 120; MyData.Y = 150;
+            MyData.W = 100; MyData.H = 50;
+            //DataとRectangleのバインド
+            element.SetBinding(LeftProperty,
+                new Binding(nameof(MyData.X))
+                { Source = MyData, Mode = BindingMode.TwoWay });
+            element.SetBinding(TopProperty,
+                new Binding(nameof(MyData.Y))
+                { Source = MyData, Mode = BindingMode.TwoWay });
+            element.SetBinding(WidthProperty,
+                new Binding(nameof(MyData.W))
+                { Source = MyData, Mode = BindingMode.TwoWay });
+            element.SetBinding(HeightProperty,
+                new Binding(nameof(MyData.H))
+                { Source = MyData, Mode = BindingMode.TwoWay });
 
-            //右下Thumb
-            b2 = new();
-            b2.Source = MyRectangle;
-            b2.Path = new PropertyPath(HeightProperty);
-            b2.ConverterParameter = Canvas.GetTop(MyRectangle);
-            b2.Converter = new MM();
-            b2.Mode = BindingMode.TwoWay;
-            //MyThumb2.SetBinding(TopProperty, b2);
-            //MyThumb2.SetBinding(LeftProperty, b1);
+            //Dataとthumbのバインド、水平方向
+            Binding b1 = new(nameof(MyData.X))
+            {
+                Source = MyData,
+                Mode = BindingMode.TwoWay
+            };
+            Binding b2 = new(nameof(MyData.W))
+            {
+                Source = MyData,
+                Mode = BindingMode.TwoWay
+            };
+            MultiBinding mb = new()
+            {
+                ConverterParameter = MyData,
+                Mode = BindingMode.TwoWay,
+                Converter = new NNNHorizontal()
+            };
+            mb.Bindings.Add(b1);
+            mb.Bindings.Add(b2);
 
-            //上
-            //Binding b3 = new();
-            //b3.Source = MyRectangle;
-            //b3.Path = new PropertyPath(HeightProperty);
-            //Binding b4 = new();
-            //b4.Source = MyRectangle;
-            //b4.Path = new PropertyPath(TopProperty);
-            //MultiBinding mb = new();
-            //mb.Bindings.Add(b3); mb.Bindings.Add(b4);
-            //mb.ConverterParameter = MyRectangle.Height + Canvas.GetTop(MyRectangle);
-            //mb.Converter = new MMM();
-            //mb.Mode = BindingMode.TwoWay;
-            //MyThumb3.SetBinding(TopProperty, mb);
+            Thumb t = MakeAndSetThumb(MyCanvas, 20, 0.2, Brushes.Black);
+            t.SetBinding(LeftProperty, mb);
+            t.DragDelta += MyThumb_DragDelta;
 
+            //Dataとthumbのバインド、垂直方向
+            b1 = new(nameof(MyData.Y))
+            {
+                Source = MyData,
+                Mode = BindingMode.TwoWay
+            };
+             b2 = new(nameof(MyData.H))
+            {
+                Source = MyData,
+                Mode = BindingMode.TwoWay
+            };
+             mb = new()
+            {
+                ConverterParameter = MyData,
+                Mode = BindingMode.TwoWay,
+                Converter = new NNNVertical()
+            };
+            mb.Bindings.Add(b1);
+            mb.Bindings.Add(b2);
+            t.SetBinding(TopProperty, mb);
+        }
 
-            Binding b3 = new();
-            b3.Source = MyThumb3;
-            b3.Path = new PropertyPath(TopProperty);
-            b3.Mode = BindingMode.TwoWay;
-            MyRectangle.SetBinding(TopProperty, b3);
+        //Rectangleに直接バインド
+        private void Test2()
+        {
 
-            Binding b4 = new();
-            b4.Source = MyThumb3;
-            b4.Path = new PropertyPath(TopProperty);
-            b4.ConverterParameter = MyRectangle.Height + Canvas.GetTop(MyRectangle);
-            b4.Converter = new MMH();
-            b4.Mode = BindingMode.TwoWay;
-            MyRectangle.SetBinding(HeightProperty, b4);
+            Rectangle element = MakeAndSetRectangle(MyCanvas, 100, 1.0, Brushes.MediumOrchid);
+            Canvas.SetLeft(element, 20);
+            Canvas.SetTop(element, 220);
 
+            Binding b1 = new()
+            {
+                Source = element,
+                Mode = BindingMode.TwoWay,
+                Path = new PropertyPath(LeftProperty)
+            };
+            Binding b2 = new()
+            {
+                Source = element,
+                Mode = BindingMode.TwoWay,
+                Path = new PropertyPath(WidthProperty)
+            };
+            MultiBinding mb = new()
+            {
+                ConverterParameter = element,
+                Converter = new NNNRectHorizontal(),
+                Mode = BindingMode.TwoWay
+            };
+            mb.Bindings.Add(b1);
+            mb.Bindings.Add(b2);
+            Thumb t = MakeAndSetThumb(MyCanvas, 20, 0.2, Brushes.Black);
+            t.SetBinding(LeftProperty, mb);
+            t.DragDelta += MyThumb_DragDelta;
+
+             b1 = new()
+            {
+                Source = element,
+                Mode = BindingMode.TwoWay,
+                Path = new PropertyPath(TopProperty)
+            };
+             b2 = new()
+            {
+                Source = element,
+                Mode = BindingMode.TwoWay,
+                Path = new PropertyPath(HeightProperty)
+            };
+             mb = new()
+            {
+                ConverterParameter = element,
+                Converter = new NNNRectVertical(),
+                Mode = BindingMode.TwoWay
+            };
+            mb.Bindings.Add(b1);
+            mb.Bindings.Add(b2);
+            t.SetBinding(TopProperty, mb);
 
         }
+        #endregion Test1, 2
 
         private void MyThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
@@ -102,88 +181,90 @@ namespace _20220603
             }
         }
 
-        private void MyThumb_DragDeltaHorizontal(object sender, DragDeltaEventArgs e)
-        {
-            if (sender is Thumb t)
-                Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
-        }
-        private void MyThumb_DragDeltaVertical(object sender, DragDeltaEventArgs e)
-        {
-            double d = MyRectangle.Height - e.VerticalChange;
-            if (sender is Thumb t && d >= 0)
-            {
-                Canvas.SetTop(t, Canvas.GetTop(t) + e.VerticalChange);
-            }
-        }
+
     }
 
-
-    public class MM : IValueConverter
+    //Rectangleに直接バインド、水平方向用
+    public class NNNRectHorizontal : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            double rectLeft = (double)parameter;
-            double rectW = (double)value;
-            return rectW + rectLeft;
+            return values[0];
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            double thumbLeft = (double)value;
-            double rectLeft = (double)parameter;
-            return thumbLeft - rectLeft;
+            Rectangle element = (Rectangle)parameter;
+            double total = Canvas.GetLeft(element) + element.Width;
+            double v = (double)value;
+            object[] result = new object[2];
+            result[0] = v;
+            result[1] = total - v;//width
+            return result;
         }
     }
-    public class MMHalf : IValueConverter
+    //Rectangleに直接バインド、垂直方向用
+    public class NNNRectVertical : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            double rectHeight = (double)value;
-            double recttop = (double)parameter;
-            return recttop + (rectHeight / 2.0);
+            return values[0];
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            Rectangle element = (Rectangle)parameter;
+            double total = Canvas.GetTop(element) + element.Height;//ここだけ違う
+            double v = (double)value;
+            object[] result = new object[2];
+            result[0] = v;
+            result[1] = total - v;//height
+            return result;
         }
     }
 
-    public class MMH : IValueConverter
+    //通知プロパティを介してバインド用
+    public class NNNHorizontal : IMultiValueConverter
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            double thumbTop = (double)value;
-            double total = (double)parameter;
-            return total - thumbTop;
+            return values[0];
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            Data1 data = (Data1)parameter;
+            double total = data.X + data.W;
+            double v = (double)value;
+            object[] result = new object[2];
+            result[0] = v;
+            result[1] = total - v;//width
+            return result;
         }
     }
-    //public class MMM : IMultiValueConverter
-    //{
-    //    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-    //    {
-    //        double rHeight = (double)values[0];
-    //        double rTop = (double)values[1];
-    //        double total = (double)parameter;
-    //        return rTop;
-    //    }
+    public class NNNVertical : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return values[0];
+        }
 
-    //    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-    //    {
-    //        double thumbY = (double)value;
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            Data1 data = (Data1)parameter;
+            double total = data.Y + data.H;//horizontalと違うのはここだけ
+            double v = (double)value;
+            object[] result = new object[2];
+            result[0] = v;
+            result[1] = total - v;//height
+            return result;
+        }
+    }
 
-    //        double total = (double)parameter;
-    //        object[] values = new object[2];
-    //        values[0] = total - thumbY;//height
-    //        values[1] = thumbY;//top
-    //        return values;
-    //    }
-    //}
+ 
+
+   
+  
 
     public class Data1 : System.ComponentModel.INotifyPropertyChanged
     {
