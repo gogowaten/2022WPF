@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32526.322
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20220604_SizeChangeThumb2", "20220604_SizeChangeThumb2\20220604_SizeChangeThumb2.csproj", "{BF5DB10C-A6C3-46C4-B952-302CAC9E7E47}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BF5DB10C-A6C3-46C4-B952-302CAC9E7E47}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF5DB10C-A6C3-46C4-B952-302CAC9E7E47}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF5DB10C-A6C3-46C4-B952-302CAC9E7E47}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF5DB10C-A6C3-46C4-B952-302CAC9E7E47}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B89CB690-2E09-4371-A8FA-0890B60CF49E}
+	EndGlobalSection
+EndGlobal
