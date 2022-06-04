@@ -17,7 +17,7 @@
         </Style>
       </Canvas.Resources>
       <Rectangle Name="MyRectangle" Fill="MediumAquamarine"
-                 Width="100" Height="100" Canvas.Left="50" Canvas.Top="50"/>
+                 Width="100" Height="100" Canvas.Left="150" Canvas.Top="150"/>
 
       <Thumb Name="MyThumb0" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
       <Thumb Name="MyThumb1" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
@@ -27,7 +27,10 @@
       <Thumb Name="MyThumb5" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
       <Thumb Name="MyThumb6" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
       <Thumb Name="MyThumb7" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
-      
+
+      <Button x:Name="MyButton1" Content="check" Click="MyButton1_Click"/>
+      <Button x:Name="MyButton2" Content="check" Click="MyButton2_Click"
+              Canvas.Left="100"/>
     </Canvas>
   </Grid>
 </Window>
