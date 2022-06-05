@@ -18,8 +18,8 @@
       </Canvas.Resources>
       <Rectangle Name="MyRectangle" Fill="RoyalBlue" MouseDown="MyRectangle_MouseDown"
                  Width="150" Height="150" Canvas.Left="150" Canvas.Top="150"/>
-      <Ellipse x:Name="MyEllipse" Fill="Yellow" MouseDown="MyEllipse_MouseDown"
-               Width="150" Height="150" Canvas.Left="250" Canvas.Top="100"/>
+      <Ellipse x:Name="MyEllipse" Fill="Gold" MouseDown="MyEllipse_MouseDown"
+               Width="150" Height="150" Canvas.Left="250" Canvas.Top="200"/>
       
       <Thumb Name="MyThumb0" DragDelta="MyThumb_DragDelta"/>
       <Thumb Name="MyThumb1" DragDelta="MyThumb_DragDeltaOnlyVertical"/>
