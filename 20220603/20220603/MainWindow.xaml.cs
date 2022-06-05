@@ -16,7 +16,9 @@ using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.ComponentModel;
 
-//対象の要素に直接Thumbをバインド
+//対象の要素とそのDataにバインド
+//これは前回の要素に直接版インドする方法とほぼ同じになった
+
 //Thumbの配置番号
 //0 1 2
 //3   4
@@ -29,24 +31,63 @@ namespace _20220603
     /// </summary>
     public partial class MainWindow : Window
     {
+        private Data1 MyRectangleData;
+        private Data1 MyEllipseData;
         public MainWindow()
         {
             InitializeComponent();
 
-            Test2(MyRectangle);
+            MyRectangleData = new Data1(150, 110, 100, 70);
+            Test1(MyRectangleData, MyRectangle);
+            MyEllipseData = new Data1(250, 100, 150, 150);
+        }
+        private void Test1(Data1 data, FrameworkElement element)
+        {
+            Binding bx = MakeBinding(nameof(data.X), data);
+            Binding by = MakeBinding(nameof(data.Y), data);
+            Binding bw = MakeBinding(nameof(data.W), data);
+            Binding bh = MakeBinding(nameof(data.H), data);
+            element.SetBinding(LeftProperty, bx);
+            element.SetBinding(TopProperty, by);
+            element.SetBinding(WidthProperty, bw);
+            element.SetBinding(HeightProperty, bh);
+
+            MultiBinding mb0 = MakeMultiBinding(data, new DC0(), bx, bw);
+            MultiBinding mb1 = MakeMultiBinding(data, new DC1(), by, bh);
+            MultiBinding mb2 = MakeMultiBinding(data, new MMM2(), bx, bw);
+            MultiBinding mb3 = MakeMultiBinding(data, new DC2(), bx, bw);
+            MultiBinding mb4 = MakeMultiBinding(data, new DC3(), by, bh);
+            MultiBinding mb5 = MakeMultiBinding(data, new MMM2(), by, bh);
+
+            MyThumb0.SetBinding(LeftProperty, mb0);
+            MyThumb0.SetBinding(TopProperty, mb1);
+            MyThumb1.SetBinding(LeftProperty, mb2);
+            MyThumb1.SetBinding(TopProperty, mb1);
+            MyThumb2.SetBinding(LeftProperty, mb3);
+            MyThumb2.SetBinding(TopProperty, mb1);
+
+            MyThumb3.SetBinding(LeftProperty, mb0);
+            MyThumb3.SetBinding(TopProperty, mb5);
+            MyThumb4.SetBinding(LeftProperty, mb3);
+            MyThumb4.SetBinding(TopProperty, mb5);
+
+            MyThumb5.SetBinding(LeftProperty, mb0);
+            MyThumb5.SetBinding(TopProperty, mb4);
+            MyThumb6.SetBinding(LeftProperty, mb2);
+            MyThumb6.SetBinding(TopProperty, mb4);
+            MyThumb7.SetBinding(LeftProperty, mb3);
+            MyThumb7.SetBinding(TopProperty, mb4);
+
+        }
+        private Binding MakeBinding(string path, object source)
+        {
+            return new(path) { Source = source, Mode = BindingMode.TwoWay };
         }
 
-        private Binding MakeBinding(FrameworkElement source, DependencyProperty dp)
-        {
-            Binding b = new();
-            b.Source = source;
-            b.Path = new PropertyPath(dp);
-            b.Mode = BindingMode.TwoWay;
-            return b;
-        }
+
         private MultiBinding MakeMultiBinding(object param, IMultiValueConverter converter, params Binding[] bindings)
         {
-            MultiBinding m = new MultiBinding();
+            MultiBinding m = new();
             m.ConverterParameter = param;
             m.Converter = converter;
             m.Mode = BindingMode.TwoWay;
@@ -56,55 +97,9 @@ namespace _20220603
             }
             return m;
         }
-        private void Test2(FrameworkElement element)
-        {
-            object[] param0 = new object[3];
-            param0[0] = element;
-            param0[1] = new Func<FrameworkElement, double>(Canvas.GetLeft);
-            param0[2] = (FrameworkElement e) => e.Width;
-            object[] param1 = new object[3];
-            param1[0] = element;
-            param1[1] = new Func<FrameworkElement, double>(Canvas.GetTop);
-            param1[2] = (FrameworkElement e) => e.Height;
-
-            Binding b_left = MakeBinding(element, LeftProperty);
-            Binding b_width = MakeBinding(element, WidthProperty);
-            Binding b_top = MakeBinding(element, TopProperty);
-            Binding b_height = MakeBinding(element, HeightProperty);
-
-            MultiBinding m0 = MakeMultiBinding(param0, new DDD0(), b_left, b_width);
-            MultiBinding m1 = MakeMultiBinding(param1, new DDD0(), b_top, b_height);
-            MultiBinding m2 = MakeMultiBinding(element, new MMM2(), b_left, b_width);
-            MultiBinding m3 = MakeMultiBinding(param0, new DDD1(), b_left, b_width);
-            MultiBinding m4 = MakeMultiBinding(element, new MMM2(), b_top, b_height);
-            MultiBinding m5 = MakeMultiBinding(param1, new DDD1(), b_top, b_height);
-
-            MyThumb0.SetBinding(LeftProperty, m0);
-            MyThumb0.SetBinding(TopProperty, m1);
-
-            MyThumb1.SetBinding(LeftProperty, m2);
-            MyThumb1.SetBinding(TopProperty, m1);
-
-            MyThumb2.SetBinding(LeftProperty, m3);
-            MyThumb2.SetBinding(TopProperty, m1);
-
-            MyThumb3.SetBinding(LeftProperty, m0);
-            MyThumb3.SetBinding(TopProperty, m4);
-
-            MyThumb4.SetBinding(LeftProperty, m3);
-            MyThumb4.SetBinding(TopProperty, m4);
-
-            MyThumb5.SetBinding(LeftProperty, m0);
-            MyThumb5.SetBinding(TopProperty, m5);
-
-            MyThumb6.SetBinding(LeftProperty, m2);
-            MyThumb6.SetBinding(TopProperty, m5);
-
-            MyThumb7.SetBinding(LeftProperty, m3);
-            MyThumb7.SetBinding(TopProperty, m5);
-        }
 
 
+        #region ドラッグ移動
         private void MyThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is not Thumb t) { return; }
@@ -121,8 +116,9 @@ namespace _20220603
             if (sender is not Thumb t) { return; }
             Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
         }
+        #endregion ドラッグ移動
 
-
+        #region チェック用
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
             MyRectangle.Width += 10;
@@ -136,16 +132,116 @@ namespace _20220603
 
         private void MyRectangle_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Test2((FrameworkElement)sender);
+            Test1(MyRectangleData, (FrameworkElement)sender);
         }
 
         private void MyEllipse_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Test2((FrameworkElement)sender);
+            Test1(MyEllipseData, (FrameworkElement)sender);
         }
+        #endregion チェック用
+
     }
 
 
+    public class DC0 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)values[0];
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            Data1 data = (Data1)parameter;
+            double left = (double)value;
+            double total = data.X + data.W;
+            double width = total - left;
+            object[] result = new object[2];
+            result[0] = left;
+            result[1] = width;
+            //サイズが1未満にならないように調整
+            if (width < 1.0)
+            {
+                result[0] = total - 1.0;
+                result[1] = 1.0;
+            }
+            return result;
+        }
+    }
+    public class DC1 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)values[0];
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            Data1 data = (Data1)parameter;
+            double top = (double)value;
+            double total = data.Y + data.H;
+            double height = total - top;
+            object[] result = new object[2];
+            result[0] = top;
+            result[1] = height;
+            //サイズが1未満にならないように調整
+            if (height < 1.0)
+            {
+                result[0] = total - 1.0;
+                result[1] = 1.0;
+            }
+            return result;
+        }
+    }
+    public class DC2 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)values[0] + (double)values[1];
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            Data1 data = (Data1)parameter;
+            double left = data.X;
+            double width = (double)value - left;
+
+            object[] result = new object[2];
+            result[0] = left;
+            result[1] = width;
+            //サイズが1未満にならないように調整
+            if (width < 1.0)
+            {
+                result[1] = 1.0;
+            }
+            return result;
+        }
+    }
+    public class DC3 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)values[0] + (double)values[1];
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            Data1 data = (Data1)parameter;
+            double top = data.Y;
+            double height = (double)value - top;
+
+            object[] result = new object[2];
+            result[0] = top;
+            result[1] = height;
+            //サイズが1未満にならないように調整
+            if (height < 1.0)
+            {
+                result[1] = 1.0;
+            }
+            return result;
+        }
+    }
 
     public class MMM2 : IMultiValueConverter
     {
@@ -160,58 +256,25 @@ namespace _20220603
         }
     }
 
-
-    public class DDD0 : IMultiValueConverter
+    public class Data1 : System.ComponentModel.INotifyPropertyChanged
     {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
-            return (double)values[0];
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        private double _x;
+        private double _y;
+        private double _w;
+        private double _h;
+        public double X { get => _x; set { if (value == _x) { return; } _x = value; OnPropertyChanged(); } }
+        public double Y { get => _y; set { if (value == _y) { return; } _y = value; OnPropertyChanged(); } }
+        public double W { get => _w; set { if (value == _w) { return; } _w = value; OnPropertyChanged(); } }
+        public double H { get => _h; set { if (value == _h) { return; } _h = value; OnPropertyChanged(); } }
+        public Data1() { }
+        public Data1(double x, double y, double w, double h)
         {
-            object[] ooo = (object[])parameter;
-            FrameworkElement element = (FrameworkElement)ooo[0];
-            Func<FrameworkElement, double> f0 = (Func<FrameworkElement, double>)ooo[1];
-            Func<FrameworkElement, double> f1 = (Func<FrameworkElement, double>)ooo[2];            
-
-            double locate = (double)value;
-            double total = f0(element) + f1(element);
-            double size = total - locate;
-            object[] result = new object[2];
-            result[0] = locate;
-            result[1] = size;
-            if (size < 1.0)
-            {
-                result[0] = total - 1.0;
-                result[1] = 1.0;
-            }
-            return result;
-        }
-    }
-    public class DDD1 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0] + (double)values[1];
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            object[] ooo = (object[])parameter;
-            FrameworkElement element = (FrameworkElement)ooo[0];
-            Func<FrameworkElement, double> f0 = (Func<FrameworkElement, double>)ooo[1];
-
-            double locate = f0(element);
-            double size = (double)value - locate;
-            object[] result = new object[2];
-            result[0] = locate;
-            result[1] = size;
-            if (size < 1.0)
-            {
-                result[1] = 1.0;
-            }
-            return result;
+            X = x; Y = y; W = w; H = h;
         }
     }
 
