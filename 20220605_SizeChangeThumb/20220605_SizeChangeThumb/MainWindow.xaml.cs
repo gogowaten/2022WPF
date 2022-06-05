@@ -150,7 +150,7 @@ namespace _20220605_SizeChangeThumb
             object[] result = new object[2];
             result[0] = left;
             result[1] = width;
-            //サイズが1以下にならないように調整
+            //サイズが1未満にならないように調整
             if (width < 1.0)
             {
                 result[0] = total - 1.0;
