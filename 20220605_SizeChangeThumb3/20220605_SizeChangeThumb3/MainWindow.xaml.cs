@@ -38,7 +38,7 @@ namespace _20220605_SizeChangeThumb3
 
             MyRectangleData = new Data1(150, 110, 100, 70);
             Test1(MyRectangleData, MyRectangle);
-            MyEllipseData = new Data1(250, 100, 150, 150);
+            MyEllipseData = new Data1(250, 200, 150, 150);
         }
         private void Test1(Data1 data, FrameworkElement element)
         {
