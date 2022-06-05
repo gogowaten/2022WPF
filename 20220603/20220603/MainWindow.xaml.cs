@@ -33,46 +33,9 @@ namespace _20220603
         {
             InitializeComponent();
 
-            Test1(MyRectangle);
-            //Test2();
+            Test2(MyRectangle);
         }
-        private void Test1(FrameworkElement element)
-        {
-            Binding b0 = MakeBinding(element, LeftProperty);
-            Binding b1 = MakeBinding(element, WidthProperty);
-            Binding b2 = MakeBinding(element, TopProperty);
-            Binding b3 = MakeBinding(element, HeightProperty);
 
-            MultiBinding m0 = MakeMultiBinding(element, new MMM0(), b0, b1);
-            MyThumb0.SetBinding(LeftProperty, m0);
-            MultiBinding m1 = MakeMultiBinding(element, new MMM1(), b2, b3);
-            MyThumb0.SetBinding(TopProperty, m1);
-
-            MultiBinding m2 = MakeMultiBinding(element, new MMM2(), b0, b1);
-            MyThumb1.SetBinding(LeftProperty, m2);
-            MyThumb1.SetBinding(TopProperty, m1);
-
-            MultiBinding m3 = MakeMultiBinding(element, new MMM3(), b0, b1);
-            MyThumb2.SetBinding(LeftProperty, m3);
-            MyThumb2.SetBinding(TopProperty, m1);
-
-            MultiBinding m4 = MakeMultiBinding(element, new MMM2(), b2, b3);
-            MyThumb3.SetBinding(LeftProperty, m0);
-            MyThumb3.SetBinding(TopProperty, m4);
-
-            MyThumb4.SetBinding(LeftProperty, m3);
-            MyThumb4.SetBinding(TopProperty, m4);
-
-            MultiBinding m5 = MakeMultiBinding(element, new MMM4(), b2, b3);
-            MyThumb5.SetBinding(LeftProperty, m0);
-            MyThumb5.SetBinding(TopProperty, m5);
-
-            MyThumb6.SetBinding(LeftProperty, m2);
-            MyThumb6.SetBinding(TopProperty, m5);
-
-            MyThumb7.SetBinding(LeftProperty, m3);
-            MyThumb7.SetBinding(TopProperty, m5);
-        }
         private Binding MakeBinding(FrameworkElement source, DependencyProperty dp)
         {
             Binding b = new();
@@ -93,51 +56,52 @@ namespace _20220603
             }
             return m;
         }
-        private void Test2()
+        private void Test2(FrameworkElement element)
         {
-            Func<FrameworkElement, double> f0 = (FrameworkElement e) => { return Canvas.GetLeft(e); };
-            Func<FrameworkElement, double> f1 = (FrameworkElement e) => { return Canvas.GetTop(e); };
-            Func<FrameworkElement, double> f2 = (FrameworkElement e) => { return e.Width; };
-            Func<FrameworkElement, double> f3 = (FrameworkElement e) => { return e.Height; };
             object[] param0 = new object[3];
-            param0[0] = MyRectangle;
-            param0[1] = f0;
-            param0[2] = f2;
+            param0[0] = element;
+            param0[1] = new Func<FrameworkElement, double>(Canvas.GetLeft);
+            param0[2] = (FrameworkElement e) => e.Width;
             object[] param1 = new object[3];
-            param1[0] = MyRectangle;
-            param1[1] = f1;
-            param1[2] = f3;
+            param1[0] = element;
+            param1[1] = new Func<FrameworkElement, double>(Canvas.GetTop);
+            param1[2] = (FrameworkElement e) => e.Height;
 
-            Binding b0 = new();
-            b0.Source = MyRectangle;
-            b0.Path = new PropertyPath(LeftProperty);
-            b0.Mode = BindingMode.TwoWay;
-            Binding b1 = new();
-            b1.Source = MyRectangle;
-            b1.Path = new PropertyPath(WidthProperty);
-            b1.Mode = BindingMode.TwoWay;
-            MultiBinding m0 = new();
-            m0.Bindings.Add(b0); m0.Bindings.Add(b1);
-            m0.ConverterParameter = param0;
-            m0.Converter = new DDD();
-            m0.Mode = BindingMode.TwoWay;
+            Binding b_left = MakeBinding(element, LeftProperty);
+            Binding b_width = MakeBinding(element, WidthProperty);
+            Binding b_top = MakeBinding(element, TopProperty);
+            Binding b_height = MakeBinding(element, HeightProperty);
+
+            MultiBinding m0 = MakeMultiBinding(param0, new DDD0(), b_left, b_width);
+            MultiBinding m1 = MakeMultiBinding(param1, new DDD0(), b_top, b_height);
+            MultiBinding m2 = MakeMultiBinding(element, new MMM2(), b_left, b_width);
+            MultiBinding m3 = MakeMultiBinding(param0, new DDD1(), b_left, b_width);
+            MultiBinding m4 = MakeMultiBinding(element, new MMM2(), b_top, b_height);
+            MultiBinding m5 = MakeMultiBinding(param1, new DDD1(), b_top, b_height);
+
             MyThumb0.SetBinding(LeftProperty, m0);
-
-            Binding b2 = new();
-            b2.Source = MyRectangle;
-            b2.Path = new PropertyPath(TopProperty);
-            b2.Mode = BindingMode.TwoWay;
-            Binding b3 = new();
-            b3.Source = MyRectangle;
-            b3.Path = new PropertyPath(HeightProperty);
-            b3.Mode = BindingMode.TwoWay;
-            MultiBinding m1 = new();
-            m1.Bindings.Add(b2); m1.Bindings.Add(b3);
-            m1.ConverterParameter = param1;
-            m1.Mode = BindingMode.TwoWay;
-            m1.Converter = new DDD();
             MyThumb0.SetBinding(TopProperty, m1);
 
+            MyThumb1.SetBinding(LeftProperty, m2);
+            MyThumb1.SetBinding(TopProperty, m1);
+
+            MyThumb2.SetBinding(LeftProperty, m3);
+            MyThumb2.SetBinding(TopProperty, m1);
+
+            MyThumb3.SetBinding(LeftProperty, m0);
+            MyThumb3.SetBinding(TopProperty, m4);
+
+            MyThumb4.SetBinding(LeftProperty, m3);
+            MyThumb4.SetBinding(TopProperty, m4);
+
+            MyThumb5.SetBinding(LeftProperty, m0);
+            MyThumb5.SetBinding(TopProperty, m5);
+
+            MyThumb6.SetBinding(LeftProperty, m2);
+            MyThumb6.SetBinding(TopProperty, m5);
+
+            MyThumb7.SetBinding(LeftProperty, m3);
+            MyThumb7.SetBinding(TopProperty, m5);
         }
 
 
@@ -172,66 +136,16 @@ namespace _20220603
 
         private void MyRectangle_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Test1((FrameworkElement)sender);
+            Test2((FrameworkElement)sender);
         }
 
         private void MyEllipse_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Test1((FrameworkElement)sender);
+            Test2((FrameworkElement)sender);
         }
     }
 
-    public class MMM0 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0];
-        }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            FrameworkElement element = (FrameworkElement)parameter;
-            double total = element.Width + Canvas.GetLeft(element);
-            double left = (double)value;
-            double width = total - left;
-
-            object[] result = new object[2];
-            result[0] = left;
-            result[1] = width;
-            //サイズが1以下にならないように調整
-            if (width < 1.0)
-            {
-                result[0] = total - 1.0;
-                result[1] = 1.0;
-            }
-            return result;
-        }
-    }
-    public class MMM1 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0];
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            FrameworkElement element = (FrameworkElement)parameter;
-            double total = element.Height + Canvas.GetTop(element);
-            double top = (double)value;
-            double height = total - top;
-
-            object[] result = new object[2];
-            result[0] = top;
-            result[1] = height;
-            if (height < 1.0)
-            {
-                result[0] = total - 1.0;
-                result[1] = 1.0;
-            }
-            return result;
-        }
-    }
 
     public class MMM2 : IMultiValueConverter
     {
@@ -245,49 +159,9 @@ namespace _20220603
             throw new NotImplementedException();
         }
     }
-    public class MMM3 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0] + (double)values[1];
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            FrameworkElement element = (FrameworkElement)parameter;
-            double left = (double)Canvas.GetLeft(element);
-            double width = (double)value - left;
-
-            object[] result = new object[2];
-            result[0] = left;
-            result[1] = width;
-            if (width < 1.0) { result[1] = 1.0; }
-            return result;
-        }
-    }
-    public class MMM4 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0] + (double)values[1];
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            FrameworkElement element = (FrameworkElement)parameter;
-            double top = (double)Canvas.GetTop(element);
-            double height = (double)value - top;
-
-            object[] result = new object[2];
-            result[0] = top;
-            result[1] = height;
-            if (height < 1.0) { result[1] = 1.0; }
-            return result;
-        }
-    }
 
 
-    public class DDD : IMultiValueConverter
+    public class DDD0 : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
@@ -299,19 +173,15 @@ namespace _20220603
             object[] ooo = (object[])parameter;
             FrameworkElement element = (FrameworkElement)ooo[0];
             Func<FrameworkElement, double> f0 = (Func<FrameworkElement, double>)ooo[1];
-            Func<FrameworkElement, double> f1 = (Func<FrameworkElement, double>)ooo[2];
+            Func<FrameworkElement, double> f1 = (Func<FrameworkElement, double>)ooo[2];            
 
-            double t = (double)value;
-            double locate = f0(element);
-            double length = f1(element);
-            double total = locate + length;
+            double locate = (double)value;
+            double total = f0(element) + f1(element);
+            double size = total - locate;
             object[] result = new object[2];
-            if (total - t >= 1.0)
-            {
-                result[0] = t;
-                result[1] = total - t;
-            }
-            else
+            result[0] = locate;
+            result[1] = size;
+            if (size < 1.0)
             {
                 result[0] = total - 1.0;
                 result[1] = 1.0;
@@ -319,4 +189,30 @@ namespace _20220603
             return result;
         }
     }
+    public class DDD1 : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (double)values[0] + (double)values[1];
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            object[] ooo = (object[])parameter;
+            FrameworkElement element = (FrameworkElement)ooo[0];
+            Func<FrameworkElement, double> f0 = (Func<FrameworkElement, double>)ooo[1];
+
+            double locate = f0(element);
+            double size = (double)value - locate;
+            object[] result = new object[2];
+            result[0] = locate;
+            result[1] = size;
+            if (size < 1.0)
+            {
+                result[1] = 1.0;
+            }
+            return result;
+        }
+    }
+
 }
