@@ -23,8 +23,8 @@ namespace _20220605_SizeChangeThumb
             InitializeComponent();
 
             Test1(MyRectangle);
-            //Test2();
         }
+        //対象の要素にThumbをバインド
         private void Test1(FrameworkElement element)
         {
             Binding b0 = MakeBinding(element, LeftProperty);
@@ -32,12 +32,12 @@ namespace _20220605_SizeChangeThumb
             Binding b2 = MakeBinding(element, TopProperty);
             Binding b3 = MakeBinding(element, HeightProperty);
 
-            MultiBinding m0 = MakeMultiBinding(element, new MMM0(), b0, b1);
-            MultiBinding m1 = MakeMultiBinding(element, new MMM1(), b2, b3);
-            MultiBinding m2 = MakeMultiBinding(element, new MMM2(), b0, b1);
-            MultiBinding m3 = MakeMultiBinding(element, new MMM3(), b0, b1);
-            MultiBinding m4 = MakeMultiBinding(element, new MMM2(), b2, b3);
-            MultiBinding m5 = MakeMultiBinding(element, new MMM4(), b2, b3);
+            MultiBinding m0 = MakeMultiBinding(new MMM0(), element, b0, b1);
+            MultiBinding m1 = MakeMultiBinding(new MMM1(), element, b2, b3);
+            MultiBinding m2 = MakeMultiBinding(new MMM2(), element, b0, b1);
+            MultiBinding m3 = MakeMultiBinding(new MMM3(), element, b0, b1);
+            MultiBinding m4 = MakeMultiBinding(new MMM2(), element, b2, b3);
+            MultiBinding m5 = MakeMultiBinding(new MMM4(), element, b2, b3);
 
             MyThumb0.SetBinding(LeftProperty, m0);
             MyThumb0.SetBinding(TopProperty, m1);
@@ -65,18 +65,22 @@ namespace _20220605_SizeChangeThumb
         }
         private Binding MakeBinding(FrameworkElement source, DependencyProperty dp)
         {
-            Binding b = new();
-            b.Source = source;
-            b.Path = new PropertyPath(dp);
-            b.Mode = BindingMode.TwoWay;
+            Binding b = new()
+            {
+                Source = source,
+                Path = new PropertyPath(dp),
+                Mode = BindingMode.TwoWay
+            };
             return b;
         }
-        private MultiBinding MakeMultiBinding(object param, IMultiValueConverter converter, params Binding[] bindings)
+        private MultiBinding MakeMultiBinding(IMultiValueConverter converter, object? param = null, params Binding[] bindings)
         {
-            MultiBinding m = new MultiBinding();
-            m.ConverterParameter = param;
-            m.Converter = converter;
-            m.Mode = BindingMode.TwoWay;
+            MultiBinding m = new()
+            {
+                ConverterParameter = param,
+                Converter = converter,
+                Mode = BindingMode.TwoWay
+            };
             foreach (var item in bindings)
             {
                 m.Bindings.Add(item);
@@ -85,7 +89,7 @@ namespace _20220605_SizeChangeThumb
         }
 
 
-
+        #region ドラッグ移動        
         private void MyThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is not Thumb t) { return; }
@@ -102,8 +106,8 @@ namespace _20220605_SizeChangeThumb
             if (sender is not Thumb t) { return; }
             Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
         }
-
-
+        #endregion ドラッグ移動
+        #region 動作チェック
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
             MyRectangle.Width += 10;
@@ -124,9 +128,11 @@ namespace _20220605_SizeChangeThumb
         {
             Test1((FrameworkElement)sender);
         }
+        #endregion 動作チェック
 
     }
 
+    #region コンバーター
     public class MMM0 : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
@@ -231,6 +237,7 @@ namespace _20220605_SizeChangeThumb
             return result;
         }
     }
+    #endregion コンバーター
 
 
 

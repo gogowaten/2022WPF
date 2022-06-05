@@ -20,7 +20,7 @@ using System.ComponentModel;
 //0 1 2
 //3   4
 //5 6 7
-//ほぼできた
+//不完全
 //対象(Rectangle)の位置変更したときに一部のThumbが追従しないけど
 //どれかのThumbを移動させれば正常になる
 //これはバインドがLeftとTopのバインドがないThumb
@@ -36,44 +36,29 @@ namespace _20220604_SizeChangeThumb2
         {
             InitializeComponent();
 
-            Test1();
+            Test1(MyRectangle);
 
         }
-        private void Test1()
+        private void Test1(FrameworkElement element)
         {
-            Binding rx0 = new();
-            rx0.Source = MyRectangle;
-            rx0.Path = new PropertyPath(LeftProperty);
-            rx0.Mode = BindingMode.TwoWay;
-            Binding ry0 = new();
-            ry0.Source = MyRectangle;
-            ry0.Path = new PropertyPath(TopProperty);
-            ry0.Mode = BindingMode.TwoWay;
+            Binding rx0 = MakeBinding(element, LeftProperty);
+            Binding ry0 = MakeBinding(element, TopProperty);
             MyThumb0.SetBinding(LeftProperty, rx0);
             MyThumb0.SetBinding(TopProperty, ry0);
 
-            Binding rx1 = new();
-            rx1.Source = MyRectangle;
-            rx1.Path = new PropertyPath(WidthProperty);
-            rx1.Mode = BindingMode.TwoWay;
+            Binding rx1 = MakeBinding(element, WidthProperty);
             rx1.Converter = new MMM();
             rx1.ConverterParameter = MyRectangle;
             MyThumb1.SetBinding(LeftProperty, rx1);
             MyThumb1.SetBinding(TopProperty, ry0);
 
-            Binding rx2 = new();
-            rx2.Source = MyRectangle;
-            rx2.Path = new PropertyPath(WidthProperty);
-            rx2.Mode = BindingMode.TwoWay;
+            Binding rx2 = MakeBinding(element, WidthProperty);
             rx2.ConverterParameter = MyRectangle;
             rx2.Converter = new MMM2();
             MyThumb2.SetBinding(LeftProperty, rx2);
             MyThumb2.SetBinding(TopProperty, ry0);
 
-            Binding ry1 = new();
-            ry1.Source = MyRectangle;
-            ry1.Path = new PropertyPath(HeightProperty);
-            ry1.Mode = BindingMode.TwoWay;
+            Binding ry1 = MakeBinding(element, HeightProperty);
             ry1.ConverterParameter = MyRectangle;
             ry1.Converter = new MMM3();
             MyThumb3.SetBinding(LeftProperty, rx0);
@@ -82,10 +67,7 @@ namespace _20220604_SizeChangeThumb2
             MyThumb4.SetBinding(LeftProperty, rx2);
             MyThumb4.SetBinding(TopProperty, ry1);
 
-            Binding ry2 = new();
-            ry2.Source = MyRectangle;
-            ry2.Path = new PropertyPath(HeightProperty);
-            ry2.Mode = BindingMode.TwoWay;
+            Binding ry2 = MakeBinding(element, HeightProperty);
             ry2.ConverterParameter = MyRectangle;
             ry2.Converter = new MMM4();
             MyThumb5.SetBinding(LeftProperty, rx0);
@@ -97,7 +79,14 @@ namespace _20220604_SizeChangeThumb2
             MyThumb7.SetBinding(LeftProperty, rx2);
             MyThumb7.SetBinding(TopProperty, ry2);
         }
-
+        private Binding MakeBinding(FrameworkElement source, DependencyProperty dp)
+        {
+            Binding b = new();
+            b.Source = source;
+            b.Path = new PropertyPath(dp);
+            b.Mode = BindingMode.TwoWay;
+            return b;
+        }
 
 
 
