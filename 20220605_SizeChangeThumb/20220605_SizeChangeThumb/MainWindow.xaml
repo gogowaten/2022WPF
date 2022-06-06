@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20220605_SizeChangeThumb"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="600">
   <Grid UseLayoutRounding="True">
     <Canvas Name="MyCanvas">
       <Canvas.Resources>
@@ -21,6 +21,10 @@
       <Ellipse x:Name="MyEllipse" Fill="Gold" MouseDown="MyEllipse_MouseDown"
                Width="150" Height="150" Canvas.Left="250" Canvas.Top="200"/>
       
+      <Button x:Name="MyButton1" Content="check" Click="MyButton1_Click"/>
+      <Button x:Name="MyButton2" Content="check" Click="MyButton2_Click" 
+              Canvas.Top="20" Canvas.Left="100" Width="100" Height="20"/>
+      
       <Thumb Name="MyThumb0" DragDelta="MyThumb_DragDelta"/>
       <Thumb Name="MyThumb1" DragDelta="MyThumb_DragDeltaOnlyVertical"/>
       <Thumb Name="MyThumb2" DragDelta="MyThumb_DragDelta"/>
@@ -30,8 +34,6 @@
       <Thumb Name="MyThumb6" DragDelta="MyThumb_DragDeltaOnlyVertical"/>
       <Thumb Name="MyThumb7" DragDelta="MyThumb_DragDelta"/>
 
-      <Button x:Name="MyButton1" Content="check" Click="MyButton1_Click"/>
-      <Button x:Name="MyButton2" Content="check" Click="MyButton2_Click" Canvas.Left="100"/>
     </Canvas>
   </Grid>
 </Window>

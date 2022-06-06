@@ -6,6 +6,9 @@ using System.Windows.Input;
 using System.Windows.Controls.Primitives;
 using System.Globalization;
 
+//WPF、マウスドラッグ移動で要素のサイズ変更、サイズ変更ハンドル8個はThumbで作成して対象にバインド - 午後わてんのブログ
+//https://gogowaten.hatenablog.com/entry/2022/06/06/154322
+
 //対象の要素に直接Thumbをバインド
 //Thumbの配置番号
 //0 1 2
@@ -23,6 +26,7 @@ namespace _20220605_SizeChangeThumb
             InitializeComponent();
 
             Test1(MyRectangle);
+            //Test1(MyButton2);
         }
         //対象の要素にThumbをバインド
         private void Test1(FrameworkElement element)
@@ -73,7 +77,8 @@ namespace _20220605_SizeChangeThumb
             };
             return b;
         }
-        private MultiBinding MakeMultiBinding(IMultiValueConverter converter, object? param = null, params Binding[] bindings)
+        private MultiBinding MakeMultiBinding(
+            IMultiValueConverter converter, object? param = null, params Binding[] bindings)
         {
             MultiBinding m = new()
             {
