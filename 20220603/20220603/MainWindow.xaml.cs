@@ -15,14 +15,10 @@ using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.ComponentModel;
+using System.Collections.ObjectModel;
 
-//対象の要素とそのDataにバインド
-//これは前回の要素に直接版インドする方法とほぼ同じになった
-
-//Thumbの配置番号
-//0 1 2
-//3   4
-//5 6 7
+//失敗
+//PointコレクションをPathにバインドしてみたけど、できないみたい？
 
 namespace _20220603
 {
@@ -31,57 +27,70 @@ namespace _20220603
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Data1 MyRectangleData;
-        private Data1 MyEllipseData;
+        //private PointCollection _myPoints = new();
+
+        //public event PropertyChangedEventHandler? PropertyChanged;
+        //protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        //}
+
+        //public PointCollection MyPoints
+        //{
+        //    get => _myPoints;
+        //    set { if (value == _myPoints) { return; } _myPoints = value; OnPropertyChanged(); }
+        //}
+        public PointCollection MyPointC { get; set; }
+        public ObservableCollection<Point> MyObPoints { get; set; } = new();
+        public ObservableCollection<Point> MyObPoints2 { get; set; } = new();
+        public ObservableCollection<Point> MyObPoints3 { get; set; } = new();
+        public ObservableCollection<Point> MyObPoints4 { get; set; } = new();
+        public PointCollection Points { get; set; }
+        //public DataPoints MyDataPoints { get; set; }
         public MainWindow()
         {
             InitializeComponent();
+#if DEBUG
+            Left = 10; Top = 10;
+#endif
+            DataContext = this;
+            MyPointC = new() { new(10, 10), new(100, 20), new(200, 10) };
+            MyObPoints = new() { new(10, 30), new(100, 40), new(200, 30) };
+            MyObPoints2 = new() { new(10, 50), new(100, 60), new(200, 50) };
+            MyObPoints3 = new() { new(10, 70), new(100, 80), new(200, 70) };
+            MyObPoints4 = new() { new(10, 90), new(100, 100), new(200, 90) };
+            //MyObPoints.CollectionChanged += MyObPoints_CollectionChanged;
+            Points = new() { new(10, 10), new(200, 100) };
+            //MyDataPoints = new(new PointCollection() { new(10, 50), new(10, 100), new(100, 200) });
 
-            MyRectangleData = new Data1(150, 110, 100, 70);
-            Test1(MyRectangleData, MyRectangle);
-            MyEllipseData = new Data1(250, 100, 150, 150);
         }
-        private void Test1(Data1 data, FrameworkElement element)
+
+        private void MyObPoints_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            Binding bx = MakeBinding(nameof(data.X), data);
-            Binding by = MakeBinding(nameof(data.Y), data);
-            Binding bw = MakeBinding(nameof(data.W), data);
-            Binding bh = MakeBinding(nameof(data.H), data);
-            element.SetBinding(LeftProperty, bx);
-            element.SetBinding(TopProperty, by);
-            element.SetBinding(WidthProperty, bw);
-            element.SetBinding(HeightProperty, bh);
+            //MyObPoints = new ObservableCollection<Point>(MyObPoints);
+        }
 
-            MultiBinding mb0 = MakeMultiBinding(data, new DC0(), bx, bw);
-            MultiBinding mb1 = MakeMultiBinding(data, new DC1(), by, bh);
-            MultiBinding mb2 = MakeMultiBinding(data, new MMM2(), bx, bw);
-            MultiBinding mb3 = MakeMultiBinding(data, new DC2(), bx, bw);
-            MultiBinding mb4 = MakeMultiBinding(data, new DC3(), by, bh);
-            MultiBinding mb5 = MakeMultiBinding(data, new MMM2(), by, bh);
-
-            MyThumb0.SetBinding(LeftProperty, mb0);
-            MyThumb0.SetBinding(TopProperty, mb1);
-            MyThumb1.SetBinding(LeftProperty, mb2);
-            MyThumb1.SetBinding(TopProperty, mb1);
-            MyThumb2.SetBinding(LeftProperty, mb3);
-            MyThumb2.SetBinding(TopProperty, mb1);
-
-            MyThumb3.SetBinding(LeftProperty, mb0);
-            MyThumb3.SetBinding(TopProperty, mb5);
-            MyThumb4.SetBinding(LeftProperty, mb3);
-            MyThumb4.SetBinding(TopProperty, mb5);
-
-            MyThumb5.SetBinding(LeftProperty, mb0);
-            MyThumb5.SetBinding(TopProperty, mb4);
-            MyThumb6.SetBinding(LeftProperty, mb2);
-            MyThumb6.SetBinding(TopProperty, mb4);
-            MyThumb7.SetBinding(LeftProperty, mb3);
-            MyThumb7.SetBinding(TopProperty, mb4);
-
+        private Thumb MakeThumb(double x, double y)
+        {
+            Thumb t = new()
+            {
+                Width = 20,
+                Height = 20,
+                Background = Brushes.Black,
+                Opacity = 0.2
+            };
+            Canvas.SetLeft(t, x);
+            Canvas.SetTop(t, y);
+            t.DragDelta += MyThumb_DragDelta;
+            return t;
         }
         private Binding MakeBinding(string path, object source)
         {
             return new(path) { Source = source, Mode = BindingMode.TwoWay };
+        }
+        private Binding MakeBinding(DependencyProperty dp, object source)
+        {
+            return new() { Path = new PropertyPath(dp), Source = source, Mode = BindingMode.TwoWay };
         }
 
 
@@ -121,161 +130,230 @@ namespace _20220603
         #region チェック用
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
-            MyRectangle.Width += 10;
+            //MyPoints.Add(new(100, 300));
+            //MyPoints = new() { new(100, 100), new(0, 0)};
+            //MyObPoints = new() { new(0, 0), new(100, 100) };
+            //MyPoints = new PointCollection(MyPoints);
+            //MyObPoints = new ObservableCollection<Point>(MyObPoints);
+            //MyDataPoints.Points.Add(new Point(100, 300));
+            MyPointC.Add(new Point(500, 310));
+            MyObPoints.Add(new(500, 320));
+            MyObPoints2.Add(new(500, 330));
+            MyObPoints3.Add(new(500, 340));
+            MyObPoints4.Add(new(500, 350));
         }
 
         private void MyButton2_Click(object sender, RoutedEventArgs e)
         {
-            Canvas.SetLeft(MyRectangle, Canvas.GetLeft(MyRectangle) + 10);
+            //MyPointC = new() { new(92, 2) };
+            //MyObPoints = new() { new(2,2) };
+            //MyObPoints2 = new() { new(3,3) };
+            //MyObPoints3 = new() { new(3,3) };
+            //MyObPoints4 = new() { new(3,3) };
+            var neko = (PathGeometry)MyPath1.Data;
+            PathFigure? inu = neko.Figures[0];
+            var uma = (PolyLineSegment)inu.Segments[0];
+            var tako = uma.Points;
+            uma.Points.Add(new Point(300, 300));
+
+            PolyLineSegment plseg = new(tako, true);
+            PathFigure pf = new();pf.Segments.Add(plseg);
+            PathFigureCollection pfc = new() { pf };
+            PathGeometry pgeo = new(pfc);
+            //MyPath0.Data = pgeo;//おｋ
+
+            MyPath1.Data = new PathGeometry(neko.Figures);//おｋ
+            //MyPath1.Data = neko;//あかん
+            //Pointsを変更するとData(PathGeometry)も更新されるけど、なぜか描画は変わらない
+            //だけど、DataのFiguresからPathGeometryを作成して、それをDataに指定すると更新された！！！！！！！！！
+
+            //ってことは
+            //Path要素とPointコレクションをバインドするのはあんまり意味がないかも？
+            //バインドしたポイントが反映されるのは起動時のみ
+            //その後にPointの増減や値変更をしても反映されなくて、反映させるには
+            //PathのDataを取得したものから新たにDataを作成して、それを指定する必要がある
+            //Pointのコレクションの種類は普通のPointCollectionでもObsevableCollectionでも同じだった
+
+            //直線ならPath要素じゃなくてPolyLine要素を使ったほうが良さそう
+
+            //順番にバインドすればできる？
         }
 
 
-        private void MyRectangle_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Test1(MyRectangleData, (FrameworkElement)sender);
-        }
 
-        private void MyEllipse_MouseDown(object sender, MouseButtonEventArgs e)
-        {
-            Test1(MyEllipseData, (FrameworkElement)sender);
-        }
         #endregion チェック用
 
+
     }
 
-
-    public class DC0 : IMultiValueConverter
+    public class OOODataPoints : IValueConverter
     {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return (double)values[0];
+            DataPoints data = (DataPoints)value;
+            return new PointCollection(data.Points);
         }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            Data1 data = (Data1)parameter;
-            double left = (double)value;
-            double total = data.X + data.W;
-            double width = total - left;
-            object[] result = new object[2];
-            result[0] = left;
-            result[1] = width;
-            //サイズが1未満にならないように調整
-            if (width < 1.0)
-            {
-                result[0] = total - 1.0;
-                result[1] = 1.0;
-            }
-            return result;
-        }
-    }
-    public class DC1 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0];
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            Data1 data = (Data1)parameter;
-            double top = (double)value;
-            double total = data.Y + data.H;
-            double height = total - top;
-            object[] result = new object[2];
-            result[0] = top;
-            result[1] = height;
-            //サイズが1未満にならないように調整
-            if (height < 1.0)
-            {
-                result[0] = total - 1.0;
-                result[1] = 1.0;
-            }
-            return result;
-        }
-    }
-    public class DC2 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0] + (double)values[1];
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            Data1 data = (Data1)parameter;
-            double left = data.X;
-            double width = (double)value - left;
-
-            object[] result = new object[2];
-            result[0] = left;
-            result[1] = width;
-            //サイズが1未満にならないように調整
-            if (width < 1.0)
-            {
-                result[1] = 1.0;
-            }
-            return result;
-        }
-    }
-    public class DC3 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0] + (double)values[1];
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            Data1 data = (Data1)parameter;
-            double top = data.Y;
-            double height = (double)value - top;
-
-            object[] result = new object[2];
-            result[0] = top;
-            result[1] = height;
-            //サイズが1未満にならないように調整
-            if (height < 1.0)
-            {
-                result[1] = 1.0;
-            }
-            return result;
-        }
-    }
-
-    public class MMM2 : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            return (double)values[0] + (double)values[1] / 2.0;
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
     }
 
-    public class Data1 : System.ComponentModel.INotifyPropertyChanged
+    public class OOO : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            ObservableCollection<Point> ps = (ObservableCollection<Point>)value;
+            return new PointCollection(ps);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    //public class OOO1 : IValueConverter
+    //{
+    //    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    //    {
+    //        var ps=(poin)
+    //    }
+
+    //    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+    //}
+
+    public class OOO2 : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            //ObservableCollection<Point> ps = (ObservableCollection<Point>)value;
+            IEnumerable<Point> ps = (IEnumerable<Point>)value;
+            PolyLineSegment seg = new(ps, true);
+            PathFigure figure = new() { StartPoint = new() };
+            figure.Segments.Add(seg);
+            PathGeometry geo = new();
+            geo.Figures.Add(figure);
+            return geo;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class OOO4 : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            ObservableCollection<Point> ps = (ObservableCollection<Point>)value;
+            //IEnumerable<Point> ps = (IEnumerable<Point>)value;
+            PolyLineSegment seg = new(ps, true);
+            PathSegmentCollection pseg = new();
+            pseg.Add(seg);
+            //PathFigure figure = new() { StartPoint = new() };
+            //figure.Segments.Add(seg);
+            return pseg;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class OOO5 : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            ObservableCollection<Point> ps = (ObservableCollection<Point>)value;
+            PolyLineSegment seg = new(ps, true);
+            PathSegmentCollection pseg = new();
+            pseg.Add(seg);
+            PathGeometry pgeo = new();
+            PathFigureCollection pfc = new();
+            PathFigure pf = new();
+            pf.Segments = pseg;
+            pfc.Add(pf);
+            return pfc;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DDD : DependencyObject
+    {
+
+        public DDD()
+        { }
+
+
+        //public PointCollection MyPc
+        //{
+        //    get { return (PointCollection)GetValue(MyPcProperty); }
+        //    set { SetValue(MyPcProperty, value); }
+        //}
+
+        //// Using a DependencyProperty as the backing store for MyPc.  This enables animation, styling, binding, etc...
+        //public static readonly DependencyProperty MyPcProperty =
+        //    DependencyProperty.Register("MyPc", typeof(PointCollection), typeof(DDD), new PropertyMetadata(0));
+
+
+        public Point Point
+        {
+            get { return (Point)GetValue(PointProperty); }
+            set { SetValue(PointProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Point.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty PointProperty =
+            DependencyProperty.Register("Point", typeof(Point), typeof(DDD), new PropertyMetadata(new Point(0, 0)));
+
+
+
+    }
+
+    public class OOO3 : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            IEnumerable<Point> ps = (IEnumerable<Point>)value;
+            return $"{ps.Count()}個";
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DataPoints : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberNameAttribute] string? name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        private double _x;
-        private double _y;
-        private double _w;
-        private double _h;
-        public double X { get => _x; set { if (value == _x) { return; } _x = value; OnPropertyChanged(); } }
-        public double Y { get => _y; set { if (value == _y) { return; } _y = value; OnPropertyChanged(); } }
-        public double W { get => _w; set { if (value == _w) { return; } _w = value; OnPropertyChanged(); } }
-        public double H { get => _h; set { if (value == _h) { return; } _h = value; OnPropertyChanged(); } }
-        public Data1() { }
-        public Data1(double x, double y, double w, double h)
+        private PointCollection _points;
+        public PointCollection Points
         {
-            X = x; Y = y; W = w; H = h;
+            get => _points;
+            set { if (value == _points) { return; } _points = value; OnPropertyChanged(nameof(Points)); }
+        }
+        public DataPoints()
+        {
+            _points = new();
+        }
+        public DataPoints(PointCollection points) : this()
+        {
+            Points = points;
         }
     }
 
 }
+

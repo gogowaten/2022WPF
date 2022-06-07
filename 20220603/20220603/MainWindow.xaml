@@ -6,32 +6,120 @@
         xmlns:local="clr-namespace:_20220603"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+  <Window.Resources>
+    <local:OOO x:Key="ooo"/>
+    <local:OOO2 x:Key="ooo2"/>
+    <!--<local:OOO2 x:Key="ooo1"/>-->
+    <local:OOO3 x:Key="ooo3"/>
+    <local:OOO4 x:Key="ooo4"/>
+    <local:OOO5 x:Key="ooo5"/>
+    <local:OOODataPoints x:Key="oooDataPoints"/>
+  </Window.Resources>
+
+
+
+
+
   <Grid UseLayoutRounding="True">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <StackPanel Grid.Column="1">
+      <Button x:Name="MyButton1" Content="check1" Click="MyButton1_Click"/>
+      <Button x:Name="MyButton2" Content="check2" Click="MyButton2_Click"/>
+      <TextBlock Text="{Binding MyPoints}"/>
+      <TextBlock Text="{Binding MyObPoints.Count}"/>
+      <TextBlock Text="{Binding Strings}"/>
+      <TextBlock Text="{Binding MyList}"/>
+      <TextBlock Text="{Binding MyObPoints, Converter={StaticResource ooo3}}"/>
+    </StackPanel>
     <Canvas Name="MyCanvas">
-      <Canvas.Resources>
-        <Style TargetType="Thumb">
-          <Setter Property="Width" Value="20"/>
-          <Setter Property="Height" Value="20"/>
-          <Setter Property="Opacity" Value="0.2"/>
-          <Setter Property="Background" Value="Black"/>
-        </Style>
-      </Canvas.Resources>
-      <Rectangle Name="MyRectangle" Fill="RoyalBlue" MouseDown="MyRectangle_MouseDown"
-                 Width="150" Height="150" Canvas.Left="150" Canvas.Top="150"/>
-      <Ellipse x:Name="MyEllipse" Fill="Yellow" MouseDown="MyEllipse_MouseDown"
-               Width="150" Height="150" Canvas.Left="250" Canvas.Top="100"/>
-
-      <Thumb Name="MyThumb0" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
-      <Thumb Name="MyThumb1" DragDelta="MyThumb_DragDeltaOnlyVertical" Canvas.Left="0" Canvas.Top="0"/>
-      <Thumb Name="MyThumb2" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
-      <Thumb Name="MyThumb3" DragDelta="MyThumb_DragDeltaOnlyHorizontal" Canvas.Left="0" Canvas.Top="0"/>
-      <Thumb Name="MyThumb4" DragDelta="MyThumb_DragDeltaOnlyHorizontal" Canvas.Left="0" Canvas.Top="0"/>
-      <Thumb Name="MyThumb5" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
-      <Thumb Name="MyThumb6" DragDelta="MyThumb_DragDeltaOnlyVertical" Canvas.Left="0" Canvas.Top="0"/>
-      <Thumb Name="MyThumb7" DragDelta="MyThumb_DragDelta" Canvas.Left="0" Canvas.Top="0"/>
-
-      <Button x:Name="MyButton1" Content="check" Click="MyButton1_Click"/>
-      <Button x:Name="MyButton2" Content="check" Click="MyButton2_Click" Canvas.Left="100"/>
     </Canvas>
+
+    <!--<Polyline Points="{Binding MyObPoints, Mode=TwoWay}" Stroke="RoyalBlue" StrokeThickness="1"/>-->
+    <!--<Polyline Points="{Binding MyObPoints, Converter={StaticResource ooo}, Mode=TwoWay}"
+              Stroke="RoyalBlue" StrokeThickness="1"/>-->
+
+    <Path x:Name="MyPath0" Stroke="Gold" StrokeThickness="2.0">
+      <Path.Data>
+        <PathGeometry>
+          <PathFigure>
+            <PathFigure.Segments>
+              <PolyLineSegment Points="{Binding MyPointC, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </PathFigure.Segments>
+          </PathFigure>
+        </PathGeometry>
+      </Path.Data>
+    </Path>
+
+    <Path x:Name="MyPath1" Stroke="Red" StrokeThickness="2.0">
+      <Path.Data>
+        <PathGeometry>
+          <PathFigure>
+            <PathFigure.Segments>
+              <PolyLineSegment Points="{Binding MyObPoints, Mode=TwoWay, Converter={StaticResource ooo}}"/>
+            </PathFigure.Segments>
+          </PathFigure>
+        </PathGeometry>
+      </Path.Data>
+    </Path>
+
+    <Path x:Name="MyPath2" Stroke="RoyalBlue" StrokeThickness="2.0" 
+          Data="{Binding MyObPoints2, Mode=TwoWay, Converter={StaticResource ooo2}}"/>
+
+    <Path x:Name="MyPath3" Stroke="MediumAquamarine" StrokeThickness="2.0">
+      <Path.Data>
+        <PathGeometry>
+          <PathFigure Segments="{Binding MyObPoints3, Mode=TwoWay, Converter={StaticResource ooo4}}"/>
+        </PathGeometry>
+      </Path.Data>
+    </Path>
+
+    <Path x:Name="MyPath4" Stroke="MediumPurple" StrokeThickness="2.0">
+      <Path.Data>
+        <PathGeometry Figures="{Binding MyObPoints4, Mode=TwoWay, Converter={StaticResource ooo5}}">
+          
+        </PathGeometry>
+      </Path.Data>
+    </Path>
+
+
+
+    <!--<Path Stroke="Red" StrokeThickness="2" Data="{Binding MyGeo, Mode=TwoWay}"/>
+    <TextBlock Text="{Binding DDD1.Point}"/>-->
+
+
+    <!--<ItemsControl ItemsSource="{Binding MyPoints}">-->
+
+    <ItemsControl ItemsSource="{Binding MyObPoints}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <StackPanel Orientation="Horizontal">
+            <Thumb Width="20" Height="20" Background="Black" DragDelta="MyThumb_DragDelta"/>
+            <TextBlock Text="{Binding}"/>
+          </StackPanel>
+
+
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+
+      <!--マツオソフトウェアブログ: Canvasにリストの中身をBindingする方法
+http://my-clip-devdiary.blogspot.com/2011/01/canvasbinding.html-->
+
+      <ItemsControl.ItemContainerStyle>
+        <Style>
+          <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}"/>
+          <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}"/>
+        </Style>
+      </ItemsControl.ItemContainerStyle>
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <Canvas/>
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+    </ItemsControl>
+
+
   </Grid>
 </Window>
