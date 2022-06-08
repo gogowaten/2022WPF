@@ -18,25 +18,30 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 
 
-namespace _20220603
+//PolyLineで折れ線表示
+//アンカーポイントにThumbを表示
+//Thumbをマウスドラッグ移動でアンカーポイントも移動
+//アンカーポイントの動的追加と削除
+
+//アンカーポイントとThumbは手動で同期させる
+//同期ってのは個数と順番
+//アンカーポイント追加するときはThumbも追加する
+//アンカーポイント削除するときは最後にクリックされたThumbと対応するアンカーポイントを削除
+
+namespace _20220608_PathとThumb
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    public partial class MainWindow : Window
     {
-        #region notifyProperty
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberNameAttribute] string? name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-        #endregion notifyProperty
-
+        //PolyLineのアンカーポイント
         public PointCollection MyPointC { get; set; } = new();
+        //アンカーポイントに表示するThumbを入れておく用コレクション
         public ObservableCollection<Thumb> MyThumbs { get; set; } = new();
         private int MyCount;
-        private Thumb? MyActiveThumb;
+        private Thumb? MyActiveThumb;//最後にクリックされたThumbを入れておく用
+        bool IsThumbVisible = true;//Thumbの表示の有無フラグ
         public MainWindow()
         {
 #if DEBUG
@@ -44,40 +49,54 @@ namespace _20220603
 #endif
             InitializeComponent();
 
-            //MyThumbs.CollectionChanged += MyThumbs_CollectionChanged;
-            MyCanvas.Children.Add(MakePolyline(MyPointC, Brushes.Red, 10));
+            MyCanvas.Children.Add(MakePolyline(MyPointC, Brushes.Magenta, 4));
             AddPoint(new Point(100, 200));
             AddPoint(new Point(200, 300));
+
+            #region 負荷テスト用
+            //AddPointRound(1500);//円環
+            AddPoint円環はお断り(7000);
+
+            //1ピクセル斜めに追加
             //for (int i = 0; i < 5000; i++)
             //{
             //    AddPoint(new Point(i, i));
             //}
+            #endregion 負荷テスト用
         }
 
-        //private void MyThumbs_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        //{
-        //    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-        //    {
+        private void AddPointRound(int count)
+        {
+            double r = 200; double s = 360.0 / count;
+            double x; double y; int c = 0;
+            for (double i = 0.0; i < 360.0; i += s)
+            {
+                double rad = Radian(i);
+                x = Math.Cos(rad) * r + r;
+                y = Math.Sin(rad) * r + r;
+                AddPoint(new Point(x, y));
+                c++;
+            }
+        }
+        private void AddPoint円環はお断り(int count)
+        {
+            double r = 200; double s = 3600.0 / count;
+            double rr = r / (count * 2.0); double rrr = r;
+            double x; double y; int c = 0;
+            for (double i = 0.0; i < 3600.0; i += s)
+            {
+                double rad = Radian(i);
+                x = Math.Cos(rad) * (rrr) + r;
+                y = Math.Sin(rad) * (rrr) + r;
+                AddPoint(new Point(x, y));
+                c++; rrr -= rr;
+            }
+        }
 
-        //        if (e.NewItems?[0] is Thumb t)
-        //        {
-        //            t.Tag = MyThumbs.Count - 1;
-        //        }
-        //    }
-        //    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
-        //    {
-
-        //        int ii = e.OldStartingIndex;
-        //        if (e.OldItems?[0] is Thumb t)
-        //        {
-        //            for (int i = ii; i < MyThumbs.Count; i++)
-        //            {
-        //                MyThumbs[i].Tag = i;
-        //            }
-        //        }
-        //    }
-        //}
-
+        public double Radian(double degrees)
+        {
+            return Math.PI / 180.0 * degrees;
+        }
         private void AddPoint(Point p)
         {
             MyPointC.Add(p);
@@ -124,14 +143,13 @@ namespace _20220603
 
 
 
-
         private void T_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is not Thumb t) { return; }
             double x = Canvas.GetLeft(t) + e.HorizontalChange;
             double y = Canvas.GetTop(t) + e.VerticalChange;
             Canvas.SetLeft(t, x);
-            Canvas.SetTop(t, y);
+            Canvas.SetTop(t, y); ;
             int i = MyThumbs.IndexOf(t);
             MyPointC[i] = new Point(x, y);
         }
@@ -146,56 +164,30 @@ namespace _20220603
         {
             RemovePoint(MyActiveThumb);
         }
-    }
 
-
-    public class NPoint : INotifyPropertyChanged
-    {
-        private double _x;
-        private double _y;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        private void MyButton3_Click(object sender, RoutedEventArgs e)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public double X
-        {
-            get => _x; set
+            if (IsThumbVisible)
             {
-                if (_x == value) return;
-                _x = value; OnPropertyChanged();
+                //Thumbの表示を最初の1つだけにする
+                for (int i = 1; i < MyThumbs.Count; i++)
+                {
+                    MyThumbs[i].Visibility = Visibility.Collapsed;
+                }
+                IsThumbVisible = false;
             }
-        }
-        public double Y
-        {
-            get => _y; set
+            else
             {
-                if (_y == value) return;
-                _y = value; OnPropertyChanged();
+                //全てのThumbを表示する
+                for (int i = 1; i < MyThumbs.Count; i++)
+                {
+                    MyThumbs[i].Visibility = Visibility.Visible;
+                }
+                IsThumbVisible = true;
             }
-        }
-        public NPoint(double x, double y)
-        {
-            X = x;
-            Y = y;
+            
         }
     }
-    public class ObservablePoints : ObservableCollection<NPoint>
-    {
-        public ObservablePoints() { }
-    }
-    public class Data
-    {
-        public List<NPoint> NPoints { get; set; }
-        public PointCollection PC { get; set; }
-        public Data(List<NPoint> nPoints, PointCollection pC)
-        {
-            NPoints = nPoints;
-            PC = pC;
-        }
-    }
+
 
 }
-
