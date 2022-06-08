@@ -49,13 +49,13 @@ namespace _20220608_PathとThumb
 #endif
             InitializeComponent();
 
-            MyCanvas.Children.Add(MakePolyline(MyPointC, Brushes.Magenta, 4));
-            AddPoint(new Point(100, 200));
+            MyCanvas.Children.Add(MakePolyline(MyPointC, Brushes.Magenta, 10));
+            AddPoint(new Point(100, 100));
             AddPoint(new Point(200, 300));
 
             #region 負荷テスト用
-            //AddPointRound(1500);//円環
-            AddPoint円環はお断り(7000);
+            AddPointRound(100);//円環
+            //AddPoint円環はお断り(10000);
 
             //1ピクセル斜めに追加
             //for (int i = 0; i < 5000; i++)
@@ -67,7 +67,8 @@ namespace _20220608_PathとThumb
 
         private void AddPointRound(int count)
         {
-            double r = 200; double s = 360.0 / count;
+            double r = 200;//半径
+            double s = 360.0 / count;
             double x; double y; int c = 0;
             for (double i = 0.0; i < 360.0; i += s)
             {
@@ -118,18 +119,10 @@ namespace _20220608_PathとThumb
         private Thumb MakeThumb(Point p)
         {
             Thumb t = new() { Width = 20, Height = 20 };
-            t.DragDelta += T_DragDelta;
+            t.DragDelta += Thumb_DragDelta;
             t.PreviewMouseDown += Thumb_PreviewMouseDown;
             Canvas.SetLeft(t, p.X); Canvas.SetTop(t, p.Y);
             return t;
-        }
-
-        private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is Thumb t)
-            {
-                MyActiveThumb = t;
-            }
         }
 
         private Polyline MakePolyline(PointCollection pc, Brush stroke, double thickness)
@@ -143,7 +136,15 @@ namespace _20220608_PathとThumb
 
 
 
-        private void T_DragDelta(object sender, DragDeltaEventArgs e)
+        private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is Thumb t)
+            {
+                MyActiveThumb = t;
+            }
+        }
+
+        private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is not Thumb t) { return; }
             double x = Canvas.GetLeft(t) + e.HorizontalChange;
