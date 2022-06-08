@@ -48,6 +48,11 @@ namespace _20220603
             MyThumbs.CollectionChanged += MyThumbs_CollectionChanged;
             MyCanvas.Children.Add(MakePolyline(MyPointC, Brushes.Red, 10));
             AddPoint(new Point(100, 200));
+            AddPoint(new Point(200, 300));
+            //for (int i = 0; i < 5000; i++)
+            //{
+            //    AddPoint(new Point(i, i));
+            //}
         }
 
         private void MyThumbs_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
