@@ -6,14 +6,6 @@
         xmlns:local="clr-namespace:_20220603"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-  <Window.Resources>
-    <local:OOO0 x:Key="ooo0"/>
-  </Window.Resources>
-
-
-
-
-
   <Grid UseLayoutRounding="True">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
@@ -22,62 +14,9 @@
     <StackPanel Grid.Column="1">
       <Button x:Name="MyButton1" Content="check1" Click="MyButton1_Click"/>
       <Button x:Name="MyButton2" Content="check2" Click="MyButton2_Click"/>
-      <TextBlock Text="{Binding MyPoints}"/>
-      <TextBlock Text="{Binding MyObPoints.Count}"/>
-      <TextBlock Text="{Binding Strings}"/>
-      <TextBlock Text="{Binding MyList}"/>
-      
     </StackPanel>
     <Canvas Name="MyCanvas">
-    </Canvas>
-
-    <Polyline Name="MyPolyLine0" Points="{Binding MyPointC, Mode=TwoWay}" Stroke="RoyalBlue" StrokeThickness="1"/>
-    <Polyline Name="MyPolyLine1" Stroke="OrangeRed" StrokeThickness="1"/>
-    <Polyline Name="MyPolyLine2" Points="{Binding MyPoints, Mode=TwoWay}" Stroke="OrangeRed" StrokeThickness="1"/>
-    <Polyline Name="MyPolyLine3" Points="{Binding MyObPoints, Mode=TwoWay, Converter={StaticResource ooo0}}"
-              Stroke="MediumAquamarine" StrokeThickness="1"/>
-    <!--<Polyline Points="{Binding MyObPoints, Converter={StaticResource ooo}, Mode=TwoWay}"
-              Stroke="RoyalBlue" StrokeThickness="1"/>-->
-
-    
-
-
-    <!--<Path Stroke="Red" StrokeThickness="2" Data="{Binding MyGeo, Mode=TwoWay}"/>
-    <TextBlock Text="{Binding DDD1.Point}"/>-->
-
-
-    <!--<ItemsControl ItemsSource="{Binding MyPoints}">-->
-
-    <ItemsControl ItemsSource="{Binding MyObPoints, Mode=TwoWay}">
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <Canvas >
-            <Thumb Canvas.Left="{Binding X, Mode=TwoWay}" Canvas.Top="{Binding Y, Mode=TwoWay}"
-                   Width="20" Height="20" Background="Black" DragDelta="MyThumb_DragDelta"/>
-            <TextBlock Text="{Binding}"/>
-          </Canvas>
-        </DataTemplate>
-        
-      </ItemsControl.ItemTemplate>
-
-      <!--マツオソフトウェアブログ: Canvasにリストの中身をBindingする方法
-http://my-clip-devdiary.blogspot.com/2011/01/canvasbinding.html-->
-
-      <ItemsControl.ItemContainerStyle>
-        <Style>
-          <!--<Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}"/>
-          <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}"/>-->
-        </Style>
-      </ItemsControl.ItemContainerStyle>
-      <ItemsControl.ItemsPanel>
-        <ItemsPanelTemplate>
-          <Canvas/>
-        </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
-
       
-    </ItemsControl>
-
-
+    </Canvas>
   </Grid>
 </Window>

@@ -17,17 +17,138 @@ using System.Globalization;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 
-//失敗
-//PointコレクションをPathにバインドしてみたけど、できないみたい？
+//Pointは実質的にはバインドできないと考えたほうが良さそう、とくに双方向はできない
 
 namespace _20220603
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window,INotifyPropertyChanged
+    public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private PointCollection _myPoints = new();
+        #region notifyProperty
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberNameAttribute] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        #endregion notifyProperty
+
+        public PointCollection MyPointC { get; set; } = new();
+        public ObservableCollection<Thumb> MyThumbs { get; set; } = new();
+        private int MyCount;
+        private Thumb? MyActiveThumb;
+        public MainWindow()
+        {
+#if DEBUG
+            Left = 10; Top = 10;
+#endif
+            InitializeComponent();
+            
+            MyThumbs.CollectionChanged += MyThumbs_CollectionChanged;
+            MyCanvas.Children.Add(MakePolyline(MyPointC, Brushes.Red, 10));
+            AddPoint(new Point(100, 200));
+        }
+
+        private void MyThumbs_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+            {
+                
+                if (e.NewItems?[0] is Thumb t)
+                {
+                    t.Tag = MyThumbs.Count - 1;
+                }
+            }
+            else if(e.Action== System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+            {
+                
+                int ii = e.OldStartingIndex;
+                if(e.OldItems?[0] is Thumb t)
+                {
+                    for (int i = ii; i < MyThumbs.Count; i++)
+                    {
+                        MyThumbs[i].Tag = i;
+                    }
+                }
+            }
+        }
+
+        private void AddPoint(Point p)
+        {
+            MyPointC.Add(p);
+            var t = MakeThumb(p);
+            MyThumbs.Add(t);
+            MyCanvas.Children.Add(t);
+        }
+        private void RemovePoint(Thumb? t)
+        {
+            if (t is not Thumb) return;
+            int i = (int)t.Tag;
+            MyPointC.RemoveAt(i);
+            MyThumbs.Remove(t);
+            MyCanvas.Children.Remove(t);
+            MyActiveThumb = null;
+        }
+
+     
+        private Thumb MakeThumb(Point p)
+        {
+            Thumb t = new() { Width = 20, Height = 20 };
+            t.DragDelta += T_DragDelta;
+            t.PreviewMouseDown += Thumb_PreviewMouseDown;
+            Canvas.SetLeft(t, p.X); Canvas.SetTop(t, p.Y);
+            return t;
+        }
+
+        private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if(sender is Thumb t)
+            {
+                MyActiveThumb = t;
+            }
+        }
+
+        private Polyline MakePolyline(PointCollection pc, Brush stroke, double thickness)
+        {
+            Polyline pl = new();
+            pl.Points = pc;
+            pl.Stroke = stroke;
+            pl.StrokeThickness = thickness;
+            return pl;
+        }
+     
+
+
+
+        private void T_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is not Thumb t) { return; }
+            double x = Canvas.GetLeft(t) + e.HorizontalChange;
+            double y = Canvas.GetTop(t) + e.VerticalChange;
+            Canvas.SetLeft(t, x);
+            Canvas.SetTop(t, y);
+            int i = (int)t.Tag;
+            MyPointC[i] = new Point(x, y);
+        }
+
+        private void MyButton1_Click(object sender, RoutedEventArgs e)
+        {
+            AddPoint(new Point(MyCount * 30, MyCount * 20));
+            MyCount++;
+        }
+
+        private void MyButton2_Click(object sender, RoutedEventArgs e)
+        {
+            RemovePoint(MyActiveThumb);
+        }
+    }
+  
+
+    public class NPoint : INotifyPropertyChanged
+    {
+        private double _x;
+        private double _y;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
@@ -35,151 +156,42 @@ namespace _20220603
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public PointCollection MyPoints
+        public double X
         {
-            get => _myPoints;
-            set { if (value == _myPoints) { return; } _myPoints = value; OnPropertyChanged(); }
-        }
-       
-        private Point _pp;
-        public Point PP { get => _pp;
-            set { if (value == _pp) { return; }_pp = value;OnPropertyChanged(); }
-        }
-        public PointCollection MyPointC { get; set; }
-        public PointCollection MyPointC1 { get; set; }
-        public ObservableCollection<Point> MyObPoints { get; set; } = new();
-        public ObservableCollection<Point> MyObPoints2 { get; set; } = new();
-        public ObservableCollection<Point> MyObPoints3 { get; set; } = new();
-        public ObservableCollection<Point> MyObPoints4 { get; set; } = new();
-        public PointCollection Points { get; set; }
-        //public DataPoints MyDataPoints { get; set; }
-        public MainWindow()
-        {
-            InitializeComponent();
-#if DEBUG
-            Left = 10; Top = 10;
-#endif
-            DataContext = this;
-            MyPointC = new() { new(10, 10), new(100, 20), new(200, 10) };
-            MyObPoints = new() { new(10, 30), new(100, 40), new(200, 30) };
-            MyObPoints2 = new() { new(10, 50), new(100, 60), new(200, 50) };
-            MyObPoints3 = new() { new(10, 70), new(100, 80), new(200, 70) };
-            MyObPoints4 = new() { new(10, 90), new(100, 100), new(200, 90) };
-            MyPointC1 = new() { new(10, 110), new(100, 120), new(200, 110) };
-            MyPolyLine1.Points = MyPointC1;
-            //MyObPoints.CollectionChanged += MyObPoints_CollectionChanged;
-            Points = new() { new(10, 10), new(200, 100) };
-            MyPoints = new() { PP, new (10, 130), new(100, 140), new(200, 130) };
-            
-        }
-
-        private void MyObPoints_CollectionChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            //MyObPoints = new ObservableCollection<Point>(MyObPoints);
-        }
-
-        private Thumb MakeThumb(double x, double y)
-        {
-            Thumb t = new()
+            get => _x; set
             {
-                Width = 20,
-                Height = 20,
-                Background = Brushes.Black,
-                Opacity = 0.2
-            };
-            Canvas.SetLeft(t, x);
-            Canvas.SetTop(t, y);
-            t.DragDelta += MyThumb_DragDelta;
-            return t;
-        }
-        private Binding MakeBinding(string path, object source)
-        {
-            return new(path) { Source = source, Mode = BindingMode.TwoWay };
-        }
-        private Binding MakeBinding(DependencyProperty dp, object source)
-        {
-            return new() { Path = new PropertyPath(dp), Source = source, Mode = BindingMode.TwoWay };
-        }
-
-
-        private MultiBinding MakeMultiBinding(object param, IMultiValueConverter converter, params Binding[] bindings)
-        {
-            MultiBinding m = new();
-            m.ConverterParameter = param;
-            m.Converter = converter;
-            m.Mode = BindingMode.TwoWay;
-            foreach (var item in bindings)
-            {
-                m.Bindings.Add(item);
+                if (_x == value) return;
+                _x = value; OnPropertyChanged();
             }
-            return m;
         }
-
-
-        #region ドラッグ移動
-        private void MyThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        public double Y
         {
-            if (sender is not Thumb t) { return; }
-            Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
-            Canvas.SetTop(t, Canvas.GetTop(t) + e.VerticalChange);
+            get => _y; set
+            {
+                if (_y == value) return;
+                _y = value; OnPropertyChanged();
+            }
         }
-        private void MyThumb_DragDeltaOnlyVertical(object sender, DragDeltaEventArgs e)
+        public NPoint(double x, double y)
         {
-            if (sender is not Thumb t) { return; }
-            Canvas.SetTop(t, Canvas.GetTop(t) + e.VerticalChange);
+            X = x;
+            Y = y;
         }
-        private void MyThumb_DragDeltaOnlyHorizontal(object sender, DragDeltaEventArgs e)
-        {
-            if (sender is not Thumb t) { return; }
-            Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
-        }
-        #endregion ドラッグ移動
-
-        #region チェック用
-        private void MyButton1_Click(object sender, RoutedEventArgs e)
-        {
-            //MyPoints.Add(new(100, 300));
-            //MyPoints = new() { new(100, 100), new(0, 0)};
-            //MyObPoints = new() { new(0, 0), new(100, 100) };
-            //MyPoints = new PointCollection(MyPoints);
-            //MyObPoints = new ObservableCollection<Point>(MyObPoints);
-            //MyDataPoints.Points.Add(new Point(100, 300));
-            MyPointC.Add(new Point(500, 310));
-            MyObPoints.Add(new(500, 320));
-            MyObPoints2.Add(new(500, 330));
-            MyObPoints3.Add(new(500, 340));
-            MyObPoints4.Add(new(500, 350));
-            MyPointC1.Add(new(500, 360));
-            MyPoints.Add(new(500, 370));
-            
-
-            PP = new(23, 440);
-        }
-
-        private void MyButton2_Click(object sender, RoutedEventArgs e)
-        {
-            MyPolyLine1.Points.Add(new(100, 200));
-        }
-
-
-
-        #endregion チェック用
-
-
     }
-
-    public class OOO0 : IValueConverter
+    public class ObservablePoints : ObservableCollection<NPoint>
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public ObservablePoints() { }
+    }
+    public class Data
+    {
+        public List<NPoint> NPoints { get; set; }
+        public PointCollection PC { get; set; }
+        public Data(List<NPoint> nPoints, PointCollection pC)
         {
-            ObservableCollection<Point> points = (ObservableCollection<Point>)value;
-            return new PointCollection(points);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
+            NPoints = nPoints;
+            PC = pC;
         }
     }
+    
 }
 
