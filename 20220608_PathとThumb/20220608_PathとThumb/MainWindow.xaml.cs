@@ -1,21 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
-using System.Globalization;
-using System.ComponentModel;
 using System.Collections.ObjectModel;
+
+//WPF、PolyLineの頂点にThumb表示、マウスドラッグで頂点移動 - 午後わてんのブログ
+//https://gogowaten.hatenablog.com/entry/2022/06/09/191650
 
 
 //PolyLineで折れ線表示
@@ -23,7 +16,7 @@ using System.Collections.ObjectModel;
 //Thumbをマウスドラッグ移動でアンカーポイントも移動
 //アンカーポイントの動的追加と削除
 
-//アンカーポイントとThumbは手動で同期させる
+//アンカーポイントとThumbはBindingの方法がわからなかったので手動で同期した
 //同期ってのは個数と順番
 //アンカーポイント追加するときはThumbも追加する
 //アンカーポイント削除するときは最後にクリックされたThumbと対応するアンカーポイントを削除
@@ -45,20 +38,21 @@ namespace _20220608_PathとThumb
         public MainWindow()
         {
 #if DEBUG
-            Left = 10; Top = 10;
+            Left = 100; Top = 100;
 #endif
             InitializeComponent();
 
             MyCanvas.Children.Add(MakePolyline(MyPointC, Brushes.Magenta, 10));
             AddPoint(new Point(100, 100));
-            AddPoint(new Point(200, 300));
+            AddPoint(new Point(200, 100));
 
             #region 負荷テスト用
-            AddPointRound(100);//円環
-            //AddPoint円環はお断り(10000);
+            //AddPointRound(100);//円環
+            //AddPoint円環はお断り(1000);
+            //AddPoint蚊取り線香(1000);
 
-            //1ピクセル斜めに追加
-            //for (int i = 0; i < 5000; i++)
+            ////1ピクセル斜めに追加
+            //for (int i = 0; i < 10000; i++)
             //{
             //    AddPoint(new Point(i, i));
             //}
@@ -69,32 +63,45 @@ namespace _20220608_PathとThumb
         {
             double r = 200;//半径
             double s = 360.0 / count;
-            double x; double y; int c = 0;
+            double x; double y;
             for (double i = 0.0; i < 360.0; i += s)
             {
                 double rad = Radian(i);
-                x = Math.Cos(rad) * r + r;
-                y = Math.Sin(rad) * r + r;
+                x = (Math.Cos(rad) * r) + r;
+                y = (Math.Sin(rad) * r) + r;
                 AddPoint(new Point(x, y));
-                c++;
             }
         }
         private void AddPoint円環はお断り(int count)
         {
             double r = 200; double s = 3600.0 / count;
             double rr = r / (count * 2.0); double rrr = r;
-            double x; double y; int c = 0;
+            double x; double y;
             for (double i = 0.0; i < 3600.0; i += s)
             {
                 double rad = Radian(i);
-                x = Math.Cos(rad) * (rrr) + r;
-                y = Math.Sin(rad) * (rrr) + r;
+                x = (Math.Cos(rad) * rrr) + r;
+                y = (Math.Sin(rad) * rrr) + r;
                 AddPoint(new Point(x, y));
-                c++; rrr -= rr;
+                rrr -= rr;
+            }
+        }
+        private void AddPoint蚊取り線香(int count)
+        {
+            double r = 200; double s = 3600.0 / count;
+            double rr = r / (count * 1.0); double rrr = r;
+            double x; double y;
+            for (double i = 0.0; i < 3600.0; i += s)
+            {
+                double rad = Radian(i);
+                x = (Math.Cos(rad) * rrr) + r;
+                y = (Math.Sin(rad) * rrr) + r;
+                AddPoint(new Point(x, y));
+                rrr -= rr;
             }
         }
 
-        public double Radian(double degrees)
+        public static double Radian(double degrees)
         {
             return Math.PI / 180.0 * degrees;
         }
@@ -186,7 +193,7 @@ namespace _20220608_PathとThumb
                 }
                 IsThumbVisible = true;
             }
-            
+
         }
     }
 
