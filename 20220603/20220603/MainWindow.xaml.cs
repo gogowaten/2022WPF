@@ -84,9 +84,9 @@ namespace _20220603
 
     public class PolyLineCanvas : Canvas
     {
-        public List<Thumb> MyThumbs = new();
-        public PointCollection MyPoints = new();
-        public Thumb? MyCurrentThumb;
+        private List<Thumb> MyThumbs = new();
+        private PointCollection MyPoints = new();
+        public Thumb? MyCurrentThumb { get; private set; }
         public Polyline MyPolyline;
         public PolyLineCanvas(Brush stroke, double thickness)
         {
