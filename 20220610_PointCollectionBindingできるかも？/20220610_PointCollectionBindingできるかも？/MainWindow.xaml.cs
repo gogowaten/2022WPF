@@ -13,10 +13,17 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
+using System.Globalization;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 
 //C#wpfポリラインポイントに四角形を描画する方法 - 初心者向けチュートリアル
 //https://tutorialmore.com/questions-2546680.htm
+
+//使い方がわからんけど、PointCollectionの中のPointの更新を通知しているのが参考になるかも？
+
 
 namespace _20220610_PointCollectionBindingできるかも_
 {
@@ -40,8 +47,8 @@ namespace _20220610_PointCollectionBindingできるかも_
 
     public class ViewModelBase : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -63,8 +70,7 @@ namespace _20220610_PointCollectionBindingできるかも_
         }
         public ObservableCollection<Vertex> Vertices { get; }
             = new ObservableCollection<Vertex>();
-        private void VerticesCollectionChanged(
-            object sender, NotifyCollectionChangedEventArgs e)
+        private void VerticesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
@@ -82,7 +88,7 @@ namespace _20220610_PointCollectionBindingできるかも_
             }
             OnPropertyChanged(nameof(Vertices));
         }
-        private void VertexPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void VertexPropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(nameof(Vertices));
         }
@@ -90,16 +96,18 @@ namespace _20220610_PointCollectionBindingできるかも_
 
     public class VerticesConverter : IValueConverter
     {
-        public object Convert(
-            object value, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            //var vertices = value as IEnumerable<Vertex>;
+            //return vertices != null
+            //    ? new PointCollection(vertices.Select(v => v.Point))
+            //    : null;
+           
             var vertices = value as IEnumerable<Vertex>;
-            return vertices != null
-                ? new PointCollection(vertices.Select(v => v.Point))
-                : null;
+            var ss = new PointCollection(vertices.Select(e => e.Point));
+            return ss;
         }
-        public object ConvertBack(
-            object value, Type targetType, object parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException();
         }
