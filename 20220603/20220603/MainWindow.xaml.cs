@@ -37,10 +37,7 @@ namespace _20220603
         }
         #endregion notifyProperty
 
-        public PointCollection MyPointC { get; set; } = new() { new(100, 100), new(200, 100), new(200, 200) };
-        //public ObservableCollection<Thumb> MyThumbs { get; set; } = new();
-        private Polyline MyPolyLine;
-        private ThumbsAndPoints MyThumbsAndPoints;
+        //public PointCollection MyPointC { get; set; } = new() { new(100, 100), new(200, 100), new(200, 200) };
         private PolyLineCanvas MyPolyLineCanvas;
 
         public MainWindow()
@@ -50,18 +47,12 @@ namespace _20220603
 #endif
             InitializeComponent();
 
-            //MyThumbsAndPoints = new(MyCanvas);
-            //MyPolyLine = new() { Stroke = Brushes.Magenta, StrokeThickness = 4, Points = MyThumbsAndPoints.MyPoints };
-            //MyCanvas.Children.Add(MyPolyLine);
-            //MyThumbsAndPoints.AddPoint(new Point(20, 20));
-            //MyThumbsAndPoints.AddPoint(new Point(100, 20));
 
             MyPolyLineCanvas = new(Brushes.OrangeRed, 4);
             MyPolyLineCanvas.AddPoint(new Point(20, 20));
             MyPolyLineCanvas.AddPoint(new Point(120, 20));
             //MyGrid.Children.Add(MyPolyLineCanvas);
             MyCanvas.Children.Add(MyPolyLineCanvas);
-            DataContext = MyPolyLineCanvas.MyCurrentThumb;
 
         }
 
@@ -69,7 +60,6 @@ namespace _20220603
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
             MyPolyLineCanvas.AddPoint(new Point(300, 200));
-            //MyThumbsAndPoints.AddPoint(new Point(300, 200));
 
         }
 
@@ -88,22 +78,30 @@ namespace _20220603
         private PointCollection MyPoints = new();
         public Thumb? MyCurrentThumb { get; private set; }
         public Polyline MyPolyline;
+        private Polyline TempPolyline;
+        private PointCollection TempPoints = new();
         public PolyLineCanvas(Brush stroke, double thickness)
         {
             MyPolyline = new() { Stroke = stroke, StrokeThickness = thickness, Points = MyPoints };
             this.Children.Add(MyPolyline);
+            TempPolyline = new() { Stroke = stroke, StrokeThickness = thickness, Points = TempPoints };
+            TempPolyline.Visibility = Visibility.Collapsed;
+            this.Children.Add(TempPolyline);
         }
 
         public void AddPoint(Point p)
         {
             Thumb t = new() { Width = 20, Height = 20 };
+            t.DragStarted += T_DragStarted;
             t.DragDelta += Thumb_DragDelta;
+            t.DragCompleted += T_DragCompleted;
             t.PreviewMouseDown += Thumb_PreviewMouseDown;
             Canvas.SetLeft(t, p.X); Canvas.SetTop(t, p.Y);
             MyPoints.Add(p);
             MyThumbs.Add(t);
             this.Children.Add(t);
         }
+
 
         private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -119,6 +117,35 @@ namespace _20220603
             this.Children.Remove(MyCurrentThumb);
             MyCurrentThumb = null;
         }
+        private void T_DragStarted(object sender, DragStartedEventArgs e)
+        {
+            if (sender is not Thumb t) { return; }
+            if (MyThumbs.Count > 2)
+            {
+                foreach (var item in MyThumbs)
+                {
+                    item.Visibility = Visibility.Collapsed;
+                }
+                t.Visibility = Visibility.Visible;
+                MyPolyline.Visibility = Visibility.Collapsed;
+                MovePolyLine(MyThumbs.IndexOf(t));
+                TempPolyline.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void T_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            if (MyThumbs.Count > 2)
+            {
+                foreach (var item in MyThumbs)
+                {
+                    item.Visibility = Visibility.Visible;
+                }
+                MyPolyline.Visibility = Visibility.Visible;
+                TempPolyline.Visibility = Visibility.Collapsed;
+                TempPolyline.Points.Clear();
+            }
+        }
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is not Thumb t) { return; }
@@ -128,56 +155,25 @@ namespace _20220603
             int i = MyThumbs.IndexOf(t);
             MyPoints[i] = p;
             Canvas.SetLeft(t, x); Canvas.SetTop(t, y);
+            if (MyThumbs.Count > 2) { TempPoints[1] = p; }
+            //else { TempPoints[0] = p; }
+        }
+        private void MovePolyLine(int tIndex)
+        {
+            TempPoints.Clear();
+            int end = tIndex + 2;
+            if (end > MyThumbs.Count) { end = MyThumbs.Count; }
+            int begin = tIndex - 1;
+            if (begin < 0) { begin = 0; }
+            for (int i = begin; i < end; i++)
+            {
+                TempPoints.Add(MyPoints[i]);
+            }
 
         }
     }
 
-    public class ThumbsAndPoints
-    {
-        public List<TThumb> MyThumbs = new();
-        public PointCollection MyPoints = new();
-        public Canvas MyCanvas;
-        public TThumb? MyCurrentThumb;
-        public ThumbsAndPoints(Canvas canvas)
-        {
-            MyCanvas = canvas;
-        }
-        public void AddPoint(Point p)
-        {
-            TThumb t = new(p.X, p.Y, MyPoints.Count);
-            t.DragDelta += Thumb_DragDelta;
-            t.PreviewMouseDown += Thumb_PreviewMouseDown;
-            MyPoints.Add(p);
-            MyThumbs.Add(t);
-            MyCanvas.Children.Add(t);
-        }
 
-        private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            MyCurrentThumb = sender as TThumb;
-        }
-
-        public void RemovePoint()
-        {
-            if (MyCurrentThumb is null) { return; }
-            int i = MyThumbs.IndexOf(MyCurrentThumb);
-            MyPoints.RemoveAt(i);
-            MyThumbs.Remove(MyCurrentThumb);
-            MyCanvas.Children.Remove(MyCurrentThumb);
-            MyCurrentThumb = null;
-        }
-        private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            if (sender is not TThumb t) { return; }
-            double x = Canvas.GetLeft(t) + e.HorizontalChange;
-            double y = Canvas.GetTop(t) + e.VerticalChange;
-            Point p = new(x, y);
-            int i = MyThumbs.IndexOf(t);
-            MyPoints[i] = p;
-            Canvas.SetLeft(t, x); Canvas.SetTop(t, y);
-
-        }
-    }
 
     public class TThumb : Thumb
     {
@@ -236,111 +232,6 @@ namespace _20220603
         public override string ToString()
         {
             return $"Name index{MyIndex}";
-        }
-    }
-    public class Matome
-    {
-        public List<TThumb> ThumbList;
-        public PointCollection PointCollection;
-        public List<int> IntList;
-        public List<Point> PointList;
-
-        public Matome(List<TThumb> thumbList, PointCollection pointCollection, List<int> intList, List<Point> pointList)
-        {
-            ThumbList = thumbList;
-            PointCollection = pointCollection;
-            IntList = intList;
-            PointList = pointList;
-            PointCollection.Changed += PointCollection_Changed;
-        }
-
-        private void PointCollection_Changed(object? sender, EventArgs e)
-        {
-            var neko = 0;
-        }
-    }
-    public class NotifyXY : INotifyPropertyChanged
-    {
-        private double _x;
-        private double _y;
-        private Point _point;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        public double X { get => _x; set { if (_x == value) return; _x = value; Point = new Point(_x, _y); OnPropertyChanged(); } }
-        public double Y { get => _y; set { if (_y == value) return; _y = value; Point = new Point(_x, _y); OnPropertyChanged(); } }
-        public Point Point
-        {
-            get => _point; set
-            {
-                if (_point == value) { return; }
-                _point = value;
-                //_x = value.X;_y= value.Y;
-                OnPropertyChanged();
-            }
-        }
-        public NotifyXY(double x, double y)
-        {
-            X = x;
-            Y = y;
-        }
-    }
-    public class ObservablePoints : INotifyPropertyChanged
-    {
-        public ObservableCollection<NotifyXY> Vertices { get; set; } = new();
-        public ObservablePoints()
-        {
-            Vertices.CollectionChanged += Vertices_CollectionChanged;
-        }
-
-        private void Vertices_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                foreach (var item in e.NewItems.OfType<INotifyPropertyChanged>())
-                {
-                    item.PropertyChanged += Item_PropertyChanged;
-                }
-                var neko = 0;
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                foreach (var item in e.OldItems.OfType<INotifyPropertyChanged>())
-                {
-                    item.PropertyChanged -= Item_PropertyChanged;
-                }
-            }
-            OnPropertyChanged();
-        }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-
-        private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Vertices));
-        }
-
-
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberNameAttribute] string? name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-
-    }
-    public class Data
-    {
-        public List<NotifyXY> NPoints { get; set; }
-        public PointCollection PC { get; set; }
-        public Data(List<NotifyXY> nPoints, PointCollection pC)
-        {
-            NPoints = nPoints;
-            PC = pC;
         }
     }
 
