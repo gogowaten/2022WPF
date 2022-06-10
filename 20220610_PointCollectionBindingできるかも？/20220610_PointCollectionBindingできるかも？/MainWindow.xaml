@@ -1,23 +1,15 @@
-﻿<Window x:Class="_20220603.MainWindow"
+﻿<Window x:Class="_20220610_PointCollectionBindingできるかも_.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:_20220603"
+        xmlns:local="clr-namespace:_20220610_PointCollectionBindingできるかも_"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-  <Grid UseLayoutRounding="True">
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition/>
-      <ColumnDefinition Width="200"/>
-    </Grid.ColumnDefinitions>
-    <StackPanel Grid.Column="1">
-      <Button x:Name="MyButton1" Content="check1" Click="MyButton1_Click"/>
-      <Button x:Name="MyButton2" Content="check2" Click="MyButton2_Click"/>
-    </StackPanel>
-    <Canvas Name="MyCanvas">
+    <Grid>
+    <Canvas>
       <Canvas.Resources>
-        <local:VerticesConverter  x:Key="VerticesConverter"/>
+        <local:VerticesConverter x:Key="VerticesConverter"/>
         <Style x:Key="ThumbStyle" TargetType="Thumb">
           <Setter Property="Template">
             <Setter.Value>
@@ -30,7 +22,7 @@
           <EventSetter Event="DragDelta" Handler="ThumbDragDelta"/>
         </Style>
       </Canvas.Resources>
-      <Polyline Name="MyPolyLine1" Points="{Binding Vertices, Converter={StaticResource VerticesConverter}}"
+      <Polyline Points="{Binding Vertices, Converter={StaticResource VerticesConverter}}"
               Stroke="DarkBlue" StrokeThickness="3" StrokeLineJoin="Round"/>
       <ItemsControl ItemsSource="{Binding Vertices}">
         <ItemsControl.ItemsPanel>
