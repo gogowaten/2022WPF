@@ -38,17 +38,10 @@ namespace _20220603
         #endregion notifyProperty
 
         public PointCollection MyPointC { get; set; } = new() { new(100, 100), new(200, 100), new(200, 200) };
-        public ObservableCollection<Thumb> MyThumbs { get; set; } = new();
-        private int MyCount;
-        private TThumb? MyCurrentThumb;
+        //public ObservableCollection<Thumb> MyThumbs { get; set; } = new();
         private Polyline MyPolyLine;
-
-        private Matome MyMatome;
-        public List<TThumb> ThumbList;
-        public PointCollection PointCollection;
-        public List<int> IntList;
-        public List<Point> PointList;
-
+        private ThumbsAndPoints MyThumbsAndPoints;
+        private PolyLineCanvas MyPolyLineCanvas;
 
         public MainWindow()
         {
@@ -56,87 +49,179 @@ namespace _20220603
             Left = 10; Top = 10;
 #endif
             InitializeComponent();
-            //MyPolyLine = new() { Stroke = Brushes.Red, StrokeThickness = 4, Points = MyPointC };
-            //MyCanvas.Children.Add(MyPolyLine);
-            //ThumbList = new() { new TThumb(MyPointC[0].X, MyPointC[0].Y) { Name = "ttt" } };
-            //IntList = new() { 9 };
-            //PointList = new() { new Point(10, 10) };
-            //MyMatome = new(ThumbList, MyPointC, IntList, PointList);
-            //MyCanvas.Children.Add(ThumbList[0]);
 
-            //MyMatome.IntList[0] = 99;
-            //MyMatome.PointList[0] = new(99, 99);
-            ////MyMatome.ThumbList[0] = null;
-            //MyMatome.PointCollection[0] = new(9, 9);
-            //ViewModel viewModel = new();
-            //ObservableCollection<Vertex> vertices = new ObservableCollection<Vertex>();
-            //vertices.Add(new Vertex() { Point=new(100,100)});
-            //viewModel.Vertices = vertices;
-            MyPolyLine1.Points = MyPointC;
+            //MyThumbsAndPoints = new(MyCanvas);
+            //MyPolyLine = new() { Stroke = Brushes.Magenta, StrokeThickness = 4, Points = MyThumbsAndPoints.MyPoints };
+            //MyCanvas.Children.Add(MyPolyLine);
+            //MyThumbsAndPoints.AddPoint(new Point(20, 20));
+            //MyThumbsAndPoints.AddPoint(new Point(100, 20));
+
+            MyPolyLineCanvas = new(Brushes.OrangeRed, 4);
+            MyPolyLineCanvas.AddPoint(new Point(20, 20));
+            MyPolyLineCanvas.AddPoint(new Point(120, 20));
+            //MyGrid.Children.Add(MyPolyLineCanvas);
+            MyCanvas.Children.Add(MyPolyLineCanvas);
+            DataContext = MyPolyLineCanvas.MyCurrentThumb;
+
         }
 
 
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
+            MyPolyLineCanvas.AddPoint(new Point(300, 200));
+            //MyThumbsAndPoints.AddPoint(new Point(300, 200));
 
-            MyCount++;
         }
 
         private void MyButton2_Click(object sender, RoutedEventArgs e)
         {
-
+            MyPolyLineCanvas.RemovePoint();
+            //MyThumbsAndPoints.RemovePoint();
         }
 
-        private void ThumbDragDelta(object sender, DragDeltaEventArgs e)
+
+    }
+
+    public class PolyLineCanvas : Canvas
+    {
+        public List<Thumb> MyThumbs = new();
+        public PointCollection MyPoints = new();
+        public Thumb? MyCurrentThumb;
+        public Polyline MyPolyline;
+        public PolyLineCanvas(Brush stroke, double thickness)
         {
-            var vertex = (Vertex)((Thumb)sender).DataContext;
-            vertex.Point = new Point(
-                vertex.Point.X + e.HorizontalChange,
-                vertex.Point.Y + e.VerticalChange);
+            MyPolyline = new() { Stroke = stroke, StrokeThickness = thickness, Points = MyPoints };
+            this.Children.Add(MyPolyline);
+        }
+
+        public void AddPoint(Point p)
+        {
+            Thumb t = new() { Width = 20, Height = 20 };
+            t.DragDelta += Thumb_DragDelta;
+            t.PreviewMouseDown += Thumb_PreviewMouseDown;
+            Canvas.SetLeft(t, p.X); Canvas.SetTop(t, p.Y);
+            MyPoints.Add(p);
+            MyThumbs.Add(t);
+            this.Children.Add(t);
+        }
+
+        private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MyCurrentThumb = sender as Thumb;
+        }
+
+        public void RemovePoint()
+        {
+            if (MyCurrentThumb is null) { return; }
+            int i = MyThumbs.IndexOf(MyCurrentThumb);
+            MyPoints.RemoveAt(i);
+            MyThumbs.Remove(MyCurrentThumb);
+            this.Children.Remove(MyCurrentThumb);
+            MyCurrentThumb = null;
+        }
+        private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is not Thumb t) { return; }
+            double x = Canvas.GetLeft(t) + e.HorizontalChange;
+            double y = Canvas.GetTop(t) + e.VerticalChange;
+            Point p = new(x, y);
+            int i = MyThumbs.IndexOf(t);
+            MyPoints[i] = p;
+            Canvas.SetLeft(t, x); Canvas.SetTop(t, y);
+
+        }
+    }
+
+    public class ThumbsAndPoints
+    {
+        public List<TThumb> MyThumbs = new();
+        public PointCollection MyPoints = new();
+        public Canvas MyCanvas;
+        public TThumb? MyCurrentThumb;
+        public ThumbsAndPoints(Canvas canvas)
+        {
+            MyCanvas = canvas;
+        }
+        public void AddPoint(Point p)
+        {
+            TThumb t = new(p.X, p.Y, MyPoints.Count);
+            t.DragDelta += Thumb_DragDelta;
+            t.PreviewMouseDown += Thumb_PreviewMouseDown;
+            MyPoints.Add(p);
+            MyThumbs.Add(t);
+            MyCanvas.Children.Add(t);
+        }
+
+        private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MyCurrentThumb = sender as TThumb;
+        }
+
+        public void RemovePoint()
+        {
+            if (MyCurrentThumb is null) { return; }
+            int i = MyThumbs.IndexOf(MyCurrentThumb);
+            MyPoints.RemoveAt(i);
+            MyThumbs.Remove(MyCurrentThumb);
+            MyCanvas.Children.Remove(MyCurrentThumb);
+            MyCurrentThumb = null;
+        }
+        private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is not TThumb t) { return; }
+            double x = Canvas.GetLeft(t) + e.HorizontalChange;
+            double y = Canvas.GetTop(t) + e.VerticalChange;
+            Point p = new(x, y);
+            int i = MyThumbs.IndexOf(t);
+            MyPoints[i] = p;
+            Canvas.SetLeft(t, x); Canvas.SetTop(t, y);
+
         }
     }
 
     public class TThumb : Thumb
     {
-        public string Text { get; set; }
-        public NotifyXY MyNotifyXY { get; set; }
+        public string MyText { get; set; }
+        public int MyIndex { get; set; }
+        //public NotifyXY MyNotifyXY { get; set; }
 
 
-        public TThumb(double x, double y)
+        public TThumb(double x, double y, int index)
         {
-            MyNotifyXY = new NotifyXY(x, y);
-            Text = "text";
+            //MyNotifyXY = new NotifyXY(x, y);
+            MyText = "text";
             SetTemplate();
             DataContext = this;
-            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
-            var neko = Canvas.GetLeft(this);
-            Binding b = new(nameof(MyNotifyXY.X));
-            b.Source = MyNotifyXY;
-            b.Mode = BindingMode.TwoWay;
-            this.SetBinding(Canvas.LeftProperty, b);
-            neko = Canvas.GetLeft(this);
-            b = new(nameof(MyNotifyXY.Y));
-            b.Source = MyNotifyXY;
-            b.Mode = BindingMode.TwoWay;
-            this.SetBinding(Canvas.TopProperty, b);
-            DragDelta += TThumb_DragDelta;
-            neko = Canvas.GetLeft(this);
+            Canvas.SetLeft(this, x); Canvas.SetTop(this, y);
+            MyIndex = index;
+            //var neko = Canvas.GetLeft(this);
+            //Binding b = new(nameof(MyNotifyXY.X));
+            //b.Source = MyNotifyXY;
+            //b.Mode = BindingMode.TwoWay;
+            //this.SetBinding(Canvas.LeftProperty, b);
+            //neko = Canvas.GetLeft(this);
+            //b = new(nameof(MyNotifyXY.Y));
+            //b.Source = MyNotifyXY;
+            //b.Mode = BindingMode.TwoWay;
+            //this.SetBinding(Canvas.TopProperty, b);
+            //DragDelta += TThumb_DragDelta;
+            //neko = Canvas.GetLeft(this);
         }
 
-        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            if (sender is not TThumb tt) { return; }
-            MyNotifyXY.X = Canvas.GetLeft(tt) + e.HorizontalChange;
-            MyNotifyXY.Y = Canvas.GetTop(tt) + e.VerticalChange;
-        }
+        //private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        //{
+        //    if (sender is not TThumb tt) { return; }
+        //    MyNotifyXY.X = Canvas.GetLeft(tt) + e.HorizontalChange;
+        //    MyNotifyXY.Y = Canvas.GetTop(tt) + e.VerticalChange;
+        //}
 
         private void SetTemplate()
         {
             FrameworkElementFactory panelFactory = new(typeof(Grid));
             FrameworkElementFactory textblockFactory = new(typeof(TextBlock));
             textblockFactory.SetValue(TextBlock.ForegroundProperty, Brushes.White);
-            textblockFactory.SetValue(TextBlock.PaddingProperty, new Thickness(4));
-            Binding b = new(nameof(Text));
+            textblockFactory.SetValue(TextBlock.PaddingProperty, new Thickness(4, 2, 4, 2));
+            Binding b = new(nameof(MyIndex));
             b.Mode = BindingMode.TwoWay;
             b.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
             textblockFactory.SetBinding(TextBlock.TextProperty, b);
@@ -150,7 +235,7 @@ namespace _20220603
         }
         public override string ToString()
         {
-            return $"Name x{MyNotifyXY.X} y{MyNotifyXY.Y}";
+            return $"Name index{MyIndex}";
         }
     }
     public class Matome
@@ -178,6 +263,7 @@ namespace _20220603
     {
         private double _x;
         private double _y;
+        private Point _point;
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
@@ -185,20 +271,16 @@ namespace _20220603
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        public double X
+        public double X { get => _x; set { if (_x == value) return; _x = value; Point = new Point(_x, _y); OnPropertyChanged(); } }
+        public double Y { get => _y; set { if (_y == value) return; _y = value; Point = new Point(_x, _y); OnPropertyChanged(); } }
+        public Point Point
         {
-            get => _x; set
+            get => _point; set
             {
-                if (_x == value) return;
-                _x = value; OnPropertyChanged();
-            }
-        }
-        public double Y
-        {
-            get => _y; set
-            {
-                if (_y == value) return;
-                _y = value; OnPropertyChanged();
+                if (_point == value) { return; }
+                _point = value;
+                //_x = value.X;_y= value.Y;
+                OnPropertyChanged();
             }
         }
         public NotifyXY(double x, double y)
@@ -207,9 +289,49 @@ namespace _20220603
             Y = y;
         }
     }
-    public class ObservablePoints : ObservableCollection<NotifyXY>
+    public class ObservablePoints : INotifyPropertyChanged
     {
-        public ObservablePoints() { }
+        public ObservableCollection<NotifyXY> Vertices { get; set; } = new();
+        public ObservablePoints()
+        {
+            Vertices.CollectionChanged += Vertices_CollectionChanged;
+        }
+
+        private void Vertices_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                foreach (var item in e.NewItems.OfType<INotifyPropertyChanged>())
+                {
+                    item.PropertyChanged += Item_PropertyChanged;
+                }
+                var neko = 0;
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (var item in e.OldItems.OfType<INotifyPropertyChanged>())
+                {
+                    item.PropertyChanged -= Item_PropertyChanged;
+                }
+            }
+            OnPropertyChanged();
+        }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+
+        private void Item_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            OnPropertyChanged(nameof(Vertices));
+        }
+
+
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberNameAttribute] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+
     }
     public class Data
     {
@@ -222,79 +344,6 @@ namespace _20220603
         }
     }
 
-    #region netyori
-    public class ViewModelBase : INotifyPropertyChanged
-    {
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-    public class Vertex : ViewModelBase
-    {
-        private Point point;
-        public Point Point
-        {
-            get { return point; }
-            set { point = value; OnPropertyChanged(); }
-        }
-    }
-    public class ViewModel : ViewModelBase
-    {
 
-
-        public ObservableCollection<Vertex> Vertices { get; } = new();
-        private void VerticesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                foreach (var item in e.NewItems.OfType<INotifyPropertyChanged>())
-                {
-                    item.PropertyChanged += VertexPropertyChanged;
-                }
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                foreach (INotifyPropertyChanged? item in e.OldItems.OfType<INotifyPropertyChanged>())
-                {
-                    item.PropertyChanged -= VertexPropertyChanged;
-                }              
-            }
-            OnPropertyChanged(nameof(Vertices));
-        }
-
-    
-
-        public ViewModel()
-        {
-            Vertices.CollectionChanged += VerticesCollectionChanged;
-        }
-
-        private void VertexPropertyChanged(object? sender, PropertyChangedEventArgs e)
-        {
-            OnPropertyChanged(nameof(Vertices));
-        }
-    }
-
-    public class VerticesConverter : IValueConverter
-    {
-        public object Convert(
-            object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var vertices = value as IEnumerable<Vertex>;
-            //return vertices != null
-            //    ? new PointCollection(vertices.Select(v => v.Point))
-            //    : null;
-            return new PointCollection(vertices.Select(v => v.Point));
-        }
-        public object ConvertBack(
-            object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
-    }
-
-    #endregion netyori
 }
 

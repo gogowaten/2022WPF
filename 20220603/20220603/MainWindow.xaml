@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:_20220603"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-  <Grid UseLayoutRounding="True">
+  <Grid x:Name="MyGrid" UseLayoutRounding="True">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
@@ -16,40 +16,7 @@
       <Button x:Name="MyButton2" Content="check2" Click="MyButton2_Click"/>
     </StackPanel>
     <Canvas Name="MyCanvas">
-      <Canvas.Resources>
-        <local:VerticesConverter  x:Key="VerticesConverter"/>
-        <Style x:Key="ThumbStyle" TargetType="Thumb">
-          <Setter Property="Template">
-            <Setter.Value>
-              <ControlTemplate TargetType="Thumb">
-                <Rectangle Fill="Transparent" Stroke="Red"
-                                   Width="10" Height="10" Margin="-5,-5"/>
-              </ControlTemplate>
-            </Setter.Value>
-          </Setter>
-          <EventSetter Event="DragDelta" Handler="ThumbDragDelta"/>
-        </Style>
-      </Canvas.Resources>
-      <Polyline Name="MyPolyLine1" Points="{Binding Vertices, Converter={StaticResource VerticesConverter}}"
-              Stroke="DarkBlue" StrokeThickness="3" StrokeLineJoin="Round"/>
-      <ItemsControl ItemsSource="{Binding Vertices}">
-        <ItemsControl.ItemsPanel>
-          <ItemsPanelTemplate>
-            <Canvas/>
-          </ItemsPanelTemplate>
-        </ItemsControl.ItemsPanel>
-        <ItemsControl.ItemContainerStyle>
-          <Style TargetType="ContentPresenter">
-            <Setter Property="Canvas.Left" Value="{Binding Point.X}"/>
-            <Setter Property="Canvas.Top" Value="{Binding Point.Y}"/>
-          </Style>
-        </ItemsControl.ItemContainerStyle>
-        <ItemsControl.ItemTemplate>
-          <DataTemplate>
-            <Thumb Style="{StaticResource ThumbStyle}"/>
-          </DataTemplate>
-        </ItemsControl.ItemTemplate>
-      </ItemsControl>
+    
     </Canvas>
   </Grid>
 </Window>
