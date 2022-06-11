@@ -16,7 +16,6 @@
       <Button x:Name="MyButton2" Content="check2" Click="MyButton2_Click"/>
     </StackPanel>
     <Canvas Name="MyCanvas">
-    
     </Canvas>
   </Grid>
 </Window>
