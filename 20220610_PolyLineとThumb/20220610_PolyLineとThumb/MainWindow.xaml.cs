@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -11,6 +12,8 @@ namespace _20220610_PolyLineとThumb
     public partial class MainWindow : Window
     {
         private PolyLineCanvas MyPolyLineCanvas;
+        private PolyLineCanvas MyPolyLineCanvas2;
+        private PolyLineCanvas? MyKatori;
 
         public MainWindow()
         {
@@ -19,11 +22,16 @@ namespace _20220610_PolyLineとThumb
 #endif
             InitializeComponent();
 
-            MyPolyLineCanvas = new(Brushes.ForestGreen, 20);
+            MyPolyLineCanvas = new(Brushes.Crimson, 10);
             MyPolyLineCanvas.AddPoint(new Point(20, 20));
             MyPolyLineCanvas.AddPoint(new Point(120, 20));
             MyCanvas.Children.Add(MyPolyLineCanvas);
-            //MyGrid.Children.Add(MyPolyLineCanvas);
+
+            MyPolyLineCanvas2 = new(Brushes.DarkMagenta, 10);
+            MyPolyLineCanvas2.AddPoint(new Point(120, 120));
+            MyPolyLineCanvas2.AddPoint(new Point(220, 20));
+            MyCanvas.Children.Add(MyPolyLineCanvas2);
+
         }
 
 
@@ -37,6 +45,38 @@ namespace _20220610_PolyLineとThumb
             MyPolyLineCanvas.RemovePoint();
         }
 
+        private void MyButton3_Click(object sender, RoutedEventArgs e)
+        {
+            AddPoint蚊取り線香(1000, Brushes.DarkGreen, 5, 20);
+        }
+        private void AddPoint蚊取り線香(int count, Brush brush, int syuukai, double width)
+        {
+            MyKatori = new(brush, width);
+            double r = 200; double s = 360.0 * syuukai / count;
+            double rr = r / (count * 1.0); double rrr = r;
+            double x; double y;
+            for (double i = 0.0; i < 360.0 * syuukai; i += s)
+            {
+                double rad = Radian(i);
+                x = (Math.Cos(rad) * rrr) + r;
+                y = (Math.Sin(rad) * rrr) + r;
+                MyKatori.AddPoint(new Point(x, y));
+                rrr -= rr;
+            }
+            MyCanvas.Children.Add(MyKatori);
+        }
+
+        public static double Radian(double degrees)
+        {
+            return Math.PI / 180.0 * degrees;
+        }
+
+        private void MyButton4_Click(object sender, RoutedEventArgs e)
+        {
+            MyPolyLineCanvas.ChangeVisibleThumb();
+            MyPolyLineCanvas2.ChangeVisibleThumb();
+            MyKatori?.ChangeVisibleThumb();
+        }
 
     }
 
@@ -47,11 +87,12 @@ namespace _20220610_PolyLineとThumb
     /// </summary>
     public class PolyLineCanvas : Canvas
     {
-        public readonly List<Thumb> MyThumbs = new();
+        public readonly List<TThumb> MyThumbs = new();
         public readonly PointCollection MyPoints = new();
         public readonly Polyline MyPolyline;
         //クリックしたThumb
-        public Thumb? MyCurrentThumb { get; private set; }
+        public TThumb? MyCurrentThumb { get; private set; }
+        public bool IsThumbVisible = true;
         public PolyLineCanvas(Brush stroke, double thickness)
         {
             MyPolyline = new()
@@ -65,7 +106,7 @@ namespace _20220610_PolyLineとThumb
 
         public void AddPoint(Point p)
         {
-            Thumb t = new() { Width = 20, Height = 20 };
+            TThumb t = new() { Width = 20, Height = 20 };
             t.DragDelta += Thumb_DragDelta;
             t.PreviewMouseDown += Thumb_PreviewMouseDown;
             SetLeft(t, p.X); SetTop(t, p.Y);
@@ -83,15 +124,34 @@ namespace _20220610_PolyLineとThumb
             this.Children.Remove(MyCurrentThumb);
             MyCurrentThumb = null;
         }
+        public void ChangeVisibleThumb()
+        {
+            if (IsThumbVisible)
+            {
+                for (int i = 1; i < MyThumbs.Count; i++)
+                {
+                    MyThumbs[i].Visibility = Visibility.Collapsed;
+                }
+                IsThumbVisible = false;
+            }
+            else
+            {
+                for (int i = 1; i < MyThumbs.Count; i++)
+                {
+                    MyThumbs[i].Visibility = Visibility.Visible;
+                }
+                IsThumbVisible = true;
+            }
+        }
 
         private void Thumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            MyCurrentThumb = sender as Thumb;
+            MyCurrentThumb = sender as TThumb;
         }
 
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            if (sender is not Thumb t) { return; }
+            if (sender is not TThumb t) { return; }
             double x = GetLeft(t) + e.HorizontalChange;
             double y = GetTop(t) + e.VerticalChange;
             Point p = new(x, y);
@@ -99,7 +159,25 @@ namespace _20220610_PolyLineとThumb
             MyPoints[i] = p;
             SetLeft(t, x); SetTop(t, y);
         }
+
     }
 
+    public class TThumb : Thumb
+    {
+        public TThumb()
+        {
+            this.Template = MakeTemplate();
+        }
+        private ControlTemplate MakeTemplate()
+        {
+            FrameworkElementFactory elementF = new(typeof(Rectangle));
+            elementF.SetValue(Rectangle.FillProperty, Brushes.Transparent);
+            elementF.SetValue(Rectangle.StrokeProperty, Brushes.Black);
+            elementF.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 2.0 });
+            ControlTemplate template = new(typeof(Thumb));
+            template.VisualTree = elementF;
+            return template;
+        }
+    }
 
 }
