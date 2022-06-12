@@ -36,7 +36,8 @@ namespace _20220418_いろいろシリアル化
         KnownType(typeof(SolidColorBrush)),
         KnownType(typeof(GeometryCollection)),
         KnownType(typeof(EllipseGeometry)),
-        KnownType(typeof(LineGeometry))]
+        KnownType(typeof(LineGeometry)),
+        KnownType(typeof(Path))]
     public class Data : INotifyPropertyChanged
     {
         #region 通知プロパティ
@@ -87,7 +88,9 @@ namespace _20220418_いろいろシリアル化
         [DataMember]
         public QuadraticBezierSegment QuadraticBezierSegment { get; set; }
 
-        
+        [DataMember]
+        public PathFigure PathFigure { get; set; }
+
         
 
         #endregion クラスの頭で属性の宣言が必要系

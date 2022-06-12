@@ -53,6 +53,7 @@ namespace _20220418_いろいろシリアル化
             MyData.QuadraticBezierSegment = new();
             MyData.LinearGradientBrush = new();
             MyData.Pen = new();
+            MyData.PathFigure = new();
 
             MyCanvas.DataContext = MyData;
 

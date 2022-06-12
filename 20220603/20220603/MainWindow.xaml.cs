@@ -39,7 +39,8 @@ namespace _20220603
 
         //public PointCollection MyPointC { get; set; } = new() { new(100, 100), new(200, 100), new(200, 200) };
         //private PolyLineCanvas MyPolyLineCanvas;
-        private PolyBezierCanvas MyPolyBezierCanvas;
+        //private PolyBezierCanvas MyPolyBezierCanvas;
+        private PolyBezierCanvas2 MyPolyBezierCanvas2 { get; set; }
 
         public MainWindow()
         {
@@ -57,45 +58,16 @@ namespace _20220603
             //MyPolyBezierCanvas.AddPoint(new(200, 200));
             //MyCanvas.Children.Add(MyPolyBezierCanvas);
 
-            //MyPolyBezierCanvas = new(Brushes.Red, 10, points, new Point(30, 30));
-            MyPolyBezierCanvas = new(Brushes.Red, 10);
-            MyCanvas.Children.Add(MyPolyBezierCanvas);
-            MyPolyBezierCanvas.AddPoint(new Point(100, 100));
-            MyPolyBezierCanvas.AddPoint(new Point(150, 100));
 
-            //Path pt = new() { Stroke = Brushes.Gray, StrokeThickness = 3 };
-            //PathGeometry geo = new();
-            //PathFigure fig = new();
-            //LineSegment seg = new();
-            //seg.Point = new Point(100, 100);
-            //fig.Segments.Add(seg); fig.StartPoint = new(10, 10);
-            //geo.Figures.Add(fig);
-            //seg = new(new Point(200, 20), true);
-            //fig.Segments.Add(seg);
-            //pt.Data = geo;
-            //MyCanvas.Children.Add(pt);
+            //MyPolyBezierCanvas = new(Brushes.Red, 10);
+            //MyCanvas.Children.Add(MyPolyBezierCanvas);
+            //MyPolyBezierCanvas.AddPoint(new Point(100, 100));
+            //MyPolyBezierCanvas.AddPoint(new Point(150, 100));
 
-            //LineSegment seg = new()
-            //{
-            //    Point = new Point(100, 100)
-            //};
-            //PathFigure fig = new(); fig.Segments.Add(seg); fig.StartPoint = new(10, 10);
-            //PathFigureCollection figs = new()
-            //{
-            //    fig
-            //}; 
-            //PathGeometry geo = new()
-            //{
-            //    Figures = figs
-            //};
-            //seg = new(new Point(200, 20), true);
-            //fig = new(); fig.Segments.Add(seg); fig.StartPoint = new(10, 50);
-            //figs.Add(fig);
-
-            //Path pt = new() { Stroke = Brushes.Gray, StrokeThickness = 3 };
-            //pt.Data = geo;
-            //MyCanvas.Children.Add(pt);
-
+            MyPolyBezierCanvas2 = new(new Point(100, 100), new Point(200, 200));
+            MyCanvas.Children.Add(MyPolyBezierCanvas2);
+            MyPolyBezierCanvas2.AddAnchorPoint(new Point(300, 150));
+            DataContext = MyPolyBezierCanvas2;
 
         }
 
@@ -103,20 +75,117 @@ namespace _20220603
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
             //MyPolyLineCanvas.AddPoint(new Point(300, 200));
-            MyPolyBezierCanvas.AddPoint(new Point(200, 30));
-            var neko = MyPolyBezierCanvas.MyBezierFigure.StartPoint;
-
+            MyPolyBezierCanvas2.AddAnchorPoint(new Point(200, 30));
+            MyPolyBezierCanvas2.AddAnchorPoint(new Point(300, 300));
         }
 
         private void MyButton2_Click(object sender, RoutedEventArgs e)
         {
             //MyPolyLineCanvas.RemovePoint();
             //MyThumbsAndPoints.RemovePoint();
+            //MyPolyBezierCanvas2.RemoveAnchorPoint(1);
+            MyPolyBezierCanvas2.RemoveAnchorPoint(MyListBox.SelectedIndex);
         }
 
 
     }
 
+    public class PolyBezierCanvas2 : Canvas
+    {
+        
+        private readonly Path MyBezierPath;//ベジェ曲線表示用
+        //BezierSegmentのPoints
+        public PointCollection MyBezierPoints { get; } = new();
+        //StartPointを持つFigure
+        public PathFigure MyBezierFigure { get; }
+        //Path                  MyBezierPath    ベジェ曲線表示用
+        //┗PathGeometry
+        // ┗PathFigures
+        //  ┗PathFigure         MyBezierFigure  StartPointの指定で使う
+        //   ┗PointCollection   MyBezierPoints  StartPoint以外の全てのPoint
+        
+        //アンカー点管理用Collection
+        public ObservableCollection<Point> MyAnchorPoints { get; } = new();
+        //ベジェ曲線の頂点はアンカー点と制御点の2種類で構成されている
+        //頂点の追加や削除はアンカー点を基準に行い、制御点だけを追加削除することはしない
+        //アンカー点追加時は同時に制御点2つを追加
+        //アンカー点削除時は同時に制御点2つを削除
+
+        public PolyBezierCanvas2(Point anchor0, Point anchor1)
+        {
+            MyAnchorPoints.CollectionChanged += MyAnchorPoints_CollectionChanged;
+            MyBezierPath = new() { Stroke = Brushes.Red, StrokeThickness = 10 };
+            Children.Add(MyBezierPath);
+
+            PolyBezierSegment seg = new(); seg.Points = MyBezierPoints;
+            MyBezierFigure = new(); MyBezierFigure.Segments.Add(seg);
+            PathGeometry geo = new(); geo.Figures.Add(MyBezierFigure);
+            MyBezierPath.Data = geo;
+
+            MyBezierFigure.StartPoint = anchor0;
+            MyAnchorPoints.Add(anchor0);
+            AddAnchorPoint(anchor1);
+        }
+
+        //アンカー点の追加、削除時
+        private void MyAnchorPoints_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            //追加時は制御点も2点追加する
+            if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                if (e.NewItems?[0] is not Point p) { return; }
+                if (MyAnchorPoints.Count > 1)
+                {
+                    MyBezierPoints.Add(p);//制御点
+                    MyBezierPoints.Add(p);//制御点
+                    MyBezierPoints.Add(p);//アンカー点
+                }
+
+            }
+            //削除時、アンカー点に付随する制御点2点削除する
+            else if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                //削除されたアンカー点のIndex
+                int pi = e.OldStartingIndex;
+                //BezierSegmentのPointsから削除する点のIndex
+                int api = pi * 3 - 2;
+                //削除したアンカー点が始点だった場合
+                if (pi == 0)
+                {
+                    //FigureのstartPointの入れ替え(前に詰める)
+                    MyBezierFigure.StartPoint = MyAnchorPoints[0];
+                    api = 0;
+                }
+                //削除したアンカー点が終点だった場合
+                else if (pi == MyAnchorPoints.Count)
+                {
+                    api = pi * 3 - 3;
+                }
+                //削除
+                //Collectionからの削除は削除はだるま落としなので同じIndex指定
+                MyBezierPoints.RemoveAt(api);
+                MyBezierPoints.RemoveAt(api);
+                MyBezierPoints.RemoveAt(api);
+            }
+        }
+
+
+        public void AddAnchorPoint(Point p)
+        {
+            MyAnchorPoints.Add(p);
+        }
+
+        public void RemoveAnchorPoint(int pi)
+        {
+            //無効なIndexなら削除しない
+            if (0 > pi || pi > MyAnchorPoints.Count) { return; }
+            //アンカー点が2個なら削除しない(2個以上を保つ)
+            if (MyAnchorPoints.Count == 2) { return; }
+            MyAnchorPoints.RemoveAt(pi);
+        }
+
+
+    }
     public class PolyBezierCanvas : Canvas
     {
         public readonly List<Thumb> MyThumbs = new();
@@ -126,7 +195,7 @@ namespace _20220603
         public Thumb? MyStartPointThumb;//スタートポイント専用Thumb
         public PathFigure MyBezierFigure;//
 
-        public readonly Path MyDirectionLine;//方向線表示用Path
+        public readonly Path MyDirectionLinePath;//方向線表示用Path
         private PathFigureCollection MyDirectionFigureCollection;//方向線表示用PathのFigure
         //クリックしたThumb
         public Thumb? MyCurrentThumb { get; private set; }
@@ -149,47 +218,34 @@ namespace _20220603
             this.Children.Add(MyPolyBezierPath);
 
 
-            MyDirectionLine = new();
-            MyDirectionLine.Stroke = Brushes.RoyalBlue;
-            MyDirectionLine.StrokeThickness = 1;
-            this.Children.Add(MyDirectionLine);
+            MyDirectionLinePath = new();
+            MyDirectionLinePath.Stroke = Brushes.RoyalBlue;
+            MyDirectionLinePath.StrokeThickness = 1;
+            this.Children.Add(MyDirectionLinePath);
             MyDirectionFigureCollection = new PathFigureCollection();
             geo = new(); geo.Figures = MyDirectionFigureCollection;
-            MyDirectionLine.Data = geo;
+            MyDirectionLinePath.Data = geo;
 
         }
 
-        public PolyBezierCanvas(Brush stroke, double thickness, Point startPoint)
-        {
-            PolyBezierSegment seg = new();
-            seg.Points = MyPoints;
-            PathFigure fig = new(); fig.Segments.Add(seg); fig.StartPoint = startPoint;
-            PathGeometry geo = new(); geo.Figures.Add(fig);
-            MyPolyBezierPath = new()
-            {
-                Stroke = stroke,
-                StrokeThickness = thickness,
-                Data = geo
-            };
-            this.Children.Add(MyPolyBezierPath);
-            MyDirectionLine = new();
-            this.Children.Add(MyDirectionLine);
 
-            MyDirectionLine.Data = geo;
-        }
-        public PolyBezierCanvas(Brush stroke, double thickness, PointCollection ps, Point startPoint) : this(stroke, thickness, startPoint)
-        {
-            for (int i = 0; i < ps.Count; i++)
-            {
-                AddPoint(ps[i]);
-            }
-        }
-
+        //アンカー点を追加
         public void AddPoint(Point p)
         {
-            if (MyStartPointThumb != null)
+            //追加アンカー点が始点だった場合
+            if (MyStartPointThumb == null)
             {
-                //アンカー点を末尾に追加と同時に制御点も追加
+                //スタートポイントだけ追加、Thumbは専用ドラッグ移動イベント
+                MyBezierFigure.StartPoint = p;
+                Thumb t = MakeThumb(p);
+                t.DragDelta += StartPointThumb_DragDelta;//専用
+                MyStartPointThumb = t;
+                this.Children.Add(t);
+            }
+            //始点以外の場合は追加と同時に制御点、方向線も追加とThumbも追加
+            else
+            {
+                //制御点2つとアンカー点の合計3点追加とそのThumb
                 for (int i = 0; i < 3; i++)
                 {
                     Thumb t = MakeThumb(p);
@@ -197,43 +253,36 @@ namespace _20220603
                     MyPoints.Add(p);
                     MyThumbs.Add(t);
                     this.Children.Add(t);
-
                 }
-                //方向線用Segments2個追加
+
+                //方向線用LineSegments2個追加
+                //方向線のスタートポイントを決定
                 //1個め
-                PathFigure fig = new();
-                //方向線のスタートポイント
+                Point start;
                 //一個前のアンカー点が始点だった場合はBezier自体のスタートポイントと同じ
                 if (MyPoints.Count == 3)
                 {
-                    fig.StartPoint = MyBezierFigure.StartPoint;
+                    start = MyBezierFigure.StartPoint;
                 }
                 //それ以外の場合は、一個前のアンカー点をスタートポイントに指定
                 else
                 {
-                    int id = MyPoints.Count - 4;
-                    fig.StartPoint=MyPoints[id];
+                    //同じ↓start = MyPoints[MyPoints.Count - 4];
+                    start = MyPoints[^4];
                 }
-                fig.Segments.Add(new LineSegment(p, true));
-                MyDirectionFigureCollection.Add(fig);
+                MyDirectionFigureCollection.Add(MakeLineFigure(start, p));
 
                 //2個め
-                fig = new();
-                fig.StartPoint = p;
-                fig.Segments.Add(new LineSegment(p, true));
-                MyDirectionFigureCollection.Add(fig);
+                MyDirectionFigureCollection.Add(MakeLineFigure(p, p));
             }
-            //始点だった場合
-            else
-            {
-                //スタートポイントだけ追加、専用ドラッグ移動イベント
-                //MyStartPoint = p;
-                MyBezierFigure.StartPoint = p;
-                Thumb t = MakeThumb(p);
-                t.DragDelta += StartPointThumb_DragDelta;//専用
-                MyStartPointThumb = t;
-                this.Children.Add(t);
-            }
+
+        }
+        private PathFigure MakeLineFigure(Point start, Point p)
+        {
+            PathFigure fig = new();
+            fig.StartPoint = start;
+            fig.Segments.Add(new LineSegment(p, true));
+            return fig;
 
         }
         private Thumb MakeThumb(Point p)
@@ -246,10 +295,23 @@ namespace _20220603
         public void RemovePoint()
         {
             if (MyCurrentThumb is null) { return; }
-            int i = MyThumbs.IndexOf(MyCurrentThumb);
-            MyPoints.RemoveAt(i);
-            MyThumbs.Remove(MyCurrentThumb);
-            this.Children.Remove(MyCurrentThumb);
+            //始点を削除する場合は次のアンカーを始点にする
+            if (MyCurrentThumb == MyStartPointThumb)
+            {
+                MyBezierFigure.StartPoint = MyPoints[0];
+                MyPoints.RemoveAt(0);
+                MyBezierFigure.Segments.RemoveAt(0);
+
+            }
+            else
+            {
+                //Thumbとベジェ曲線のPoint削除
+                int i = MyThumbs.IndexOf(MyCurrentThumb);
+                MyPoints.RemoveAt(i);
+                MyThumbs.Remove(MyCurrentThumb);
+                this.Children.Remove(MyCurrentThumb);
+
+            }
             MyCurrentThumb = null;
         }
 

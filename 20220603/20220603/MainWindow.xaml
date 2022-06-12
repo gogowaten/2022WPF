@@ -5,15 +5,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20220603"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="600">
+ 
   <Grid x:Name="MyGrid" UseLayoutRounding="True">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <StackPanel Grid.Column="1">
-      <Button x:Name="MyButton1" Content="check1" Click="MyButton1_Click"/>
-      <Button x:Name="MyButton2" Content="check2" Click="MyButton2_Click"/>
+      <Button x:Name="MyButton1" Content="2点追加" Click="MyButton1_Click"/>
+      <Button x:Name="MyButton2" Content="選択点削除" Click="MyButton2_Click"/>
+      <TextBlock Text="{Binding MyAnchorPoints.Count, StringFormat=アンカー点個数 0}"/>
+      <ListBox x:Name="MyListBox" ItemsSource="{Binding MyAnchorPoints}"/>
     </StackPanel>
     <Canvas Name="MyCanvas">
     </Canvas>
