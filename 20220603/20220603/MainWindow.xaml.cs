@@ -181,6 +181,7 @@ namespace _20220603
             if (0 > pi || pi > MyAnchorPoints.Count) { return; }
             //アンカー点が2個なら削除しない(2個以上を保つ)
             if (MyAnchorPoints.Count == 2) { return; }
+
             MyAnchorPoints.RemoveAt(pi);
         }
 
