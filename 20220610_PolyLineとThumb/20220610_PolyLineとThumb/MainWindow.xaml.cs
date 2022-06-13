@@ -6,6 +6,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
+//WPF、PolyLineの頂点にThumb表示、マウスドラッグで頂点移動、その2 - 午後わてんのブログ
+//https://gogowaten.hatenablog.com/entry/2022/06/13/115158
 
 namespace _20220610_PolyLineとThumb
 {
@@ -47,7 +49,7 @@ namespace _20220610_PolyLineとThumb
 
         private void MyButton3_Click(object sender, RoutedEventArgs e)
         {
-            AddPoint蚊取り線香(1000, Brushes.DarkGreen, 5, 20);
+            AddPoint蚊取り線香(10000, Brushes.DarkGreen, 5, 20);
         }
         private void AddPoint蚊取り線香(int count, Brush brush, int syuukai, double width)
         {
@@ -173,7 +175,8 @@ namespace _20220610_PolyLineとThumb
             FrameworkElementFactory elementF = new(typeof(Rectangle));
             elementF.SetValue(Rectangle.FillProperty, Brushes.Transparent);
             elementF.SetValue(Rectangle.StrokeProperty, Brushes.Black);
-            elementF.SetValue(Rectangle.StrokeDashArrayProperty, new DoubleCollection() { 2.0 });
+            elementF.SetValue(Rectangle.StrokeDashArrayProperty,
+                new DoubleCollection() { 2.0 });
             ControlTemplate template = new(typeof(Thumb));
             template.VisualTree = elementF;
             return template;

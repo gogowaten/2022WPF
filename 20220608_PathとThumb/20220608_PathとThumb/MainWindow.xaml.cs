@@ -49,7 +49,7 @@ namespace _20220608_PathとThumb
             #region 負荷テスト用
             //AddPointRound(100);//円環
             //AddPoint円環はお断り(1000);
-            //AddPoint蚊取り線香(1000);
+            AddPoint蚊取り線香(1000);
 
             ////1ピクセル斜めに追加
             //for (int i = 0; i < 10000; i++)
