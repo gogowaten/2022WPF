@@ -35,31 +35,74 @@ namespace _20220603
         }
         #endregion notifyProperty
 
-        private TThumb MyThumb;
-
+        private TThumb MyTThumb;
+        private TThumb2 MyTThumb2;
+        private Dictionary<string, Brush> MyBrushes = new();
         public MainWindow()
         {
 #if DEBUG
             Left = 100; Top = 100;
 #endif
             InitializeComponent();
+            InitializeComboBox();
 
-            MyThumb = new("test");
-            MyCanvas.Children.Add(MyThumb);
-            DataContext = MyThumb;
-            MyThumb.DragDelta += MyThumb_DragDelta;
-            MyThumb.PreviewMouseDown += MyThumb_PreviewMouseDown;
-            MyThumb.FontSize = 50;
-            MyThumb.MyTextBox.BorderThickness = new Thickness(1);
-            MyThumb.MyTextBox.AcceptsReturn = true;
-            MyThumb.MyTextBox.BorderBrush = Brushes.Gold;
-            MyTextBox.DataContext = MyThumb;
+            MyTThumb = new("test");
+            MyCanvas.Children.Add(MyTThumb);
+            DataContext = MyTThumb;
+            MyTThumb.DragDelta += MyThumb_DragDelta;
+
+            MyTThumb.FontSize = 50;
+            MyTThumb.MyTextBox.BorderThickness = new Thickness(1);
+            MyTThumb.MyTextBox.AcceptsReturn = true;
+            MyTThumb.MyTextBox.BorderBrush = Brushes.Gold;
+            MyTextBox.DataContext = MyTThumb;
+
+            MyTThumb2 = new TThumb2();
+            MyCanvas.Children.Add(MyTThumb2);
+            MyGroupBox.DataContext = MyTThumb2.MyTextBox;
+            MyTThumb2.MyTextBox.Text = "LEVEL UP";
+            MyTThumb2.MyTextBox.FontSize = 30;
+            MyTThumb2.MyTextBox.Foreground = Brushes.Khaki;
+            MyTThumb2.MyTextBox.Background = Brushes.Olive;
+            MyTThumb2.MyTextBox.BorderBrush = Brushes.Crimson;
+            MyTThumb2.MyTextBox.BorderThickness = new Thickness(2);
+            MyTThumb2.MyTextBox.AcceptsReturn = true;
+            MyTThumb2.MyTextBox.TextAlignment = TextAlignment.Center;
+            MyTThumb2.DragDelta += MyTThumb2_DragDelta;
+
+
+
         }
-
-        private void MyThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        private static Dictionary<string, Brush> MakeBrushesDictionary()
         {
-            //MyThumb.CoverGrid.Background = Brushes.Red;
+            var brushInfos = typeof(Brushes).GetProperties(
+                System.Reflection.BindingFlags.Public |
+                System.Reflection.BindingFlags.Static);
+
+            Dictionary<string, Brush> dict = new();
+            foreach (var item in brushInfos)
+            {
+                if (item.GetValue(null) is not Brush bu)
+                {
+                    continue;
+                }
+                dict.Add(item.Name, bu);
+            }
+            return dict;
         }
+        private void InitializeComboBox()
+        {
+            Dictionary<string, Brush> dict = MakeBrushesDictionary();
+            MyComboBoxFore.ItemsSource = dict;
+            MyComboBoxBack.ItemsSource = dict;
+        }
+        private void MyTThumb2_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is not FrameworkElement element) { return; }
+            Canvas.SetLeft(element, Canvas.GetLeft(element) + e.HorizontalChange);
+            Canvas.SetTop(element, Canvas.GetTop(element) + e.VerticalChange);
+        }
+
 
         private void MyThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
@@ -70,7 +113,7 @@ namespace _20220603
 
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
-            Canvas.SetLeft(MyThumb, 50);
+            Canvas.SetLeft(MyTThumb, 50);
         }
 
         private void MyButton2_Click(object sender, RoutedEventArgs e)
@@ -100,7 +143,7 @@ namespace _20220603
         public Grid MyCoverGrid;
 
         private const string TEXTBOX_NAME = "textbox";
-        public TextBox MyTextBox { get;private set; }
+        public TextBox MyTextBox { get; private set; }
 
         public TThumb(string text)
         {
@@ -132,7 +175,7 @@ namespace _20220603
         private ControlTemplate MakeTemplate()
         {
             FrameworkElementFactory coverF = new(typeof(Grid), COVER_NAME);//蓋
-            FrameworkElementFactory textF = new(typeof(TextBox),TEXTBOX_NAME);
+            FrameworkElementFactory textF = new(typeof(TextBox), TEXTBOX_NAME);
             FrameworkElementFactory underF = new(typeof(Grid));//ベース
             //TextBoxのTextとのBinding設定
             Binding b = new(nameof(MyText));
@@ -153,6 +196,60 @@ namespace _20220603
             return template;
         }
     }
+
+    public class TThumb2 : Thumb
+    {
+        private const string COVER_NAME = "cover";
+        public Grid MyCoverGrid;
+
+        private const string TEXTBOX_NAME = "textbox";
+        public TextBox MyTextBox { get; private set; }
+
+        public TThumb2()
+        {
+            this.Template = MakeTemplate();
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            ApplyTemplate();
+            MyCoverGrid = (Grid)Template.FindName(COVER_NAME, this);
+            MyTextBox = (TextBox)Template.FindName(TEXTBOX_NAME, this);
+            this.MouseDoubleClick += TThumb_MouseDoubleClick;
+        }
+        public void ChangeMoveEnabled()
+        {
+            if (MyCoverGrid.Background == null)
+            {
+                MyCoverGrid.Background = Brushes.Transparent;
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+                MyCoverGrid.Background = null;
+            }
+        }
+        private void TThumb_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            ChangeMoveEnabled();
+        }
+
+        private ControlTemplate MakeTemplate()
+        {
+            FrameworkElementFactory coverF = new(typeof(Grid), COVER_NAME);//蓋
+            FrameworkElementFactory textF = new(typeof(TextBox), TEXTBOX_NAME);
+            FrameworkElementFactory underF = new(typeof(Grid));//ベース
+
+            //透明色の蓋
+            coverF.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
+            //ベースになるGridにTextBox、蓋になるGridを順番に追加
+            underF.AppendChild(textF);
+            underF.AppendChild(coverF);
+            //テンプレート作成、VisualTreeにベースを指定
+            ControlTemplate template = new();
+            template.VisualTree = underF;
+            return template;
+        }
+    }
+
+
     public class PolyBezierCanvas : Canvas
     {
         public readonly List<Thumb> MyThumbs = new();
