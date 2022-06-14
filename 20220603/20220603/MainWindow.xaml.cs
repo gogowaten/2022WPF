@@ -35,10 +35,7 @@ namespace _20220603
         }
         #endregion notifyProperty
 
-        //public PointCollection MyPointC { get; set; } = new() { new(100, 100), new(200, 100), new(200, 200) };
-        //private PolyLineCanvas MyPolyLineCanvas;
-        //private PolyBezierCanvas MyPolyBezierCanvas;
-        private PolyBezierCanvas2 MyPolyBezierCanvas2 { get; set; }
+        private TThumb MyThumb;
 
         public MainWindow()
         {
@@ -47,142 +44,114 @@ namespace _20220603
 #endif
             InitializeComponent();
 
-
-            PointCollection points = new() { new(10, 100), new(150, 100), new(200, 200), new(250, 100), new(300, 30), new(400, 100) };
-
-            //MyPolyBezierCanvas = new(Brushes.Red, 10);
-            //MyPolyBezierCanvas.AddPoint(new(100, 100));
-            //MyPolyBezierCanvas.AddPoint(new(150, 100));
-            //MyPolyBezierCanvas.AddPoint(new(200, 200));
-            //MyCanvas.Children.Add(MyPolyBezierCanvas);
-
-
-            //MyPolyBezierCanvas = new(Brushes.Red, 10);
-            //MyCanvas.Children.Add(MyPolyBezierCanvas);
-            //MyPolyBezierCanvas.AddPoint(new Point(100, 100));
-            //MyPolyBezierCanvas.AddPoint(new Point(150, 100));
-
-            MyPolyBezierCanvas2 = new(new Point(100, 100), new Point(200, 200));
-            MyCanvas.Children.Add(MyPolyBezierCanvas2.MyBezierPath);
-            MyPolyBezierCanvas2.AddAnchorPoint(new Point(300, 150));
-            DataContext = MyPolyBezierCanvas2;
-
+            MyThumb = new("test");
+            MyCanvas.Children.Add(MyThumb);
+            DataContext = MyThumb;
+            MyThumb.DragDelta += MyThumb_DragDelta;
+            MyThumb.PreviewMouseDown += MyThumb_PreviewMouseDown;
+            MyThumb.FontSize = 50;
+            MyThumb.MyTextBox.BorderThickness = new Thickness(1);
+            MyThumb.MyTextBox.AcceptsReturn = true;
+            MyThumb.MyTextBox.BorderBrush = Brushes.Gold;
+            MyTextBox.DataContext = MyThumb;
         }
 
+        private void MyThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //MyThumb.CoverGrid.Background = Brushes.Red;
+        }
+
+        private void MyThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is not TThumb t) { return; }
+            Canvas.SetLeft(t, Canvas.GetLeft(t) + e.HorizontalChange);
+            Canvas.SetTop(t, Canvas.GetTop(t) + e.VerticalChange);
+        }
 
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
-            //MyPolyLineCanvas.AddPoint(new Point(300, 200));
-            MyPolyBezierCanvas2.AddAnchorPoint(new Point(200, 30));
-            MyPolyBezierCanvas2.AddAnchorPoint(new Point(300, 300));
+            Canvas.SetLeft(MyThumb, 50);
         }
 
         private void MyButton2_Click(object sender, RoutedEventArgs e)
         {
-            //MyPolyLineCanvas.RemovePoint();
-            //MyThumbsAndPoints.RemovePoint();
-            //MyPolyBezierCanvas2.RemoveAnchorPoint(1);
-            MyPolyBezierCanvas2.RemoveAnchorPoint(MyListBox.SelectedIndex);
+
         }
 
 
     }
 
-    public class PolyBezierCanvas2 : Canvas
+    public class TThumb : Thumb, INotifyPropertyChanged
     {
-        
-        public Path MyBezierPath;//ベジェ曲線表示用
-        //BezierSegmentのPoints
-        public PointCollection MyBezierPoints { get; } = new();
-        //StartPointを持つFigure
-        public PathFigure MyBezierFigure { get; }
-        //Path                  MyBezierPath    ベジェ曲線表示用
-        //┗PathGeometry
-        // ┗PathFigures
-        //  ┗PathFigure         MyBezierFigure  StartPointの指定で使う
-        //   ┗PointCollection   MyBezierPoints  StartPoint以外の全てのPoint
-        
-        //アンカー点管理用Collection
-        public ObservableCollection<Point> MyAnchorPoints { get; } = new();
-        //ベジェ曲線の頂点はアンカー点と制御点の2種類で構成されている
-        //頂点の追加や削除はアンカー点を基準に行い、制御点だけを追加削除することはしない
-        //アンカー点追加時は同時に制御点2つを追加
-        //アンカー点削除時は同時に制御点2つを削除
-
-        public PolyBezierCanvas2(Point anchor0, Point anchor1)
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
-            MyAnchorPoints.CollectionChanged += MyAnchorPoints_CollectionChanged;
-            MyBezierPath = new() { Stroke = Brushes.Red, StrokeThickness = 10 };
-            
-            PolyBezierSegment seg = new(); seg.Points = MyBezierPoints;
-            MyBezierFigure = new(); MyBezierFigure.Segments.Add(seg);
-            PathGeometry geo = new(); geo.Figures.Add(MyBezierFigure);
-            MyBezierPath.Data = geo;
-
-            MyBezierFigure.StartPoint = anchor0;
-            MyAnchorPoints.Add(anchor0);
-            AddAnchorPoint(anchor1);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        //アンカー点の追加、削除時
-        private void MyAnchorPoints_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        private string? _text;
+        public string? MyText
         {
-            //追加時は制御点も2点追加する
-            if (e.Action == NotifyCollectionChangedAction.Add)
-            {
-                if (e.NewItems?[0] is not Point p) { return; }
-                if (MyAnchorPoints.Count > 1)
-                {
-                    MyBezierPoints.Add(p);//制御点
-                    MyBezierPoints.Add(p);//制御点
-                    MyBezierPoints.Add(p);//アンカー点
-                }
+            get => _text;
+            set { if (value == _text) { return; } _text = value; OnPropertyChanged(); }
+        }
 
-            }
-            //削除時、アンカー点に付随する制御点2点削除する
-            else if (e.Action == NotifyCollectionChangedAction.Remove)
+        private const string COVER_NAME = "cover";
+        public Grid MyCoverGrid;
+
+        private const string TEXTBOX_NAME = "textbox";
+        public TextBox MyTextBox { get;private set; }
+
+        public TThumb(string text)
+        {
+            this.Template = MakeTemplate();
+            MyText = text;
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            ApplyTemplate();
+            MyCoverGrid = (Grid)Template.FindName(COVER_NAME, this);
+            MyTextBox = (TextBox)Template.FindName(TEXTBOX_NAME, this);
+            this.MouseDoubleClick += TThumb_MouseDoubleClick;
+        }
+        public void ChangeMoveEnabled()
+        {
+            if (MyCoverGrid.Background == null)
             {
-                //削除されたアンカー点のIndex
-                int pi = e.OldStartingIndex;
-                //BezierSegmentのPointsから削除する点のIndex
-                int api = pi * 3 - 2;
-                //削除したアンカー点が始点だった場合
-                if (pi == 0)
-                {
-                    //FigureのstartPointの入れ替え(前に詰める)
-                    MyBezierFigure.StartPoint = MyAnchorPoints[0];
-                    api = 0;
-                }
-                //削除したアンカー点が終点だった場合
-                else if (pi == MyAnchorPoints.Count)
-                {
-                    api = pi * 3 - 3;
-                }
-                //削除
-                //Collectionからの削除は削除はだるま落としなので同じIndex指定
-                MyBezierPoints.RemoveAt(api);
-                MyBezierPoints.RemoveAt(api);
-                MyBezierPoints.RemoveAt(api);
+                MyCoverGrid.Background = Brushes.Transparent;
+                Keyboard.ClearFocus();
+            }
+            else
+            {
+                MyCoverGrid.Background = null;
             }
         }
-
-
-        public void AddAnchorPoint(Point p)
+        private void TThumb_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            MyAnchorPoints.Add(p);
+            ChangeMoveEnabled();
         }
 
-        public void RemoveAnchorPoint(int pi)
+        private ControlTemplate MakeTemplate()
         {
-            //無効なIndexなら削除しない
-            if (0 > pi || pi > MyAnchorPoints.Count) { return; }
-            //アンカー点が2個なら削除しない(2個以上を保つ)
-            if (MyAnchorPoints.Count == 2) { return; }
-
-            MyAnchorPoints.RemoveAt(pi);
+            FrameworkElementFactory coverF = new(typeof(Grid), COVER_NAME);//蓋
+            FrameworkElementFactory textF = new(typeof(TextBox),TEXTBOX_NAME);
+            FrameworkElementFactory underF = new(typeof(Grid));//ベース
+            //TextBoxのTextとのBinding設定
+            Binding b = new(nameof(MyText));
+            b.Mode = BindingMode.TwoWay;
+            b.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
+            textF.SetBinding(TextBox.TextProperty, b);
+            textF.SetValue(TextBox.ForegroundProperty, Brushes.Crimson);
+            textF.SetValue(TextBox.BackgroundProperty, Brushes.Lavender);
+            //textF.SetValue(TextBox.AcceptsReturnProperty, true);
+            //透明色の蓋
+            coverF.SetValue(Panel.BackgroundProperty, Brushes.Transparent);
+            //ベースになるGridにTextBox、蓋になるGridを順番に追加
+            underF.AppendChild(textF);
+            underF.AppendChild(coverF);
+            //テンプレート作成、VisualTreeにベースを指定
+            ControlTemplate template = new();
+            template.VisualTree = underF;
+            return template;
         }
-
-
     }
     public class PolyBezierCanvas : Canvas
     {
@@ -485,65 +454,6 @@ namespace _20220603
 
 
 
-    public class TThumb : Thumb
-    {
-        public string MyText { get; set; }
-        public int MyIndex { get; set; }
-        //public NotifyXY MyNotifyXY { get; set; }
-
-
-        public TThumb(double x, double y, int index)
-        {
-            //MyNotifyXY = new NotifyXY(x, y);
-            MyText = "text";
-            SetTemplate();
-            DataContext = this;
-            Canvas.SetLeft(this, x); Canvas.SetTop(this, y);
-            MyIndex = index;
-            //var neko = Canvas.GetLeft(this);
-            //Binding b = new(nameof(MyNotifyXY.X));
-            //b.Source = MyNotifyXY;
-            //b.Mode = BindingMode.TwoWay;
-            //this.SetBinding(Canvas.LeftProperty, b);
-            //neko = Canvas.GetLeft(this);
-            //b = new(nameof(MyNotifyXY.Y));
-            //b.Source = MyNotifyXY;
-            //b.Mode = BindingMode.TwoWay;
-            //this.SetBinding(Canvas.TopProperty, b);
-            //DragDelta += TThumb_DragDelta;
-            //neko = Canvas.GetLeft(this);
-        }
-
-        //private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        //{
-        //    if (sender is not TThumb tt) { return; }
-        //    MyNotifyXY.X = Canvas.GetLeft(tt) + e.HorizontalChange;
-        //    MyNotifyXY.Y = Canvas.GetTop(tt) + e.VerticalChange;
-        //}
-
-        private void SetTemplate()
-        {
-            FrameworkElementFactory panelFactory = new(typeof(Grid));
-            FrameworkElementFactory textblockFactory = new(typeof(TextBlock));
-            textblockFactory.SetValue(TextBlock.ForegroundProperty, Brushes.White);
-            textblockFactory.SetValue(TextBlock.PaddingProperty, new Thickness(4, 2, 4, 2));
-            Binding b = new(nameof(MyIndex));
-            b.Mode = BindingMode.TwoWay;
-            b.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-            textblockFactory.SetBinding(TextBlock.TextProperty, b);
-            panelFactory.AppendChild(textblockFactory);
-            panelFactory.SetValue(Panel.BackgroundProperty, Brushes.Blue);
-            panelFactory.SetValue(OpacityProperty, 0.2);
-            ControlTemplate template = new();
-            template.VisualTree = panelFactory;
-            this.Template = template;
-            //ApplyTemplate();
-        }
-        public override string ToString()
-        {
-            return $"Name index{MyIndex}";
-        }
-    }
 
 
 }

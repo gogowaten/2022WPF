@@ -4,6 +4,8 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+//WPF、ベジェ曲線で直線表示、アンカー点の追加と削除 - 午後わてんのブログ
+//https://gogowaten.hatenablog.com/entry/2022/06/14/132217
 
 namespace _20220612_PolyBezierCanvas
 {
