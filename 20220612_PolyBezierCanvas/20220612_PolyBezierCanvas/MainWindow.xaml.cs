@@ -1,5 +1,5 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using System;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
@@ -7,12 +7,8 @@ using System.Collections.Specialized;
 
 namespace _20220612_PolyBezierCanvas
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
-
         private PolyBezierCanvas2 MyPolyBezierCanvas2 { get; set; }
 
         public MainWindow()
@@ -22,16 +18,19 @@ namespace _20220612_PolyBezierCanvas
 #endif
             InitializeComponent();
 
-            MyPolyBezierCanvas2 = new(new Point(100, 100), new Point(200, 200), Brushes.Magenta, 10);
-            MyCanvas.Children.Add(MyPolyBezierCanvas2);
+            MyPolyBezierCanvas2 = new PolyBezierCanvas2(
+                new Point(100, 100), new Point(200, 200), Brushes.DarkMagenta, 10);
+            MyCanvas.Children.Add(MyPolyBezierCanvas2.MyBezierPath);
             MyPolyBezierCanvas2.AddAnchorPoint(new Point(300, 150));
             DataContext = MyPolyBezierCanvas2;
         }
 
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
-            MyPolyBezierCanvas2.AddAnchorPoint(new Point(200, 30));
-            MyPolyBezierCanvas2.AddAnchorPoint(new Point(300, 300));
+            //ランダムな位置にアンカー点追加
+            Random r = new(DateTime.Now.Millisecond);
+            int x = r.Next(300); int y = r.Next(300);
+            MyPolyBezierCanvas2.AddAnchorPoint(new Point(x, y));
         }
 
         private void MyButton2_Click(object sender, RoutedEventArgs e)
@@ -41,11 +40,11 @@ namespace _20220612_PolyBezierCanvas
     }
 
     /// <summary>
-    /// ベジェ曲線を表示するCanvas、アンカー点の追加と削除のテスト用
+    /// ベジェ曲線のアンカー点の追加と削除のテスト用
     /// </summary>
-    public class PolyBezierCanvas2 : Canvas
+    public class PolyBezierCanvas2
     {
-        private Path MyBezierPath;//ベジェ曲線表示用
+        public Path MyBezierPath;//ベジェ曲線表示用
         //StartPointの管理に使う
         public PathFigure MyBezierFigure { get; }
         //BezierSegmentのPoints
@@ -70,7 +69,6 @@ namespace _20220612_PolyBezierCanvas
         {
             MyAnchorPoints.CollectionChanged += MyAnchorPoints_CollectionChanged;
             MyBezierPath = new() { Stroke = stroke, StrokeThickness = thickness };
-            this.Children.Add(MyBezierPath);
             //ベジェ曲線のdata作成
             PolyBezierSegment seg = new(); seg.Points = MyBezierPoints;
             MyBezierFigure = new(); MyBezierFigure.Segments.Add(seg);

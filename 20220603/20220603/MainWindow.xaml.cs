@@ -18,9 +18,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
-//PointCollectionの要素はPoint、これが頂点座標、座標を変更したいときはPoint自体を入れ替える
-//xだけを変更したいときも新たにPointを作成して、元のPointと入れ替える必要があって
-//Point.X=新しい値ってのはできない、エラーになる
+
 //
 namespace _20220603
 {
@@ -65,7 +63,7 @@ namespace _20220603
             //MyPolyBezierCanvas.AddPoint(new Point(150, 100));
 
             MyPolyBezierCanvas2 = new(new Point(100, 100), new Point(200, 200));
-            MyCanvas.Children.Add(MyPolyBezierCanvas2);
+            MyCanvas.Children.Add(MyPolyBezierCanvas2.MyBezierPath);
             MyPolyBezierCanvas2.AddAnchorPoint(new Point(300, 150));
             DataContext = MyPolyBezierCanvas2;
 
@@ -93,7 +91,7 @@ namespace _20220603
     public class PolyBezierCanvas2 : Canvas
     {
         
-        private readonly Path MyBezierPath;//ベジェ曲線表示用
+        public Path MyBezierPath;//ベジェ曲線表示用
         //BezierSegmentのPoints
         public PointCollection MyBezierPoints { get; } = new();
         //StartPointを持つFigure
@@ -115,8 +113,7 @@ namespace _20220603
         {
             MyAnchorPoints.CollectionChanged += MyAnchorPoints_CollectionChanged;
             MyBezierPath = new() { Stroke = Brushes.Red, StrokeThickness = 10 };
-            Children.Add(MyBezierPath);
-
+            
             PolyBezierSegment seg = new(); seg.Points = MyBezierPoints;
             MyBezierFigure = new(); MyBezierFigure.Segments.Add(seg);
             PathGeometry geo = new(); geo.Figures.Add(MyBezierFigure);

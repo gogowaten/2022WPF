@@ -12,7 +12,7 @@
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <StackPanel Grid.Column="1">
-      <Button x:Name="MyButton1" Content="2点追加" Click="MyButton1_Click"/>
+      <Button x:Name="MyButton1" Content="点追加" Click="MyButton1_Click"/>
       <Button x:Name="MyButton2" Content="選択点削除" Click="MyButton2_Click"/>
       <TextBlock Text="{Binding MyAnchorPoints.Count, StringFormat=アンカー点個数 0}"/>
       <ListBox x:Name="MyListBox" ItemsSource="{Binding MyAnchorPoints}"/>
