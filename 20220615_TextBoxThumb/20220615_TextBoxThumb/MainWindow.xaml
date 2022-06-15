@@ -1,0 +1,62 @@
+﻿<Window x:Class="_20220615_TextBoxThumb.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220615_TextBoxThumb"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="600">
+  <Grid x:Name="MyGrid" UseLayoutRounding="True">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas Name="MyCanvas"/>
+
+    <StackPanel Grid.Column="1">
+      <GroupBox x:Name="MyGroup1" Header="ドラッグ移動できない">
+        <StackPanel>
+          <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"/>
+        </StackPanel>
+      </GroupBox>
+      
+      <GroupBox x:Name="MyGroupBox" Header="TThumb2">
+        <StackPanel>
+          <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"/>
+          <Slider Value="{Binding FontSize}" Minimum="10" Maximum="500"
+                  IsMoveToPointEnabled="True"/>
+          <StackPanel>
+            <TextBlock Text="文字色"/>
+            <ComboBox x:Name="MyComboBoxFore"
+                    SelectedValue="{Binding Foreground}"
+                    SelectedValuePath="Value">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal">
+                    <Border Width="20" Background="{Binding Value}" Margin="0,2,4,2"/>
+                    <TextBlock Text="{Binding Key}"/>
+                  </StackPanel>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+          <StackPanel>
+            <TextBlock Text="背景色"/>
+            <ComboBox x:Name="MyComboBoxBack"
+                    SelectedValue="{Binding Background}"
+                    SelectedValuePath="Value">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal">
+                    <Border Width="20" Background="{Binding Value}" Margin="0,2,4,2"/>
+                    <TextBlock Text="{Binding Key}"/>
+                  </StackPanel>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+        </StackPanel>
+      </GroupBox>
+    </StackPanel>
+  </Grid>
+</Window>
