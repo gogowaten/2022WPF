@@ -3,6 +3,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Controls.Primitives;
+//WPF、マウスドラッグ移動できるTextBox、Templateを改変したThumbで作成 - 午後わてんのブログ
+//https://gogowaten.hatenablog.com/entry/2022/06/15/132409
 
 namespace _20220615_TextBoxThumb0
 {
@@ -50,7 +52,6 @@ namespace _20220615_TextBoxThumb0
             //Templateの中のTextBoxを検索、取得
             this.TextBox = (TextBox)Template.FindName(TEXTBOX_NAME, this);
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
-            Keyboard.ClearFocus();
         }
 
         //TextBoxをベースにしたControlTemplateを作成
