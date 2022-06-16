@@ -24,7 +24,7 @@
       </ComboBox>
       
       <TextBlock Text="色と色名を表示"/>
-      <ComboBox x:Name="MyComboBox1" ItemsSource="{Binding}">
+      <ComboBox ItemsSource="{Binding}">
         <ComboBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Orientation="Horizontal">
@@ -35,12 +35,12 @@
         </ComboBox.ItemTemplate>
       </ComboBox>
 
-      <TextBox x:Name="MyTextBox1" AcceptsReturn="True"
-               TextWrapping="Wrap" Text="ComboBoxとBinding"
+      <TextBox x:Name="MyTextBox1" Text="ComboBoxとBinding"
                FontSize="18" Margin="20,20,20,0"/>
       <TextBlock Text="TextBoxのForegroundとBinding"/>
-      <ComboBox x:Name="MyComboBox" ItemsSource="{Binding}" SelectedValuePath="Value"
-                    SelectedValue="{Binding ElementName=MyTextBox1, Path=Foreground}">
+      <ComboBox ItemsSource="{Binding}"
+                SelectedValuePath="Value"
+                SelectedValue="{Binding ElementName=MyTextBox1, Path=Foreground}">
         <ComboBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Orientation="Horizontal">
@@ -52,8 +52,9 @@
       </ComboBox>
       
       <TextBlock Text="TextBoxのBackgroundとBinding"/>
-      <ComboBox x:Name="MyComboBox2" ItemsSource="{Binding}" SelectedValuePath="Value"
-                    SelectedValue="{Binding ElementName=MyTextBox1, Path=Background}">
+      <ComboBox ItemsSource="{Binding}"
+                SelectedValuePath="Value"
+                SelectedValue="{Binding ElementName=MyTextBox1, Path=Background}">
         <ComboBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Orientation="Horizontal">
@@ -67,7 +68,9 @@
       <Separator Background="{Binding ElementName=MyComboBox3, Path=SelectedValue}"
                  Margin="20,20,20,0"/>
       <TextBlock Text="多数要素とComboBoxのSelectedValueをBinding"/>
-      <ComboBox x:Name="MyComboBox3" ItemsSource="{Binding}" SelectedValuePath="Value">
+      <ComboBox x:Name="MyComboBox3"
+                ItemsSource="{Binding}"
+                SelectedValuePath="Value">
         <ComboBox.ItemTemplate>
           <DataTemplate>
             <StackPanel Orientation="Horizontal">
@@ -79,7 +82,8 @@
       </ComboBox>
       <TextBlock Text="textblock" 
                  Foreground="{Binding ElementName=MyComboBox3, Path=SelectedValue}"/>
-      <Ellipse Width="80" Height="80" Fill="{Binding ElementName=MyComboBox3,Path=SelectedValue}"/>
+      <Ellipse Width="80" Height="80"
+               Fill="{Binding ElementName=MyComboBox3,Path=SelectedValue}"/>
 
     </StackPanel>
   </Grid>
