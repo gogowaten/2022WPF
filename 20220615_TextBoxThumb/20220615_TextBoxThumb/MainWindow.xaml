@@ -21,10 +21,12 @@
       </GroupBox>
       
       <GroupBox x:Name="MyGroupBox" Header="TThumb2">
-        <StackPanel>
+        <StackPanel x:Name="MyStackPanel">
           <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"/>
-          <Slider Value="{Binding FontSize}" Minimum="10" Maximum="500"
+          <Slider Value="{Binding FontSize}" Minimum="10" Maximum="300"
                   IsMoveToPointEnabled="True"/>
+          
+          
           <StackPanel>
             <TextBlock Text="文字色"/>
             <ComboBox x:Name="MyComboBoxFore"
