@@ -5,7 +5,10 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20220615_TextBoxThumb"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600">
+        Title="MainWindow" Height="650" Width="600">
+  <Window.Resources>
+    <local:MyThicknessConv x:Key="ThicknessConv"/>
+  </Window.Resources>
   <Grid x:Name="MyGrid" UseLayoutRounding="True">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
@@ -13,52 +16,65 @@
     </Grid.ColumnDefinitions>
     <Canvas Name="MyCanvas"/>
 
-    <StackPanel Grid.Column="1">
-      <GroupBox x:Name="MyGroup1" Header="ドラッグ移動できない">
-        <StackPanel>
-          <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"/>
-        </StackPanel>
-      </GroupBox>
-      
-      <GroupBox x:Name="MyGroupBox" Header="TThumb2">
-        <StackPanel x:Name="MyStackPanel">
-          <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"/>
-          <Slider Value="{Binding FontSize}" Minimum="10" Maximum="300"
+    <TabControl Grid.Column="1">
+      <TabItem Header="kihon">
+        <StackPanel Grid.Column="1">
+
+          <GroupBox x:Name="MyGroupBox" Header="TThumb2">
+            <StackPanel x:Name="MyStackPanel">
+              <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"/>
+              <TextBlock Text="FontSize"/>
+              <Slider Value="{Binding FontSize}" Minimum="10" Maximum="200"
                   IsMoveToPointEnabled="True"/>
-          
-          
-          <StackPanel>
-            <TextBlock Text="文字色"/>
-            <ComboBox x:Name="MyComboBoxFore"
+              <TextBlock Text="BorderThickness"/>
+              <Slider Value="{Binding BorderThickness, Converter={StaticResource ThicknessConv}}"
+                      Minimum="0" Maximum="20" IsMoveToPointEnabled="True"/>
+              <TextBlock Text="Padding"/>
+              <Slider Value="{Binding Padding, Converter={StaticResource ThicknessConv}}"
+                      Minimum="0" Maximum="20" IsMoveToPointEnabled="True"/>
+
+
+              <StackPanel>
+                <TextBlock Text="文字色"/>
+                <ComboBox x:Name="MyComboBoxFore"
                     SelectedValue="{Binding Foreground}"
                     SelectedValuePath="Value">
-              <ComboBox.ItemTemplate>
-                <DataTemplate>
-                  <StackPanel Orientation="Horizontal">
-                    <Border Width="20" Background="{Binding Value}" Margin="0,2,4,2"/>
-                    <TextBlock Text="{Binding Key}"/>
-                  </StackPanel>
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-          </StackPanel>
-          <StackPanel>
-            <TextBlock Text="背景色"/>
-            <ComboBox x:Name="MyComboBoxBack"
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal">
+                        <Border Width="20" Background="{Binding Value}" Margin="0,2,4,2"/>
+                        <TextBlock Text="{Binding Key}"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </StackPanel>
+              <StackPanel>
+                <TextBlock Text="背景色"/>
+                <ComboBox x:Name="MyComboBoxBack"
                     SelectedValue="{Binding Background}"
                     SelectedValuePath="Value">
-              <ComboBox.ItemTemplate>
-                <DataTemplate>
-                  <StackPanel Orientation="Horizontal">
-                    <Border Width="20" Background="{Binding Value}" Margin="0,2,4,2"/>
-                    <TextBlock Text="{Binding Key}"/>
-                  </StackPanel>
-                </DataTemplate>
-              </ComboBox.ItemTemplate>
-            </ComboBox>
-          </StackPanel>
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal">
+                        <Border Width="20" Background="{Binding Value}" Margin="0,2,4,2"/>
+                        <TextBlock Text="{Binding Key}"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </StackPanel>
+            </StackPanel>
+          </GroupBox>
         </StackPanel>
-      </GroupBox>
-    </StackPanel>
+      </TabItem>
+      <TabItem Header="deco">
+        <StackPanel x:Name="MyStackPanel2">
+
+        </StackPanel>
+      </TabItem>
+    </TabControl>
+
+
   </Grid>
 </Window>

@@ -14,6 +14,7 @@ using System.Windows.Documents;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Globalization;
 
 namespace _20220615_TextBoxThumb
 {
@@ -22,7 +23,7 @@ namespace _20220615_TextBoxThumb
     /// </summary>
     public partial class MainWindow : Window
     {
-        private TBThumb MyTBThumb;
+        //private TBThumb MyTBThumb;
         private TBThumb2 MyTBThumb2;
         public MainWindow()
         {
@@ -30,17 +31,12 @@ namespace _20220615_TextBoxThumb
             Left = 100; Top = 100;
 #endif
             InitializeComponent();
-            InitializeComboBox();
 
-            MyTBThumb = new TBThumb();
-            MyCanvas.Children.Add(MyTBThumb);
-            MyTBThumb.TextBox.Text = "Thumbなのに移動できない";
-            MyTBThumb.DragDelta += MyTThumb2_DragDelta;
-            MyGroup1.DataContext = MyTBThumb.TextBox;
 
-            TBThumb2 t = MakeTBThumb2("クソデカレベルアップくん");
+            TBThumb2 t = MakeTBThumb2("WPFのTextBoxのPropertyだけで文字の装飾");
             MyCanvas.Children.Add(t);
             MyTBThumb2 = t;
+
 
             MyGroupBox.DataContext = MyTBThumb2.TextBox;
 
@@ -49,24 +45,23 @@ namespace _20220615_TextBoxThumb
             //MyTBThumb2.TextBox.HorizontalContentAlignment = HorizontalAlignment.Center;
             MyTBThumb2.TextBox.FontStyle = FontStyles.Italic;
             MyTBThumb2.TextBox.FontWeight = FontWeights.Bold;
-            MyTBThumb2.TextBox.Padding = new Thickness(10);
-            MyTBThumb2.TextBox.TextAlignment = TextAlignment.Center;//horizontalcontentalignmentとほぼ同じ
+            //MyTBThumb2.TextBox.Padding = new Thickness(10);
+            //MyTBThumb2.TextBox.TextAlignment = TextAlignment.Center;//horizontalcontentalignmentとほぼ同じ
             TextDecoration deco = new();
             deco.Location = TextDecorationLocation.Strikethrough;//全4種類のライン
             deco.Pen = new Pen(Brushes.Red, 1.0);
             deco.PenOffset = 0;
-            deco.PenOffsetUnit = TextDecorationUnit.Pixel;//全3種類
-            deco.PenThicknessUnit = TextDecorationUnit.Pixel;//全3種類
+            deco.PenOffsetUnit = TextDecorationUnit.FontRenderingEmSize;//全3種類
+            //deco.PenThicknessUnit = TextDecorationUnit.FontRecommended;//全3種類
             TextDecorationCollection decoCollection = new();
             decoCollection.Add(deco);
-            MyTBThumb2.TextBox.TextDecorations = decoCollection;
+            //MyTBThumb2.TextBox.TextDecorations = decoCollection;
             MyTBThumb2.TextBox.VerticalContentAlignment = VerticalAlignment.Top;
-            MyTBThumb2.TextBox.Height = 100;
-
-            TextEffect effect = new();
-            effect.Foreground = Brushes.Red;
-
-
+            //MyTBThumb2.TextBox.FontStretch = FontStretches.ExtraExpanded;
+            
+            
+            
+            InitializeComboBox();
 
             //System.Windows.Media.Effects.EdgeProfile.CurvedOut;
 
@@ -76,12 +71,53 @@ namespace _20220615_TextBoxThumb
 
 
         }
+
         private TBThumb2 MakeTBThumb2(string text)
         {
             TBThumb2 t = new();
             t.DragDelta += MyTThumb2_DragDelta;
             t.TextBox.Text = text;
             return t;
+        }
+        private static Dictionary<string, object> MakePropertyDictionary(Type t)
+        {
+            System.Reflection.PropertyInfo[]? info = t.GetProperties(
+                System.Reflection.BindingFlags.Public |
+                System.Reflection.BindingFlags.Static);
+
+            Dictionary<string, object>? dict = new();
+            foreach (var item in info)
+            {
+                if (item.GetValue(null) is not object o)
+                {
+                    continue;
+                }
+                dict.Add(item.Name, o);
+            }
+            return dict;
+        }
+
+        private static ComboBox MakeBaseComboBox()
+        {
+            //DataTemplateの設定、Textblockに名前表示
+            FrameworkElementFactory textblockF = new(typeof(TextBlock));
+            textblockF.SetBinding(TextBlock.TextProperty, new Binding("Key"));
+            DataTemplate dataTemplate = new();
+            dataTemplate.VisualTree = textblockF;
+
+            ComboBox comboBox = new()
+            {
+                SelectedValuePath = "Value",
+                ItemTemplate = dataTemplate
+            };
+            return comboBox;
+        }
+
+        private void SetComboBoxSelectedValueBinding(DependencyProperty prop, ComboBox box)
+        {
+            Binding b = new();
+            b.Path = new PropertyPath(prop);
+            box.SetBinding(ComboBox.SelectedValueProperty, b);
         }
 
         /// <summary>
@@ -92,7 +128,7 @@ namespace _20220615_TextBoxThumb
         {
             //DataTemplateの設定、Textblockにフォント名表示
             FrameworkElementFactory textblockF = new(typeof(TextBlock));
-            textblockF.SetBinding(TextBlock.TextProperty,new Binding("Key"));
+            textblockF.SetBinding(TextBlock.TextProperty, new Binding("Key"));
             //↓フォント名表示にそのフォントを使う、リスト表示に時間がかかる
             //textblockF.SetBinding(TextBlock.FontFamilyProperty,new Binding("Value"));
             DataTemplate dataTemplate = new();
@@ -104,7 +140,7 @@ namespace _20220615_TextBoxThumb
                 SelectedValuePath = "Value",
                 ItemTemplate = dataTemplate
             };
-            return comboBox;            
+            return comboBox;
         }
 
         private static Dictionary<string, Brush> MakeBrushesDictionary()
@@ -131,13 +167,102 @@ namespace _20220615_TextBoxThumb
             MyComboBoxBack.ItemsSource = dict;
             //フォント名一覧ComboBox
             ComboBox box = MakeFontComboBox();
-            Binding b = new();
-            b.Path = new PropertyPath(TextBox.FontFamilyProperty);
-            box.SetBinding(ComboBox.SelectedValueProperty, b);
+            SetComboBoxSelectedValueBinding(TextBox.FontFamilyProperty, box);
             MyStackPanel.Children.Add(box);
+            //フォントスタイル
+            var pDict = MakePropertyDictionary(typeof(FontStyles));
+            box = MakeBaseComboBox();
+            box.ItemsSource = pDict.ToDictionary(a => a.Key, a => (FontStyle)a.Value);
+            MyStackPanel.Children.Add(box);
+            SetComboBoxSelectedValueBinding(TextBox.FontStyleProperty, box);
+            //FontWeight
+            MyStackPanel.Children.Add(new TextBlock() { Text = "FontWeight" });
+            pDict = MakePropertyDictionary(typeof(FontWeights));
+            box = MakeBaseComboBox();
+            box.ItemsSource = pDict.ToDictionary(a => a.Key, a => (FontWeight)a.Value);
+            MyStackPanel.Children.Add(box);
+            SetComboBoxSelectedValueBinding(TextBox.FontWeightProperty, box);
+            //TextAlignment
+            MyStackPanel.Children.Add(new TextBlock() { Text = "TextAlignment" });
+            box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextAlignment)) };
+            MyStackPanel.Children.Add(box);
+            SetComboBoxSelectedValueBinding(TextBox.TextAlignmentProperty, box);
+            //HorizontalContentAlignment
+            MyStackPanel.Children.Add(new TextBlock() { Text = "HorizontalContentAlignment" });
+            box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(HorizontalAlignment)) };
+            MyStackPanel.Children.Add(box);
+            SetComboBoxSelectedValueBinding(TextBox.HorizontalContentAlignmentProperty, box);
 
+
+            GroupBox gb = new();
+            gb.Header = "TextDecoration";
+            MyStackPanel2.Children.Add(gb);
+            StackPanel sp = new();
+            gb.Content = sp;
+            //TextDecorationLocation
+            sp.Children.Add(new TextBlock() { Text = "TextDecorationLocation" });
+            box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextDecorationLocation)) };
+            box.SelectedIndex = 0;
+            sp.Children.Add(box);
+            MultiBinding mb = new();
+            mb.Mode = BindingMode.TwoWay;
+            mb.Converter = new MyConverter();
+            mb.Bindings.Add(MakeBindingForComboBox(box));
+
+            //TextDecorationUnit
+            sp.Children.Add(new TextBlock() { Text = "TextDecorationUnit" });
+            box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextDecorationUnit)) };
+            box.SelectedIndex = 0;
+            sp.Children.Add(box);
+            mb.Bindings.Add(MakeBindingForComboBox(box));
+
+            //PenThicknessUnit
+            sp.Children.Add(new TextBlock() { Text = "PenThicknessUnit" });
+            box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextDecorationUnit)) };
+            box.SelectedIndex = 0;
+            sp.Children.Add(box);
+            mb.Bindings.Add(MakeBindingForComboBox(box));
+
+            //Pen
+            sp.Children.Add(new TextBlock() { Text = "Pen" });
+            pDict = MakePropertyDictionary(typeof(Brushes));
+            box = MakeBaseComboBox();
+            box.ItemsSource = pDict.ToDictionary(a => a.Key, a => (Brush)a.Value);
+            box.SelectedIndex = 2;
+            sp.Children.Add(box);
+            mb.Bindings.Add(MakeBindingForComboBox(box));
+
+            //PenThickness
+            sp.Children.Add(new TextBlock() { Text = "PenThickness" });
+            Slider sl = new();
+            sl.Value = 1.0;
+            sp.Children.Add(sl);
+            Binding b = new();
+            b.Path = new PropertyPath(Slider.ValueProperty);
+            b.Source = sl;
+            mb.Bindings.Add(b);
+
+
+            //PenOffset
+            sp.Children.Add(new TextBlock() { Text = "PenOffset" });
+            sl = new();
+            sp.Children.Add(sl);
+            b = new();
+            b.Path = new PropertyPath(Slider.ValueProperty);
+            b.Source = sl;
+            mb.Bindings.Add(b);
+
+
+            MyTBThumb2.TextBox.SetBinding(TextBox.TextDecorationsProperty, mb);
         }
-
+        private Binding MakeBindingForComboBox(FrameworkElement elem)
+        {
+            Binding b = new();
+            b.Source = elem;
+            b.Mode = BindingMode.TwoWay;
+            b.Path = new PropertyPath(ComboBox.SelectedValueProperty);
+            return b;
+        }
         private void MyTThumb2_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is not FrameworkElement elem) { return; }
@@ -187,6 +312,58 @@ namespace _20220615_TextBoxThumb
             }
             SortedDictionary<string, FontFamily> fontDictionary = new(tempDictionary);
             return fontDictionary;
+        }
+    }
+
+    public class MyThicknessConv : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            Thickness t = (Thickness)value;
+            return t.Left;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            double v = (double)value;
+            return new Thickness(v);
+        }
+    }
+
+    public class MyConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            TextDecorationLocation location = (TextDecorationLocation)values[0];
+            TextDecorationUnit penOffsetProperty = (TextDecorationUnit)values[1];
+            TextDecorationUnit unit = (TextDecorationUnit)values[2];
+            Brush b = (Brush)values[3];
+            double penThickness = (double)values[4];
+            double penOffset = (double)values[5];
+
+            TextDecoration deco = new();
+            deco.Location = location;
+            deco.PenOffsetUnit = penOffsetProperty;
+            deco.PenThicknessUnit = unit;
+            deco.Pen = new Pen(b, penThickness);
+            deco.PenOffset = penOffset;
+            TextDecorationCollection texts = new();
+            texts.Add(deco);
+            return texts;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            TextDecorationCollection textDecorations = (TextDecorationCollection)value;
+            object[] result = new object[6];
+            TextDecoration deco = textDecorations[0];
+            result[0] = deco.Location;
+            result[1] = deco.PenOffset;
+            result[2] = deco.PenOffsetUnit;
+            result[3] = deco.Pen.Brush;
+            result[4] = deco.Pen.Thickness;
+            result[5] = deco.PenOffset;
+            return result;
         }
     }
 
