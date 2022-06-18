@@ -5,16 +5,12 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Controls.Primitives;
 using System;
-
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Globalization;
+using System.Windows.Shapes;
+//WPF、TextBoxのPropertyから書式設定いろいろ試してみた - 午後わてんのブログ
+//https://gogowaten.hatenablog.com/entry/2022/06/18/195728
 
 namespace _20220615_TextBoxThumb
 {
@@ -33,34 +29,34 @@ namespace _20220615_TextBoxThumb
             InitializeComponent();
 
 
-            TBThumb2 t = MakeTBThumb2("WPFのTextBoxのPropertyだけで文字の装飾");
+            TBThumb2 t = MakeTBThumb2("WPF、TextBoxの\nPropertyで書式設定\n実際の表示を\n確認するアプリ");
             MyCanvas.Children.Add(t);
             MyTBThumb2 = t;
 
-
-            MyGroupBox.DataContext = MyTBThumb2.TextBox;
+            MyTabControl.DataContext = MyTBThumb2.TextBox;
+            MyTBThumb2.TextBox.AcceptsReturn = true;//改行を有効
+            MyTBThumb2.TextBox.FontSize = 30.0;
 
             //MyTBThumb2.TextBox.CaretBrush = Brushes.Red;
-            MyTBThumb2.TextBox.AcceptsReturn = true;
             //MyTBThumb2.TextBox.HorizontalContentAlignment = HorizontalAlignment.Center;
-            MyTBThumb2.TextBox.FontStyle = FontStyles.Italic;
-            MyTBThumb2.TextBox.FontWeight = FontWeights.Bold;
+            //MyTBThumb2.TextBox.FontStyle = FontStyles.Italic;
+            //MyTBThumb2.TextBox.FontWeight = FontWeights.Bold;
             //MyTBThumb2.TextBox.Padding = new Thickness(10);
             //MyTBThumb2.TextBox.TextAlignment = TextAlignment.Center;//horizontalcontentalignmentとほぼ同じ
-            TextDecoration deco = new();
-            deco.Location = TextDecorationLocation.Strikethrough;//全4種類のライン
-            deco.Pen = new Pen(Brushes.Red, 1.0);
-            deco.PenOffset = 0;
-            deco.PenOffsetUnit = TextDecorationUnit.FontRenderingEmSize;//全3種類
+            //TextDecoration deco = new();
+            //deco.Location = TextDecorationLocation.Strikethrough;//全4種類のライン
+            //deco.Pen = new Pen(Brushes.Red, 1.0);
+            //deco.PenOffset = 0;
+            //deco.PenOffsetUnit = TextDecorationUnit.FontRenderingEmSize;//全3種類
             //deco.PenThicknessUnit = TextDecorationUnit.FontRecommended;//全3種類
-            TextDecorationCollection decoCollection = new();
-            decoCollection.Add(deco);
+            //TextDecorationCollection decoCollection = new();
+            //decoCollection.Add(deco);
             //MyTBThumb2.TextBox.TextDecorations = decoCollection;
-            MyTBThumb2.TextBox.VerticalContentAlignment = VerticalAlignment.Top;
+            //MyTBThumb2.TextBox.VerticalContentAlignment = VerticalAlignment.Top;
             //MyTBThumb2.TextBox.FontStretch = FontStretches.ExtraExpanded;
-            
-            
-            
+
+
+
             InitializeComboBox();
 
             //System.Windows.Media.Effects.EdgeProfile.CurvedOut;
@@ -104,6 +100,32 @@ namespace _20220615_TextBoxThumb
             textblockF.SetBinding(TextBlock.TextProperty, new Binding("Key"));
             DataTemplate dataTemplate = new();
             dataTemplate.VisualTree = textblockF;
+
+            ComboBox comboBox = new()
+            {
+                SelectedValuePath = "Value",
+                ItemTemplate = dataTemplate
+            };
+            return comboBox;
+        }
+        private static ComboBox MakeBaseComboBox2()
+        {
+            //Brushes用combobox
+            //DataTemplateの設定、Ellipseに色、Textblockに名前表示
+            FrameworkElementFactory textblockF = new(typeof(TextBlock));
+            textblockF.SetBinding(TextBlock.TextProperty, new Binding("Key"));
+            FrameworkElementFactory ellipseF = new(typeof(Ellipse));
+            ellipseF.SetValue(Ellipse.FillProperty, new Binding("Value"));
+            ellipseF.SetValue(Ellipse.WidthProperty, 16.0);
+            ellipseF.SetValue(Ellipse.HeightProperty, 16.0);
+            ellipseF.SetValue(Ellipse.MarginProperty, new Thickness(10.0, 0.0, 10.0, 0.0));
+            FrameworkElementFactory stackPF = new(typeof(StackPanel));
+            stackPF.SetValue(StackPanel.OrientationProperty, Orientation.Horizontal);
+            stackPF.AppendChild(ellipseF);
+            stackPF.AppendChild(textblockF);
+
+            DataTemplate dataTemplate = new();
+            dataTemplate.VisualTree = stackPF;
 
             ComboBox comboBox = new()
             {
@@ -165,96 +187,154 @@ namespace _20220615_TextBoxThumb
             Dictionary<string, Brush> dict = MakeBrushesDictionary();
             MyComboBoxFore.ItemsSource = dict;
             MyComboBoxBack.ItemsSource = dict;
+            MyComboBoxBorderBrush.ItemsSource = dict;
             //フォント名一覧ComboBox
+            MyStackPanel2.Children.Add(new TextBlock() { Text = "FontFamily" });
             ComboBox box = MakeFontComboBox();
             SetComboBoxSelectedValueBinding(TextBox.FontFamilyProperty, box);
-            MyStackPanel.Children.Add(box);
+            MyStackPanel2.Children.Add(box);
             //フォントスタイル
+            MyStackPanel2.Children.Add(new TextBlock() { Text = "FontStyle" });
             var pDict = MakePropertyDictionary(typeof(FontStyles));
             box = MakeBaseComboBox();
             box.ItemsSource = pDict.ToDictionary(a => a.Key, a => (FontStyle)a.Value);
-            MyStackPanel.Children.Add(box);
+            MyStackPanel2.Children.Add(box);
             SetComboBoxSelectedValueBinding(TextBox.FontStyleProperty, box);
             //FontWeight
-            MyStackPanel.Children.Add(new TextBlock() { Text = "FontWeight" });
+            MyStackPanel2.Children.Add(new TextBlock() { Text = "FontWeight" });
             pDict = MakePropertyDictionary(typeof(FontWeights));
             box = MakeBaseComboBox();
             box.ItemsSource = pDict.ToDictionary(a => a.Key, a => (FontWeight)a.Value);
-            MyStackPanel.Children.Add(box);
+            MyStackPanel2.Children.Add(box);
             SetComboBoxSelectedValueBinding(TextBox.FontWeightProperty, box);
             //TextAlignment
-            MyStackPanel.Children.Add(new TextBlock() { Text = "TextAlignment" });
+            MyStackPanel2.Children.Add(new TextBlock() { Text = "TextAlignment" });
             box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextAlignment)) };
-            MyStackPanel.Children.Add(box);
+            MyStackPanel2.Children.Add(box);
             SetComboBoxSelectedValueBinding(TextBox.TextAlignmentProperty, box);
             //HorizontalContentAlignment
-            MyStackPanel.Children.Add(new TextBlock() { Text = "HorizontalContentAlignment" });
+            MyStackPanel2.Children.Add(new TextBlock() { Text = "HorizontalContentAlignment" });
             box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(HorizontalAlignment)) };
-            MyStackPanel.Children.Add(box);
+            MyStackPanel2.Children.Add(box);
             SetComboBoxSelectedValueBinding(TextBox.HorizontalContentAlignmentProperty, box);
+            //VerticalContentAlignment
+            MyStackPanel2.Children.Add(new TextBlock() { Text = "VerticalContentAlignment" });
+            box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(VerticalAlignment)) };
+            MyStackPanel2.Children.Add(box);
+            SetComboBoxSelectedValueBinding(TextBox.VerticalContentAlignmentProperty, box);
+            //Width
+            TextBlock tb = new() { Text = "Widht = " };
+            StackPanel sp2 = new() { Orientation = Orientation.Horizontal };
+            sp2.Children.Add(tb);
+            tb = new() { Text = "Width" };
+            Binding b = new Binding("Width");
+            b.StringFormat = "0.0";
+            tb.SetBinding(TextBlock.TextProperty, b);
+            sp2.Children.Add(tb);
+            MyStackPanel2.Children.Add(sp2);
+            Slider slider = new() { IsMoveToPointEnabled = true };
+            slider.SetBinding(Slider.ValueProperty, b);
+            MyStackPanel2.Children.Add(slider);
+            slider.Minimum = 50; slider.Maximum = 300;
+            Button btn = new() { Content = "reset" };
+            btn.Click += (a, b) => { MyTBThumb2.TextBox.Width = double.NaN; };
+            MyStackPanel2.Children.Add(btn);
+            //Height
+            tb = new() { Text = "Height = " };
+            sp2 = new() { Orientation = Orientation.Horizontal };
+            sp2.Children.Add(tb);
+            tb = new() { Text = "Height" };
+            b = new Binding("Height");
+            b.StringFormat = "0.0";
+            tb.SetBinding(TextBlock.TextProperty, b);
+            sp2.Children.Add(tb);
+            MyStackPanel2.Children.Add(sp2);
+            slider = new() { IsMoveToPointEnabled = true };
+            slider.SetBinding(Slider.ValueProperty, b);
+            MyStackPanel2.Children.Add(slider);
+            slider.Minimum = 20; slider.Maximum = 300;
+            btn = new() { Content = "reset" };
+            btn.Click += (a, b) => { MyTBThumb2.TextBox.Height = double.NaN; };
+            MyStackPanel2.Children.Add(btn);
 
 
             GroupBox gb = new();
             gb.Header = "TextDecoration";
-            MyStackPanel2.Children.Add(gb);
-            StackPanel sp = new();
-            gb.Content = sp;
+            MyStackPanel3.Children.Add(gb);
+            StackPanel decoStackPanel = new();
+            gb.Content = decoStackPanel;
             //TextDecorationLocation
-            sp.Children.Add(new TextBlock() { Text = "TextDecorationLocation" });
+            decoStackPanel.Children.Add(new TextBlock() { Text = "TextDecorationLocation" });
             box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextDecorationLocation)) };
             box.SelectedIndex = 0;
-            sp.Children.Add(box);
+            decoStackPanel.Children.Add(box);
             MultiBinding mb = new();
             mb.Mode = BindingMode.TwoWay;
             mb.Converter = new MyConverter();
             mb.Bindings.Add(MakeBindingForComboBox(box));
 
             //TextDecorationUnit
-            sp.Children.Add(new TextBlock() { Text = "TextDecorationUnit" });
+            decoStackPanel.Children.Add(new TextBlock() { Text = "TextDecorationUnit" });
             box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextDecorationUnit)) };
             box.SelectedIndex = 0;
-            sp.Children.Add(box);
+            decoStackPanel.Children.Add(box);
             mb.Bindings.Add(MakeBindingForComboBox(box));
 
             //PenThicknessUnit
-            sp.Children.Add(new TextBlock() { Text = "PenThicknessUnit" });
+            decoStackPanel.Children.Add(new TextBlock() { Text = "PenThicknessUnit" });
             box = new ComboBox() { ItemsSource = Enum.GetValues(typeof(TextDecorationUnit)) };
             box.SelectedIndex = 0;
-            sp.Children.Add(box);
+            decoStackPanel.Children.Add(box);
             mb.Bindings.Add(MakeBindingForComboBox(box));
 
             //Pen
-            sp.Children.Add(new TextBlock() { Text = "Pen" });
+            decoStackPanel.Children.Add(new TextBlock() { Text = "Pen" });
             pDict = MakePropertyDictionary(typeof(Brushes));
-            box = MakeBaseComboBox();
+            box = MakeBaseComboBox2();
             box.ItemsSource = pDict.ToDictionary(a => a.Key, a => (Brush)a.Value);
-            box.SelectedIndex = 2;
-            sp.Children.Add(box);
+            box.SelectedIndex = 38;//DeepPink
+            decoStackPanel.Children.Add(box);
             mb.Bindings.Add(MakeBindingForComboBox(box));
 
             //PenThickness
-            sp.Children.Add(new TextBlock() { Text = "PenThickness" });
             Slider sl = new();
             sl.Value = 1.0;
-            sp.Children.Add(sl);
-            Binding b = new();
-            b.Path = new PropertyPath(Slider.ValueProperty);
-            b.Source = sl;
-            mb.Bindings.Add(b);
-
-
-            //PenOffset
-            sp.Children.Add(new TextBlock() { Text = "PenOffset" });
-            sl = new();
-            sp.Children.Add(sl);
             b = new();
             b.Path = new PropertyPath(Slider.ValueProperty);
             b.Source = sl;
             mb.Bindings.Add(b);
 
+            StackPanel sp = new() { Orientation = Orientation.Horizontal };
+            tb = new();
+            b.StringFormat = $" = 0.0";
+            tb.SetBinding(TextBlock.TextProperty, b);
+            sp.Children.Add(new TextBlock() { Text = "PenThickness" });
+            sp.Children.Add(tb);
+            decoStackPanel.Children.Add(sp);
+            decoStackPanel.Children.Add(sl);
+
+
+            //PenOffset
+            sl = new();
+            b = new();
+            b.Path = new PropertyPath(Slider.ValueProperty);
+            b.Source = sl;
+            mb.Bindings.Add(b);
+
+            sp = new() { Orientation = Orientation.Horizontal };
+            tb = new();
+            b.StringFormat = $" = 0.0";
+            tb.SetBinding(TextBlock.TextProperty, b);
+            sp.Children.Add(new TextBlock() { Text = "PenOffset" });
+            sp.Children.Add(tb);
+            decoStackPanel.Children.Add(sp);
+            decoStackPanel.Children.Add(sl);
+
 
             MyTBThumb2.TextBox.SetBinding(TextBox.TextDecorationsProperty, mb);
         }
+
+
         private Binding MakeBindingForComboBox(FrameworkElement elem)
         {
             Binding b = new();
@@ -364,30 +444,6 @@ namespace _20220615_TextBoxThumb
             result[4] = deco.Pen.Thickness;
             result[5] = deco.PenOffset;
             return result;
-        }
-    }
-
-    //TemplateをTextBoxにしたThumb、マウスドラッグ移動できない
-    public class TBThumb : Thumb
-    {
-        private const string TEXTBOX_NAME = "ttt";
-        public TextBox TextBox;
-        public TBThumb()
-        {
-            this.Template = MakeControlTemplate();
-            //Templateの更新、必要
-            ApplyTemplate();
-            //Templateの中のTextBoxを検索、取得
-            this.TextBox = (TextBox)Template.FindName(TEXTBOX_NAME, this);
-            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
-        }
-        //TextBoxをベースにしたControlTemplateを作成
-        private ControlTemplate MakeControlTemplate()
-        {
-            FrameworkElementFactory textF = new(typeof(TextBox), TEXTBOX_NAME);
-            ControlTemplate template = new();
-            template.VisualTree = textF;
-            return template;
         }
     }
 

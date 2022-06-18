@@ -5,35 +5,56 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20220615_TextBoxThumb"
         mc:Ignorable="d"
-        Title="MainWindow" Height="650" Width="600">
+        Title="MainWindow" Height="450" Width="600">
   <Window.Resources>
     <local:MyThicknessConv x:Key="ThicknessConv"/>
   </Window.Resources>
-  <Grid x:Name="MyGrid" UseLayoutRounding="True">
+  <Grid x:Name="MyGrid" UseLayoutRounding="False">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <Canvas Name="MyCanvas"/>
 
-    <TabControl Grid.Column="1">
-      <TabItem Header="kihon">
+    <TabControl x:Name="MyTabControl" Grid.Column="1">
+      <TabItem Header="基本">
         <StackPanel Grid.Column="1">
 
           <GroupBox x:Name="MyGroupBox" Header="TThumb2">
             <StackPanel x:Name="MyStackPanel">
               <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True"/>
-              <TextBlock Text="FontSize"/>
-              <Slider Value="{Binding FontSize}" Minimum="10" Maximum="200"
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="FontSize"/>
+                <TextBlock Text="{Binding ElementName=SliderFontSize, Path=Value, StringFormat={} \= 0.0}"/>
+              </StackPanel>
+              <Slider x:Name="SliderFontSize" Value="{Binding FontSize}" Minimum="10" Maximum="200"
                   IsMoveToPointEnabled="True"/>
-              <TextBlock Text="BorderThickness"/>
-              <Slider Value="{Binding BorderThickness, Converter={StaticResource ThicknessConv}}"
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="BorderThickness"/>
+                <TextBlock Text="{Binding ElementName=SliderBorderThickness, Path=Value, StringFormat={} \= 0.0}"/>
+              </StackPanel>
+              <Slider x:Name="SliderBorderThickness"
+                      Value="{Binding BorderThickness, Converter={StaticResource ThicknessConv}}"
                       Minimum="0" Maximum="20" IsMoveToPointEnabled="True"/>
-              <TextBlock Text="Padding"/>
-              <Slider Value="{Binding Padding, Converter={StaticResource ThicknessConv}}"
+              <TextBlock Text="Border"/>
+              <ComboBox x:Name="MyComboBoxBorderBrush"
+                    SelectedValue="{Binding BorderBrush}"
+                    SelectedValuePath="Value">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                      <Border Width="20" Background="{Binding Value}" Margin="0,2,4,2"/>
+                      <TextBlock Text="{Binding Key}"/>
+                    </StackPanel>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Padding"/>
+                <TextBlock Text="{Binding ElementName=SliderPadding, Path=Value, StringFormat={} \= 0.0}"/>
+              </StackPanel>
+              <Slider x:Name="SliderPadding" Value="{Binding Padding, Converter={StaticResource ThicknessConv}}"
                       Minimum="0" Maximum="20" IsMoveToPointEnabled="True"/>
-
-
               <StackPanel>
                 <TextBlock Text="文字色"/>
                 <ComboBox x:Name="MyComboBoxFore"
@@ -68,11 +89,17 @@
           </GroupBox>
         </StackPanel>
       </TabItem>
-      <TabItem Header="deco">
-        <StackPanel x:Name="MyStackPanel2">
-
-        </StackPanel>
+      
+      <TabItem Header="基本2">
+        <Border Margin="4">
+          <StackPanel x:Name="MyStackPanel2"/>
+        </Border>
       </TabItem>
+      
+      <TabItem Header="装飾">
+        <StackPanel x:Name="MyStackPanel3"/>
+      </TabItem>
+      
     </TabControl>
 
 
