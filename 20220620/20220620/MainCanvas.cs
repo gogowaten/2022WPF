@@ -29,7 +29,7 @@ namespace _20220620
     //}
     public class MainItemsControl : ItemsControl
     {
-        public ObservableCollection<Layer1> MyLayers = new();
+        public ObservableCollection<Layer1> MyLayers { get; set; } = new();
         public Layer1 MyCurrentLayer;
         //public Group1Base? MyCurrentGroup;
         public Group1Base MyEditingGroup;//編集状態Group、中のThumbが移動可能状態
@@ -39,6 +39,7 @@ namespace _20220620
         #region コンストラクタ
         public MainItemsControl()
         {
+            DataContext = this;
             SetTemplate();
             MyLayers.CollectionChanged += MyLayers_CollectionChanged;
             Layer1 l = new(this, new Data1(DataType.Layer));

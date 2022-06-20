@@ -11,7 +11,7 @@
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
-    <local:MainItemsControl x:Name="MyMainItemsControl"/>
+    <local:MainItemsControl x:Name="MyMainItemsControl" UseLayoutRounding="True"/>
     <StackPanel x:Name="MyStackPanel0" Grid.Column="1">
       <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Right" x:Name="MyButtonAddText" Content="Add" Click="MyButtonAddText_Click"/>
