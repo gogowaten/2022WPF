@@ -6,7 +6,21 @@
         xmlns:local="clr-namespace:_20220620"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <local:MainItemsControl x:Name="MyMainItemsControl"/>
+    <StackPanel x:Name="MyStackPanel0" Grid.Column="1">
+      <DockPanel LastChildFill="True">
+        <Button DockPanel.Dock="Right" x:Name="MyButtonAddText" Content="Add" Click="MyButtonAddText_Click"/>
+        <TextBox x:Name="MyTextBoxText" Text="testtext" AcceptsReturn="True"/>        
+      </DockPanel>
+      <DockPanel LastChildFill="True">
+        <TextBlock Text="{Binding ElementName=MySliderFontSize, Path=Value, StringFormat= size \= 000}"/>
+        <Slider x:Name="MySliderFontSize" Minimum="10" Maximum="100" Value="20"/>
+      </DockPanel>
+    </StackPanel>
+  </Grid>
 </Window>

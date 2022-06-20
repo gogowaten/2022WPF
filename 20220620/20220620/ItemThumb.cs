@@ -40,7 +40,7 @@ namespace _20220620
                 OnPropertyChanged();
             }
         }
-        public Item4(Data1 data) : base(data)
+        public Item4(MainItemsControl main, Data1 data) : base(main, data)
         {
             DataContext = MyData;
             MyTemplateCanvas = InitializeTemplate();
@@ -61,6 +61,7 @@ namespace _20220620
             Loaded += Item4_Loaded;
             PreviewMouseDown += Item4_PreviewMouseDown;
             PreviewMouseUp += Item4_PreviewMouseUp;
+
         }
 
 
@@ -81,6 +82,7 @@ namespace _20220620
         //クリックされたとき
         private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
+
             if (MyLayer == null) { return; }
             //前回と同じThumbをクリックされたのかチェック
             bool isEqual = false;
@@ -91,7 +93,8 @@ namespace _20220620
             //編集状態直下の自身が属するグループ
             //TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb2() ?? this;
             TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb() ?? this;
-            MyActiveMovableThumb = activeThumb;
+            //MyActiveMovableThumb = activeThumb;
+            MyMainItemsControl.MyActiveMovableThumb = activeThumb;
             //自身が編集状態Thumbの範囲外だった場合
             if (MyLayer.NowEditingThumb != activeThumb.MyParentGroup)
             {

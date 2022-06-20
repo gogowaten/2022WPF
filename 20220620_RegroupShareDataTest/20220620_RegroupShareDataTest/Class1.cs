@@ -24,7 +24,7 @@ namespace _20220620_RegroupShareDataTest
 
             foreach (var item in textBoxes)
             {
-                item.ReGroupData = this;
+                item.MyReGroupData = this;
             }
         }
         internal void RemoveItem(TTextBox textBox)
@@ -35,14 +35,34 @@ namespace _20220620_RegroupShareDataTest
     }
     public class TTextBox : TextBox
     {
-        public ReGroupData? ReGroupData;
+        public ReGroupData? MyReGroupData;
         public TTextBox(string text)
         {
             Text = text;
         }
         public void RemoveItem()
         {
-            this.ReGroupData?.RemoveItem(this);
+            this.MyReGroupData?.RemoveItem(this);
+        }
+    }
+
+    public class AAA
+    {
+        public List<string>? MyShare;
+        public string MyText;
+        public AAA(string text)
+        {
+            MyText = text;
+        }
+    }
+
+    public class BBB
+    {
+        public List<string>? MyShare = new();
+        public string MyText;
+        public BBB(string text)
+        {
+            MyText = text;
         }
     }
 }

@@ -82,7 +82,7 @@ namespace _20220620
         [DataMember]
         public Geometry? Geometry { get; set; }
 
-
+        //コンストラクタ
         public Data1(DataType type)
         {
             DataType = type;

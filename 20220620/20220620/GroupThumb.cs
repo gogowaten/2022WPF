@@ -45,8 +45,11 @@ namespace _20220620
         #endregion フィールド
 
         #region コンストラクタ、初期化
-        protected Group1Base() { Items = new(Children); }
-        public Group1Base(Data1 data) : base(data)
+        protected Group1Base(MainItemsControl main) : base(main)
+        {
+            Items = new(Children);
+        }
+        public Group1Base(MainItemsControl main, Data1 data) : base(main, data)
         {
             //Layerなら編集状態にする
             if (data.DataType == DataType.Layer) { IsMyEditing = true; }
@@ -64,14 +67,14 @@ namespace _20220620
             {
                 if (childData.DataTypeMain == DataTypeMain.Item)
                 {
-                    Item4 thumb = new(childData);
+                    Item4 thumb = new(main, childData);
                     thumb.MyParentGroup = this;
                     AddThumb(thumb);
                     //Children.Add(thumb);
                 }
                 else
                 {
-                    Group4 thumb = new(childData);
+                    Group4 thumb = new(MyMainItemsControl, childData);
                     thumb.MyParentGroup = this;
                     AddThumb(thumb);
                     //Children.Add(thumb);
@@ -285,6 +288,7 @@ namespace _20220620
 
                 //再グループ用の情報を付加
                 item.RegroupThumbs = Children.ToList();
+
             }
             MyParentGroup.RemoveThumb(this);//削除
 
@@ -325,7 +329,7 @@ namespace _20220620
             data.X = x; data.Y = y; data.Z = maxZ;
 
             //新グループ作成            
-            Group4 group = new(data);//作成
+            Group4 group = new(this.MyMainItemsControl, data);//作成
             group.MyLayer = this.MyLayer;
             //Z順にソートした要素群作成
             var sortedThumbs = thumbs.OrderBy(x => x.MyData.Z).ToList();
@@ -470,10 +474,10 @@ namespace _20220620
 
     public class Group4 : Group1Base
     {
-        public Group4() : this(new Data1(DataType.Group))
+        public Group4(MainItemsControl main) : this(main, new Data1(DataType.Group))
         {
         }
-        public Group4(Data1 data) : base(data) { }
+        public Group4(MainItemsControl main, Data1 data) : base(main, data) { }
 
     }
     public class Layer1 : Group1Base
@@ -558,8 +562,8 @@ namespace _20220620
         public ReadOnlyObservableCollection<TThumb1> SelectedThumbs;
         #endregion 通知プロパティ
 
-        public Layer1() : this(new Data1(DataType.Layer)) { }
-        public Layer1(Data1 data) : base(data)
+        public Layer1(MainItemsControl main) : this(main,new Data1(DataType.Layer)) { }
+        public Layer1(MainItemsControl main, Data1 data) : base(main, data)
         {
             //Layerなので編集状態にする
             NowEditingThumb = this;

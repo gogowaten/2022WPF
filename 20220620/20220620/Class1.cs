@@ -44,6 +44,7 @@ namespace _20220620
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
         #region フィールド
         private Group1Base? _myParentGroup;
         public Group1Base? MyParentGroup
@@ -57,19 +58,21 @@ namespace _20220620
             get => _myLayer;
             set { if (value == _myLayer) { return; } _myLayer = value; OnPropertyChanged(); }
         }
+        public MainItemsControl MyMainItemsControl;
 
-        //クリックされたThumbが属するグループの中で移動対象となるThumb
-        //更新タイミングはクリックされたときにしたけど、
-        //ホントはそれ以外にも編集状態Thumbが切り替わったときに全部のThumbに行いたい？
-        private TThumb1? _myMovableTargetThumb;
-        public TThumb1? MyActiveMovableThumb
-        {
-            get => _myMovableTargetThumb;
-            set { if (value == _myMovableTargetThumb) { return; } _myMovableTargetThumb = value; OnPropertyChanged(); }
-        }
+        ////クリックされたThumbが属するグループの中で移動対象となるThumb
+        ////更新タイミングはクリックされたときにしたけど、
+        ////ホントはそれ以外にも編集状態Thumbが切り替わったときに全部のThumbに行いたい？
+        //private TThumb1? _myMovableTargetThumb;
+        //public TThumb1? MyActiveMovableThumb
+        //{
+        //    get => _myMovableTargetThumb;
+        //    set { if (value == _myMovableTargetThumb) { return; } _myMovableTargetThumb = value; OnPropertyChanged(); }
+        //}
 
         public Data1 MyData { get; set; }
-        public List<TThumb1> RegroupThumbs = new();//再グループ用
+        public List<TThumb1>? RegroupThumbs;//再グループ用
+
 
         private bool _IsMySelected;
         public bool IsMySelected
@@ -92,8 +95,12 @@ namespace _20220620
 
         #endregion
 
-        public TThumb1() { MyData = new Data1(DataType.None); }
-        public TThumb1(Data1 data)
+        public TThumb1(MainItemsControl main)
+        {
+            MyMainItemsControl = main;
+            MyData = new Data1(DataType.None);
+        }
+        public TThumb1(MainItemsControl main, Data1 data) : this(main)
         {
             MyData = data;
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
@@ -274,6 +281,7 @@ namespace _20220620
             //選択状態のThumbを基準に再グループ
             var target = (TThumb1?)GetMyActiveMoveThumb() ?? this;
             if (target == null) { return; }
+
             if (target.IsMySelected == true && target.RegroupThumbs.Count >= 2)
             {
                 target.MyParentGroup?.MakeGroupFromChildren3(target.RegroupThumbs);
@@ -293,34 +301,35 @@ namespace _20220620
 
 
 
-    public class ReGroupData
-    {
-        public static List<TTextBox> TTextBoxList = new();
-        public ReGroupData(List<TTextBox> textBoxes)
-        {
-            TTextBoxList = textBoxes;
-            
-            foreach (var item in textBoxes)
-            {
-                item.ReGroupData = this;
-            }
-        }
-        internal void RemoveItem(TTextBox textBox)
-        {
-            TTextBoxList.Remove(textBox);
-        }
-        
-    }
-    public class TTextBox : TextBox
-    {
-        public ReGroupData? ReGroupData;
-        public TTextBox(string text)
-        {
-            Text = text;            
-        }
-        public void RemoveItem()
-        {
-            this.ReGroupData?.RemoveItem(this);
-        }
-    }
+    //public class ReGroupData
+    //{
+    //    //public static List<TTextBox> TTextBoxList = new();
+    //    public static List<TThumb1> RegroupThumbs { get; }//再グループ用
+    //    public static int Reg = 1;
+    //    public ReGroupData(List<TThumb1> thumbs)
+    //    {   
+    //        foreach (var item in thumbs)
+    //        {
+    //            RegroupThumbs.Add(item);
+    //            item.MyReGroupData = this;
+    //        }
+    //    }
+    //    internal void RemoveItem(TThumb1 thumb)
+    //    {
+    //        RegroupThumbs.Remove(thumb);
+    //    }
+
+    //}
+    //public class TTextBox : TextBox
+    //{
+    //    public ReGroupData? ReGroupData;
+    //    public TTextBox(string text)
+    //    {
+    //        Text = text;            
+    //    }
+    //    public void RemoveItem()
+    //    {
+    //        this.ReGroupData?.RemoveItem(this);
+    //    }
+    //}
 }

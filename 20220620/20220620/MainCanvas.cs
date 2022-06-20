@@ -22,34 +22,70 @@ using System.Xml;
 
 namespace _20220620
 {
-    public class MainCanvas : Canvas
+    //public class MainCanvas : Canvas
+    //{
+
+
+    //}
+    public class MainItemsControl : ItemsControl
     {
         public ObservableCollection<Layer1> MyLayers = new();
-        public Layer1? MyCurrentLayer;
+        public Layer1 MyCurrentLayer;
+        //public Group1Base? MyCurrentGroup;
+        public Group1Base MyEditingGroup;//編集状態Group、中のThumbが移動可能状態
+        public TThumb1? MyActiveMovableThumb;//移動対象Thumb
+        public Item4? MyCurrentItem;//直前にクリックされたThumb
 
         #region コンストラクタ
-        public MainCanvas()
+        public MainItemsControl()
         {
+            SetTemplate();
             MyLayers.CollectionChanged += MyLayers_CollectionChanged;
+            Layer1 l = new(this, new Data1(DataType.Layer));
+            MyLayers.Add(l);
+            MyCurrentLayer = l;
+            MyEditingGroup = l;
         }
-        
-        public MainCanvas(Layer1 layer) : this()
+
+        public MainItemsControl(Layer1 layer) : this()
         {
             MyLayers.Add(layer);
+            MyCurrentLayer = layer;
+            MyEditingGroup = layer;
+
         }
+        private void SetTemplate()
+        {
+            //FrameworkElementFactory panel = new(typeof(Canvas));
+            ItemsPanelTemplate panelTemplate = new(new(typeof(Canvas)));
+            this.SetBinding(ItemsSourceProperty, new Binding(nameof(MyLayers)));
+            this.ItemsPanel = panelTemplate;
+        }
+
         #endregion コンストラクタ
 
         private void MyLayers_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.Action == NotifyCollectionChangedAction.Add)
             {
-                if (e.NewItems?[0] is Layer1 layer)
-                {
-                    MyCurrentLayer = layer;
-                }
+                //if (e.NewItems?[0] is Layer1 layer)
+                //{
+                //    MyCurrentLayer = layer;
+                //}
             }
         }
 
-      
+        public void AddItem(Data1 data)
+        {
+            if (data.DataTypeMain == DataTypeMain.Item)
+            {
+                Item4 item = new(this, data);
+                MyEditingGroup.AddThumb(item);
+            }
+            else
+            {
+
+            }
+        }
     }
 }
