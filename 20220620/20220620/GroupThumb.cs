@@ -141,7 +141,7 @@ namespace _20220620
                     }
 
                     //Parent(自身)が編集状態なら追加アイテムを
-                    if(this == MyMainItemsControl.MyEditingGroup)
+                    if (this == MyMainItemsControl.MyEditingGroup)
                     {
                         DragEventAdd(addItem);//ドラッグ移動可能にする
                     }
@@ -225,6 +225,9 @@ namespace _20220620
             width -= x; height -= y;
             return (x, y, width, height);
         }
+
+        //サイズと位置の更新
+        //使用：削除時
         public void AjustLocate3()
         {
             //新しいRect取得、Parentがnullの場合は0が返ってくる
@@ -296,7 +299,7 @@ namespace _20220620
                 item.RegroupThumbs = Children.ToList();
 
             }
-            MyParentGroup.RemoveThumb(this);//削除
+            MyParentGroup.RemoveThumb2(this);//削除
 
             //兄弟の再グループリストから自身を削除
             foreach (var brothers in MyParentGroup.Children)
@@ -344,7 +347,7 @@ namespace _20220620
             //Childrenに新グループを挿入
             InsertThumb(group);
             //Childrenから要素群削除
-            foreach (var item in sortedThumbs) { RemoveThumb(item); }
+            foreach (var item in sortedThumbs) { RemoveThumb2(item); }
             //新グループに要素群追加
             foreach (var item in sortedThumbs)
             {
@@ -402,24 +405,21 @@ namespace _20220620
         }
 
         //指定ThumbをChildrenから削除
-        続きはここから
-        public virtual void RemoveThumb(TThumb1 thumb)
+        public virtual void RemoveThumb2(TThumb1 thumb)
         {
             if (Children.Contains(thumb))
             {
                 int z = thumb.MyData.Z;
                 //LastClickedをクリア
-                if (MyLayer != null) MyLayer.LastClickedItem = null;
+                MyMainItemsControl.MyCurrentItem = null;
+
                 //選択リストから削除
-                MyLayer?.SelectThumbRemove(thumb);
+                MyMainItemsControl.MySelectedThumbs.Remove(thumb);
+
                 //コレクションから削除
                 Children.Remove(thumb);
                 //2未満ならグループ解除
-                if (Children.Count < 2)
-                {
-                    Ungroup2();
-                    //Ungroup();
-                }
+                if (Children.Count < 2) { Ungroup2(); }
                 else
                 {
                     for (int i = z; i < Children.Count; i++)
@@ -427,12 +427,45 @@ namespace _20220620
                         Children[i].MyData.Z = i;
                     }
                 }
+                //位置とサイズの修正
+                AjustLocate3();
             }
             else
             {
                 throw new AggregateException("グループ内に対象Thumbが見つからない");
             }
         }
+        ////指定ThumbをChildrenから削除
+        //public virtual void RemoveThumb(TThumb1 thumb)
+        //{
+        //    if (Children.Contains(thumb))
+        //    {
+        //        int z = thumb.MyData.Z;
+        //        //LastClickedをクリア
+        //        if (MyLayer != null) MyLayer.LastClickedItem = null;
+        //        //選択リストから削除
+        //        MyLayer?.SelectThumbRemove(thumb);
+        //        //コレクションから削除
+        //        Children.Remove(thumb);
+        //        //2未満ならグループ解除
+        //        if (Children.Count < 2)
+        //        {
+        //            Ungroup2();
+        //            //Ungroup();
+        //        }
+        //        else
+        //        {
+        //            for (int i = z; i < Children.Count; i++)
+        //            {
+        //                Children[i].MyData.Z = i;
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        throw new AggregateException("グループ内に対象Thumbが見つからない");
+        //    }
+        //}
         public virtual void MoveThumbIndexWithZIndex(int oldIndex, int newIndex)
         {
             Children.Move(oldIndex, newIndex);

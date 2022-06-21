@@ -42,7 +42,7 @@ namespace _20220620
 
         private void MyButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            MyMainItemsControl.MyEditingGroup?.RemoveThumb(MyMainItemsControl.MyActiveMovableThumb);
+            MyMainItemsControl.MyEditingGroup?.RemoveThumb2(MyMainItemsControl.MyActiveMovableThumb);
         }
     }
 }

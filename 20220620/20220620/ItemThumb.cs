@@ -96,14 +96,17 @@ namespace _20220620
             //MyActiveMovableThumb = activeThumb;
             MyMainItemsControl.MyActiveMovableThumb = activeThumb;
             //自身が編集状態Thumbの範囲外だった場合
-            if (MyLayer.NowEditingThumb != activeThumb.MyParentGroup)
+
+            if(MyMainItemsControl.MyEditingGroup!=activeThumb.MyParentGroup)
+            //if (MyLayer.NowEditingThumb != activeThumb.MyParentGroup)
             {
                 //編集状態Thumbの切り替え
                 //Layer直下のThumb群から自身が属するThumbに切り替える
                 Group1Base? nextEdit = GetMyUnderLayerThumb(this) as Group1Base;
                 if (nextEdit == null) { MessageBox.Show("次の編集状態Thumbが見つからん"); }
                 //MyLayer.NowEditingThumb = nextEdit;
-                MyLayer.SetNowEditingThumb(nextEdit, this);
+                MyMainItemsControl.MyEditingGroup = nextEdit;
+                //MyLayer.SetNowEditingThumb(nextEdit, this);
             }
             else
             {
@@ -116,21 +119,6 @@ namespace _20220620
                     {
                         MyLayer.SelectThumbReplace(activeThumb);
                     }
-                    ////同じThumbがクリックされた
-                    //else
-                    //{
-                    //    //ParentThumbと編集状態Thumbが違う
-                    //    if (MyLayer.NowEditingThumb != MyParentGroup)
-                    //    {
-                    //        //アクティブThumbを編集状態Thumbに指定
-                    //        if (activeThumb is Group4 activeParent)
-                    //        {
-                    //            if (isEqual) { MyLayer.NowEditingThumb = activeParent; }
-
-                    //        }
-                    //    }
-                    //}
-
                 }
                 //ctrlキーが押されていたら複数選択状態にするので、選択リストに追加
                 else if (Keyboard.Modifiers == ModifierKeys.Control)
@@ -147,6 +135,60 @@ namespace _20220620
                 }
             }
         }
+        //  //クリックされたとき
+        //private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        //{
+
+        //    if (MyLayer == null) { return; }
+        //    //前回と同じThumbをクリックされたのかチェック
+        //    bool isEqual = false;
+        //    if (MyLayer.LastClickedItem == this) isEqual = true;
+        //    //最後にクリックされたThumbに自身を登録する
+        //    MyLayer.LastClickedItem = this;
+
+        //    //編集状態直下の自身が属するグループ
+        //    //TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb2() ?? this;
+        //    TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb() ?? this;
+        //    //MyActiveMovableThumb = activeThumb;
+        //    MyMainItemsControl.MyActiveMovableThumb = activeThumb;
+        //    //自身が編集状態Thumbの範囲外だった場合
+
+        //    if (MyLayer.NowEditingThumb != activeThumb.MyParentGroup)
+        //    {
+        //        //編集状態Thumbの切り替え
+        //        //Layer直下のThumb群から自身が属するThumbに切り替える
+        //        Group1Base? nextEdit = GetMyUnderLayerThumb(this) as Group1Base;
+        //        if (nextEdit == null) { MessageBox.Show("次の編集状態Thumbが見つからん"); }
+        //        //MyLayer.NowEditingThumb = nextEdit;
+        //        MyLayer.SetNowEditingThumb(nextEdit, this);
+        //    }
+        //    else
+        //    {
+        //        //編集状態直下の自身が属するグループを選択状態リストに登録する
+        //        //通常クリック(修飾キーなし)のときは入れ替え
+        //        if (Keyboard.Modifiers == ModifierKeys.None)
+        //        {
+        //            //違うThumbクリックなら選択リストの入れ替え
+        //            if (isEqual == false)
+        //            {
+        //                MyLayer.SelectThumbReplace(activeThumb);
+        //            }
+        //        }
+        //        //ctrlキーが押されていたら複数選択状態にするので、選択リストに追加
+        //        else if (Keyboard.Modifiers == ModifierKeys.Control)
+        //        {
+        //            //すでに選択中だった場合は選択解除
+        //            if (MyLayer.SelectedThumbs.Contains(activeThumb))
+        //            {
+        //                MyLayer.SelectThumbRemove(activeThumb);
+        //            }
+        //            else
+        //            {
+        //                MyLayer.SelectThumbAdd(activeThumb);
+        //            }
+        //        }
+        //    }
+        //}
 
         #endregion イベント
 

@@ -77,17 +77,43 @@ namespace _20220620
             { if (value == _myActiveMovableThumb) { return; } _myActiveMovableThumb = value; OnPropertyChanged(); }
         }
 
-        //注目Thumb、直前にクリックされたor追加された
+        //注目ItemThumb、直前にクリックされたor追加された
         private Item4? _myCurrentItem;
         public Item4? MyCurrentItem
         {
             get => _myCurrentItem; set
-            { if (value == _myCurrentItem) { return; } _myCurrentItem = value; OnPropertyChanged(); }
+            {
+
+                //古い方を記録
+                MyPreviousCurrentItem = _myCurrentItem;
+                //格納しているThumbと同じなら必要なし、終了
+                if (value == _myCurrentItem) { return; }
+
+                //古い方のIsLastClickedをfalseに変更してから
+                if (_myCurrentItem != null)
+                {
+                    _myCurrentItem.IsMyLastClicked = false;
+                }
+                //新しい方のIsLastClickedをtrue
+                if (value != null)
+                {
+                    value.IsMyLastClicked = true;
+                }
+
+                //新旧入れ替え
+
+                _myCurrentItem = value; OnPropertyChanged();
+            }
         }
+
+        //1つ前に注目itemThumbだったもの
+        public Item4? MyPreviousCurrentItem;
+
+
 
         //選択状態のThumb群
         public ObservableCollection<TThumb1> MySelectedThumbs = new();
-        
+
         #endregion 通知プロパティ
 
 
@@ -106,19 +132,19 @@ namespace _20220620
 
         private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            if(e.Action == NotifyCollectionChangedAction.Remove)
+            if (e.Action == NotifyCollectionChangedAction.Remove)
             {
                 if (e.OldItems?[0] is TThumb1 tt)
                 {
                     tt.IsMySelected = false;
                 }
             }
-            else if (e.Action== NotifyCollectionChangedAction.Reset)
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
             {
-                if(e.OldItems is null) { return; }
+                if (e.OldItems is null) { return; }
                 foreach (var item in e.OldItems)
                 {
-                    if(item is TThumb1 tt) tt.IsMySelected = false;
+                    if (item is TThumb1 tt) tt.IsMySelected = false;
                 }
             }
         }
@@ -151,8 +177,14 @@ namespace _20220620
             }
         }
 
+        #region publicメソッド
+        public void AddItem(Group1Base group, TThumb1 thumb)
+        {
+            group.AddThumb(thumb);
+        }
         public void AddItem(Data1 data)
         {
+            if (MyEditingGroup == null) { return; }
             if (data.DataTypeMain == DataTypeMain.Item)
             {
                 Item4 item = new(this, data);
@@ -164,7 +196,10 @@ namespace _20220620
 
             }
         }
-        #region publicメソッド
+        public void RemoveThumb(TThumb1 thumb)
+        {
+            MyEditingGroup?.RemoveThumb2(thumb);
+        }
         //public void ChangeEditingGroup(Group1Base? newGroup, TThumb1 lastClicked)
         //{
         //    if (MyEditingGroup == newGroup) { return; }
