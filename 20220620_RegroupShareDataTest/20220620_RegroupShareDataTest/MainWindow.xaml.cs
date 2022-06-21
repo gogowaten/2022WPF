@@ -13,8 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-//失敗、思うような動作にならないと思ったけど、普通にコレクション型を指定するだけで良かった
-
+//失敗、
+//再グループ化のときに必要な情報を、指定した異なるインスタンス間で共有するために考えたけど意味なかった
+//思うような動作にならないと思ったけど、普通にコレクション型を指定するだけで良かった
 
 namespace _20220620_RegroupShareDataTest
 {

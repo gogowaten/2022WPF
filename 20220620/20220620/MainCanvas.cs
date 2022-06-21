@@ -27,14 +27,69 @@ namespace _20220620
 
 
     //}
-    public class MainItemsControl : ItemsControl
+    public class MainItemsControl : ItemsControl, INotifyPropertyChanged
     {
+        #region 通知プロパティ
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
         public ObservableCollection<Layer1> MyLayers { get; set; } = new();
-        public Layer1 MyCurrentLayer;
+
+        //操作対象のLayer
+        private Layer1? _myCurrentLayer;
+        public Layer1? MyCurrentLayer
+        {
+            get => _myCurrentLayer;
+            set { if (value == _myCurrentLayer) { return; } _myCurrentLayer = value; OnPropertyChanged(); }
+        }
         //public Group1Base? MyCurrentGroup;
-        public Group1Base MyEditingGroup;//編集状態Group、中のThumbが移動可能状態
-        public TThumb1? MyActiveMovableThumb;//移動対象Thumb
-        public Item4? MyCurrentItem;//直前にクリックされたThumb
+
+        //編集状態Group、中のThumbが移動可能状態
+        private Group1Base? _myEditingGroup;
+        public Group1Base? MyEditingGroup
+        {
+            get => _myEditingGroup;
+            set
+            {
+                if (value == _myEditingGroup) { return; }
+                //選択状態のThumb群のクリア
+                MySelectedThumbs.Clear();
+                //旧グループItemsからドラッグ移動イベントを削除
+                MyEditingGroup?.RemoveDragEventForChildren();
+                //入れ替え＆通知
+                _myEditingGroup = value; OnPropertyChanged();
+                //新グループItemsへのドラッグ移動イベント追加
+                MyEditingGroup?.AddDragEventForChildren();
+
+                //移動対象Thumbのクリア
+                MyActiveMovableThumb = null;
+
+            }
+        }
+
+        //移動対象Thumb
+        private TThumb1? _myActiveMovableThumb;
+        public TThumb1? MyActiveMovableThumb
+        {
+            get => _myActiveMovableThumb; set
+            { if (value == _myActiveMovableThumb) { return; } _myActiveMovableThumb = value; OnPropertyChanged(); }
+        }
+
+        //注目Thumb、直前にクリックされたor追加された
+        private Item4? _myCurrentItem;
+        public Item4? MyCurrentItem
+        {
+            get => _myCurrentItem; set
+            { if (value == _myCurrentItem) { return; } _myCurrentItem = value; OnPropertyChanged(); }
+        }
+
+        //選択状態のThumb群
+        public ObservableCollection<TThumb1> MySelectedThumbs = new();
+        
+        #endregion 通知プロパティ
+
 
         #region コンストラクタ
         public MainItemsControl()
@@ -42,10 +97,30 @@ namespace _20220620
             DataContext = this;
             SetTemplate();
             MyLayers.CollectionChanged += MyLayers_CollectionChanged;
+            MySelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
             Layer1 l = new(this, new Data1(DataType.Layer));
             MyLayers.Add(l);
             MyCurrentLayer = l;
             MyEditingGroup = l;
+        }
+
+        private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if(e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                if (e.OldItems?[0] is TThumb1 tt)
+                {
+                    tt.IsMySelected = false;
+                }
+            }
+            else if (e.Action== NotifyCollectionChangedAction.Reset)
+            {
+                if(e.OldItems is null) { return; }
+                foreach (var item in e.OldItems)
+                {
+                    if(item is TThumb1 tt) tt.IsMySelected = false;
+                }
+            }
         }
 
         public MainItemsControl(Layer1 layer) : this()
@@ -82,11 +157,47 @@ namespace _20220620
             {
                 Item4 item = new(this, data);
                 MyEditingGroup.AddThumb(item);
+                MyCurrentItem = item;
             }
             else
             {
 
             }
         }
+        #region publicメソッド
+        //public void ChangeEditingGroup(Group1Base? newGroup, TThumb1 lastClicked)
+        //{
+        //    if (MyEditingGroup == newGroup) { return; }
+        //    //選択リストのリセット
+        //    if (MySelectedThumbs.Count > 0)
+        //    {
+        //        foreach (var item in MySelectedThumbs)
+        //        {
+        //            item.IsMySelected = false;
+        //        }
+        //        MySelectedThumbs.Clear();
+        //    }
+        //    //ドラッグ移動イベントの付け外し
+        //    if (MyEditingGroup != null)
+        //    {
+        //        MyEditingGroup.IsMyEditing = false;
+        //        MyEditingGroup.RemoveDragEventForChildren();
+        //    }
+
+        //    NowEditingThumb = newGroup;//切り替え
+
+        //    if (NowEditingThumb != null)
+        //    {
+        //        NowEditingThumb.IsMyEditing = true;
+        //        NowEditingThumb.AddDragEventForChildren();
+        //    }
+
+        //    TThumb1? active = lastClicked.GetMyActiveMoveThumb();
+        //    if (active == null) { active = lastClicked; }
+        //    SelectThumbAdd(active);
+        //}
+
+        #endregion publicメソッド
+
     }
 }

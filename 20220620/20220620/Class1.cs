@@ -154,8 +154,10 @@ namespace _20220620
             thumb.DragDelta -= thumb.TThumb_DragDelta;
             thumb.IsMyMoveTarget = false;//移動対象から外す
         }
+        //ドラッグ移動終了時
         private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
+            //移動距離が0＆クリック対象が前回と同じだった場合は、編集状態グループをより近いグループに切り替える
             //移動がなかった
             if (e.HorizontalChange == 0.0 && e.VerticalChange == 0.0)
             {
@@ -165,13 +167,19 @@ namespace _20220620
                 if (MyLayer.LastPreviousClickedItem == thumb)
                 {
                     //ParentThumbと編集状態Thumbが違う
-                    if (MyLayer.NowEditingThumb != thumb?.MyParentGroup)
+                    //if (MyLayer.NowEditingThumb != thumb?.MyParentGroup)
+                    if (MyMainItemsControl.MyEditingGroup != thumb?.MyParentGroup)
                     {
-                        //アクティブThumbを編集状態Thumbに指定
-                        if (thumb?.GetMyActiveMoveThumb() is Group4 activeParent)
+                        //アクティブThumbを編集状態Thumbに指定+アクティブThumbを更新
+                        if (MyMainItemsControl.MyActiveMovableThumb is Group4 ag)
                         {
-                            MyLayer.SetNowEditingThumb(activeParent, thumb);
+                            MyMainItemsControl.MyEditingGroup = ag;
+                            MyMainItemsControl.MyActiveMovableThumb = thumb?.GetMyActiveMoveThumb();
                         }
+                        //if (thumb?.GetMyActiveMoveThumb() is Group4 activeParent)
+                        //{
+                        //    MyLayer.SetNowEditingThumb(activeParent, thumb);
+                        //}
                     }
                 }
             }
@@ -251,7 +259,8 @@ namespace _20220620
         {
             if (MyParentGroup is Group4 group)
             {
-                if (group.MyParentGroup?.IsMyEditing == true)
+                //if (group.MyParentGroup?.IsMyEditing == true)
+                if (group.MyParentGroup == MyMainItemsControl.MyEditingGroup)
                 {
                     return group;
                 }
@@ -259,6 +268,7 @@ namespace _20220620
                 {
                     return group.GetMyActiveMoveThumb();
                 }
+
             }
             else { return null; }
         }

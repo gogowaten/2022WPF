@@ -21,6 +21,7 @@
         <TextBlock Text="{Binding ElementName=MySliderFontSize, Path=Value, StringFormat= size \= 000}"/>
         <Slider x:Name="MySliderFontSize" Minimum="10" Maximum="100" Value="20"/>
       </DockPanel>
+      <Button x:Name="MyButtonRemove" Content="remove" Click="MyButtonRemove_Click"/>
     </StackPanel>
   </Grid>
 </Window>
