@@ -22,6 +22,14 @@
         <Slider x:Name="MySliderFontSize" Minimum="10" Maximum="100" Value="20"/>
       </DockPanel>
       <Button x:Name="MyButtonRemove" Content="remove" Click="MyButtonRemove_Click"/>
+      <Button x:Name="MyButton1" Content="check" Click="MyButton1_Click"/>
+      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyActiveMovableThumb, StringFormat=ActiveT \= {0}}"/>
+      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyCurrentItem, StringFormat=CurItem \={0}}"/>
+      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyCurrentLayer, StringFormat=CurLayer \={0}}"/>
+      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyLayers.Count, StringFormat=LayersCount \=0}"/>
+      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MySelectedThumbs.Count, StringFormat=Selected \= 0}"/>
+      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyEditingGroup}"/>
+      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyPreviousCurrentItem, StringFormat=PreItem \= {0}}"/>
     </StackPanel>
   </Grid>
 </Window>

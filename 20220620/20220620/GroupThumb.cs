@@ -271,45 +271,45 @@ namespace _20220620
         /// </summary>
         public void Ungroup2()
         {
-            if (MyParentGroup == null) { return; }
-            //上にあるThumbZの底上げ
-            for (int i = MyData.Z + 1; i < MyParentGroup.Children.Count; i++)
-            {
-                //削除対象子要素数-1ぶん底上げする
-                MyParentGroup.Children[i].MyData.Z += Children.Count - 1;
-            }
-            //子要素に対してx,y,zの調整
-            foreach (var item in Children)
-            {
-                item.MyData.X += MyData.X;
-                item.MyData.Y += MyData.Y;
-                item.MyData.Z += MyData.Z;//Zを削除対象のZぶん底上げする
-            }
+            //if (MyParentGroup == null) { return; }
+            ////上にあるThumbZの底上げ
+            //for (int i = MyData.Z + 1; i < MyParentGroup.Children.Count; i++)
+            //{
+            //    //削除対象子要素数-1ぶん底上げする
+            //    MyParentGroup.Children[i].MyData.Z += Children.Count - 1;
+            //}
+            ////子要素に対してx,y,zの調整
+            //foreach (var item in Children)
+            //{
+            //    item.MyData.X += MyData.X;
+            //    item.MyData.Y += MyData.Y;
+            //    item.MyData.Z += MyData.Z;//Zを削除対象のZぶん底上げする
+            //}
 
-            //追加してから削除、しないと削除時点で要素数が2未満になった場合にそれも解除対象になってしまうから
-            //解除後は子要素群を選択状態にするので今のはクリアする
-            MyLayer?.SelectThumbsCleal();
-            //子要素の処理
-            foreach (var item in Children)
-            {
-                MyLayer?.SelectThumbAdd(item);//選択状態にする、必要ない
-                MyParentGroup.InsertThumb(item);//Parentの子要素に挿入
+            ////追加してから削除、しないと削除時点で要素数が2未満になった場合にそれも解除対象になってしまうから
+            ////解除後は子要素群を選択状態にするので今のはクリアする
+            //MyLayer?.SelectThumbsCleal();
+            ////子要素の処理
+            //foreach (var item in Children)
+            //{
+            //    MyLayer?.SelectThumbAdd(item);//選択状態にする、必要ない
+            //    MyParentGroup.InsertThumb(item);//Parentの子要素に挿入
 
-                //再グループ用の情報を付加
-                item.RegroupThumbs = Children.ToList();
+            //    //再グループ用の情報を付加
+            //    item.RegroupThumbs = Children.ToList();
 
-            }
-            MyParentGroup.RemoveThumb2(this);//削除
+            //}
+            //MyParentGroup.RemoveThumb2(this);//削除
 
-            //兄弟の再グループリストから自身を削除
-            foreach (var brothers in MyParentGroup.Children)
-            {
-                brothers.RegroupThumbs.Remove(this);
-                if (brothers.RegroupThumbs.Count <= 1)
-                {
-                    brothers.RegroupThumbs.Clear();
-                }
-            }
+            ////兄弟の再グループリストから自身を削除
+            //foreach (var brothers in MyParentGroup.Children)
+            //{
+            //    brothers.RegroupThumbs.Remove(this);
+            //    if (brothers.RegroupThumbs.Count <= 1)
+            //    {
+            //        brothers.RegroupThumbs.Clear();
+            //    }
+            //}
         }
 
         /// <summary>
@@ -410,8 +410,8 @@ namespace _20220620
             if (Children.Contains(thumb))
             {
                 int z = thumb.MyData.Z;
-                //LastClickedをクリア
-                MyMainItemsControl.MyCurrentItem = null;
+                ////LastClickedをクリア
+                //MyMainItemsControl.MyCurrentItem = null;
 
                 //選択リストから削除
                 MyMainItemsControl.MySelectedThumbs.Remove(thumb);
@@ -567,39 +567,39 @@ namespace _20220620
 
 
         //最後の一個前に選択されたItem
-        public Item4? LastPreviousClickedItem;
+        //public Item4? LastPreviousClickedItem;
         //最後にクリックされたItem
-        private Item4? _lastClickedItem;
-        public Item4? LastClickedItem
-        {
-            get => _lastClickedItem;
-            set
-            {
-                //古い方を記録
-                LastPreviousClickedItem = _lastClickedItem;
-                //格納しているThumbと同じなら必要なし、終了
-                if (_lastClickedItem == value) { return; }
+        //private Item4? _lastClickedItem;
+        //public Item4? LastClickedItem
+        //{
+        //    get => _lastClickedItem;
+        //    set
+        //    {
+        //        //古い方を記録
+        //        LastPreviousClickedItem = _lastClickedItem;
+        //        //格納しているThumbと同じなら必要なし、終了
+        //        if (_lastClickedItem == value) { return; }
 
-                //古い方のIsLastClickedをfalseに変更してから
-                if (_lastClickedItem != null)
-                {
-                    _lastClickedItem.IsMyLastClicked = false;
-                }
-                //新しい方のIsLastClickedをtrue
-                if (value != null)
-                {
-                    value.IsMyLastClicked = true;
-                }
+        //        //古い方のIsLastClickedをfalseに変更してから
+        //        if (_lastClickedItem != null)
+        //        {
+        //            _lastClickedItem.IsMyLastClicked = false;
+        //        }
+        //        //新しい方のIsLastClickedをtrue
+        //        if (value != null)
+        //        {
+        //            value.IsMyLastClicked = true;
+        //        }
 
-                //新旧入れ替え
-                _lastClickedItem = value;
-                OnPropertyChanged();
-            }
-        }
+        //        //新旧入れ替え
+        //        _lastClickedItem = value;
+        //        OnPropertyChanged();
+        //    }
+        //}
 
         //選択状態のThumb群
-        private readonly ObservableCollection<TThumb1> _SelectedThumbs = new();
-        public ReadOnlyObservableCollection<TThumb1> SelectedThumbs;
+        //private readonly ObservableCollection<TThumb1> _SelectedThumbs = new();
+        //public ReadOnlyObservableCollection<TThumb1> SelectedThumbs;
         #endregion 通知プロパティ
 
         public Layer1(MainItemsControl main) : this(main, new Data1(DataType.Layer)) { }
@@ -609,8 +609,8 @@ namespace _20220620
             //NowEditingThumb = this;
             //IsMyEditing = true;
 
-            _SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
-            SelectedThumbs = new(_SelectedThumbs);
+            //_SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
+            //SelectedThumbs = new(_SelectedThumbs);
             SetMyLayer2(this);
         }
 
@@ -618,89 +618,89 @@ namespace _20220620
         #region メソッド
 
         #region 選択状態Thumb群の操作
-        private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            TThumb1? nn = e.NewItems?[0] as TThumb1;
-            TThumb1? oo = e.OldItems?[0] as TThumb1;
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    if (nn == null) { return; }
-                    nn.IsMySelected = true;
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    if (oo == null) { return; }
-                    oo.IsMySelected = false;
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    if (nn == null || oo == null) { return; }
-                    oo.IsMySelected = false;
-                    nn.IsMySelected = true;
-                    var item0 = e.NewItems?[0];
-                    var item1 = e.OldItems?[0];
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    var item2 = e.NewItems?[0];
-                    var item3 = e.OldItems?[0];
-                    break;
-                case NotifyCollectionChangedAction.Reset:
+        //private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    TThumb1? nn = e.NewItems?[0] as TThumb1;
+        //    TThumb1? oo = e.OldItems?[0] as TThumb1;
+        //    switch (e.Action)
+        //    {
+        //        case NotifyCollectionChangedAction.Add:
+        //            if (nn == null) { return; }
+        //            nn.IsMySelected = true;
+        //            break;
+        //        case NotifyCollectionChangedAction.Remove:
+        //            if (oo == null) { return; }
+        //            oo.IsMySelected = false;
+        //            break;
+        //        case NotifyCollectionChangedAction.Replace:
+        //            if (nn == null || oo == null) { return; }
+        //            oo.IsMySelected = false;
+        //            nn.IsMySelected = true;
+        //            var item0 = e.NewItems?[0];
+        //            var item1 = e.OldItems?[0];
+        //            break;
+        //        case NotifyCollectionChangedAction.Move:
+        //            var item2 = e.NewItems?[0];
+        //            var item3 = e.OldItems?[0];
+        //            break;
+        //        case NotifyCollectionChangedAction.Reset:
 
-                    break;
-                default:
-                    break;
-            }
-        }
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
 
-        //選択状態Thumbの追加
-        public void SelectThumbAdd(TThumb1? thumb)
-        {
-            //同じThumbがないかチェックしてから追加
-            if (thumb == null) { return; }
-            if (SelectedThumbs.Contains(thumb)) { return; }
-            _SelectedThumbs.Add(thumb);
-        }
-        //選択状態Thumbの削除
-        public void SelectThumbRemove(TThumb1 thumb)
-        {
-            if (!SelectedThumbs.Contains(thumb)) { return; }
-            _SelectedThumbs.Remove(thumb);
-        }
-        //選択状態Thumbの入れ替え
-        public void SelectThumbReplace(TThumb1? thumb)
-        {
-            if (thumb == null) { return; }
-            if (SelectedThumbs.Count == 1)
-            {
-                if (SelectedThumbs[0] != thumb)
-                {
-                    _SelectedThumbs.Remove(SelectedThumbs[0]);
-                    _SelectedThumbs.Add(thumb);
-                }
-            }
-            else if (SelectedThumbs.Count > 1)
-            {
-                foreach (var item in SelectedThumbs)
-                {
-                    item.IsMySelected = false;
-                }
-                _SelectedThumbs.Clear();
-                _SelectedThumbs.Add(thumb);
-            }
-            else
-            {
-                _SelectedThumbs.Add(thumb);
-            }
-        }
-        //選択状態Thumbのクリア
-        public void SelectThumbsCleal()
-        {
-            if (_SelectedThumbs.Count == 0) { return; }
-            foreach (var item in _SelectedThumbs)
-            {
-                item.IsMySelected = false;
-            }
-            _SelectedThumbs.Clear();
-        }
+        ////選択状態Thumbの追加
+        //public void SelectThumbAdd(TThumb1? thumb)
+        //{
+        //    //同じThumbがないかチェックしてから追加
+        //    if (thumb == null) { return; }
+        //    if (SelectedThumbs.Contains(thumb)) { return; }
+        //    _SelectedThumbs.Add(thumb);
+        //}
+        ////選択状態Thumbの削除
+        //public void SelectThumbRemove(TThumb1 thumb)
+        //{
+        //    if (!SelectedThumbs.Contains(thumb)) { return; }
+        //    _SelectedThumbs.Remove(thumb);
+        //}
+        ////選択状態Thumbの入れ替え
+        //public void SelectThumbReplace(TThumb1? thumb)
+        //{
+        //    if (thumb == null) { return; }
+        //    if (SelectedThumbs.Count == 1)
+        //    {
+        //        if (SelectedThumbs[0] != thumb)
+        //        {
+        //            _SelectedThumbs.Remove(SelectedThumbs[0]);
+        //            _SelectedThumbs.Add(thumb);
+        //        }
+        //    }
+        //    else if (SelectedThumbs.Count > 1)
+        //    {
+        //        foreach (var item in SelectedThumbs)
+        //        {
+        //            item.IsMySelected = false;
+        //        }
+        //        _SelectedThumbs.Clear();
+        //        _SelectedThumbs.Add(thumb);
+        //    }
+        //    else
+        //    {
+        //        _SelectedThumbs.Add(thumb);
+        //    }
+        //}
+        ////選択状態Thumbのクリア
+        //public void SelectThumbsCleal()
+        //{
+        //    if (_SelectedThumbs.Count == 0) { return; }
+        //    foreach (var item in _SelectedThumbs)
+        //    {
+        //        item.IsMySelected = false;
+        //    }
+        //    _SelectedThumbs.Clear();
+        //}
         #endregion 選択状態Thumb群の操作
         //追加
         public override void AddThumb(TThumb1 thumb)
@@ -750,5 +750,44 @@ namespace _20220620
         }
     }
 
+
+    //    c＃-WPFを使用したObservableCollectionでのHashSetの使用-スタックオーバーフロー
+    //https://stackoverflow.com/questions/1793109/using-hashsets-with-observablecollection-with-wpf
+
+    //重複チェックしてから追加するObservableCollection
+    public class ObservableCollectionSetCollection<T> : ObservableCollection<T>
+    {
+        //Add, Insert
+        protected override void InsertItem(int index, T item)
+        {
+            if (Items.Contains(item)) return;
+            base.InsertItem(index, item);
+        }
+        protected override void SetItem(int index, T item)
+        {
+            if (Items.Contains(item)) return;
+            base.SetItem(index, item);
+        }
+    }
+
+    //追加しようとしたitemがリストに存在した場合は、削除する
+    //トグルでアイテム選択する選択リストで使用
+    public class ObservableCollectionToggleCollection<T> : ObservableCollection<T>
+    {
+        //Add, Insert
+        protected override void InsertItem(int index, T item)
+        {
+            if (Items.Contains(item)) base.Remove(item);
+            else base.InsertItem(index, item);
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(Items)));
+        }
+        protected override void SetItem(int index, T item)
+        {
+            if (Items.Contains(item)) Remove(item);
+            else base.SetItem(index, item);
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+    }
 
 }

@@ -37,6 +37,9 @@ namespace _20220620
         }
         public ObservableCollection<Layer1> MyLayers { get; set; } = new();
 
+        //選択状態のThumb群
+        public ObservableCollectionToggleCollection<TThumb1> MySelectedThumbs { get; set; } = new();
+
         //操作対象のLayer
         private Layer1? _myCurrentLayer;
         public Layer1? MyCurrentLayer
@@ -83,11 +86,29 @@ namespace _20220620
         {
             get => _myCurrentItem; set
             {
-
-                //古い方を記録
+                //新旧入れ替え前処理
+                //古い方を1つ前注目にコピー
                 MyPreviousCurrentItem = _myCurrentItem;
-                //格納しているThumbと同じなら必要なし、終了
-                if (value == _myCurrentItem) { return; }
+
+                //新旧が同じitemならEditingとActiveの更新
+                //EditingをCurrentItemに近づける(ActiveをEditingに指定)
+                if (value == _myCurrentItem && _myCurrentItem != null)
+                {
+                    if (MyActiveMovableThumb?.MyData.DataTypeMain == DataTypeMain.Group)
+                    {
+                        MyEditingGroup = (Group1Base)MyActiveMovableThumb;
+                        MyActiveMovableThumb = _myCurrentItem.GetMyActiveMoveThumb();
+                        return;
+                    }
+                    return;
+                }
+
+                //以下はクリックitemが前回のもととは違った場合の処理
+                //編集グループ外だった場合は編集グループにLayerを指定
+                if (IsInEditingGroup(value) == false)
+                {
+                    MyEditingGroup = MyCurrentLayer;
+                }
 
                 //古い方のIsLastClickedをfalseに変更してから
                 if (_myCurrentItem != null)
@@ -101,18 +122,30 @@ namespace _20220620
                 }
 
                 //新旧入れ替え
-
                 _myCurrentItem = value; OnPropertyChanged();
+
+                //Activeの更新
+                MyActiveMovableThumb = value?.GetMyActiveMoveThumb();
+                if (MyActiveMovableThumb == null)
+                {
+                    MyActiveMovableThumb = value;
+                }
+
             }
         }
 
         //1つ前に注目itemThumbだったもの
-        public Item4? MyPreviousCurrentItem;
+        private Item4? _myPreviousCurrentItem;
+        public Item4? MyPreviousCurrentItem
+        {
+            get => _myPreviousCurrentItem; set
+            {
+                if (value == _myPreviousCurrentItem) { return; }
+                _myPreviousCurrentItem = value; OnPropertyChanged();
+            }
+        }
 
 
-
-        //選択状態のThumb群
-        public ObservableCollection<TThumb1> MySelectedThumbs = new();
 
         #endregion 通知プロパティ
 
@@ -130,24 +163,7 @@ namespace _20220620
             MyEditingGroup = l;
         }
 
-        private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
-        {
-            if (e.Action == NotifyCollectionChangedAction.Remove)
-            {
-                if (e.OldItems?[0] is TThumb1 tt)
-                {
-                    tt.IsMySelected = false;
-                }
-            }
-            else if (e.Action == NotifyCollectionChangedAction.Reset)
-            {
-                if (e.OldItems is null) { return; }
-                foreach (var item in e.OldItems)
-                {
-                    if (item is TThumb1 tt) tt.IsMySelected = false;
-                }
-            }
-        }
+
 
         public MainItemsControl(Layer1 layer) : this()
         {
@@ -176,8 +192,36 @@ namespace _20220620
                 //}
             }
         }
-
+        private void SelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            //削除時、フラグ解除とCurrentのクリア
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                if (e.OldItems?[0] is TThumb1 tt)
+                {
+                    tt.IsMySelected = false;
+                    if (MyCurrentItem == tt) MyCurrentItem = null;
+                    if (MyActiveMovableThumb == tt) MyActiveMovableThumb = null;
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Reset)
+            {
+                if (e.OldItems is null) { return; }
+                foreach (var item in e.OldItems)
+                {
+                    if (item is TThumb1 tt) tt.IsMySelected = false;
+                }
+            }
+        }
         #region publicメソッド
+        //編集グループ内に属しているかの判定
+        public bool IsInEditingGroup(TThumb1? thumb)
+        {
+            if (thumb == null) return false;
+            if (thumb?.MyParentGroup == MyEditingGroup) return true;
+            else { IsInEditingGroup(thumb?.MyParentGroup); }
+            return false;
+        }
         public void AddItem(Group1Base group, TThumb1 thumb)
         {
             group.AddThumb(thumb);
@@ -199,6 +243,12 @@ namespace _20220620
         public void RemoveThumb(TThumb1 thumb)
         {
             MyEditingGroup?.RemoveThumb2(thumb);
+        }
+        public void RemoveActiveThumb()
+        {
+            if (MyActiveMovableThumb == null) return;
+            MyEditingGroup?.RemoveThumb2(MyActiveMovableThumb);
+            MyActiveMovableThumb = null;
         }
         //public void ChangeEditingGroup(Group1Base? newGroup, TThumb1 lastClicked)
         //{

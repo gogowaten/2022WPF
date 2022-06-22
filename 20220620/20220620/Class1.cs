@@ -161,27 +161,27 @@ namespace _20220620
             //移動がなかった
             if (e.HorizontalChange == 0.0 && e.VerticalChange == 0.0)
             {
-                if (MyLayer == null) { return; }
-                var thumb = e.OriginalSource as TThumb1;
-                //前回と同じThumbがクリックされた
-                if (MyLayer.LastPreviousClickedItem == thumb)
-                {
-                    //ParentThumbと編集状態Thumbが違う
-                    //if (MyLayer.NowEditingThumb != thumb?.MyParentGroup)
-                    if (MyMainItemsControl.MyEditingGroup != thumb?.MyParentGroup)
-                    {
-                        //アクティブThumbを編集状態Thumbに指定+アクティブThumbを更新
-                        if (MyMainItemsControl.MyActiveMovableThumb is Group4 ag)
-                        {
-                            MyMainItemsControl.MyEditingGroup = ag;
-                            MyMainItemsControl.MyActiveMovableThumb = thumb?.GetMyActiveMoveThumb();
-                        }
-                        //if (thumb?.GetMyActiveMoveThumb() is Group4 activeParent)
-                        //{
-                        //    MyLayer.SetNowEditingThumb(activeParent, thumb);
-                        //}
-                    }
-                }
+                //if (MyLayer == null) { return; }
+                //var thumb = e.OriginalSource as TThumb1;
+                ////前回と同じThumbがクリックされた
+                //if (MyLayer.LastPreviousClickedItem == thumb)
+                //{
+                //    //ParentThumbと編集状態Thumbが違う
+                //    //if (MyLayer.NowEditingThumb != thumb?.MyParentGroup)
+                //    if (MyMainItemsControl.MyEditingGroup != thumb?.MyParentGroup)
+                //    {
+                //        //アクティブThumbを編集状態Thumbに指定+アクティブThumbを更新
+                //        if (MyMainItemsControl.MyActiveMovableThumb is Group4 ag)
+                //        {
+                //            MyMainItemsControl.MyEditingGroup = ag;
+                //            MyMainItemsControl.MyActiveMovableThumb = thumb?.GetMyActiveMoveThumb();
+                //        }
+                //        //if (thumb?.GetMyActiveMoveThumb() is Group4 activeParent)
+                //        //{
+                //        //    MyLayer.SetNowEditingThumb(activeParent, thumb);
+                //        //}
+                //    }
+                //}
             }
             else
             {
@@ -273,8 +273,8 @@ namespace _20220620
             else { return null; }
         }
 
-        //Layer直下のThumb群から自身に関連するThumbを取得            
-        public Group1Base? GetMyUnderLayerThumb(TThumb1? thumb)
+        //Layer直下にある関連グループを取得
+        public Group1Base? GetMyTopParentGroup(TThumb1? thumb)
         {
             if (thumb == null) { return null; }
             if (thumb.MyParentGroup?.MyData.DataType == DataType.Layer)
@@ -283,7 +283,7 @@ namespace _20220620
             }
             else
             {
-                return GetMyUnderLayerThumb(thumb.MyParentGroup);
+                return GetMyTopParentGroup(thumb.MyParentGroup);
             }
         }
         public void Regroup()

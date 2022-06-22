@@ -31,6 +31,7 @@ namespace _20220620
         {
             Data1 data1 = new(DataType.TextBlock);
             data1.Text = MyTextBoxText.Text;
+
             if (MyMainItemsControl.MyActiveMovableThumb is TThumb1 tt)
             {
                 data1.X = tt.MyData.X + 32;
@@ -42,7 +43,13 @@ namespace _20220620
 
         private void MyButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            MyMainItemsControl.MyEditingGroup?.RemoveThumb2(MyMainItemsControl.MyActiveMovableThumb);
+            //MyMainItemsControl.MyEditingGroup?.RemoveThumb2(MyMainItemsControl.MyActiveMovableThumb);
+            MyMainItemsControl.RemoveActiveThumb();
+        }
+
+        private void MyButton1_Click(object sender, RoutedEventArgs e)
+        {
+            var sele = MyMainItemsControl.MySelectedThumbs;
         }
     }
 }
