@@ -89,14 +89,14 @@ namespace _20220620
             //ctrlキー押しながらのクリックされた場合
             //    自身がリストにない場合は、自身を追加
             //    リストにある場合は、リストから自身を削除
-            if(Keyboard.Modifiers == ModifierKeys.None)
+            if (Keyboard.Modifiers == ModifierKeys.None)
             {
                 MyMainItemsControl.MySelectedThumbs.Clear();
-                MyMainItemsControl.MySelectedThumbs.Add(this);
+                MyMainItemsControl.MySelectedThumbs.Add(this.GetMyActiveThumb());
             }
-            else if(Keyboard.Modifiers == ModifierKeys.Control)
+            else if (Keyboard.Modifiers == ModifierKeys.Control)
             {
-                MyMainItemsControl.MySelectedThumbs.Add(this);
+                MyMainItemsControl.MySelectedThumbs.Add(this.GetMyActiveThumb());
             }
 
         }

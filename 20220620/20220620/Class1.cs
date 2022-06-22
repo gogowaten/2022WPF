@@ -255,7 +255,7 @@ namespace _20220620
         /// 編集状態Thumb直下のChildrenから自身が属するGroupを取得、見つからない場合はnull
         /// </summary>
         /// <returns></returns>
-        public Group4? GetMyActiveMoveThumb()
+        public Group4? GetMyActiveGroup()
         {
             if (MyParentGroup is Group4 group)
             {
@@ -266,13 +266,25 @@ namespace _20220620
                 }
                 else
                 {
-                    return group.GetMyActiveMoveThumb();
+                    return group.GetMyActiveGroup();
                 }
 
             }
             else { return null; }
         }
+        /// <summary>
+        /// 編集状態Thumb直下のChildrenから自身が属するGroupを取得して、見つからない場合は自身を返す
+        /// </summary>
+        /// <returns></returns>
 
+        public TThumb1 GetMyActiveThumb()
+        {
+            Group4? item = GetMyActiveGroup();
+            if (item == null)
+                return this;
+            else
+                return item;
+        }
         //Layer直下にある関連グループを取得
         public Group1Base? GetMyTopParentGroup(TThumb1? thumb)
         {
@@ -289,7 +301,7 @@ namespace _20220620
         public void Regroup()
         {
             //選択状態のThumbを基準に再グループ
-            var target = (TThumb1?)GetMyActiveMoveThumb() ?? this;
+            var target = (TThumb1?)GetMyActiveGroup() ?? this;
             if (target == null) { return; }
 
             if (target.IsMySelected == true && target.RegroupThumbs.Count >= 2)

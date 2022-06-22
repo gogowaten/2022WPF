@@ -317,7 +317,7 @@ namespace _20220620
         /// </summary>
         /// <param name="thumbs">要素群は自身のChildrenから指定</param>
         /// <returns></returns>
-        public bool MakeGroupFromChildren3(ReadOnlyObservableCollection<TThumb1>? thumbs)
+        public bool MakeGroupFromChildren3(IEnumerable<TThumb1>? thumbs)
         {
             return MakeGroupFromChildren3(thumbs?.ToList());
         }
@@ -353,7 +353,7 @@ namespace _20220620
             {
                 group.AddThumb(item);
                 //再グループ用の情報をクリア
-                item.RegroupThumbs.Clear();
+                item.RegroupThumbs?.Clear();
             }
 
             //子要素全体のZ調整、歯抜けになっているので数値を詰める
@@ -413,9 +413,7 @@ namespace _20220620
                 ////LastClickedをクリア
                 //MyMainItemsControl.MyCurrentItem = null;
 
-                //選択リストから削除
-                MyMainItemsControl.MySelectedThumbs.Remove(thumb);
-
+                
                 //コレクションから削除
                 Children.Remove(thumb);
                 //2未満ならグループ解除
@@ -726,7 +724,7 @@ namespace _20220620
     //    C# ObservableCollection<T>で大量の要素を追加したいとき - Qiita
     //https://qiita.com/Yuki4/items/0e73297db632376804dd
 
-    public class ObsevableCollectionEX<T> : ObservableCollection<T>
+    public class ObservableCollectionEX<T> : ObservableCollection<T>
     {
         public void AddRange(IEnumerable<T> addItems)
         {
@@ -779,15 +777,155 @@ namespace _20220620
         {
             if (Items.Contains(item)) base.Remove(item);
             else base.InsertItem(index, item);
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            OnPropertyChanged(new PropertyChangedEventArgs(nameof(Items)));
         }
         protected override void SetItem(int index, T item)
         {
             if (Items.Contains(item)) Remove(item);
             else base.SetItem(index, item);
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
+        /// <summary>
+        /// Clear()のオーバーライドは実質Removeのループで処理することにした
+        /// </summary>
+        protected override void ClearItems()
+        {
+            for (int i = Items.Count - 1; i >= 0; i--)
+            {
+                //Items.RemoveAt(i);
+                base.RemoveAt(i);
+            }
+            //イベント発生時にクリアされる要素全部をoldItemsとして送ることができればいいけど、
+            //Resetアクションでは必ずnullにする必要があるのでできない
+            //OnCollectionChanged(new NotifyCollectionChangedEventArgs(
+            //    NotifyCollectionChangedAction.Reset, null, -1));
+            base.ClearItems();
+        }
+       
     }
 
+
+    //Clear実行時のイベントの引数に全itemをoldItemsとして送る
+    //    ObservableCollection<T> クラスをちょっと拡張する。 | C#等と戯れる日々
+    //http://tawamuredays.blog.fc2.com/blog-entry-122.html
+
+    public class ObservableCollectionEx<T> : ObservableCollection<T>
+    {
+
+        #region コンストラクタ
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public ObservableCollectionEx() : base() { }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="newlist">コピー元のリストオブジェクト</param>
+        public ObservableCollectionEx(List<T> newlist) : base(newlist) { }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="newCollection">コピー元のコレクション</param>
+        public ObservableCollectionEx(IEnumerable<T> newCollection) : base(newCollection) { }
+
+        #endregion
+
+        #region ObservableCollection<T> メンバ
+
+        /// <summary>
+        /// コレクションから全ての項目を削除します。
+        /// </summary>
+        protected override void ClearItems()
+        {
+            //クリアされるリストを確保しましょう。
+            var clearedList = new List<T>(this);
+            try
+            {
+                //リストをクリアしましょう。
+                base.ClearItems();
+
+                //事後にしよう。
+                try
+                {
+                    //イベント励起
+                    OnCleaning(new CleaningItemsEventArgs<T>(clearedList));
+                }
+                catch (Exception)
+                {
+                    ;//無視か、警告レベルのログを残す
+                }
+            }
+            finally
+            {
+                //後始末
+                clearedList.Clear();
+                clearedList = null;
+            }
+            return;
+        }
+
+        #endregion
+
+        
+
+        /// <summary>アイテムクリアイベント</summary>
+        public event EventHandler<CleaningItemsEventArgs<T>>? CleaningItems;
+
+        /// <summary>
+        /// アイテムクリア前にイベントを発生させます。<br/>
+        /// </summary>
+        /// <param name="e">イベント引数</param>
+        protected virtual void OnCleaning(CleaningItemsEventArgs<T> e)
+        {
+            CleaningItems?.Invoke(this, e);
+            //if (CleaningItems != null)
+            //{
+            //    CleaningItems(this, e);
+            //}
+        }
+
+    }
+
+    /// <summary>
+    /// アイテムクリアイベント用引数クラス
+    /// </summary>
+    /// <remarks>
+    /// ObservableCollectionEx<T>クラスのClearItemsメソッド実行時に発生する
+    /// CleaningItemsイベント用の引数となるクラスです。<br/>
+    /// </remarks>
+    public sealed class CleaningItemsEventArgs<T> : System.EventArgs
+    {
+
+        #region コンストラクタ
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public CleaningItemsEventArgs() : base()
+        {
+
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="newClearedList">クリア対象だったリスト</param>
+        public CleaningItemsEventArgs(IList<T> newClearedList) : this()
+        {
+            this.ClearedList = new ReadOnlyCollection<T>(newClearedList);
+        }
+
+        #endregion
+
+        #region プロパティ
+
+        /// <summary>
+        /// クリアされたリストを取得します。
+        /// </summary>
+        public ReadOnlyCollection<T>? ClearedList { get; internal set; }
+
+        #endregion
+    }
 }
+

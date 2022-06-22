@@ -44,12 +44,18 @@ namespace _20220620
         private void MyButtonRemove_Click(object sender, RoutedEventArgs e)
         {
             //MyMainItemsControl.MyEditingGroup?.RemoveThumb2(MyMainItemsControl.MyActiveMovableThumb);
-            MyMainItemsControl.RemoveActiveThumb();
+            //MyMainItemsControl.RemoveActiveThumb();
+            MyMainItemsControl.RemoveSelectedThumbs();
         }
 
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
             var sele = MyMainItemsControl.MySelectedThumbs;
+        }
+
+        private void MyButtonGroup_Click(object sender, RoutedEventArgs e)
+        {//gurup
+            MyMainItemsControl.MakeGroup();
         }
     }
 }
