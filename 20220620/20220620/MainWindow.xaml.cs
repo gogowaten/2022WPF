@@ -20,6 +20,7 @@ namespace _20220620
     /// </summary>
     public partial class MainWindow : Window
     {
+        private int MyCoutnt = 0;
         public MainWindow()
         {
             InitializeComponent();
@@ -28,9 +29,10 @@ namespace _20220620
         }
 
         private void MyButtonAddText_Click(object sender, RoutedEventArgs e)
-        {
+        {//追加
             Data1 data1 = new(DataType.TextBlock);
-            data1.Text = MyTextBoxText.Text;
+            data1.Text =$"{MyTextBoxText.Text}_{MyCoutnt}";
+            MyCoutnt++;
 
             if (MyMainItemsControl.MyActiveMovableThumb is TThumb1 tt)
             {
@@ -56,6 +58,26 @@ namespace _20220620
         private void MyButtonGroup_Click(object sender, RoutedEventArgs e)
         {//gurup
             MyMainItemsControl.MakeGroup();
+        }
+
+        private void MyButtonEditingNarrow_Click(object sender, RoutedEventArgs e)
+        {//編集範囲を狭くする
+            MyMainItemsControl.EditingNarrow(MyMainItemsControl.MyCurrentItem);
+        }
+
+        private void MyButtonEditingReset_Click(object sender, RoutedEventArgs e)
+        {//編集範囲をLayerにする
+            MyMainItemsControl.EditingSetMyCurrentLayer();
+        }
+
+        private void MyButtonUngroup_Click(object sender, RoutedEventArgs e)
+        {//Activeなグループを解除
+            MyMainItemsControl.Ungroup();
+        }
+
+        private void MyButtonRegroup_Click(object sender, RoutedEventArgs e)
+        {
+            MyMainItemsControl.Regroup(MyMainItemsControl.MyCurrentItem);
         }
     }
 }

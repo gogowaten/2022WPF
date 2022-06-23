@@ -311,6 +311,46 @@ namespace _20220620
             //    }
             //}
         }
+        public void Ungroup3()
+        {
+            if (MyParentGroup == null) { return; }
+            //上にあるThumbZの底上げ
+            for (int i = MyData.Z + 1; i < MyParentGroup.Children.Count; i++)
+            {
+                //削除対象子要素数-1ぶん底上げする
+                MyParentGroup.Children[i].MyData.Z += Children.Count - 1;
+            }
+            //子要素に対してx,y,zの調整
+            foreach (var item in Children)
+            {
+                item.MyData.X += MyData.X;
+                item.MyData.Y += MyData.Y;
+                item.MyData.Z += MyData.Z;//Zを削除対象のZぶん底上げする
+            }
+
+            //再グループ化に使うリスト作成
+            List<TThumb1>? regroupList = Children.ToList();
+
+            //追加してから削除、しないと削除時点で要素数が2未満になった場合にそれも解除対象になってしまうから
+            //解除後は子要素群を選択状態にするので今のはクリアする            
+            MyMainItemsControl.MySelectedThumbs.Clear();
+            //子要素の処理
+            foreach (var item in Children)
+            {
+                //選択状態にする、必要ない
+                MyMainItemsControl.MySelectedThumbs.Add(item);
+                MyParentGroup.InsertThumb(item);//Parentの子要素に挿入
+
+                //再グループ用の情報を付加
+                item.RegroupThumbs = regroupList;
+
+            }
+            MyParentGroup.RemoveThumb2(this, true);//削除
+
+            //再グループリストから自身を削除、兄弟Thumbのリストとリンクしているので、全てから削除される
+            this.RegroupThumbs?.Remove(this);
+
+        }
 
         /// <summary>
         /// 指定要素群からグループ作成して自身に挿入する
@@ -324,7 +364,11 @@ namespace _20220620
 
         public bool MakeGroupFromChildren3(List<TThumb1>? thumbs)
         {
-            if (thumbs == null || thumbs.Count < 2) { return false; }
+            if (thumbs == null ||
+                thumbs.Count < 2 ||
+                thumbs.Count == thumbs[0]?.MyParentGroup?.Items.Count)
+            { return false; }
+
             //指定要素群のParentが自身ではなかった場合は作成失敗
             foreach (var item in thumbs)
             { if (item.MyParentGroup != this) { return false; } }
@@ -347,7 +391,7 @@ namespace _20220620
             //Childrenに新グループを挿入
             InsertThumb(group);
             //Childrenから要素群削除
-            foreach (var item in sortedThumbs) { RemoveThumb2(item); }
+            foreach (var item in sortedThumbs) { RemoveThumb2(item, false); }
             //新グループに要素群追加
             foreach (var item in sortedThumbs)
             {
@@ -358,6 +402,8 @@ namespace _20220620
 
             //子要素全体のZ調整、歯抜けになっているので数値を詰める
             for (int i = minZ; i < Children.Count; i++) { Children[i].MyData.Z = i; }
+
+            AjustLocate3();
 
             return true;
         }
@@ -405,15 +451,13 @@ namespace _20220620
         }
 
         //指定ThumbをChildrenから削除
-        public virtual void RemoveThumb2(TThumb1 thumb)
+        public virtual void RemoveThumb2(TThumb1? thumb, bool isAjustLocate)
         {
+            if (thumb == null) return;
             if (Children.Contains(thumb))
             {
                 int z = thumb.MyData.Z;
-                ////LastClickedをクリア
-                //MyMainItemsControl.MyCurrentItem = null;
 
-                
                 //コレクションから削除
                 Children.Remove(thumb);
                 //2未満ならグループ解除
@@ -426,7 +470,7 @@ namespace _20220620
                     }
                 }
                 //位置とサイズの修正
-                AjustLocate3();
+                if (isAjustLocate) AjustLocate3();
             }
             else
             {
@@ -799,7 +843,7 @@ namespace _20220620
             //    NotifyCollectionChangedAction.Reset, null, -1));
             base.ClearItems();
         }
-       
+
     }
 
 
@@ -867,7 +911,7 @@ namespace _20220620
 
         #endregion
 
-        
+
 
         /// <summary>アイテムクリアイベント</summary>
         public event EventHandler<CleaningItemsEventArgs<T>>? CleaningItems;

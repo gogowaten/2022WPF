@@ -112,7 +112,8 @@ namespace _20220620
         public override string ToString()
         {
 
-            return $"{MyData?.DataType}, x{MyData?.X}, y{MyData?.Y}, z{MyData?.Z}";
+            //return $"{MyData?.DataType}, x{MyData?.X}, y{MyData?.Y}, z{MyData?.Z}";
+            return $"{MyData?.Text}, x{MyData?.X}, y{MyData?.Y}, z{MyData?.Z}";
         }
         #endregion その他
 
@@ -144,18 +145,48 @@ namespace _20220620
         protected void DragEventAdd(TThumb1 thumb)
         {
             thumb.DragDelta += thumb.TThumb_DragDelta;
-            thumb.DragCompleted += thumb.TThumb_DragCompleted;
+            thumb.DragCompleted += thumb.TThumb_DragCompleted2;
             thumb.IsMyMoveTarget = true;//移動対象にする
         }
 
         protected void DragEventRemove(TThumb1 thumb)
         {
-            thumb.DragCompleted -= thumb.TThumb_DragCompleted;
+            thumb.DragCompleted -= thumb.TThumb_DragCompleted2;
             thumb.DragDelta -= thumb.TThumb_DragDelta;
             thumb.IsMyMoveTarget = false;//移動対象から外す
         }
         //ドラッグ移動終了時
-        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        //private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        //{
+        //    //移動距離が0＆クリック対象が前回と同じだった場合は、編集状態グループをより近いグループに切り替える
+        //    //移動がなかった
+        //    if (e.HorizontalChange == 0.0 && e.VerticalChange == 0.0)
+        //    {
+        //        if (MyLayer == null) { return; }
+        //        var thumb = e.OriginalSource as TThumb1;
+        //        //前回と同じThumbがクリックされた
+        //        if (MyLayer.LastPreviousClickedItem == thumb)
+        //        {
+        //            //ParentThumbと編集状態Thumbが違う
+        //            if (MyMainItemsControl.MyEditingGroup != thumb?.MyParentGroup)
+        //            {
+        //                //アクティブThumbを編集状態Thumbに指定+アクティブThumbを更新
+        //                if (MyMainItemsControl.MyActiveMovableThumb is Group4 ag)
+        //                {
+        //                    MyMainItemsControl.MyEditingGroup = ag;
+        //                    MyMainItemsControl.MyActiveMovableThumb = thumb?.GetMyActiveMoveThumb();
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        this.MyParentGroup?.AjustLocate3();
+        //    }
+        //}
+
+        //ドラッグ移動終了時
+        private void TThumb_DragCompleted2(object sender, DragCompletedEventArgs e)
         {
             //移動距離が0＆クリック対象が前回と同じだった場合は、編集状態グループをより近いグループに切り替える
             //移動がなかった
@@ -164,22 +195,17 @@ namespace _20220620
                 //if (MyLayer == null) { return; }
                 //var thumb = e.OriginalSource as TThumb1;
                 ////前回と同じThumbがクリックされた
-                //if (MyLayer.LastPreviousClickedItem == thumb)
+                //if (MyMainItemsControl.MyCurrentItem == thumb)
                 //{
                 //    //ParentThumbと編集状態Thumbが違う
-                //    //if (MyLayer.NowEditingThumb != thumb?.MyParentGroup)
                 //    if (MyMainItemsControl.MyEditingGroup != thumb?.MyParentGroup)
                 //    {
                 //        //アクティブThumbを編集状態Thumbに指定+アクティブThumbを更新
                 //        if (MyMainItemsControl.MyActiveMovableThumb is Group4 ag)
                 //        {
                 //            MyMainItemsControl.MyEditingGroup = ag;
-                //            MyMainItemsControl.MyActiveMovableThumb = thumb?.GetMyActiveMoveThumb();
+                //            MyMainItemsControl.MyActiveMovableThumb = thumb?.GetMyActiveThumb();
                 //        }
-                //        //if (thumb?.GetMyActiveMoveThumb() is Group4 activeParent)
-                //        //{
-                //        //    MyLayer.SetNowEditingThumb(activeParent, thumb);
-                //        //}
                 //    }
                 //}
             }
@@ -285,26 +311,31 @@ namespace _20220620
             else
                 return item;
         }
-        //Layer直下にある関連グループを取得
-        public TThumb1? GetMyTopParentGroup()
-        {
 
+
+        /// <summary>
+        /// Layer直下のThumb群から自身に関連するThumbを取得
+        /// </summary>
+        /// <returns></returns>
+        public TThumb1? GetMyTopThumb()
+        {
             if (this.MyParentGroup?.MyData.DataType == DataType.Layer)
             {
                 return this;
             }
             else
             {
-                return this.MyParentGroup?.GetMyTopParentGroup();
+                return this.MyParentGroup?.GetMyTopThumb();
             }
         }
+        
         public void Regroup()
         {
             //選択状態のThumbを基準に再グループ
-            var target = (TThumb1?)GetMyActiveGroup() ?? this;
+            TThumb1 target = (TThumb1?)GetMyActiveGroup() ?? this;
             if (target == null) { return; }
 
-            if (target.IsMySelected == true && target.RegroupThumbs.Count >= 2)
+            if (target.IsMySelected == true && target.RegroupThumbs?.Count >= 2)
             {
                 target.MyParentGroup?.MakeGroupFromChildren3(target.RegroupThumbs);
             }

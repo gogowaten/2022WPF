@@ -59,13 +59,13 @@ namespace _20220620
 
 
             Loaded += Item4_Loaded;
-            PreviewMouseDown += Item4_PreviewMouseDown;
+            
             PreviewMouseLeftButtonDown += Item4_PreviewMouseLeftButtonDown;
             PreviewMouseUp += Item4_PreviewMouseUp;
 
         }
 
-        
+
 
         #region イベント
 
@@ -83,7 +83,22 @@ namespace _20220620
         //左クリック時、クリックitem更新と選択リスト更新
         private void Item4_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            MyMainItemsControl.MyCurrentItem = this;
+            if (MyMainItemsControl.MyCurrentItem != this)
+            {
+                //別系統のitemがクリックされた場合は、EditingをLayerにリセットする
+                if( MyMainItemsControl.IsSameSystem(this, MyMainItemsControl.MyCurrentItem) == false)
+                {
+                    MyMainItemsControl.EditingSetMyCurrentLayer();
+                }
+
+                //if (MyMainItemsControl.IsInEditingGroup(this) == false)
+                //{
+                //    MyMainItemsControl.EditingSetMyCurrentLayer();
+                //}
+                MyMainItemsControl.MyCurrentItem = this;
+                
+            }
+
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
                 MyMainItemsControl.MySelectedThumbs.Clear();
@@ -96,81 +111,7 @@ namespace _20220620
 
         }
 
-        //クリックされたとき
-        private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            ////CurrentItemを自身に変更
-            //MyMainItemsControl.MyCurrentItem = this;
-            ////選択リストの更新
-            ////通常クリックなら、リストをクリアしてから自身を追加
-            ////ctrlキー押しながらのクリックされた場合
-            ////    自身がリストにない場合は、自身を追加
-            ////    リストにある場合は、リストから自身を削除
-            //if (Keyboard.Modifiers == ModifierKeys.None)
-            //{
-            //    MyMainItemsControl.MySelectedThumbs.Clear();
-            //    MyMainItemsControl.MySelectedThumbs.Add(this.GetMyActiveThumb());
-            //}
-            //else if (Keyboard.Modifiers == ModifierKeys.Control)
-            //{
-            //    MyMainItemsControl.MySelectedThumbs.Add(this.GetMyActiveThumb());
-            //}
-
-        }
-        //  //クリックされたとき
-        //private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        //{
-
-        //    if (MyLayer == null) { return; }
-        //    //前回と同じThumbをクリックされたのかチェック
-        //    bool isEqual = false;
-        //    if (MyLayer.LastClickedItem == this) isEqual = true;
-        //    //最後にクリックされたThumbに自身を登録する
-        //    MyLayer.LastClickedItem = this;
-
-        //    //編集状態直下の自身が属するグループ
-        //    //TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb2() ?? this;
-        //    TThumb1 activeThumb = (TThumb1?)GetMyActiveMoveThumb() ?? this;
-        //    //MyActiveMovableThumb = activeThumb;
-        //    MyMainItemsControl.MyActiveMovableThumb = activeThumb;
-        //    //自身が編集状態Thumbの範囲外だった場合
-
-        //    if (MyLayer.NowEditingThumb != activeThumb.MyParentGroup)
-        //    {
-        //        //編集状態Thumbの切り替え
-        //        //Layer直下のThumb群から自身が属するThumbに切り替える
-        //        Group1Base? nextEdit = GetMyUnderLayerThumb(this) as Group1Base;
-        //        if (nextEdit == null) { MessageBox.Show("次の編集状態Thumbが見つからん"); }
-        //        //MyLayer.NowEditingThumb = nextEdit;
-        //        MyLayer.SetNowEditingThumb(nextEdit, this);
-        //    }
-        //    else
-        //    {
-        //        //編集状態直下の自身が属するグループを選択状態リストに登録する
-        //        //通常クリック(修飾キーなし)のときは入れ替え
-        //        if (Keyboard.Modifiers == ModifierKeys.None)
-        //        {
-        //            //違うThumbクリックなら選択リストの入れ替え
-        //            if (isEqual == false)
-        //            {
-        //                MyLayer.SelectThumbReplace(activeThumb);
-        //            }
-        //        }
-        //        //ctrlキーが押されていたら複数選択状態にするので、選択リストに追加
-        //        else if (Keyboard.Modifiers == ModifierKeys.Control)
-        //        {
-        //            //すでに選択中だった場合は選択解除
-        //            if (MyLayer.SelectedThumbs.Contains(activeThumb))
-        //            {
-        //                MyLayer.SelectThumbRemove(activeThumb);
-        //            }
-        //            else
-        //            {
-        //                MyLayer.SelectThumbAdd(activeThumb);
-        //            }
-        //        }
-        //    }
-        //}
+     
 
         #endregion イベント
 

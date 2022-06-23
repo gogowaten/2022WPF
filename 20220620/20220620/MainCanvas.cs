@@ -99,14 +99,6 @@ namespace _20220620
                 if (value == null) MyActiveMovableThumb = null;
                 if (value == _myCurrentItem) { return; }
 
-
-                ////以下はクリックitemが前回のもととは違った場合の処理
-                ////編集グループ外だった場合は編集グループにLayerを指定
-                //if (IsInEditingGroup(value) == false)
-                //{
-                //    MyEditingGroup = MyCurrentLayer;
-                //}
-
                 //古い方のIsLastClickedをfalseに変更してから
                 if (_myCurrentItem != null)
                     _myCurrentItem.IsMyLastClicked = false;
@@ -220,7 +212,26 @@ namespace _20220620
             //    }
             //}
         }
+
+
         #region publicメソッド
+        //編集範囲を狭くする(1つ近づける)
+        public void EditingNarrow(TThumb1? thumb)
+        {
+            //十分狭い場合はなにもしない
+            if (thumb == null || thumb.MyParentGroup == MyEditingGroup) { return; }
+
+            Group4? n = thumb.GetMyActiveGroup();
+            if (n != null)
+            {
+                MyEditingGroup = n;
+            }
+        }
+        public void EditingSetMyCurrentLayer()
+        {
+            MyEditingGroup = MyCurrentLayer;
+        }
+
         //編集グループ内に属しているかの判定
         public bool IsInEditingGroup(TThumb1? thumb)
         {
@@ -229,6 +240,15 @@ namespace _20220620
             else { IsInEditingGroup(thumb?.MyParentGroup); }
             return false;
         }
+        //同系統判定
+        public bool IsSameSystem(TThumb1? t1,TThumb1? t2)
+        {
+            var tt1 = t1?.GetMyTopThumb();
+            var tt2 = t2?.GetMyTopThumb();
+            if (tt1 == tt2) return true;
+            else return false;
+        }
+
 
         #region 追加系
         public void AddItem(Group1Base group, TThumb1 thumb)
@@ -251,11 +271,12 @@ namespace _20220620
         }
         #endregion 追加系
 
-        #region 削除系
+        #region 削除系        
         //指定Thumb
-        public void RemoveThumb(TThumb1 thumb)
+        public void RemoveThumb(TThumb1? thumb, bool isAjustoLocate)
         {
-            MyEditingGroup?.RemoveThumb2(thumb);
+            if (thumb == null) return;
+            MyEditingGroup?.RemoveThumb2(thumb, isAjustoLocate);
             //再グループ化リストと選択リストからも削除
             thumb.RegroupThumbs?.Remove(thumb);
             MySelectedThumbs.Remove(thumb);
@@ -270,20 +291,22 @@ namespace _20220620
         public void RemoveActiveThumb()
         {
             if (MyActiveMovableThumb == null) return;
-            RemoveThumb(MyActiveMovableThumb);
+            RemoveThumb(MyActiveMovableThumb, true);
         }
         //選択Thumbs
         public void RemoveSelectedThumbs()
         {
+            Group1Base? parent = MySelectedThumbs[0].MyParentGroup;
             for (int i = MySelectedThumbs.Count - 1; i >= 0; i--)
             {
-                RemoveThumb(MySelectedThumbs[i]);
+                RemoveThumb(MySelectedThumbs[i], false);
             }
+            parent?.AjustLocate3();
         }
 
         #endregion 削除系
 
-        #region グループ化
+        #region グループ化系
         /// <summary>
         /// 選択リスト要素をグループ化
         /// </summary>
@@ -304,7 +327,30 @@ namespace _20220620
             }
             return (x, y, minZ, maxZ);
         }
-        #endregion グループ化
+
+        /// <summary>
+        /// ActiveなGroupを解除する
+        /// </summary>
+        public void Ungroup()
+        {
+            if (MyActiveMovableThumb is Group4 group)
+            {
+                Ungroup(group);
+                MyActiveMovableThumb = null;
+            }
+        }
+        public void Ungroup(Group4 group)
+        {
+            group.Ungroup3();            
+        }
+
+        
+        public void Regroup(TThumb1? thumb)
+        {
+            if (thumb == null) return;
+            thumb.Regroup();
+        }
+        #endregion グループ化系
 
         #endregion publicメソッド
 
