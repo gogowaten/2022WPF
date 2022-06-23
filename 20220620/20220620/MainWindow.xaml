@@ -25,7 +25,8 @@
       <Button x:Name="MyButtonGroup" Content="グループ化" Click="MyButtonGroup_Click"/>
       <Button x:Name="MyButtonUngroup" Content="グループ解除" Click="MyButtonUngroup_Click"/>
       <Button x:Name="MyButtonRegroup" Content="再グループ化" Click="MyButtonRegroup_Click"/>
-      
+      <Button x:Name="MyButtonUp" Content="Z age" Click="MyButtonUp_Click"/>
+      <Button x:Name="MyButtonDown" Content="Z sage" Click="MyButtonDown_Click"/>
       <Button x:Name="MyButtonEditingNarrow" Content="編集範囲を狭く" Click="MyButtonEditingNarrow_Click"/>
       <Button x:Name="MyButtonEditingReset" Content="編集範囲をLayerに" Click="MyButtonEditingReset_Click"/>
 

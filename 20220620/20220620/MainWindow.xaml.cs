@@ -79,5 +79,15 @@ namespace _20220620
         {
             MyMainItemsControl.Regroup(MyMainItemsControl.MyCurrentItem);
         }
+
+        private void MyButtonUp_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void MyButtonDown_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
