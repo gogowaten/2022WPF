@@ -60,10 +60,12 @@ namespace _20220620
 
             Loaded += Item4_Loaded;
             PreviewMouseDown += Item4_PreviewMouseDown;
+            PreviewMouseLeftButtonDown += Item4_PreviewMouseLeftButtonDown;
             PreviewMouseUp += Item4_PreviewMouseUp;
 
         }
 
+        
 
         #region イベント
 
@@ -78,17 +80,10 @@ namespace _20220620
             //編集状態Thumbの切り替え
 
         }
-
-        //クリックされたとき
-        private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        //左クリック時、クリックitem更新と選択リスト更新
+        private void Item4_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //CurrentItemを自身に変更
             MyMainItemsControl.MyCurrentItem = this;
-            //選択リストの更新
-            //通常クリックなら、リストをクリアしてから自身を追加
-            //ctrlキー押しながらのクリックされた場合
-            //    自身がリストにない場合は、自身を追加
-            //    リストにある場合は、リストから自身を削除
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
                 MyMainItemsControl.MySelectedThumbs.Clear();
@@ -98,6 +93,28 @@ namespace _20220620
             {
                 MyMainItemsControl.MySelectedThumbs.Add(this.GetMyActiveThumb());
             }
+
+        }
+
+        //クリックされたとき
+        private void Item4_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            ////CurrentItemを自身に変更
+            //MyMainItemsControl.MyCurrentItem = this;
+            ////選択リストの更新
+            ////通常クリックなら、リストをクリアしてから自身を追加
+            ////ctrlキー押しながらのクリックされた場合
+            ////    自身がリストにない場合は、自身を追加
+            ////    リストにある場合は、リストから自身を削除
+            //if (Keyboard.Modifiers == ModifierKeys.None)
+            //{
+            //    MyMainItemsControl.MySelectedThumbs.Clear();
+            //    MyMainItemsControl.MySelectedThumbs.Add(this.GetMyActiveThumb());
+            //}
+            //else if (Keyboard.Modifiers == ModifierKeys.Control)
+            //{
+            //    MyMainItemsControl.MySelectedThumbs.Add(this.GetMyActiveThumb());
+            //}
 
         }
         //  //クリックされたとき

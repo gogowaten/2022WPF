@@ -96,25 +96,16 @@ namespace _20220620
                 //古い方を1つ前注目にコピー
                 MyPreviousCurrentItem = _myCurrentItem;
 
-                //新旧が同じitemならEditingとActiveの更新
-                //EditingをCurrentItemに近づける(ActiveをEditingに指定)
-                if (value == _myCurrentItem && _myCurrentItem != null)
-                {
-                    if (MyActiveMovableThumb?.MyData.DataTypeMain == DataTypeMain.Group)
-                    {
-                        MyEditingGroup = (Group1Base)MyActiveMovableThumb;
-                        MyActiveMovableThumb = _myCurrentItem.GetMyActiveGroup();
-                        return;
-                    }
-                    return;
-                }
+                if (value == null) MyActiveMovableThumb = null;
+                if (value == _myCurrentItem) { return; }
 
-                //以下はクリックitemが前回のもととは違った場合の処理
-                //編集グループ外だった場合は編集グループにLayerを指定
-                if (IsInEditingGroup(value) == false)
-                {
-                    MyEditingGroup = MyCurrentLayer;
-                }
+
+                ////以下はクリックitemが前回のもととは違った場合の処理
+                ////編集グループ外だった場合は編集グループにLayerを指定
+                //if (IsInEditingGroup(value) == false)
+                //{
+                //    MyEditingGroup = MyCurrentLayer;
+                //}
 
                 //古い方のIsLastClickedをfalseに変更してから
                 if (_myCurrentItem != null)
@@ -209,14 +200,14 @@ namespace _20220620
             {
                 if (e.NewItems?[0] is TThumb1 tt) tt.IsMySelected = true;
             }
-            //削除時
+            //削除時(Remove, Clear)
             else if (e.Action == NotifyCollectionChangedAction.Remove)
             {
                 if (e.OldItems?[0] is TThumb1 tt)
                 {
                     tt.IsMySelected = false;
-                    if (MyCurrentItem == tt) MyCurrentItem = null;
-                    if (MyActiveMovableThumb == tt) MyActiveMovableThumb = null;
+                    //if (MyCurrentItem == tt) MyCurrentItem = null;
+                    //if (MyActiveMovableThumb == tt) MyActiveMovableThumb = null;
                 }
             }
             //else if (e.Action == NotifyCollectionChangedAction.Reset)

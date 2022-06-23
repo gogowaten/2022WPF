@@ -286,16 +286,16 @@ namespace _20220620
                 return item;
         }
         //Layer直下にある関連グループを取得
-        public Group1Base? GetMyTopParentGroup(TThumb1? thumb)
+        public TThumb1? GetMyTopParentGroup()
         {
-            if (thumb == null) { return null; }
-            if (thumb.MyParentGroup?.MyData.DataType == DataType.Layer)
+
+            if (this.MyParentGroup?.MyData.DataType == DataType.Layer)
             {
-                return thumb.MyParentGroup;
+                return this;
             }
             else
             {
-                return GetMyTopParentGroup(thumb.MyParentGroup);
+                return this.MyParentGroup?.GetMyTopParentGroup();
             }
         }
         public void Regroup()

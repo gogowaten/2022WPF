@@ -23,7 +23,7 @@ namespace _20220620
         public MainWindow()
         {
             InitializeComponent();
-
+            Top = 10;Left= 10;
 
         }
 
