@@ -12,6 +12,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
+using System.Windows.Controls.Primitives;
+using System.Globalization;
+using System.ComponentModel;
+using System.Runtime.Serialization;
+using System.Collections.Specialized;
+using System.Xml;
 
 namespace _20220620
 {
@@ -91,13 +98,34 @@ namespace _20220620
         }
 
         private void MyButtonSave_Click(object sender, RoutedEventArgs e)
-        {
-            MyMainItemsControl.DataSave($"E:\\MyData.xml")
+        {//全体セーブ、MainItemsControlを保存する
+            MyMainItemsControl.DataSaveCurrentLayer($"E:\\MyData.xml");
         }
 
         private void MyButtonLoad_Click(object sender, RoutedEventArgs e)
-        {
+        {//全体ロード、MainItemsControlを入れ替える
+            string fileName = $"E:\\MyData.xml";
 
+            if (DataLoad(fileName) is Data1 data)
+            {
+                MyGrid.Children.Remove(MyMainItemsControl);
+                MyMainItemsControl = new(data);
+                MyGrid.Children.Add(MyMainItemsControl);
+            }
+        }
+        private Data1? DataLoad(string fileName)
+        {
+            DataContractSerializer serializer = new(typeof(Data1));
+            try
+            {
+                using XmlReader reader = XmlReader.Create(fileName); ;
+                return (Data1?)serializer.ReadObject(reader);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return null;
+            }
         }
     }
 }

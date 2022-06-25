@@ -152,14 +152,17 @@ namespace _20220620
             MyEditingGroup = l;
         }
 
-
-
-        public MainItemsControl(Layer1 layer) : this()
+        public MainItemsControl(Data1 data) : this()
         {
-            MyLayers.Add(layer);
-            MyCurrentLayer = layer;
-            MyEditingGroup = layer;
-
+            var neko = data.DataType;
+            if (neko == DataType.Layer)
+            {
+                Layer1 l = new(this, data);
+                MyLayers.Clear();
+                MyLayers.Add(l);
+                MyCurrentLayer = l;
+                MyEditingGroup = l;
+            }
         }
         private void SetTemplate()
         {
@@ -364,6 +367,7 @@ namespace _20220620
 
         #endregion ZIndex系
 
+        #region データ保存
         public bool DataSaveCurrentLayer(string fileName)
         {
             if (MyCurrentLayer?.MyData is Data1 data)
@@ -381,7 +385,17 @@ namespace _20220620
             }
             else return false;
         }
-        public bool DataSave(string fileName, Data1 data)
+        public bool DataSaveAll(string fileName)
+        {
+            Data1 data = new(DataType.Root);
+
+            for (int i = 0; i < MyLayers.Count; i++)
+            {
+                data.ChildrenData.Add(MyLayers[i].MyData);
+            }
+            return DataSave(fileName, data);
+        }
+        public static bool DataSave(string fileName, Data1 data)
         {
             XmlWriterSettings settings = new()
             {
@@ -406,7 +420,24 @@ namespace _20220620
                 }
             }
         }
-        
+        #endregion データ保存
+
+        //#region データ読み込み
+        //public static Data1? DataLoad(string fileName)
+        //{
+        //    DataContractSerializer serializer = new(typeof(Data1));
+        //    try
+        //    {
+        //        using XmlReader reader = XmlReader.Create(fileName); ;
+        //        return (Data1?)serializer.ReadObject(reader);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show(ex.Message);
+        //        return null;
+        //    }
+        //}
+        //#endregion データ読み込み
         #endregion publicメソッド
 
     }

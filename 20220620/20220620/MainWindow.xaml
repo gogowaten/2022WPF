@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:_20220620"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-  <Grid>
+  <Grid x:Name="MyGrid">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
