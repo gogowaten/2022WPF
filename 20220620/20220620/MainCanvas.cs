@@ -241,7 +241,7 @@ namespace _20220620
             return false;
         }
         //同系統判定
-        public bool IsSameSystem(TThumb1? t1,TThumb1? t2)
+        public bool IsSameSystem(TThumb1? t1, TThumb1? t2)
         {
             var tt1 = t1?.GetMyTopThumb();
             var tt2 = t2?.GetMyTopThumb();
@@ -341,10 +341,10 @@ namespace _20220620
         }
         public void Ungroup(Group4 group)
         {
-            group.Ungroup3();            
+            group.Ungroup3();
         }
 
-        
+
         public void Regroup(TThumb1? thumb)
         {
             if (thumb == null) return;
@@ -352,6 +352,61 @@ namespace _20220620
         }
         #endregion グループ化系
 
+        #region ZIndex系
+        public void ZAgeActiveThumb()
+        {
+            MyActiveMovableThumb?.SetZIndex(MyActiveMovableThumb.MyData.Z + 1);
+        }
+        public void ZSageActiveThumb()
+        {
+            MyActiveMovableThumb?.SetZIndex(MyActiveMovableThumb.MyData.Z - 1);
+        }
+
+        #endregion ZIndex系
+
+        public bool DataSaveCurrentLayer(string fileName)
+        {
+            if (MyCurrentLayer?.MyData is Data1 data)
+            {
+                return DataSave(fileName, data);
+            }
+            else return false;
+
+        }
+        public bool DataSaveActiveThumb(string fileName)
+        {
+            if (MyActiveMovableThumb?.MyData is Data1 data)
+            {
+                return DataSave(fileName, data);
+            }
+            else return false;
+        }
+        public bool DataSave(string fileName, Data1 data)
+        {
+            XmlWriterSettings settings = new()
+            {
+                Encoding = new UTF8Encoding(false),
+                Indent = true,
+                NewLineOnAttributes = false,
+                ConformanceLevel = ConformanceLevel.Fragment
+            };
+            XmlWriter writer;
+            DataContractSerializer serializer = new(typeof(Data1));
+            using (writer = XmlWriter.Create(fileName, settings))
+            {
+                try
+                {
+                    serializer.WriteObject(writer, data);
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return false;
+                }
+            }
+        }
+        
         #endregion publicメソッド
 
     }

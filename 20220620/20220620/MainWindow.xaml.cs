@@ -24,14 +24,14 @@ namespace _20220620
         public MainWindow()
         {
             InitializeComponent();
-            Top = 10;Left= 10;
+            Top = 10; Left = 10;
 
         }
 
         private void MyButtonAddText_Click(object sender, RoutedEventArgs e)
         {//追加
             Data1 data1 = new(DataType.TextBlock);
-            data1.Text =$"{MyTextBoxText.Text}_{MyCoutnt}";
+            data1.Text = $"{MyTextBoxText.Text}_{MyCoutnt}";
             MyCoutnt++;
 
             if (MyMainItemsControl.MyActiveMovableThumb is TThumb1 tt)
@@ -76,16 +76,26 @@ namespace _20220620
         }
 
         private void MyButtonRegroup_Click(object sender, RoutedEventArgs e)
-        {
+        {//再グループ化
             MyMainItemsControl.Regroup(MyMainItemsControl.MyCurrentItem);
         }
 
         private void MyButtonUp_Click(object sender, RoutedEventArgs e)
-        {
-
+        {//Z UP
+            MyMainItemsControl.ZAgeActiveThumb();
         }
 
         private void MyButtonDown_Click(object sender, RoutedEventArgs e)
+        {//Z DOWN
+            MyMainItemsControl.ZSageActiveThumb();
+        }
+
+        private void MyButtonSave_Click(object sender, RoutedEventArgs e)
+        {
+            MyMainItemsControl.DataSave($"E:\\MyData.xml")
+        }
+
+        private void MyButtonLoad_Click(object sender, RoutedEventArgs e)
         {
 
         }
