@@ -15,20 +15,30 @@
     <StackPanel x:Name="MyStackPanel0" Grid.Column="1">
       <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Right" x:Name="MyButtonAddText" Content="Add" Click="MyButtonAddText_Click" Width="100"/>
-        <TextBox x:Name="MyTextBoxText" Text="testtext" AcceptsReturn="True"/>        
+        <TextBox x:Name="MyTextBoxText" Text="testtext" AcceptsReturn="True"/>
       </DockPanel>
       <DockPanel LastChildFill="True">
         <TextBlock Text="{Binding ElementName=MySliderFontSize, Path=Value, StringFormat= size \= 000}"/>
         <Slider x:Name="MySliderFontSize" Minimum="10" Maximum="100" Value="20"/>
       </DockPanel>
       <Button x:Name="MyButtonRemove" Content="選択Thumb削除" Click="MyButtonRemove_Click"/>
-      <Button x:Name="MyButtonGroup" Content="グループ化" Click="MyButtonGroup_Click"/>
-      <Button x:Name="MyButtonUngroup" Content="グループ解除" Click="MyButtonUngroup_Click"/>
-      <Button x:Name="MyButtonRegroup" Content="再グループ化" Click="MyButtonRegroup_Click"/>
-      <Button x:Name="MyButtonUp" Content="Z age" Click="MyButtonUp_Click"/>
-      <Button x:Name="MyButtonDown" Content="Z sage" Click="MyButtonDown_Click"/>
-      <Button x:Name="MyButtonSave" Content="Save" Click="MyButtonSave_Click"/>
-      <Button x:Name="MyButtonLoad" Content="Load" Click="MyButtonLoad_Click"/>
+      <DockPanel>
+        <Button x:Name="MyButtonGroup" Content="グループ化" Click="MyButtonGroup_Click"/>
+        <Button x:Name="MyButtonUngroup" Content="グループ解除" Click="MyButtonUngroup_Click"/>
+        <Button x:Name="MyButtonRegroup" Content="再グループ化" Click="MyButtonRegroup_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="MyButtonUp" Content="Z age" Click="MyButtonUp_Click" Width="100"/>
+        <Button x:Name="MyButtonDown" Content="Z sage" Click="MyButtonDown_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="MyButtonSave" Content="Save" Click="MyButtonSave_Click" Width="100"/>
+        <Button x:Name="MyButtonLoad" Content="Load" Click="MyButtonLoad_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="MyButtonSaveGroup" Content="SaveActiveGroup" Click="MyButtonSaveGroup_Click" Width="100"/>
+        <Button x:Name="MyButtonLoadGroup" Content="LoadGroup" Click="MyButtonLoadGroup_Click"/>
+      </DockPanel>
       <Button x:Name="MyButtonEditingNarrow" Content="編集範囲を狭く" Click="MyButtonEditingNarrow_Click"/>
       <Button x:Name="MyButtonEditingReset" Content="編集範囲をLayerに" Click="MyButtonEditingReset_Click"/>
 

@@ -113,8 +113,8 @@ namespace _20220620
                 MyGrid.Children.Add(MyMainItemsControl);
             }
         }
-        private Data1? DataLoad(string fileName)
-        {
+        private static Data1? DataLoad(string fileName)
+        {//データ読み込み
             DataContractSerializer serializer = new(typeof(Data1));
             try
             {
@@ -125,6 +125,22 @@ namespace _20220620
             {
                 MessageBox.Show(ex.Message);
                 return null;
+            }
+        }
+
+        private void MyButtonSaveGroup_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyMainItemsControl.DataSaveActiveThumb($"E:\\MyDataGroup.xml"))
+            {
+                _ = MessageBox.Show("Group保存完了");
+            };
+        }
+
+        private void MyButtonLoadGroup_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataLoad($"E:\\MyDataGroup.xml") is Data1 data)
+            {
+                MyMainItemsControl.AddItem(data);
             }
         }
     }

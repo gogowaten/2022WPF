@@ -267,9 +267,16 @@ namespace _20220620
                 MyEditingGroup.AddThumb(item);
                 MyCurrentItem = item;
             }
-            else
+            else if (data.DataType == DataType.Group)
             {
-
+                Group4 group = new(this, data);
+                MyEditingGroup.AddThumb(group);
+                MyCurrentItem = null;
+                MyActiveMovableThumb = group;
+            }
+            else if (data.DataType == DataType.Layer)
+            {
+                throw new NotImplementedException();
             }
         }
         #endregion 追加系
