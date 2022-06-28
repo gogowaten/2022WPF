@@ -28,10 +28,16 @@ namespace _20220620
     public partial class MainWindow : Window
     {
         private int MyCoutnt = 0;
+        //public MainItemsControl MyMainItemsControl;
         public MainWindow()
         {
             InitializeComponent();
             Top = 10; Left = 10;
+            DataContext = MyMainItemsControl;
+
+            //MyMainItemsControl = new();
+            //DataContext = MyMainItemsControl;
+            //MyGrid.Children.Add(MyMainItemsControl);
 
         }
 
@@ -129,7 +135,7 @@ namespace _20220620
         }
 
         private void MyButtonSaveGroup_Click(object sender, RoutedEventArgs e)
-        {
+        {//グループのセーブ
             if (MyMainItemsControl.DataSaveActiveThumb($"E:\\MyDataGroup.xml"))
             {
                 _ = MessageBox.Show("Group保存完了");
@@ -137,7 +143,7 @@ namespace _20220620
         }
 
         private void MyButtonLoadGroup_Click(object sender, RoutedEventArgs e)
-        {
+        {//グループの読み込み
             if (DataLoad($"E:\\MyDataGroup.xml") is Data1 data)
             {
                 MyMainItemsControl.AddItem(data);

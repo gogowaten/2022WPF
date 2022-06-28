@@ -11,7 +11,9 @@
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
+    
     <local:MainItemsControl x:Name="MyMainItemsControl" UseLayoutRounding="True"/>
+    
     <StackPanel x:Name="MyStackPanel0" Grid.Column="1">
       <DockPanel LastChildFill="True">
         <Button DockPanel.Dock="Right" x:Name="MyButtonAddText" Content="Add" Click="MyButtonAddText_Click" Width="100"/>
@@ -43,13 +45,16 @@
       <Button x:Name="MyButtonEditingReset" Content="編集範囲をLayerに" Click="MyButtonEditingReset_Click"/>
 
       <Button x:Name="MyButton1" Content="check" Click="MyButton1_Click"/>
-      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MySelectedThumbs.Count, StringFormat=Selected \= 0}"/>
-      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyActiveMovableThumb, StringFormat=ActiveT \= {0}}"/>
-      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyCurrentItem, StringFormat=今Item \={0}}"/>
-      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyPreviousCurrentItem, StringFormat=前Item \= {0}}"/>
-      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyLayers.Count, StringFormat=LayersCount \=0}"/>
-      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyEditingGroup, StringFormat=Edit \={0}}"/>
-      <TextBlock Text="{Binding ElementName=MyMainItemsControl, Path=MyCurrentLayer, StringFormat=CurLayer \={0}}"/>
+      <TextBlock Text="{Binding Path=MySelectedThumbs.Count, StringFormat=Selected \= 0}"/>
+      <TextBlock Text="{Binding Path=MyActiveMovableThumb, StringFormat=ActiveT \= {0}}"/>
+      <TextBlock Text="{Binding Path=MyCurrentItem, StringFormat=今Item \={0}}"/>
+      <TextBlock Text="{Binding Path=MyPreviousCurrentItem, StringFormat=前Item \= {0}}"/>
+      <TextBlock Text="{Binding Path=MyLayers.Count, StringFormat=LayersCount \=0}"/>
+      <TextBlock Text="{Binding Path=MyEditingGroup, StringFormat=Edit \={0}}"/>
+      <TextBlock Text="{Binding Path=MyCurrentLayer, StringFormat=CurLayer \={0}}"/>
+
+      
+
     </StackPanel>
   </Grid>
 </Window>
