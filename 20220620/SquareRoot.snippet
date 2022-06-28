@@ -5,10 +5,14 @@
 			<Title>通知プロパティ</Title>
 			<Author>Myself</Author>
 			<Description>Calculates the square root of 16</Description>
-			<Shortcut>sqrt</Shortcut>
+			<Shortcut>proponp</Shortcut>
 		</Header>
 		<Snippet>
 			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<Default>int</Default>
+				</Literal>
 				<Literal>
 					<ID>id</ID>
 					<Default>prop</Default>
@@ -20,14 +24,16 @@
 			</Declarations>
 			<Code Language="csharp">
 				<![CDATA[
-private int $id$;
-public int $Id$ {
+private $type$ $id$;
+public $type$ $Id$
+{
 	get => $id$;
-	set {
-		if (value == $id$) { return; }
+	set
+	{
+		if ($id$ == value) { return; }
 		$id$ = value; OnPropertyChanged();
-		}
 	}
+}
 						]]>
 			</Code>
 		</Snippet>

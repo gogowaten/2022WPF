@@ -1,0 +1,72 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>変更通知プロパティ(改行あり)</Title>
+			<Author>gogowaten</Author>
+			<Description>通知はOnPropertyChnged</Description>
+			<Shortcut>proponp</Shortcut>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<Default>int</Default>
+				</Literal>
+				<Literal>
+					<ID>id</ID>
+					<Default>prop</Default>
+				</Literal>
+				<Literal>
+					<ID>Id</ID>
+					<Default>Prop</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp">
+				<![CDATA[
+private $type$ $id$;
+public $type$ $Id$
+{
+	get => $id$;
+	set
+	{
+		if ($id$ == value) { return; }
+		$id$ = value; OnPropertyChanged();
+	}
+}
+						]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+	
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>変更通知プロパティ(改行無し)</Title>
+			<Author>gogowaten</Author>
+			<Description>通知はOnPropertyChnged</Description>
+			<Shortcut>proponpr</Shortcut>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<Default>int</Default>
+				</Literal>
+				<Literal>
+					<ID>id</ID>
+					<Default>prop</Default>
+				</Literal>
+				<Literal>
+					<ID>Id</ID>
+					<Default>Prop</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp">
+				<![CDATA[
+private $type$ $id$;
+public $type$ $Id${get => $id$;	set	{if ($id$ == value) { return; }	$id$ = value; OnPropertyChanged();}}
+						]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
