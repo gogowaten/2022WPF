@@ -6,12 +6,46 @@
         xmlns:local="clr-namespace:_20220628"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+  <Window.DataContext>
+    <ObjectDataProvider>
+</ObjectDataProvider>
+  </Window.DataContext>
+  <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition/>
     </Grid.ColumnDefinitions>
-    <ItemsControl x:Name="MyItem0"/>
-    <ItemsControl x:Name="MyItem1" Grid.Column="1"/>
+    <ItemsControl x:Name="MyItem0" ItemsSource="{Binding}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="{x:Type local:Data}">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding X}"/>
+            <Image Source="{Binding Bmp}"/>
+            <TextBlock Text="{Binding Y}"/>
+            <!--表示されない-->
+            <ContentControl Content="{Binding TextBlock}"/>
+            <!--表示されない-->
+            <ContentControl Content="{Binding Image}"/>
+            <TextBlock Text="{Binding TextBlock.Text}" Foreground="{Binding TextBlock.Foreground}"/>
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <ItemsControl x:Name="MyItem1" ItemsSource="{Binding}" Grid.Column="1">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="{x:Type local:Data}">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding X}"/>
+            <Image Source="{Binding Bmp}"/>
+            <TextBlock Text="{Binding Y}"/>
+            <ContentControl Content="{Binding TextBlock}"/>
+            <!--表示されない-->
+            <ContentControl Content="{Binding Image}"/>
+            <TextBlock Text="{Binding TextBlock.Text}" Foreground="{Binding TextBlock.Foreground}"/>
+            <ContentPresenter Content="{Binding Image}"/>
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
   </Grid>
 </Window>

@@ -30,7 +30,7 @@ public $type$ $Id$
 	get => $id$;
 	set
 	{
-		if ($id$ == value) { return; }
+		if ($id$ == value) return;
 		$id$ = value; OnPropertyChanged();
 	}
 }
@@ -64,7 +64,7 @@ public $type$ $Id$
 			<Code Language="csharp">
 				<![CDATA[
 private $type$ $id$;
-public $type$ $Id${get => $id$;	set	{if ($id$ == value) { return; }	$id$ = value; OnPropertyChanged();}}
+public $type$ $Id${get => $id$;	set	{if ($id$ == value) return; $id$ = value; OnPropertyChanged();}}
 						]]>
 			</Code>
 		</Snippet>
