@@ -1,0 +1,45 @@
+﻿<Window x:Class="_20220628_1つのUI要素を複数にBindしたときの表示.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20220628_1つのUI要素を複数にBindしたときの表示"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+    <ItemsControl x:Name="MyItem0" ItemsSource="{Binding}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="{x:Type local:Data}">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding X}"/>
+            <Image Source="{Binding Bmp}"/>
+            <TextBlock Text="{Binding Y}"/>
+            <ContentControl Content="{Binding TextBlock}"/>
+            <ContentControl Content="{Binding Image}"/>
+            <TextBlock Text="{Binding TextBlock.Text}" Foreground="{Binding TextBlock.Foreground}"/>
+            <ContentPresenter Content="{Binding Image}"/>
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+    <ItemsControl x:Name="MyItem1" ItemsSource="{Binding}" Grid.Column="1">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="{x:Type local:Data}">
+          <StackPanel Orientation="Horizontal">
+            <TextBlock Text="{Binding X}"/>
+            <Image Source="{Binding Bmp}"/>
+            <TextBlock Text="{Binding Y}"/>
+            <ContentControl Content="{Binding TextBlock}"/>
+            <ContentControl Content="{Binding Image}"/>
+            <TextBlock Text="{Binding TextBlock.Text}" Foreground="{Binding TextBlock.Foreground}"/>
+            <ContentPresenter Content="{Binding Image}"/>
+          </StackPanel>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+  </Grid>
+</Window>

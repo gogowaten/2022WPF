@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20220628_1つのUI要素を複数にBindしたときの表示", "20220628_1つのUI要素を複数にBindしたときの表示\20220628_1つのUI要素を複数にBindしたときの表示.csproj", "{5EC6F35E-5B1E-4B82-83C0-154F5CDCF3E4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5EC6F35E-5B1E-4B82-83C0-154F5CDCF3E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5EC6F35E-5B1E-4B82-83C0-154F5CDCF3E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5EC6F35E-5B1E-4B82-83C0-154F5CDCF3E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5EC6F35E-5B1E-4B82-83C0-154F5CDCF3E4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CE55B64D-B92D-40E3-B2DE-16F648973A3C}
+	EndGlobalSection
+EndGlobal
