@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>通知プロパティ</Title>
+			<Author>Myself</Author>
+			<Description>Calculates the square root of 16</Description>
+			<Shortcut>sqrt</Shortcut>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>id</ID>
+					<Default>prop</Default>
+				</Literal>
+				<Literal>
+					<ID>Id</ID>
+					<Default>Prop</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp">
+				<![CDATA[
+private int $id$;
+public int $Id$ {
+	get => $id$;
+	set {
+		if (value == $id$) { return; }
+		$id$ = value; OnPropertyChanged();
+		}
+	}
+						]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
