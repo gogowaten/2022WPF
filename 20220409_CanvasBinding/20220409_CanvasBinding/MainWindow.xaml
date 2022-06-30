@@ -18,6 +18,7 @@
                Fill="{Binding Fill}" />
     </DataTemplate>
   </Window.Resources>
+  
   <Grid>
     <Button x:Name="Button1" Width="100" Height="30" Content="Add" Click="Button1_Click"/>
     <local:CCanvas ItemsSource="{Binding Items}">

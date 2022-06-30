@@ -59,7 +59,7 @@ namespace _20220628
         }
     }
 
-    public class Data : INotifyPropertyChanged
+    public class Data1 : INotifyPropertyChanged
     {
         private int _y;
         public int Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
@@ -80,35 +80,4 @@ namespace _20220628
         }
     }
 
-    public class Data2 : INotifyPropertyChanged
-    {
-        private int _y;
-        public int Y { get => _y; set => SetProperty(ref _y, value); }
-
-        private int _x;
-        public int X { get => _x; set => SetProperty(ref _x, value); }
-
-        private TextBlock? _textBlock;
-        public TextBlock? TextBlock { get => _textBlock; set => SetProperty(ref _textBlock, value); }
-
-        private BitmapSource? _bmp;
-        public BitmapSource? Bmp { get => _bmp; set => SetProperty(ref _bmp, value); }
-
-        private Image? image;
-        public Image? Image { get => image; set => SetProperty(ref image, value); }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        //        【Unity】【C#】Genericな型の等価判定によるメモリアロケーション及びUnity組み込み構造体のIEquatable実装状況 - LIGHT11
-        //https://light11.hatenadiary.com/entry/2020/08/03/210816
-        //【WPF】Binding入門1。DataContextの伝搬 | さんさめのC＃ブログ
-        //https://threeshark3.com/wpf-binding-datacontext/
-        private void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return;
-            //if(Equals(field, value)) return;//これだと値型の場合にメモリを消費してしまう？
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-    }
 }
