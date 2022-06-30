@@ -69,4 +69,57 @@ public $type$ $Id${get => $id$;	set	{if ($id$ == value) return; $id$ = value; On
 			</Code>
 		</Snippet>
 	</CodeSnippet>
+	
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>変更通知プロパティ(改行無し2)</Title>
+			<Author>gogowaten</Author>
+			<Description>通知はSetPropertyChnged、スニペットpropsetとともに使う</Description>
+			<Shortcut>props</Shortcut>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<Default>int</Default>
+				</Literal>
+				<Literal>
+					<ID>id</ID>
+					<Default>prop</Default>
+				</Literal>
+				<Literal>
+					<ID>Id</ID>
+					<Default>Prop</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp">
+				<![CDATA[
+private $type$ $id$;
+public $type$ $Id${get => $id$;	set	=> SetProperty(ref $id$, value);}
+						]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+	
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>変更通知プロパティのイベント起動</Title>
+			<Author>gogowaten</Author>
+			<Description>通知はSetPropertyChnged、Valueと比較して違ったら更新して通知</Description>
+			<Shortcut>propset</Shortcut>
+		</Header>
+		<Snippet>
+			<Code Language="csharp">
+				<![CDATA[
+protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+						]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+	
 </CodeSnippets>

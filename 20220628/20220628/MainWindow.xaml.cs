@@ -33,17 +33,23 @@ namespace _20220628
     public partial class MainWindow : Window
     {
         public ObservableCollection<Data> MyDatas { get; set; } = new();
+
         public MainWindow()
         {
             InitializeComponent();
 
-            Data data = new(); MyDatas.Add(data);
-            data.X = 111;
-            data.Y = 222;
-            data.TextBlock = new() { Text = "textblock", Foreground = Brushes.Red };
-            data.Bmp = MakeBitmap(Colors.MediumAquamarine);
-            data.Image = new Image() { Source = MakeBitmap(Colors.DeepPink) };
             DataContext = MyDatas;
+            MyDatas.Add(MakeDataTextBlock(10, 20, "test1"));
+            MyDatas.Add(MakeDataTextBlock(100, 40, "test2"));
+            //UserControlTThumb tt = new();
+        }
+        private Data MakeDataTextBlock(double x, double y, string text)
+        {
+            DataTextBlock data = new();
+            data.X = x; data.Y = y; data.Text = text;
+            data.ForeColor = Brushes.Red;
+            data.BackColor = Brushes.Orange;
+            return data;
         }
         private BitmapSource MakeBitmap(Color col)
         {
@@ -59,25 +65,25 @@ namespace _20220628
         }
     }
 
-    public class Data1 : INotifyPropertyChanged
-    {
-        private int _y;
-        public int Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
-        private int _x;
-        public int X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
-        private TextBlock? _textBlock;
-        public TextBlock? TextBlock { get => _textBlock; set { if (_textBlock == value) { return; } _textBlock = value; OnPropertyChanged(); } }
-        private BitmapSource? _bmp;
+    //public class Data1 : INotifyPropertyChanged
+    //{
+    //    private int _y;
+    //    public int Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+    //    private int _x;
+    //    public int X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+    //    private TextBlock? _textBlock;
+    //    public TextBlock? TextBlock { get => _textBlock; set { if (_textBlock == value) { return; } _textBlock = value; OnPropertyChanged(); } }
+    //    private BitmapSource? _bmp;
 
-        public BitmapSource? Bmp { get => _bmp; set { if (_bmp == value) { return; } _bmp = value; OnPropertyChanged(); } }
-        private Image? image;
-        public Image? Image { get => image; set { if (image == value) { return; } image = value; OnPropertyChanged(); } }
+    //    public BitmapSource? Bmp { get => _bmp; set { if (_bmp == value) { return; } _bmp = value; OnPropertyChanged(); } }
+    //    private Image? image;
+    //    public Image? Image { get => image; set { if (image == value) { return; } image = value; OnPropertyChanged(); } }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-    }
+    //    public event PropertyChangedEventHandler? PropertyChanged;
+    //    protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    //    }
+    //}
 
 }

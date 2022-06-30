@@ -6,25 +6,31 @@
         xmlns:local="clr-namespace:_20220628"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-  <Window.DataContext>
-    <ObjectDataProvider>
-</ObjectDataProvider>
-  </Window.DataContext>
+  <Window.Resources>
+    <DataTemplate DataType="{x:Type local:DataTextBlock}">
+      <local:TThumb Width="100" Height="100"
+             Background="{Binding BackColor}"/>
+    </DataTemplate>
+    
+  </Window.Resources>
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition/>
     </Grid.ColumnDefinitions>
-    <ItemsControl x:Name="MyItem0" ItemsSource="{Binding}">
+    <local:TThumbsControl ItemsSource="{Binding}">
+      
+    </local:TThumbsControl>
+    <!--<ItemsControl x:Name="MyItem0" ItemsSource="{Binding}">
       <ItemsControl.ItemTemplate>
         <DataTemplate DataType="{x:Type local:Data}">
           <StackPanel Orientation="Horizontal">
             <TextBlock Text="{Binding X}"/>
             <Image Source="{Binding Bmp}"/>
             <TextBlock Text="{Binding Y}"/>
-            <!--表示されない-->
+            --><!--表示されない--><!--
             <ContentControl Content="{Binding TextBlock}"/>
-            <!--表示されない-->
+            --><!--表示されない--><!--
             <ContentControl Content="{Binding Image}"/>
             <TextBlock Text="{Binding TextBlock.Text}" Foreground="{Binding TextBlock.Foreground}"/>
           </StackPanel>
@@ -39,13 +45,13 @@
             <Image Source="{Binding Bmp}"/>
             <TextBlock Text="{Binding Y}"/>
             <ContentControl Content="{Binding TextBlock}"/>
-            <!--表示されない-->
+            --><!--表示されない--><!--
             <ContentControl Content="{Binding Image}"/>
             <TextBlock Text="{Binding TextBlock.Text}" Foreground="{Binding TextBlock.Foreground}"/>
             <ContentPresenter Content="{Binding Image}"/>
           </StackPanel>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
-    </ItemsControl>
+    </ItemsControl>-->
   </Grid>
 </Window>

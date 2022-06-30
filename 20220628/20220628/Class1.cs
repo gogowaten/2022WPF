@@ -33,48 +33,53 @@ namespace _20220628
             this.ItemContainerStyle = style;
             style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("X")));
             style.Setters.Add(new Setter(Canvas.TopProperty, new Binding("Y")));
+
+            //DataTemplate dtemp = new(typeof(Data));
+            //this.ItemTemplate = dtemp;
+
+            //DataTemplateSelector dselect = new();
+
+            //this.ItemTemplateSelector = dselect;
+
+            //ResourceDictionary resources = new();
+
         }
     }
 
-    [DataContract]
-    [KnownType(typeof(BitmapSource))]
-    public class Data : INotifyPropertyChanged
-    {
-        private int _y;
-        public int Y { get => _y; set => SetProperty(ref _y, value); }
-
-        private int _x;
-        public int X { get => _x; set => SetProperty(ref _x, value); }
-
-        private TextBlock? _textBlock;
-        public TextBlock? TextBlock { get => _textBlock; set => SetProperty(ref _textBlock, value); }
-
-        private BitmapSource? _bmp;
-        public BitmapSource? Bmp { get => _bmp; set => SetProperty(ref _bmp, value); }
-
-        private Image? image;
-        public Image? Image { get => image; set => SetProperty(ref image, value); }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        //        【Unity】【C#】Genericな型の等価判定によるメモリアロケーション及びUnity組み込み構造体のIEquatable実装状況 - LIGHT11
-        //https://light11.hatenadiary.com/entry/2020/08/03/210816
-        //【WPF】Binding入門1。DataContextの伝搬 | さんさめのC＃ブログ
-        //https://threeshark3.com/wpf-binding-datacontext/
-        private void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return;
-            //if(Equals(field, value)) return;//これだと値型の場合にメモリを消費してしまう？
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-    }
+ 
    public class TThumb : Thumb
     {
         public TThumb()
         {
-            ControlTemplate template = new(typeof(Thumb));
+            //SetTemplate();
 
+            //Style style = new();
+            //style.Setters.Add(new Setter(Canvas.LeftProperty,new Binding("X")));
+            //style.Setters.Add(new Setter(Canvas.TopProperty,new Binding("Y")));
+            //this.Style = style;
+
+            Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
+
+
+            DragDelta += TThumb_DragDelta;
+        }
+
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if(sender is TThumb tt)
+            {
+                Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
+                Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
+            }
+        }
+
+        public void SetTemplate()
+        {
+            FrameworkElementFactory gridF = new(typeof(Grid));
+
+            ControlTemplate template = new(typeof(Thumb));
+            template.VisualTree = gridF;
+            this.Template = template;
         }
     }
 }
