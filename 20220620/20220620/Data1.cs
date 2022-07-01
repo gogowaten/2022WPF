@@ -31,8 +31,11 @@ namespace _20220620
     public class Data1 : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        protected void SetProperty<T>(
+            ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
+            if (EqualityComparer<T>.Default.Equals(value, field)) return;
+            field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
         private double _x;
@@ -46,39 +49,20 @@ namespace _20220620
         [DataMember] public DataType DataType { get; set; }
         [DataMember] public DataTypeMain DataTypeMain { get; set; }
         [DataMember]
-        public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+        public double X { get => _x; set => SetProperty(ref _x, value); }
         [DataMember]
-        public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+        public double Y { get => _y; set => SetProperty(ref _y, value); }
         [DataMember]
-        public int Z { get => _z; set { if (_z == value) { return; } _z = value; OnPropertyChanged(); } }
+        public int Z { get => _z; set => SetProperty(ref _z, value); }
 
         [DataMember]
-        public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
+        public string Text { get => _text; set => SetProperty(ref _text, value); }
         [DataMember]
-        public Brush? Background
-        {
-            get => _background; set
-            {
-                if (_background == value) { return; }
-                _background = value; OnPropertyChanged();
-            }
-        }
+        public Brush? Background { get => _background; set => SetProperty(ref _background, value); }
         [DataMember]
-        public Brush Foreground
-        {
-            get => _foreground;
-            set
-            {
-                if (_foreground == value) { return; }
-                _foreground = value; OnPropertyChanged();
-            }
-        }
+        public Brush Foreground { get => _foreground; set => SetProperty(ref _foreground, value); }
         [DataMember]
-        public double Padding
-        {
-            get => _padding;
-            set { if (value == _padding) { return; } _padding = value; OnPropertyChanged(); }
-        }
+        public double Padding { get => _padding; set => SetProperty(ref _padding, value); }
         [DataMember]
         public Geometry? Geometry { get; set; }
 
@@ -97,6 +81,81 @@ namespace _20220620
             return $"{X},{Y},{Z},{DataType},{Text}";
         }
     }
+
+    //[DataContract]
+    //[KnownType(typeof(RectangleGeometry)),
+    // KnownType(typeof(MatrixTransform)),
+    //    KnownType(typeof(SolidColorBrush))]
+    //public class Data1 : INotifyPropertyChanged
+    //{
+    //    public event PropertyChangedEventHandler? PropertyChanged;
+    //    protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+    //    {
+    //        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    //    }
+    //    private double _x;
+    //    private double _y;
+    //    private int _z;
+    //    private string _text = "";
+    //    private Brush? _background;
+    //    private Brush _foreground = Brushes.Black;
+    //    private double _padding = 0;
+    //    [DataMember] public ObservableCollection<Data1> ChildrenData { get; set; } = new();
+    //    [DataMember] public DataType DataType { get; set; }
+    //    [DataMember] public DataTypeMain DataTypeMain { get; set; }
+    //    [DataMember]
+    //    public double X { get => _x; set { if (_x == value) { return; } _x = value; OnPropertyChanged(); } }
+    //    [DataMember]
+    //    public double Y { get => _y; set { if (_y == value) { return; } _y = value; OnPropertyChanged(); } }
+    //    [DataMember]
+    //    public int Z { get => _z; set { if (_z == value) { return; } _z = value; OnPropertyChanged(); } }
+
+    //    [DataMember]
+    //    public string Text { get => _text; set { if (_text == value) { return; } _text = value; OnPropertyChanged(); } }
+    //    [DataMember]
+    //    public Brush? Background
+    //    {
+    //        get => _background; set
+    //        {
+    //            if (_background == value) { return; }
+    //            _background = value; OnPropertyChanged();
+    //        }
+    //    }
+    //    [DataMember]
+    //    public Brush Foreground
+    //    {
+    //        get => _foreground;
+    //        set
+    //        {
+    //            if (_foreground == value) { return; }
+    //            _foreground = value; OnPropertyChanged();
+    //        }
+    //    }
+    //    [DataMember]
+    //    public double Padding
+    //    {
+    //        get => _padding;
+    //        set { if (value == _padding) { return; } _padding = value; OnPropertyChanged(); }
+    //    }
+    //    [DataMember]
+    //    public Geometry? Geometry { get; set; }
+
+    //    //コンストラクタ
+    //    public Data1(DataType type)
+    //    {
+    //        DataType = type;
+    //        if (type == DataType.Group || type == DataType.Layer)
+    //        {
+    //            DataTypeMain = DataTypeMain.Group;
+    //        }
+    //        else DataTypeMain = DataTypeMain.Item;
+    //    }
+    //    public override string ToString()
+    //    {
+    //        return $"{X},{Y},{Z},{DataType},{Text}";
+    //    }
+    //}
+
     #endregion Data4
 
 

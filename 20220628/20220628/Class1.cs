@@ -29,10 +29,10 @@ namespace _20220628
             template.VisualTree = new FrameworkElementFactory(typeof(Canvas));
             this.ItemsPanel = template;
 
-            Style style = new();
-            this.ItemContainerStyle = style;
-            style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("X")));
-            style.Setters.Add(new Setter(Canvas.TopProperty, new Binding("Y")));
+            //Style style = new();
+            //this.ItemContainerStyle = style;
+            //style.Setters.Add(new Setter(Canvas.LeftProperty, new Binding("X")));
+            //style.Setters.Add(new Setter(Canvas.TopProperty, new Binding("Y")));
 
             //DataTemplate dtemp = new(typeof(Data));
             //this.ItemTemplate = dtemp;
@@ -58,20 +58,20 @@ namespace _20220628
             //style.Setters.Add(new Setter(Canvas.TopProperty,new Binding("Y")));
             //this.Style = style;
 
-            Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
+            //Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
 
 
-            DragDelta += TThumb_DragDelta;
+            //DragDelta += TThumb_DragDelta;
         }
 
-        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            if(sender is TThumb tt)
-            {
-                Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
-                Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
-            }
-        }
+        //private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        //{
+        //    if(sender is TThumb tt)
+        //    {
+        //        Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
+        //        Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
+        //    }
+        //}
 
         public void SetTemplate()
         {

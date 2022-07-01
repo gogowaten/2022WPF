@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Runtime.CompilerServices;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Windows.Controls.Primitives;
 
 
 //1つのTextBlockを複数にBindingしたときの表示は
@@ -38,11 +39,11 @@ namespace _20220628
         {
             InitializeComponent();
 
-            DataContext = MyDatas;
+            DataContext = this;
             MyDatas.Add(MakeDataTextBlock(10, 20, "test1"));
             MyDatas.Add(MakeDataTextBlock(100, 40, "test2"));
-            //UserControlTThumb tt = new();
         }
+
         private Data MakeDataTextBlock(double x, double y, string text)
         {
             DataTextBlock data = new();
@@ -62,6 +63,22 @@ namespace _20220628
             }
             BitmapSource bmp = BitmapSource.Create(w, h, 96, 96, PixelFormats.Pbgra32, null, pixels, stride);
             return bmp;
+        }
+
+        private void TThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if(sender is Thumb tt)
+            {
+               var inu= MyItemsControl.ItemsSource;
+               var uma= MyItemsControl.Items;
+               var tako = MyItemsControl.ItemBindingGroup;
+                //MyDatas[0].X += e.HorizontalChange;
+                var x = Canvas.GetLeft(tt);
+               var neko = tt.Parent;
+                Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
+                Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
+            }
+            
         }
     }
 
