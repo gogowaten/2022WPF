@@ -34,24 +34,28 @@ namespace _20220628
     public partial class MainWindow : Window
     {
         public ObservableCollection<Data> MyDatas { get; set; } = new();
-
+        public TextBlockThumb tbt;
         public MainWindow()
         {
             InitializeComponent();
 
             DataContext = this;
-            MyDatas.Add(MakeDataTextBlock(10, 20, "test1"));
-            MyDatas.Add(MakeDataTextBlock(100, 40, "test2"));
+            //MyDatas.Add(MakeDataTextBlock(10, 20, "test1"));
+            //MyDatas.Add(MakeDataTextBlock(100, 40, "test2"));
+
+            tbt = new(new DataTextBlock(10, 20, "test000", 24, Brushes.Red, Brushes.Gold));
+            MyCanvas.Children.Add(tbt);
+
         }
 
-        private Data MakeDataTextBlock(double x, double y, string text)
-        {
-            DataTextBlock data = new();
-            data.X = x; data.Y = y; data.Text = text;
-            data.ForeColor = Brushes.Red;
-            data.BackColor = Brushes.Orange;
-            return data;
-        }
+        //private Data MakeDataTextBlock(double x, double y, string text)
+        //{
+        //    DataTextBlock data = new();
+        //    data.X = x; data.Y = y; data.Text = text;
+        //    data.ForeColor = Brushes.Red;
+        //    data.BackColor = Brushes.Orange;
+        //    return data;
+        //}
         private BitmapSource MakeBitmap(Color col)
         {
             int w = 20; int h = 20;
@@ -67,25 +71,25 @@ namespace _20220628
 
         private void TThumb_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            if(sender is Thumb tt)
+            if (sender is Thumb tt)
             {
-               var inu= MyItemsControl.ItemsSource;
-               var uma= MyItemsControl.Items;
-               var tako = MyItemsControl.ItemBindingGroup;
+                var inu = MyItemsControl.ItemsSource;
+                var uma = MyItemsControl.Items;
+                var tako = MyItemsControl.ItemBindingGroup;
                 //MyDatas[0].X += e.HorizontalChange;
                 var x = Canvas.GetLeft(tt);
-               var neko = tt.Parent;
+                var neko = tt.Parent;
                 Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
                 Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
             }
-            
+
         }
 
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            if(sender is Thumb t)
-            {   
-                if(VisualTreeHelper.GetParent(t) is ContentPresenter presen)
+            if (sender is Thumb t)
+            {
+                if (VisualTreeHelper.GetParent(t) is ContentPresenter presen)
                 {
                     Canvas.SetLeft(presen, Canvas.GetLeft(presen) + e.HorizontalChange);
                     Canvas.SetTop(presen, Canvas.GetTop(presen) + e.VerticalChange);
@@ -96,8 +100,9 @@ namespace _20220628
         private void MyButton1_Click(object sender, RoutedEventArgs e)
         {
             var data = MyDatas;
-           var iso = MyItemsControl.ItemsSource;
-            
+            var iso = MyItemsControl.ItemsSource;
+            tbt.MyData.Text = "henka";
+            tbt.MyData.ForeColor = Brushes.MediumOrchid;
         }
     }
 

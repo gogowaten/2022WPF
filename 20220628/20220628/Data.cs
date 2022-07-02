@@ -21,12 +21,28 @@ using System.Collections.Specialized;
 
 namespace _20220628
 {
+    public enum DataType
+    {
+        None = 0,
+        TextBlock,
+        Path
+    }
+    public enum DataMainType
+    {
+        None = 0,
+        Item,
+        Group
+    }
+
     [DataContract]
     [KnownType(typeof(BitmapSource))]
     public class Data : INotifyPropertyChanged
     {
-        private double _y; public double Y { get => _y; set => SetProperty(ref _y, value); }
-        private double _x; public double X { get => _x; set => SetProperty(ref _x, value); }
+        [DataMember] private DataType _type; public DataType Type { get => _type; set => SetProperty(ref _type, value); }
+        [DataMember] private DataMainType _mainType; public DataMainType MainType { get => _mainType; set => SetProperty(ref _mainType, value); }
+
+        [DataMember] private double _y; public double Y { get => _y; set => SetProperty(ref _y, value); }
+        [DataMember] private double _x; public double X { get => _x; set => SetProperty(ref _x, value); }
 
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -41,15 +57,23 @@ namespace _20220628
     }
     public class DataTextBlock : Data
     {
-        private string? _text; public string? Text { get => _text; set => SetProperty(ref _text, value); }
-        private Brush? _foreColor; public Brush? ForeColor { get => _foreColor; set => SetProperty(ref _foreColor, value); }
-        private Brush? _backColor; public Brush? BackColor { get => _backColor; set => SetProperty(ref _backColor, value); }
-
+        [DataMember] private string? _text; public string? Text { get => _text; set => SetProperty(ref _text, value); }
+        [DataMember] private double _fontSize; public double FontSize { get => _fontSize; set => SetProperty(ref _fontSize, value); }
+        [DataMember] private Brush? _foreColor; public Brush? ForeColor { get => _foreColor; set => SetProperty(ref _foreColor, value); }
+        [DataMember] private Brush? _backColor; public Brush? BackColor { get => _backColor; set => SetProperty(ref _backColor, value); }
+        public DataTextBlock(double x, double y, string? text,double fontsize, Brush? foreColor, Brush? backColor)
+        {
+            X = x; Y = y;
+            FontSize = fontsize;
+            Text = text;
+            ForeColor = foreColor;
+            BackColor = backColor;
+        }
     }
     public class DataPath : Data
     {
-        private Brush? _fill; public Brush? Fill { get => _fill; set => SetProperty(ref _fill, value); }
-        private Geometry? _geometry; public Geometry? Geometry { get => _geometry; set => SetProperty(ref _geometry, value); }
+        [DataMember] private Brush? _fill; public Brush? Fill { get => _fill; set => SetProperty(ref _fill, value); }
+        [DataMember] private Geometry? _geometry; public Geometry? Geometry { get => _geometry; set => SetProperty(ref _geometry, value); }
 
         public DataPath(Brush? fill = null)
         {

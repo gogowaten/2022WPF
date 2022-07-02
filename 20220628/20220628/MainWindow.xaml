@@ -35,7 +35,7 @@
       <ItemsControl.ItemTemplate>
         <DataTemplate DataType="{x:Type local:DataTextBlock}">
           <!--<Thumb Width="100" Height="100" Background="{Binding BackColor}" DragDelta="Thumb_DragDelta"/>-->
-          <local:TThumb Width="100" Height="100" Background="{Binding BackColor}"/>
+          <!--<local:TThumb Width="100" Height="100" Background="{Binding BackColor}"/>-->
         </DataTemplate>
       </ItemsControl.ItemTemplate>
       <ItemsControl.ItemsPanel>
@@ -50,6 +50,7 @@
         </Style>
       </ItemsControl.ItemContainerStyle>
     </ItemsControl>
+    <Canvas x:Name="MyCanvas"/>
     <Button Grid.Column="1" x:Name="MyButton1" Content="test" Click="MyButton1_Click"/>
   </Grid>
 </Window>
