@@ -25,27 +25,12 @@ namespace _20220628
     [KnownType(typeof(BitmapSource))]
     public class Data : INotifyPropertyChanged
     {
-        private double _y;
-        public double Y { get => _y; set => SetProperty(ref _y, value); }
+        private double _y; public double Y { get => _y; set => SetProperty(ref _y, value); }
+        private double _x; public double X { get => _x; set => SetProperty(ref _x, value); }
 
-        private double _x;
-        public double X { get => _x; set => SetProperty(ref _x, value); }
-
-        //private TextBlock? _textBlock;
-        //public TextBlock? TextBlock { get => _textBlock; set => SetProperty(ref _textBlock, value); }
-
-        //private BitmapSource? _bmp;
-        //public BitmapSource? Bmp { get => _bmp; set => SetProperty(ref _bmp, value); }
-
-        //private Image? image;
-        //public Image? Image { get => image; set => SetProperty(ref image, value); }
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        //        【Unity】【C#】Genericな型の等価判定によるメモリアロケーション及びUnity組み込み構造体のIEquatable実装状況 - LIGHT11
-        //https://light11.hatenadiary.com/entry/2020/08/03/210816
-        //【WPF】Binding入門1。DataContextの伝搬 | さんさめのC＃ブログ
-        //https://threeshark3.com/wpf-binding-datacontext/
         protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return;
@@ -56,14 +41,21 @@ namespace _20220628
     }
     public class DataTextBlock : Data
     {
-        private string? _text;
-        public string? Text { get => _text; set => SetProperty(ref _text, value); }
-
-        private Brush? _foreColor;
-        public Brush? ForeColor { get => _foreColor; set => SetProperty(ref _foreColor, value); }
-
-        private Brush? _backColor;
-        public Brush? BackColor { get => _backColor; set => SetProperty(ref _backColor, value); }
+        private string? _text; public string? Text { get => _text; set => SetProperty(ref _text, value); }
+        private Brush? _foreColor; public Brush? ForeColor { get => _foreColor; set => SetProperty(ref _foreColor, value); }
+        private Brush? _backColor; public Brush? BackColor { get => _backColor; set => SetProperty(ref _backColor, value); }
 
     }
+    public class DataPath : Data
+    {
+        private Brush? _fill; public Brush? Fill { get => _fill; set => SetProperty(ref _fill, value); }
+        private Geometry? _geometry; public Geometry? Geometry { get => _geometry; set => SetProperty(ref _geometry, value); }
+
+        public DataPath(Brush? fill = null)
+        {
+            this.Fill = fill ?? Brushes.Yellow;
+        }
+
+    }
+
 }

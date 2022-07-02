@@ -49,29 +49,58 @@ namespace _20220628
  
    public class TThumb : Thumb
     {
-        public TThumb()
+
+
+        public Brush BackColor
         {
-            //SetTemplate();
-
-            //Style style = new();
-            //style.Setters.Add(new Setter(Canvas.LeftProperty,new Binding("X")));
-            //style.Setters.Add(new Setter(Canvas.TopProperty,new Binding("Y")));
-            //this.Style = style;
-
-            //Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
-
-
-            //DragDelta += TThumb_DragDelta;
+            get { return (Brush)GetValue(BackColorProperty); }
+            set { SetValue(BackColorProperty, value); }
         }
 
-        //private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        //{
-        //    if(sender is TThumb tt)
-        //    {
-        //        Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
-        //        Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
-        //    }
-        //}
+        // Using a DependencyProperty as the backing store for BackColor.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty BackColorProperty =
+            DependencyProperty.Register("BackColor", typeof(Brush), typeof(TThumb),
+                new PropertyMetadata(Brushes.MediumAquamarine));
+
+
+        public double X
+        {
+            get { return (double)GetValue(XProperty); }
+            set { SetValue(XProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for X.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty XProperty =
+            DependencyProperty.Register("X", typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
+
+
+
+        public double Y
+        {
+            get { return (double)GetValue(YProperty); }
+            set { SetValue(YProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Y.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty YProperty =
+            DependencyProperty.Register("Y", typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
+
+
+
+        public TThumb()
+        {
+            SetTemplateContent();
+            DragDelta += TThumb_DragDelta;
+        }
+
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if(sender is TThumb tt)
+            {
+                Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
+                Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
+            }
+        }
 
         public void SetTemplate()
         {
@@ -81,5 +110,14 @@ namespace _20220628
             template.VisualTree = gridF;
             this.Template = template;
         }
+        public void SetTemplateContent()
+        {
+            FrameworkElementFactory elemF = new(typeof(Grid));
+            elemF.SetBinding(Panel.BackgroundProperty, new Binding(nameof(BackColor)));
+            ControlTemplate template = new(typeof(Thumb));
+            template.VisualTree = elemF;
+            this.Template = template;
+        }
+
     }
 }

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:_20220628"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-  <Window.Resources>
+  <!--<Window.Resources>
     <DataTemplate DataType="{x:Type local:DataTextBlock}">
       <Thumb Width="100" Height="100"
              Background="{Binding BackColor}"
@@ -23,7 +23,7 @@
       <Setter Property="Canvas.Left" Value="{Binding Path=X}"/>
       <Setter Property="Canvas.Top" Value="{Binding Y}"/>
     </Style>
-  </Window.Resources>
+  </Window.Resources>-->
 
   <Grid>
     <Grid.ColumnDefinitions>
@@ -32,6 +32,12 @@
     </Grid.ColumnDefinitions>
 
     <ItemsControl Name="MyItemsControl" ItemsSource="{Binding MyDatas}">
+      <ItemsControl.ItemTemplate>
+        <DataTemplate DataType="{x:Type local:DataTextBlock}">
+          <!--<Thumb Width="100" Height="100" Background="{Binding BackColor}" DragDelta="Thumb_DragDelta"/>-->
+          <local:TThumb Width="100" Height="100" Background="{Binding BackColor}"/>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <Canvas/>
@@ -44,5 +50,6 @@
         </Style>
       </ItemsControl.ItemContainerStyle>
     </ItemsControl>
+    <Button Grid.Column="1" x:Name="MyButton1" Content="test" Click="MyButton1_Click"/>
   </Grid>
 </Window>

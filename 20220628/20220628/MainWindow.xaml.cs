@@ -80,6 +80,25 @@ namespace _20220628
             }
             
         }
+
+        private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if(sender is Thumb t)
+            {   
+                if(VisualTreeHelper.GetParent(t) is ContentPresenter presen)
+                {
+                    Canvas.SetLeft(presen, Canvas.GetLeft(presen) + e.HorizontalChange);
+                    Canvas.SetTop(presen, Canvas.GetTop(presen) + e.VerticalChange);
+                }
+            }
+        }
+
+        private void MyButton1_Click(object sender, RoutedEventArgs e)
+        {
+            var data = MyDatas;
+           var iso = MyItemsControl.ItemsSource;
+            
+        }
     }
 
     //public class Data1 : INotifyPropertyChanged
