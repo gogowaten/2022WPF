@@ -136,30 +136,13 @@ namespace _20220628
             content.SetValue(Path.DataProperty, b);
             b = new(nameof(MyData.Fill)) { Source = MyData, Mode = BindingMode.TwoWay };
             content.SetValue(Path.FillProperty, b);
-            //b = new(nameof(MyData.BackColor)) { Source = MyData, Mode = BindingMode.TwoWay };
-            //content.SetValue(TextBlock.BackgroundProperty, b);
-            //b = new(nameof(MyData.FontSize)) { Source = MyData, Mode = BindingMode.TwoWay };
-            //content.SetValue(TextBlock.FontSizeProperty, b);
 
             ControlTemplate template = new();
             template.VisualTree = panel;
             this.Template = template;
 
-            //DragDelta += TextBlockThumb_DragDelta;
-            //b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
-            //this.SetBinding(Canvas.LeftProperty, b);
-            //b = new(nameof(MyData.Y)) { Source = MyData, Mode = BindingMode.TwoWay };
-            //this.SetBinding(Canvas.TopProperty, b);
         }
 
-        //private void TextBlockThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        //{
-        //    if (sender is TTPath t)
-        //    {
-        //        MyData.X += e.HorizontalChange;
-        //        MyData.Y += e.VerticalChange;
-        //    }
-        //}
     }
 
 
