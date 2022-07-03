@@ -36,24 +36,23 @@ namespace _20220628
 
             DataTemplate dt = new();
             dt.DataType = typeof(DataTextBlock);
-            FrameworkElementFactory elemF = new(typeof(TextBlockThumb));
+            FrameworkElementFactory elemF = new(typeof(TTTextBlock));
             //elemF.SetBinding(TextBlockThumb.TextProperty, new Binding("Text"));
             //dt.VisualTree =
             //this.ItemTemplate =
         }
     }
 
-    public class TextBlockThumb : Thumb
+    public class TTTextBlock : Kyoutuu
     {
 
-        public DataTextBlock MyData { get; set; }
+        public new DataTextBlock MyData { get; set; }
 
 
-        public TextBlockThumb(DataTextBlock data)
+        public TTTextBlock(DataTextBlock data):base(data)
         {
             MyData = data;
 
-            Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
 
 
             FrameworkElementFactory content = new(typeof(TextBlock));
@@ -78,21 +77,89 @@ namespace _20220628
             template.VisualTree = panel;
             this.Template = template;
 
-            DragDelta += TextBlockThumb_DragDelta;
+        }
+
+    }
+
+    public class Kyoutuu : Thumb
+    {
+        public Data MyData { get; set; }
+        public Kyoutuu(Data data)
+        {
+            MyData = data;
+            DataContext = MyData;
+
+            DragDelta += Kyoutuu_DragDelta;
+            SetBindingDaragDelta();
+
+        }
+
+        private void Kyoutuu_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
+        }
+        private void SetBindingDaragDelta()
+        {
+            Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
+            Binding b;
             b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
             this.SetBinding(Canvas.LeftProperty, b);
             b = new(nameof(MyData.Y)) { Source = MyData, Mode = BindingMode.TwoWay };
             this.SetBinding(Canvas.TopProperty, b);
         }
+     
+    }
+    public class TTPath : Kyoutuu
+    {
 
-        private void TextBlockThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        public new DataPath MyData { get; set; }
+
+
+        public TTPath(DataPath data) : base(data)
         {
-            if(sender is TextBlockThumb t)
+            MyData = data;
+
+            //Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+
+
+            FrameworkElementFactory content = new(typeof(Path));
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            FrameworkElementFactory panel = new(typeof(Grid));
+            panel.AppendChild(content);
+            panel.AppendChild(waku);
+            Binding b = new(nameof(MyData.Geometry))
             {
-                MyData.X += e.HorizontalChange;
-                MyData.Y += e.VerticalChange;
-            }
+                Source = MyData,
+                Mode = BindingMode.TwoWay
+            };
+            content.SetValue(Path.DataProperty, b);
+            b = new(nameof(MyData.Fill)) { Source = MyData, Mode = BindingMode.TwoWay };
+            content.SetValue(Path.FillProperty, b);
+            //b = new(nameof(MyData.BackColor)) { Source = MyData, Mode = BindingMode.TwoWay };
+            //content.SetValue(TextBlock.BackgroundProperty, b);
+            //b = new(nameof(MyData.FontSize)) { Source = MyData, Mode = BindingMode.TwoWay };
+            //content.SetValue(TextBlock.FontSizeProperty, b);
+
+            ControlTemplate template = new();
+            template.VisualTree = panel;
+            this.Template = template;
+
+            //DragDelta += TextBlockThumb_DragDelta;
+            //b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
+            //this.SetBinding(Canvas.LeftProperty, b);
+            //b = new(nameof(MyData.Y)) { Source = MyData, Mode = BindingMode.TwoWay };
+            //this.SetBinding(Canvas.TopProperty, b);
         }
+
+        //private void TextBlockThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        //{
+        //    if (sender is TTPath t)
+        //    {
+        //        MyData.X += e.HorizontalChange;
+        //        MyData.Y += e.VerticalChange;
+        //    }
+        //}
     }
 
 

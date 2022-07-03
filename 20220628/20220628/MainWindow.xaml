@@ -51,6 +51,9 @@
       </ItemsControl.ItemContainerStyle>
     </ItemsControl>
     <Canvas x:Name="MyCanvas"/>
+    <StackPanel Grid.Column="1">
     <Button Grid.Column="1" x:Name="MyButton1" Content="test" Click="MyButton1_Click"/>
+      <TextBlock Text="{Binding MyDatas2[0].Text}"/>
+    </StackPanel>
   </Grid>
 </Window>

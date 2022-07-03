@@ -34,7 +34,9 @@ namespace _20220628
     public partial class MainWindow : Window
     {
         public ObservableCollection<Data> MyDatas { get; set; } = new();
-        public TextBlockThumb tbt;
+        public ObservableCollection<Data> MyDatas2 { get; set; } = new();
+        public TTTextBlock tbt;
+        public TTPath tp;
         public MainWindow()
         {
             InitializeComponent();
@@ -45,7 +47,16 @@ namespace _20220628
 
             tbt = new(new DataTextBlock(10, 20, "test000", 24, Brushes.Red, Brushes.Gold));
             MyCanvas.Children.Add(tbt);
+            MyDatas2.Add(tbt.MyData);
 
+            PolyBezierSegment seg = new();
+            seg.Points = new PointCollection() { new(10, 10), new(100, 100), new(50, 20) };
+            PathFigure fig = new(); fig.Segments.Add(seg); fig.StartPoint = new Point(0, 0);
+            PathGeometry geo = new(); geo.Figures.Add(fig);
+            tp = new(new(geo, Brushes.Red));
+            MyCanvas.Children.Add(tp);
+            MyDatas2.Add(tp.MyData);
+            
         }
 
         //private Data MakeDataTextBlock(double x, double y, string text)
@@ -81,6 +92,7 @@ namespace _20220628
                 var neko = tt.Parent;
                 Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
                 Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
+               
             }
 
         }

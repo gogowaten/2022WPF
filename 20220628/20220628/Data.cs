@@ -75,9 +75,10 @@ namespace _20220628
         [DataMember] private Brush? _fill; public Brush? Fill { get => _fill; set => SetProperty(ref _fill, value); }
         [DataMember] private Geometry? _geometry; public Geometry? Geometry { get => _geometry; set => SetProperty(ref _geometry, value); }
 
-        public DataPath(Brush? fill = null)
+        public DataPath( Geometry geometry,Brush? fill = null)
         {
             this.Fill = fill ?? Brushes.Yellow;
+            this.Geometry = geometry;
         }
 
     }
