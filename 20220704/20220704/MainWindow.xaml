@@ -6,7 +6,16 @@
         xmlns:local="clr-namespace:_20220704"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
 
-    </Grid>
+    <Canvas x:Name="MyPanel" UseLayoutRounding="True"/>
+
+    <StackPanel Grid.ColumnSpan="1" Name="MyStackPanel">
+      
+    </StackPanel>
+  </Grid>
 </Window>

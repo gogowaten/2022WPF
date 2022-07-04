@@ -83,6 +83,18 @@ namespace _20220704
         {
             DataType = DataType.Rectangle;
         }
+        public DataRectangle(double width, double height, Brush? colorFill, Brush? colorStroke, double strokeThickness)
+        {
+            Width = width;
+            Height = height;
+            ColorFill = colorFill;
+            ColorStroke = colorStroke;
+            StrokeThickness = strokeThickness;
+        }
+
+        private double _width; [DataMember] public double Width { get => _width; set => SetProperty(ref _width, value); }
+
+        private double _height; [DataMember] public double Height { get => _height; set => SetProperty(ref _height, value); }
 
         private Brush? _colorFill; [DataMember] public Brush? ColorFill { get => _colorFill; set => SetProperty(ref _colorFill, value); }
 

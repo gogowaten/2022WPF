@@ -21,7 +21,7 @@ using System.Collections.Specialized;
 
 namespace _20220704
 {
-    internal class TThumb : Thumb
+    public abstract class TThumb : Thumb
     {
         public Data MyData { get; protected set; }
         public TThumb(Data myData)
@@ -48,4 +48,53 @@ namespace _20220704
             this.SetBinding(Canvas.TopProperty, b);
         }
     }
+
+    public abstract class ItemThumb : TThumb
+    {
+        protected FrameworkElementFactory waku;
+        protected FrameworkElementFactory panel;
+        public ItemThumb(Data myData) : base(myData)
+        {
+            waku = new(typeof(Rectangle));
+            panel = new(typeof(Grid));
+            panel.AppendChild(waku);
+
+            SetTemplate();
+
+        }
+        protected abstract void SetTemplate();
+        protected Binding MakeTwoWayBinding(string path, object source)
+        {
+            return new(path) { Source = source, Mode = BindingMode.TwoWay };
+        }
+
+        protected void MySetBinding(FrameworkElementFactory elem, DependencyProperty dp, string path)
+        {
+            elem.SetBinding(dp, MakeTwoWayBinding(path, MyData));
+        }
+    }
+    public class TTextBlock : ItemThumb
+    {
+        public new DataTextBlock MyData { get; protected set; }
+        public TTextBlock(DataTextBlock data) : base(data)
+        {
+            MyData = data;
+
+            
+        }
+
+        protected override void SetTemplate()
+        {
+            FrameworkElementFactory content = new(typeof(TextBlock));
+            MySetBinding(content, TextBlock.TextProperty, nameof(MyData.Text));
+            MySetBinding(content, TextBlock.ForegroundProperty, nameof(MyData.ColorFont));
+            MySetBinding(content, TextBlock.BackgroundProperty, nameof(MyData.ColorBack));
+            MySetBinding(content, TextBlock.FontSizeProperty, nameof(MyData.FontSize));
+            panel.AppendChild(content);
+            ControlTemplate template = new();
+            template.VisualTree = panel;
+            this.Template = template;
+        }
+    }
+
 }
