@@ -49,11 +49,9 @@ namespace _20220628
         public new DataTextBlock MyData { get; set; }
 
 
-        public TTTextBlock(DataTextBlock data):base(data)
+        public TTTextBlock(DataTextBlock data) : base(data)
         {
             MyData = data;
-
-
 
             FrameworkElementFactory content = new(typeof(TextBlock));
             FrameworkElementFactory waku = new(typeof(Rectangle));
@@ -76,9 +74,36 @@ namespace _20220628
             ControlTemplate template = new();
             template.VisualTree = panel;
             this.Template = template;
-
         }
 
+    }
+
+    public class TTPath : Kyoutuu
+    {
+        public new DataPath MyData { get; set; }
+
+        public TTPath(DataPath data) : base(data)
+        {
+            MyData = data;
+
+            FrameworkElementFactory content = new(typeof(Path));
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            FrameworkElementFactory panel = new(typeof(Grid));
+            panel.AppendChild(content);
+            panel.AppendChild(waku);
+            Binding b = new(nameof(MyData.Geometry))
+            {
+                Source = MyData,
+                Mode = BindingMode.TwoWay
+            };
+            content.SetValue(Path.DataProperty, b);
+            b = new(nameof(MyData.Fill)) { Source = MyData, Mode = BindingMode.TwoWay };
+            content.SetValue(Path.FillProperty, b);
+
+            ControlTemplate template = new();
+            template.VisualTree = panel;
+            this.Template = template;
+        }
     }
 
     public class Kyoutuu : Thumb
@@ -101,48 +126,13 @@ namespace _20220628
         }
         private void SetBindingDaragDelta()
         {
-            Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
             Binding b;
             b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
             this.SetBinding(Canvas.LeftProperty, b);
             b = new(nameof(MyData.Y)) { Source = MyData, Mode = BindingMode.TwoWay };
             this.SetBinding(Canvas.TopProperty, b);
         }
-     
-    }
-    public class TTPath : Kyoutuu
-    {
-
-        public new DataPath MyData { get; set; }
-
-
-        public TTPath(DataPath data) : base(data)
-        {
-            MyData = data;
-
-            //Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
-
-
-            FrameworkElementFactory content = new(typeof(Path));
-            FrameworkElementFactory waku = new(typeof(Rectangle));
-            FrameworkElementFactory panel = new(typeof(Grid));
-            panel.AppendChild(content);
-            panel.AppendChild(waku);
-            Binding b = new(nameof(MyData.Geometry))
-            {
-                Source = MyData,
-                Mode = BindingMode.TwoWay
-            };
-            content.SetValue(Path.DataProperty, b);
-            b = new(nameof(MyData.Fill)) { Source = MyData, Mode = BindingMode.TwoWay };
-            content.SetValue(Path.FillProperty, b);
-
-            ControlTemplate template = new();
-            template.VisualTree = panel;
-            this.Template = template;
-
-        }
-
     }
 
 
