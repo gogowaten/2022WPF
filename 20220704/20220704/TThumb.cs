@@ -80,7 +80,6 @@ namespace _20220704
         {
             MyData = data;
 
-            
         }
 
         protected override void SetTemplate()
@@ -96,5 +95,26 @@ namespace _20220704
             this.Template = template;
         }
     }
+    public class TRectangle : ItemThumb
+    {
+        public new DataRectangle MyData { get; protected set; }
+        public TRectangle(DataRectangle myData) : base(myData)
+        {
+            MyData = myData;
+        }
 
+        protected override void SetTemplate()
+        {
+            FrameworkElementFactory content = new(typeof(Rectangle));
+            MySetBinding(content, Rectangle.WidthProperty, nameof(MyData.Width));
+            MySetBinding(content, Rectangle.HeightProperty, nameof(MyData.Height));
+            MySetBinding(content, Rectangle.FillProperty, nameof(MyData.ColorFill));
+            MySetBinding(content, Rectangle.StrokeProperty, nameof(MyData.ColorStroke));
+            MySetBinding(content, Rectangle.StrokeThicknessProperty, nameof(MyData.StrokeThickness));
+            panel.AppendChild(content);
+            ControlTemplate template = new();
+            template.VisualTree = panel;
+            this.Template = template;
+        }
+    }
 }

@@ -21,14 +21,21 @@ using System.Collections.Specialized;
 
 namespace _20220704
 {
-    public enum DataType
+    public enum DataItemType
     {
         None = 0,
         TextBlock,
         Path,
         Rectangle
     }
-    public enum DataMainType
+    public enum DataGroupType
+    {
+        None = 0,
+        Group,
+        Layer,
+        Canvas
+    }
+    public enum DataType
     {
         None = 0,
         Item,
@@ -45,8 +52,8 @@ namespace _20220704
             field = value;
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
+
         [DataMember] public DataType DataType { get; protected set; }
-        [DataMember] public DataMainType DataMainType { get; protected set; }
         private double _x; [DataMember] public double X { get => _x; set => SetProperty(ref _x, value); }
         private double _y; [DataMember] public double Y { get => _y; set => SetProperty(ref _y, value); }
         private double _z; [DataMember] public double Z { get => _z; set => SetProperty(ref _z, value); }
@@ -54,26 +61,24 @@ namespace _20220704
     }
     public class DataItem : Data
     {
-        public DataItem() { DataMainType = DataMainType.Item; }
+        [DataMember] public DataItemType DataItemType { get; protected set; }
+        public DataItem() { base.DataType = DataType.Item; }
     }
     public class DataTextBlock : DataItem
     {
         public DataTextBlock()
         {
-            DataType = DataType.TextBlock;
+            DataItemType = DataItemType.TextBlock;
         }
-        public DataTextBlock(double x, double y, double z, string text, double fontsize, Brush colorfont, Brush colorback)
+        public DataTextBlock(double x, double y, double z, string text, double fontsize, Brush colorfont, Brush colorback) : this()
         {
             X = x; Y = y; Z = z;
             Text = text; FontSize = fontsize;
             ColorFont = colorfont; ColorBack = colorback;
         }
         private string? _text; [DataMember] public string? Text { get => _text; set => SetProperty(ref _text, value); }
-
         private Brush? _colorFont; [DataMember] public Brush? ColorFont { get => _colorFont; set => SetProperty(ref _colorFont, value); }
-
         private Brush? _colorBack; [DataMember] public Brush? ColorBack { get => _colorBack; set => SetProperty(ref _colorBack, value); }
-
         private double _fontSize; [DataMember] public double FontSize { get => _fontSize; set => SetProperty(ref _fontSize, value); }
 
     }
@@ -81,9 +86,9 @@ namespace _20220704
     {
         public DataRectangle()
         {
-            DataType = DataType.Rectangle;
+            DataItemType = DataItemType.Rectangle;
         }
-        public DataRectangle(double width, double height, Brush? colorFill, Brush? colorStroke, double strokeThickness)
+        public DataRectangle(double width, double height, Brush? colorFill, Brush? colorStroke, double strokeThickness) : this()
         {
             Width = width;
             Height = height;
@@ -93,14 +98,27 @@ namespace _20220704
         }
 
         private double _width; [DataMember] public double Width { get => _width; set => SetProperty(ref _width, value); }
-
         private double _height; [DataMember] public double Height { get => _height; set => SetProperty(ref _height, value); }
-
         private Brush? _colorFill; [DataMember] public Brush? ColorFill { get => _colorFill; set => SetProperty(ref _colorFill, value); }
-
         private Brush? _colorStroke; [DataMember] public Brush? ColorStroke { get => _colorStroke; set => SetProperty(ref _colorStroke, value); }
-
         private double _strokeThickness; [DataMember] public double StrokeThickness { get => _strokeThickness; set => SetProperty(ref _strokeThickness, value); }
+
+    }
+
+
+    public abstract class DataGroupBase : Data
+    {
+        public DataGroupBase()
+        {
+            DataType = DataType.Group;
+            MyItemsData = new(ItemsData);
+        }
+        protected ObservableCollection<Data> ItemsData { get; private set; } = new();
+        public ReadOnlyObservableCollection<Data> MyItemsData;
+    }
+    public class DataGroup : DataGroupBase
+    {
+        public DataGroup() { DataType = DataType.Group; }
 
     }
 }
