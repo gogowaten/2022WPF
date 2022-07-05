@@ -14,8 +14,8 @@
 
     <Canvas x:Name="MyPanel" UseLayoutRounding="True"/>
 
-    <StackPanel Grid.ColumnSpan="1" Name="MyStackPanel">
-      
+    <StackPanel Grid.Column="1" Name="MyStackPanel">
+      <Button x:Name="MyButtonCheck" Content="check" Click="MyButtonCheck_Click"/>
     </StackPanel>
   </Grid>
 </Window>

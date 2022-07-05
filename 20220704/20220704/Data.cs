@@ -108,17 +108,35 @@ namespace _20220704
 
     public abstract class DataGroupBase : Data
     {
+        [DataMember] public DataGroupType DataGroupType { get; protected set; }
         public DataGroupBase()
         {
-            DataType = DataType.Group;
-            MyItemsData = new(ItemsData);
+            DataType = DataType.Group;            
         }
-        protected ObservableCollection<Data> ItemsData { get; private set; } = new();
-        public ReadOnlyObservableCollection<Data> MyItemsData;
+        public ObservableCollection<Data> ChildrenData { get; private set; } = new();
+        
     }
     public class DataGroup : DataGroupBase
     {
-        public DataGroup() { DataType = DataType.Group; }
+        public DataGroup() : base()
+        {
+            DataGroupType = DataGroupType.Group;
 
+        }
+
+    }
+    public class DataLayer : DataGroupBase
+    {
+        public DataLayer() : base()
+        {
+            DataGroupType = DataGroupType.Layer;
+        }
+    }
+    public class DataCanvas : DataGroupBase
+    {
+        public DataCanvas():base()
+        {
+            DataGroupType = DataGroupType.Canvas;
+        }
     }
 }

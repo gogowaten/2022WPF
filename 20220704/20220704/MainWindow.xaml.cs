@@ -21,23 +21,30 @@ namespace _20220704
     /// </summary>
     public partial class MainWindow : Window
     {
-        TTextBlock ttb;
+        TTextBlock ttb1;
+        TTextBlock ttb2;
         public MainWindow()
         {
             InitializeComponent();
 
             DataTextBlock dtb = new(10, 20, 0, "text1", 30, Brushes.Yellow, Brushes.DeepPink);
-            ttb = new(dtb);
-            MyPanel.Children.Add(ttb);
+            ttb1 = new(dtb);
+            dtb = new(100, 120, 0, "text2", 30, Brushes.Yellow, Brushes.SkyBlue);
+            ttb2 = new(dtb);
+            
 
-            Thumb t = new() { Width = 100, Height = 20 };
-            MyPanel.Children.Add(t);
-            Canvas.SetLeft(t, 0);Canvas.SetTop(t, 0);
-            t.DragDelta += (a, b) =>
-            {
-                Canvas.SetLeft(t, Canvas.GetLeft(t) + b.HorizontalChange);
-                Canvas.SetTop(t, Canvas.GetTop(t) + b.VerticalChange);
-            };
+            GroupThumb group = new(new DataGroup());
+            group.AddThumb(ttb1);
+            group.AddThumb(ttb2);
+            MyPanel.Children.Add(group);
+            group.SetDragDelta();
+            
+        }
+
+        private void MyButtonCheck_Click(object sender, RoutedEventArgs e)
+        {
+            ttb1.MyData.Text = "kakikaeta";
+            Canvas.SetLeft(ttb1, 200);
         }
     }
 }
