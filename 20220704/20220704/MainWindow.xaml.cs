@@ -23,9 +23,12 @@ namespace _20220704
     {
         TTextBlock ttb1;
         TTextBlock ttb2;
+        CanvasThumb MyCanvas;
+        LayerThumb MyLayer0;
         public MainWindow()
         {
             InitializeComponent();
+
 
             DataTextBlock dtb = new(10, 20, 0, "text1", 30, Brushes.Yellow, Brushes.DeepPink);
             ttb1 = new(dtb);
@@ -34,11 +37,17 @@ namespace _20220704
             
 
             GroupThumb group = new(new DataGroup());
-            group.AddThumb(ttb1);
-            group.AddThumb(ttb2);
-            MyPanel.Children.Add(group);
+            group.AddChild(ttb1);
+            group.AddChild(ttb2);
+            
             group.SetDragDelta();
             
+            MyLayer0 = new(new DataLayer());
+            MyLayer0.AddChild(group);
+            MyCanvas=new(new DataCanvas());
+            MyCanvas.AddChild(MyLayer0);
+            var neko = MyCanvas.MyChildren;
+            MyPanel.Children.Add(MyCanvas);
         }
 
         private void MyButtonCheck_Click(object sender, RoutedEventArgs e)

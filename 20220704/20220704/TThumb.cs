@@ -29,7 +29,7 @@ namespace _20220704
             MyData = myData;
             DataContext = this;
 
-            
+
             SetDragDeltaBinding();
         }
 
@@ -128,14 +128,58 @@ namespace _20220704
     }
 
 
-    public abstract class GroupBaseThumb : TThumb
+
+    #region グループ用Thumb
+    //public abstract class GroupBaseThumb : TThumb
+    //{
+    //    public new DataGroupBase MyData { get; protected set; }
+    //    private ObservableCollection<TThumb> Children { get; } = new();
+    //    public ReadOnlyObservableCollection<TThumb> MyChildren { get; set; }
+    //    protected GroupBaseThumb(DataGroupBase myData) : base(myData)
+    //    {
+
+    //        MyData = myData;
+    //        MyChildren = new(Children);
+    //        SetTemplate();
+    //        if (myData.ChildrenData.Count > 0)
+    //        {
+    //            throw new NotImplementedException();
+    //        }
+    //    }
+    //    protected override void SetTemplate()
+    //    {
+    //        FrameworkElementFactory panel = new(typeof(Grid));
+
+    //        FrameworkElementFactory content = new(typeof(ItemsControl));
+    //        content.SetValue(ItemsControl.ItemsPanelProperty,
+    //            new ItemsPanelTemplate(
+    //                new FrameworkElementFactory(typeof(Canvas))));
+    //        content.SetValue(ItemsControl.ItemsSourceProperty,
+    //            new Binding(nameof(MyChildren)));
+    //        panel.AppendChild(content);
+
+    //        FrameworkElementFactory waku = new(typeof(Rectangle));
+    //        panel.AppendChild(waku);
+
+
+    //        ControlTemplate template = new();
+    //        template.VisualTree = panel;
+    //        this.Template = template;
+
+    //    }
+    //    public void AddChild(TThumb thumb)
+    //    {
+    //        Children.Add(thumb);
+    //    }       
+    //}
+
+    public abstract class GroupBase : TThumb
     {
         public new DataGroupBase MyData { get; protected set; }
-        private ObservableCollection<TThumb> Children { get; } = new();
+        protected ObservableCollection<TThumb> Children { get; } = new();
         public ReadOnlyObservableCollection<TThumb> MyChildren { get; set; }
-        protected GroupBaseThumb(DataGroupBase myData) : base(myData)
+        protected GroupBase(DataGroupBase myData) : base(myData)
         {
-
             MyData = myData;
             MyChildren = new(Children);
             SetTemplate();
@@ -152,7 +196,7 @@ namespace _20220704
             content.SetValue(ItemsControl.ItemsPanelProperty,
                 new ItemsPanelTemplate(
                     new FrameworkElementFactory(typeof(Canvas))));
-            content.SetValue(ItemsControl.ItemsSourceProperty, 
+            content.SetValue(ItemsControl.ItemsSourceProperty,
                 new Binding(nameof(MyChildren)));
             panel.AppendChild(content);
 
@@ -165,16 +209,56 @@ namespace _20220704
             this.Template = template;
 
         }
-        public void AddThumb(TThumb thumb)
+    }
+
+    //GroupとLayerの基本クラス
+    public abstract class GroupAndLayerBase : GroupBase
+    {
+        protected GroupAndLayerBase(DataGroupBase myData) : base(myData)
+        {
+        }
+
+        public void AddChild(TThumb thumb)
         {
             Children.Add(thumb);
         }
     }
-    public class GroupThumb : GroupBaseThumb
+
+    public class GroupThumb : GroupAndLayerBase
     {
         public GroupThumb(DataGroup myData) : base(myData)
         {
 
         }
+
     }
+    public class LayerThumb : GroupAndLayerBase
+    {
+        public LayerThumb(DataLayer myData) : base(myData)
+        {
+        }
+    }
+
+    public class CanvasThumb : GroupBase
+    {
+        private new ObservableCollection<LayerThumb> Children { get; } = new();
+        public new ReadOnlyObservableCollection<LayerThumb> MyChildren { get; set; }
+
+        public CanvasThumb(DataCanvas myData) : base(myData)
+        {
+            MyChildren = new(Children);
+
+        }
+        public void AddChild(LayerThumb layer)
+        {
+            Children.Add(layer);
+        }
+
+
+    }
+
+    #endregion グループ用Thumb
+
+
+
 }
