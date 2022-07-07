@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:_20220704"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+  
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
@@ -16,6 +17,7 @@
 
     <StackPanel Grid.Column="1" Name="MyStackPanel">
       <Button x:Name="MyButtonCheck" Content="check" Click="MyButtonCheck_Click"/>
+      <TextBlock Text="{Binding MyChildren.CurrentItem}"/>
     </StackPanel>
   </Grid>
 </Window>

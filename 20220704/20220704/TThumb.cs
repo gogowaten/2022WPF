@@ -24,6 +24,12 @@ namespace _20220704
     public abstract class TThumb : Thumb
     {
         public Data MyData { get; protected set; }
+        public CanvasThumb? MyCanvas { get; set; }
+        //public LayerThumb? MyLayerThumb { get; set; }
+        //public GroupAndLayerBase? MyGroupThumb { get; set; }
+        public bool IsCurrentItem { get; private set; }
+        public TThumb? MyParentThumb { get; set; }
+
         public TThumb(Data myData)
         {
             MyData = myData;
@@ -31,9 +37,33 @@ namespace _20220704
 
 
             SetDragDeltaBinding();
+            Binding bind = new(nameof(MyData.Z)) { Source = MyData, Mode = BindingMode.TwoWay };
+            this.SetBinding(Panel.ZIndexProperty, bind);
         }
 
+        protected static void SetIsCurrentItem(ItemThumb? oldItem, ItemThumb? newItem)
+        {
+            if (oldItem != null) oldItem.IsCurrentItem = false;
+            if (newItem != null) newItem.IsCurrentItem = true;
+        }
+        protected void SetMyCanvas()
+        {
+            MyCanvas = GetMyCanvas();
+        }
+        protected CanvasThumb? GetMyCanvas()
+        {
+            if(MyParentThumb is CanvasThumb canvas)
+            {
+                return canvas;
+            }
+            else
+            {
+               return MyParentThumb?.GetMyCanvas();
+            }
+        }
         protected abstract void SetTemplate();
+
+      
 
         public void SetDragDelta()
         {
@@ -60,6 +90,9 @@ namespace _20220704
     {
         protected FrameworkElementFactory waku;
         protected FrameworkElementFactory panel;
+
+
+
         public ItemThumb(Data myData) : base(myData)
         {
             waku = new(typeof(Rectangle));
@@ -69,7 +102,21 @@ namespace _20220704
 
             SetTemplate();
 
+            PreviewMouseDown += ItemThumb_PreviewMouseDown;
         }
+
+        private void ItemThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (MyCanvas is not null)
+            {
+                MyCanvas.MyCurrentItem = this;
+            }
+            else
+            {
+                SetMyCanvas();
+            }
+        }
+
         protected static Binding MakeTwoWayBinding(string path, object source)
         {
             return new(path) { Source = source, Mode = BindingMode.TwoWay };
@@ -130,49 +177,9 @@ namespace _20220704
 
 
     #region グループ用Thumb
-    //public abstract class GroupBaseThumb : TThumb
-    //{
-    //    public new DataGroupBase MyData { get; protected set; }
-    //    private ObservableCollection<TThumb> Children { get; } = new();
-    //    public ReadOnlyObservableCollection<TThumb> MyChildren { get; set; }
-    //    protected GroupBaseThumb(DataGroupBase myData) : base(myData)
-    //    {
-
-    //        MyData = myData;
-    //        MyChildren = new(Children);
-    //        SetTemplate();
-    //        if (myData.ChildrenData.Count > 0)
-    //        {
-    //            throw new NotImplementedException();
-    //        }
-    //    }
-    //    protected override void SetTemplate()
-    //    {
-    //        FrameworkElementFactory panel = new(typeof(Grid));
-
-    //        FrameworkElementFactory content = new(typeof(ItemsControl));
-    //        content.SetValue(ItemsControl.ItemsPanelProperty,
-    //            new ItemsPanelTemplate(
-    //                new FrameworkElementFactory(typeof(Canvas))));
-    //        content.SetValue(ItemsControl.ItemsSourceProperty,
-    //            new Binding(nameof(MyChildren)));
-    //        panel.AppendChild(content);
-
-    //        FrameworkElementFactory waku = new(typeof(Rectangle));
-    //        panel.AppendChild(waku);
 
 
-    //        ControlTemplate template = new();
-    //        template.VisualTree = panel;
-    //        this.Template = template;
-
-    //    }
-    //    public void AddChild(TThumb thumb)
-    //    {
-    //        Children.Add(thumb);
-    //    }       
-    //}
-
+    //GroupとLayer、Canvasの基本クラス
     public abstract class GroupBase : TThumb
     {
         public new DataGroupBase MyData { get; protected set; }
@@ -216,11 +223,32 @@ namespace _20220704
     {
         protected GroupAndLayerBase(DataGroupBase myData) : base(myData)
         {
+
         }
 
+        public void AddChild(TThumb thumb, int z = -1)
+        {
+            //ZIndex指定なしは末尾(最上位)に追加
+            if (z == -1)
+            {
+                thumb.MyData.Z = Children.Count;
+                Children.Add(thumb);
+            }
+            else
+            {
+                thumb.MyData.Z = z;
+                Children.Insert(z, thumb);
+                for (int i = z; i < Children.Count; i++)
+                {
+                    Children[i].MyData.Z = i;
+                }
+            }
+        }
         public void AddChild(TThumb thumb)
         {
-            Children.Add(thumb);
+            int z = thumb.MyData.Z;
+            AddChild(thumb, z);
+            thumb.MyParentThumb = this;
         }
     }
 
@@ -230,28 +258,70 @@ namespace _20220704
         {
 
         }
+        public new void AddChild(TThumb thumb)
+        {
+            base.AddChild(thumb);
 
+        }
     }
     public class LayerThumb : GroupAndLayerBase
     {
         public LayerThumb(DataLayer myData) : base(myData)
         {
         }
+        public new void AddChild(TThumb thumb)
+        {
+            base.AddChild(thumb);
+
+        }
     }
+
 
     public class CanvasThumb : GroupBase
     {
-        private new ObservableCollection<LayerThumb> Children { get; } = new();
+        protected new ObservableCollection<LayerThumb> Children { get; } = new();
         public new ReadOnlyObservableCollection<LayerThumb> MyChildren { get; set; }
 
+
+        public ItemThumb MyCurrentItem
+        {
+            get { return (ItemThumb)GetValue(MyCurrentItemProperty); }
+            //set { SetValue(MyCurrentItemProperty, value); }
+            set
+            {
+                if (MyCurrentItem != value)
+                {
+                    SetIsCurrentItem(MyCurrentItem, value);
+                    SetValue(MyCurrentItemProperty, value);
+                }
+            }
+        }
+        public static readonly DependencyProperty MyCurrentItemProperty =
+            DependencyProperty.Register("MyCurrentItem", typeof(ItemThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+
+
+        public TThumb CurrentThumb
+        {
+            get { return (TThumb)GetValue(CurrentThumbProperty); }
+            set { SetValue(CurrentThumbProperty, value); }
+        }
+        public static readonly DependencyProperty CurrentThumbProperty =
+            DependencyProperty.Register("CurrentThumb", typeof(TThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="myData"></param>
         public CanvasThumb(DataCanvas myData) : base(myData)
         {
             MyChildren = new(Children);
 
         }
-        public void AddChild(LayerThumb layer)
+        public void AddLayer(LayerThumb layer)
         {
             Children.Add(layer);
+            layer.MyParentThumb = this;
         }
 
 

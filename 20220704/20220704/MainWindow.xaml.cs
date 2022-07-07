@@ -29,6 +29,10 @@ namespace _20220704
         {
             InitializeComponent();
 
+            MyTest();
+
+            MyCanvas = new(new DataCanvas());
+            DataContext = MyCanvas;
 
             DataTextBlock dtb = new(10, 20, 0, "text1", 30, Brushes.Yellow, Brushes.DeepPink);
             ttb1 = new(dtb);
@@ -39,17 +43,20 @@ namespace _20220704
             GroupThumb group = new(new DataGroup());
             group.AddChild(ttb1);
             group.AddChild(ttb2);
-            
+
             group.SetDragDelta();
-            
+
             MyLayer0 = new(new DataLayer());
             MyLayer0.AddChild(group);
-            MyCanvas=new(new DataCanvas());
-            MyCanvas.AddChild(MyLayer0);
+            MyCanvas.AddLayer(MyLayer0);
             var neko = MyCanvas.MyChildren;
             MyPanel.Children.Add(MyCanvas);
         }
 
+        private void MyTest()
+        {
+           
+        }
         private void MyButtonCheck_Click(object sender, RoutedEventArgs e)
         {
             ttb1.MyData.Text = "kakikaeta";

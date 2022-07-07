@@ -56,7 +56,7 @@ namespace _20220704
         [DataMember] public DataType DataType { get; protected set; }
         private double _x; [DataMember] public double X { get => _x; set => SetProperty(ref _x, value); }
         private double _y; [DataMember] public double Y { get => _y; set => SetProperty(ref _y, value); }
-        private double _z; [DataMember] public double Z { get => _z; set => SetProperty(ref _z, value); }
+        private int _z; [DataMember] public int Z { get => _z; set => SetProperty(ref _z, value); }
 
     }
     public class DataItem : Data
@@ -70,7 +70,7 @@ namespace _20220704
         {
             DataItemType = DataItemType.TextBlock;
         }
-        public DataTextBlock(double x, double y, double z, string text, double fontsize, Brush colorfont, Brush colorback) : this()
+        public DataTextBlock(double x, double y, int z, string text, double fontsize, Brush colorfont, Brush colorback) : this()
         {
             X = x; Y = y; Z = z;
             Text = text; FontSize = fontsize;
