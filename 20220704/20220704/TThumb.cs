@@ -84,6 +84,11 @@ namespace _20220704
             this.SetBinding(Canvas.TopProperty, b);
         }
 
+        public override string ToString()
+        {
+            string str = $"X{MyData.X}, Y{MyData.Y}, Z{MyData.Z}";
+            return str;
+        }
     }
 
     public abstract class ItemThumb : TThumb
@@ -114,6 +119,10 @@ namespace _20220704
             else
             {
                 SetMyCanvas();
+                if(MyCanvas is not null)
+                {
+                    MyCanvas.MyCurrentItem = this;
+                }
             }
         }
 
@@ -126,8 +135,7 @@ namespace _20220704
             elem.SetBinding(dp, MakeTwoWayBinding(path, MyData));
         }
 
-
-
+        
     }
     public class TTextBlock : ItemThumb
     {
@@ -150,6 +158,11 @@ namespace _20220704
             template.VisualTree = panel;
             this.Template = template;
         }
+        public override string ToString()
+        {
+            return $" {base.ToString()}, {MyData.Text}";
+        }
+
     }
     public class TRectangle : ItemThumb
     {
@@ -243,13 +256,14 @@ namespace _20220704
                     Children[i].MyData.Z = i;
                 }
             }
-        }
-        public void AddChild(TThumb thumb)
-        {
-            int z = thumb.MyData.Z;
-            AddChild(thumb, z);
             thumb.MyParentThumb = this;
         }
+        //public void AddChild(TThumb thumb)
+        //{
+        //    int z = thumb.MyData.Z;
+        //    AddChild(thumb, z);
+        //    thumb.MyParentThumb = this;
+        //}
     }
 
     public class GroupThumb : GroupAndLayerBase

@@ -17,7 +17,7 @@
 
     <StackPanel Grid.Column="1" Name="MyStackPanel">
       <Button x:Name="MyButtonCheck" Content="check" Click="MyButtonCheck_Click"/>
-      <TextBlock Text="{Binding MyChildren.CurrentItem}"/>
+      <TextBlock Text="{Binding MyCurrentItem}"/>
     </StackPanel>
   </Grid>
 </Window>
