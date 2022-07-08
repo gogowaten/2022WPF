@@ -27,22 +27,39 @@ namespace _20220704
         public CanvasThumb? MyCanvas { get; set; }
         //public LayerThumb? MyLayerThumb { get; set; }
         //public GroupAndLayerBase? MyGroupThumb { get; set; }
-        public bool IsCurrentItem { get; private set; }
+        public bool IsActiveItem { get; private set; }
         public TThumb? MyParentThumb { get; set; }
 
-        public TThumb(Data myData)
+        public TThumb(Data myData, string name = "")
         {
             MyData = myData;
+            Name = name;
             DataContext = this;
-
 
             SetMyDataBinding();
         }
 
-        protected static void SetIsCurrentItem(ItemThumb? oldItem, ItemThumb? newItem)
+
+        protected TThumb? GetActiveThumb(TThumb thumb)
         {
-            if (oldItem != null) oldItem.IsCurrentItem = false;
-            if (newItem != null) newItem.IsCurrentItem = true;
+            if (thumb.MyParentThumb is GroupAndLayerBase group)
+            {
+                if (group.IsEditingThumb) { return thumb; }
+                else { return GetActiveThumb(group); }
+            }
+            return null;
+            //if (thumb.MyParentThumb is not GroupAndLayerBase group)
+            //    return null;
+            //else
+            //{
+            //    if (group.IsEditingThumb) { return thumb; }
+            //    else { return GetActiveThumb(group); }
+            //}
+        }
+        protected static void SetIsActiveItem(ItemThumb? oldItem, ItemThumb? newItem)
+        {
+            if (oldItem != null) oldItem.IsActiveItem = false;
+            if (newItem != null) newItem.IsActiveItem = true;
         }
 
         protected void SetMyCanvas()
@@ -92,7 +109,7 @@ namespace _20220704
 
         public override string ToString()
         {
-            string str = $"X{MyData.X}, Y{MyData.Y}, Z{MyData.Z}";
+            string str = $"X{MyData.X}, Y{MyData.Y}, Z{MyData.Z}, {Name}";
             return str;
         }
     }
@@ -120,14 +137,14 @@ namespace _20220704
         {
             if (MyCanvas is not null)
             {
-                MyCanvas.MyCurrentItem = this;
+                MyCanvas.MyActiveItem = this;
             }
             else
             {
                 SetMyCanvas();
                 if (MyCanvas is not null)
                 {
-                    MyCanvas.MyCurrentItem = this;
+                    MyCanvas.MyActiveItem = this;
                 }
             }
         }
@@ -204,7 +221,7 @@ namespace _20220704
         public new DataGroupBase MyData { get; protected set; }
         protected ObservableCollection<TThumb> Children { get; } = new();
         public ReadOnlyObservableCollection<TThumb> MyChildren { get; set; }
-        protected GroupBase(DataGroupBase myData) : base(myData)
+        protected GroupBase(DataGroupBase myData, string name = "") : base(myData, name)
         {
             MyData = myData;
             MyChildren = new(Children);
@@ -248,12 +265,12 @@ namespace _20220704
     public abstract class GroupAndLayerBase : GroupBase
     {
 
-        protected GroupAndLayerBase(DataGroupBase myData) : base(myData)
+        protected GroupAndLayerBase(DataGroupBase myData, string name = "") : base(myData, name)
         {
 
         }
 
-        public void AddChild(TThumb thumb, int z = -1)
+        public void AddThumb(TThumb thumb, int z = -1)
         {
             //ZIndex指定なしは末尾(最上位)に追加
             if (z == -1)
@@ -276,24 +293,24 @@ namespace _20220704
 
     public class GroupThumb : GroupAndLayerBase
     {
-        public GroupThumb(DataGroup myData) : base(myData)
+        public GroupThumb(DataGroup myData, string name = "") : base(myData, name)
         {
 
         }
-        public new void AddChild(TThumb thumb)
+        public void AddThumb(TThumb thumb)
         {
-            base.AddChild(thumb);
+            base.AddThumb(thumb);
 
         }
     }
     public class LayerThumb : GroupAndLayerBase
     {
-        public LayerThumb(DataLayer myData) : base(myData)
+        public LayerThumb(DataLayer myData, string name = "") : base(myData, name)
         {
         }
-        public new void AddChild(TThumb thumb)
+        public void AddThumb(TThumb thumb)
         {
-            base.AddChild(thumb);
+            base.AddThumb(thumb);
 
         }
     }
@@ -304,31 +321,32 @@ namespace _20220704
         protected new ObservableCollection<LayerThumb> Children { get; } = new();
         public new ReadOnlyObservableCollection<LayerThumb> MyChildren { get; set; }
 
-
-        public ItemThumb MyCurrentItem
+        //最後にクリックしたItem
+        public ItemThumb MyActiveItem
         {
-            get { return (ItemThumb)GetValue(MyCurrentItemProperty); }
-            //set { SetValue(MyCurrentItemProperty, value); }
+            get { return (ItemThumb)GetValue(MyActiveItemProperty); }
+            //set { SetValue(MyActiveItemProperty, value); }
             set
             {
-                if (MyCurrentItem != value)
+                if (MyActiveItem != value)
                 {
-                    SetIsCurrentItem(MyCurrentItem, value);
-                    SetValue(MyCurrentItemProperty, value);
+                    SetIsActiveItem(MyActiveItem, value);
+                    SetValue(MyActiveItemProperty, value);
+                    
                 }
             }
         }
-        public static readonly DependencyProperty MyCurrentItemProperty =
-            DependencyProperty.Register("MyCurrentItem", typeof(ItemThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+        public static readonly DependencyProperty MyActiveItemProperty =
+            DependencyProperty.Register("MyActiveItem", typeof(ItemThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
-
-        public TThumb MyCurrentThumb
+        //操作対象、移動、削除
+        public TThumb MyActiveThumb
         {
-            get { return (TThumb)GetValue(MyCurrentThumbProperty); }
-            set { SetValue(MyCurrentThumbProperty, value); }
+            get { return (TThumb)GetValue(MyActiveThumbProperty); }
+            set { SetValue(MyActiveThumbProperty, value); }
         }
-        public static readonly DependencyProperty MyCurrentThumbProperty =
-            DependencyProperty.Register("MyCurrentThumb", typeof(TThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+        public static readonly DependencyProperty MyActiveThumbProperty =
+            DependencyProperty.Register("MyActiveThumb", typeof(TThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
 
         public GroupAndLayerBase MyEditingThumb
@@ -346,7 +364,7 @@ namespace _20220704
                             item.RemoveDragEvents();
                         }
                     }
-                    if(value != null)
+                    if (value != null)
                     {
                         foreach (var item in value.MyChildren)
                         {
@@ -370,7 +388,7 @@ namespace _20220704
         /// コンストラクタ
         /// </summary>
         /// <param name="myData"></param>
-        public CanvasThumb(DataCanvas myData) : base(myData)
+        public CanvasThumb(DataCanvas myData, string name = "") : base(myData, name)
         {
             MyChildren = new(Children);
 

@@ -23,6 +23,7 @@ namespace _20220704
     {
         TTextBlock ttb1;
         TTextBlock ttb2;
+        TTextBlock ttb3;
         CanvasThumb MyCanvas;
         LayerThumb MyLayer0;
 
@@ -32,23 +33,25 @@ namespace _20220704
 
             MyTest();
 
-            MyCanvas = new(new DataCanvas());
+            MyCanvas = new(new DataCanvas(), "MyCanvas");
             DataContext = MyCanvas;
 
             DataTextBlock dtb = new(10, 20, 0, "text1", 30, Brushes.Yellow, Brushes.DeepPink);
             ttb1 = new(dtb);
             dtb = new(100, 120, 0, "text2", 30, Brushes.Yellow, Brushes.SkyBlue);
             ttb2 = new(dtb);
-            
+            ttb3 = new(new DataTextBlock(110, 40, 0, "test3", 30, Brushes.Yellow, Brushes.MediumPurple));
 
-            GroupThumb group = new(new DataGroup());
-            group.AddChild(ttb1);
-            group.AddChild(ttb2);
+
+            GroupThumb group = new(new DataGroup(), "Group1");
+            group.AddThumb(ttb1);
+            group.AddThumb(ttb2);
 
             //group.AddDragEvents();
 
-            MyLayer0 = new(new DataLayer());            
-            MyLayer0.AddChild(group);
+            MyLayer0 = new(new DataLayer(), "MyLayer0");
+            MyLayer0.AddThumb(group);
+            MyLayer0.AddThumb(ttb3);
             MyCanvas.AddLayer(MyLayer0);
             var neko = MyCanvas.MyChildren;
             MyPanel.Children.Add(MyCanvas);
@@ -58,7 +61,7 @@ namespace _20220704
 
         private void MyTest()
         {
-           
+
         }
         private void MyButtonCheck_Click(object sender, RoutedEventArgs e)
         {
