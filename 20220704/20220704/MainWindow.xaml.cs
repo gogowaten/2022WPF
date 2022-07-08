@@ -25,6 +25,7 @@ namespace _20220704
         TTextBlock ttb2;
         CanvasThumb MyCanvas;
         LayerThumb MyLayer0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -44,13 +45,15 @@ namespace _20220704
             group.AddChild(ttb1);
             group.AddChild(ttb2);
 
-            group.SetDragDelta();
+            //group.AddDragEvents();
 
-            MyLayer0 = new(new DataLayer());
+            MyLayer0 = new(new DataLayer());            
             MyLayer0.AddChild(group);
             MyCanvas.AddLayer(MyLayer0);
             var neko = MyCanvas.MyChildren;
             MyPanel.Children.Add(MyCanvas);
+
+            MyCanvas.MyEditingThumb = group;
         }
 
         private void MyTest()
@@ -61,6 +64,7 @@ namespace _20220704
         {
             ttb1.MyData.Text = "kakikaeta";
             Canvas.SetLeft(ttb1, 200);
+            MyCanvas.MyEditingThumb = MyLayer0;
         }
     }
 }

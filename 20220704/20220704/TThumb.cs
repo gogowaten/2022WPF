@@ -36,9 +36,7 @@ namespace _20220704
             DataContext = this;
 
 
-            SetDragDeltaBinding();
-            Binding bind = new(nameof(MyData.Z)) { Source = MyData, Mode = BindingMode.TwoWay };
-            this.SetBinding(Panel.ZIndexProperty, bind);
+            SetMyDataBinding();
         }
 
         protected static void SetIsCurrentItem(ItemThumb? oldItem, ItemThumb? newItem)
@@ -46,35 +44,40 @@ namespace _20220704
             if (oldItem != null) oldItem.IsCurrentItem = false;
             if (newItem != null) newItem.IsCurrentItem = true;
         }
+
         protected void SetMyCanvas()
         {
             MyCanvas = GetMyCanvas();
         }
         protected CanvasThumb? GetMyCanvas()
         {
-            if(MyParentThumb is CanvasThumb canvas)
+            if (MyParentThumb is CanvasThumb canvas)
             {
                 return canvas;
             }
             else
             {
-               return MyParentThumb?.GetMyCanvas();
+                return MyParentThumb?.GetMyCanvas();
             }
         }
         protected abstract void SetTemplate();
 
-      
 
-        public void SetDragDelta()
+
+        public void AddDragEvents()
         {
             DragDelta += TThumb_DragDelta;
+        }
+        public void RemoveDragEvents()
+        {
+            DragDelta -= TThumb_DragDelta;
         }
         private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             MyData.X += e.HorizontalChange;
             MyData.Y += e.VerticalChange;
         }
-        private void SetDragDeltaBinding()
+        private void SetMyDataBinding()
         {
             Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
             Binding b;
@@ -82,6 +85,9 @@ namespace _20220704
             this.SetBinding(Canvas.LeftProperty, b);
             b = new(nameof(MyData.Y)) { Source = MyData, Mode = BindingMode.TwoWay };
             this.SetBinding(Canvas.TopProperty, b);
+            b = new(nameof(MyData.Z)) { Source = MyData, Mode = BindingMode.TwoWay };
+            this.SetBinding(Panel.ZIndexProperty, b);
+
         }
 
         public override string ToString()
@@ -119,7 +125,7 @@ namespace _20220704
             else
             {
                 SetMyCanvas();
-                if(MyCanvas is not null)
+                if (MyCanvas is not null)
                 {
                     MyCanvas.MyCurrentItem = this;
                 }
@@ -135,7 +141,7 @@ namespace _20220704
             elem.SetBinding(dp, MakeTwoWayBinding(path, MyData));
         }
 
-        
+
     }
     public class TTextBlock : ItemThumb
     {
@@ -229,11 +235,19 @@ namespace _20220704
             this.Template = template;
 
         }
+        public bool IsEditingThumb { get; private set; }
+        protected static void SetIsEditingThumb(GroupAndLayerBase? oldItem, GroupAndLayerBase? newItem)
+        {
+            if (oldItem != null) oldItem.IsEditingThumb = false;
+            if (newItem != null) newItem.IsEditingThumb = true;
+        }
+
     }
 
     //GroupとLayerの基本クラス
     public abstract class GroupAndLayerBase : GroupBase
     {
+
         protected GroupAndLayerBase(DataGroupBase myData) : base(myData)
         {
 
@@ -258,12 +272,6 @@ namespace _20220704
             }
             thumb.MyParentThumb = this;
         }
-        //public void AddChild(TThumb thumb)
-        //{
-        //    int z = thumb.MyData.Z;
-        //    AddChild(thumb, z);
-        //    thumb.MyParentThumb = this;
-        //}
     }
 
     public class GroupThumb : GroupAndLayerBase
@@ -314,13 +322,48 @@ namespace _20220704
             DependencyProperty.Register("MyCurrentItem", typeof(ItemThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
 
-        public TThumb CurrentThumb
+        public TThumb MyCurrentThumb
         {
-            get { return (TThumb)GetValue(CurrentThumbProperty); }
-            set { SetValue(CurrentThumbProperty, value); }
+            get { return (TThumb)GetValue(MyCurrentThumbProperty); }
+            set { SetValue(MyCurrentThumbProperty, value); }
         }
-        public static readonly DependencyProperty CurrentThumbProperty =
-            DependencyProperty.Register("CurrentThumb", typeof(TThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+        public static readonly DependencyProperty MyCurrentThumbProperty =
+            DependencyProperty.Register("MyCurrentThumb", typeof(TThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+
+
+        public GroupAndLayerBase MyEditingThumb
+        {
+            get { return (GroupAndLayerBase)GetValue(MyEditingThumbProperty); }
+            //set { SetValue(MyEditingThumbProperty, value); }
+            set
+            {
+                if (MyEditingThumb != value)
+                {
+                    if (MyEditingThumb != null)
+                    {
+                        foreach (var item in MyEditingThumb.MyChildren)
+                        {
+                            item.RemoveDragEvents();
+                        }
+                    }
+                    if(value != null)
+                    {
+                        foreach (var item in value.MyChildren)
+                        {
+                            item.AddDragEvents();
+                        }
+                    }
+
+                    SetIsEditingThumb(MyEditingThumb, value);
+                    SetValue(MyEditingThumbProperty, value);
+                }
+            }
+        }
+
+        // Using a DependencyProperty as the backing store for MyEditingThumb.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MyEditingThumbProperty =
+            DependencyProperty.Register("MyEditingThumb", typeof(GroupAndLayerBase), typeof(CanvasThumb), new PropertyMetadata(null));
+
 
 
         /// <summary>
