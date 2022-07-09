@@ -27,7 +27,8 @@ namespace _20220704
         public CanvasThumb? MyCanvas { get; set; }
         //public LayerThumb? MyLayerThumb { get; set; }
         //public GroupAndLayerBase? MyGroupThumb { get; set; }
-        public bool IsActiveItem { get; private set; }
+        public bool IsCurrentItem { get; private set; }
+        public bool IsActiveThumb { get; private set; }
         public TThumb? MyParentThumb { get; set; }
 
         public TThumb(Data myData, string name = "")
@@ -40,26 +41,26 @@ namespace _20220704
         }
 
 
-        protected TThumb? GetActiveThumb(TThumb thumb)
+        protected TThumb? GetActiveThumb(TThumb? thumb)
         {
-            if (thumb.MyParentThumb is GroupAndLayerBase group)
+            if (thumb == null) { return null; }
+            else if (thumb.MyParentThumb is GroupAndLayerBase group)
             {
                 if (group.IsEditingThumb) { return thumb; }
                 else { return GetActiveThumb(group); }
             }
             return null;
-            //if (thumb.MyParentThumb is not GroupAndLayerBase group)
-            //    return null;
-            //else
-            //{
-            //    if (group.IsEditingThumb) { return thumb; }
-            //    else { return GetActiveThumb(group); }
-            //}
         }
-        protected static void SetIsActiveItem(ItemThumb? oldItem, ItemThumb? newItem)
+        protected static void SetIsActiveThumb(TThumb? oldAct, TThumb? newAct)
         {
-            if (oldItem != null) oldItem.IsActiveItem = false;
-            if (newItem != null) newItem.IsActiveItem = true;
+            if (oldAct != null) oldAct.IsActiveThumb = false;
+            if (newAct != null) newAct.IsActiveThumb = true;
+        }
+
+        protected static void SetIsCurrentItem(ItemThumb? oldItem, ItemThumb? newItem)
+        {
+            if (oldItem != null) oldItem.IsCurrentItem = false;
+            if (newItem != null) newItem.IsCurrentItem = true;
         }
 
         protected void SetMyCanvas()
@@ -133,18 +134,19 @@ namespace _20220704
             PreviewMouseDown += ItemThumb_PreviewMouseDown;
         }
 
+        //クリックしたとき、ActiveItemを変更
         private void ItemThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (MyCanvas is not null)
             {
-                MyCanvas.MyActiveItem = this;
+                MyCanvas.MyCurrentItem = this;
             }
             else
             {
                 SetMyCanvas();
                 if (MyCanvas is not null)
                 {
-                    MyCanvas.MyActiveItem = this;
+                    MyCanvas.MyCurrentItem = this;
                 }
             }
         }
@@ -321,37 +323,46 @@ namespace _20220704
         protected new ObservableCollection<LayerThumb> Children { get; } = new();
         public new ReadOnlyObservableCollection<LayerThumb> MyChildren { get; set; }
 
-        //最後にクリックしたItem
-        public ItemThumb MyActiveItem
+        //最後にクリック(選択)したItem、今のItem、操作対象とは限らない
+        public ItemThumb? MyCurrentItem
         {
-            get { return (ItemThumb)GetValue(MyActiveItemProperty); }
+            get { return (ItemThumb?)GetValue(MyCurrentItemProperty); }
             //set { SetValue(MyActiveItemProperty, value); }
             set
             {
-                if (MyActiveItem != value)
+                if (MyCurrentItem != value)
                 {
-                    SetIsActiveItem(MyActiveItem, value);
-                    SetValue(MyActiveItemProperty, value);
-                    
+                    SetIsCurrentItem(MyCurrentItem, value);
+                    SetValue(MyCurrentItemProperty, value);
+
+                    MyActiveThumb = GetActiveThumb(value);
                 }
             }
         }
-        public static readonly DependencyProperty MyActiveItemProperty =
-            DependencyProperty.Register("MyActiveItem", typeof(ItemThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+        public static readonly DependencyProperty MyCurrentItemProperty =
+            DependencyProperty.Register("MyCurrentItem", typeof(ItemThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
         //操作対象、移動、削除
-        public TThumb MyActiveThumb
+        public TThumb? MyActiveThumb
         {
-            get { return (TThumb)GetValue(MyActiveThumbProperty); }
-            set { SetValue(MyActiveThumbProperty, value); }
+            get { return (TThumb?)GetValue(MyActiveThumbProperty); }
+            set
+            {
+                if (MyActiveThumb != value)
+                {
+                    SetIsActiveThumb(MyActiveThumb, value);
+                    SetValue(MyActiveThumbProperty, value);
+                }
+            }
         }
         public static readonly DependencyProperty MyActiveThumbProperty =
-            DependencyProperty.Register("MyActiveThumb", typeof(TThumb), typeof(CanvasThumb), new PropertyMetadata(null));
+            DependencyProperty.Register(nameof(MyActiveThumb), typeof(TThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
-
-        public GroupAndLayerBase MyEditingThumb
+        //編集中のグループ
+        //変更時は直下Thumbのドラッグ移動イベント付け替えをする、ActiveThumbを変更
+        public GroupAndLayerBase? MyEditingThumb
         {
-            get { return (GroupAndLayerBase)GetValue(MyEditingThumbProperty); }
+            get { return (GroupAndLayerBase?)GetValue(MyEditingThumbProperty); }
             //set { SetValue(MyEditingThumbProperty, value); }
             set
             {
@@ -374,6 +385,8 @@ namespace _20220704
 
                     SetIsEditingThumb(MyEditingThumb, value);
                     SetValue(MyEditingThumbProperty, value);
+
+                    MyActiveThumb = GetActiveThumb(MyCurrentItem);
                 }
             }
         }
@@ -381,6 +394,18 @@ namespace _20220704
         // Using a DependencyProperty as the backing store for MyEditingThumb.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MyEditingThumbProperty =
             DependencyProperty.Register("MyEditingThumb", typeof(GroupAndLayerBase), typeof(CanvasThumb), new PropertyMetadata(null));
+
+
+
+        public LayerThumb? MyActiveLayer
+        {
+            get { return (LayerThumb?)GetValue(MyActiveLayerProperty); }
+            set { SetValue(MyActiveLayerProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for layerThumb.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MyActiveLayerProperty =
+            DependencyProperty.Register(nameof(MyActiveLayer), typeof(LayerThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
 
 

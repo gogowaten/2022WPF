@@ -26,6 +26,7 @@ namespace _20220704
         TTextBlock ttb3;
         CanvasThumb MyCanvas;
         LayerThumb MyLayer0;
+        GroupThumb MyGroup;
 
         public MainWindow()
         {
@@ -43,20 +44,20 @@ namespace _20220704
             ttb3 = new(new DataTextBlock(110, 40, 0, "test3", 30, Brushes.Yellow, Brushes.MediumPurple));
 
 
-            GroupThumb group = new(new DataGroup(), "Group1");
-            group.AddThumb(ttb1);
-            group.AddThumb(ttb2);
+            MyGroup = new(new DataGroup(), "Group1");
+            MyGroup.AddThumb(ttb1);
+            MyGroup.AddThumb(ttb2);
 
             //group.AddDragEvents();
 
             MyLayer0 = new(new DataLayer(), "MyLayer0");
-            MyLayer0.AddThumb(group);
+            MyLayer0.AddThumb(MyGroup);
             MyLayer0.AddThumb(ttb3);
             MyCanvas.AddLayer(MyLayer0);
             var neko = MyCanvas.MyChildren;
             MyPanel.Children.Add(MyCanvas);
 
-            MyCanvas.MyEditingThumb = group;
+            MyCanvas.MyEditingThumb = MyGroup;
         }
 
         private void MyTest()
@@ -68,6 +69,12 @@ namespace _20220704
             ttb1.MyData.Text = "kakikaeta";
             Canvas.SetLeft(ttb1, 200);
             MyCanvas.MyEditingThumb = MyLayer0;
+            var neko = MyCanvas.MyCurrentItem;
+        }
+
+        private void MyButtonCheck2_Click(object sender, RoutedEventArgs e)
+        {
+            MyCanvas.MyEditingThumb = MyGroup;
         }
     }
 }

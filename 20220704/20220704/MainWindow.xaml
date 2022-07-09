@@ -17,8 +17,10 @@
 
     <StackPanel Grid.Column="1" Name="MyStackPanel">
       <Button x:Name="MyButtonCheck" Content="check" Click="MyButtonCheck_Click"/>
-      <TextBlock Text="{Binding MyCurrentItem}"/>
-      <TextBlock Text="{Binding MyActiveThumb}"/>
+      <Button x:Name="MyButtonCheck2" Content="check2" Click="MyButtonCheck2_Click"/>
+      <TextBlock Text="{Binding MyCurrentItem, StringFormat=current \= {0}}"/>
+      <TextBlock Text="{Binding MyActiveThumb, StringFormat=active \= {0}}"/>
+      <TextBlock Text="{Binding MyEditingThumb, StringFormat= edit \= {0}}"/>
     </StackPanel>
   </Grid>
 </Window>
