@@ -69,7 +69,8 @@ namespace _20220704
             ttb1.MyData.Text = "kakikaeta";
             Canvas.SetLeft(ttb1, 200);
             MyCanvas.MyEditingThumb = MyLayer0;
-            var neko = MyCanvas.MyCurrentItem;
+            var neko = MyCanvas.MySelectedThumbs;
+            
         }
 
         private void MyButtonCheck2_Click(object sender, RoutedEventArgs e)

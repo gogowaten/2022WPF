@@ -27,8 +27,9 @@ namespace _20220704
         public CanvasThumb? MyCanvas { get; set; }
         //public LayerThumb? MyLayerThumb { get; set; }
         //public GroupAndLayerBase? MyGroupThumb { get; set; }
-        public bool IsCurrentItem { get; private set; }
-        public bool IsActiveThumb { get; private set; }
+        public bool IsMyCurrentItem { get; private set; }
+        public bool IsMyActiveThumb { get; private set; }
+        public bool IsMySelected { get; private set; }
         public TThumb? MyParentThumb { get; set; }
 
         public TThumb(Data myData, string name = "")
@@ -38,6 +39,21 @@ namespace _20220704
             DataContext = this;
 
             SetMyDataBinding();
+            //PreviewMouseDown += TThumb_PreviewMouseDown;
+        }
+
+        //private void TThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    if (MyCanvas is not CanvasThumb ct)
+        //    {
+        //        MyCanvas = GetMyCanvas();
+        //    }
+        //    MyCanvas?.MySelectedThumbs.Add(this);
+        //}
+
+        protected static void SetIsMySelected(TThumb thumb, bool b)
+        {
+            thumb.IsMySelected = b;
         }
 
 
@@ -51,21 +67,29 @@ namespace _20220704
             }
             return null;
         }
-        protected static void SetIsActiveThumb(TThumb? oldAct, TThumb? newAct)
+        protected static void SetIsMyActiveThumb(TThumb? oldAct, TThumb? newAct)
         {
-            if (oldAct != null) oldAct.IsActiveThumb = false;
-            if (newAct != null) newAct.IsActiveThumb = true;
+            if (oldAct != null) oldAct.IsMyActiveThumb = false;
+            if (newAct != null) newAct.IsMyActiveThumb = true;
         }
 
-        protected static void SetIsCurrentItem(ItemThumb? oldItem, ItemThumb? newItem)
+        protected static void SetIsMyCurrentItem(ItemThumb? oldItem, ItemThumb? newItem)
         {
-            if (oldItem != null) oldItem.IsCurrentItem = false;
-            if (newItem != null) newItem.IsCurrentItem = true;
+            if (oldItem != null) oldItem.IsMyCurrentItem = false;
+            if (newItem != null) newItem.IsMyCurrentItem = true;
         }
 
-        protected void SetMyCanvas()
+        protected CanvasThumb SetMyCanvas()
         {
-            MyCanvas = GetMyCanvas();
+            if (GetMyCanvas() is not CanvasThumb cc)
+            {
+                throw new ArgumentNullException(nameof(cc));
+            }
+            else
+            {
+                MyCanvas = cc;
+                return cc;
+            }
         }
         protected CanvasThumb? GetMyCanvas()
         {
@@ -134,21 +158,37 @@ namespace _20220704
             PreviewMouseDown += ItemThumb_PreviewMouseDown;
         }
 
-        //クリックしたとき、ActiveItemを変更
+        //クリックしたとき、CurrentItemを変更
         private void ItemThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (MyCanvas is not null)
             {
                 MyCanvas.MyCurrentItem = this;
+                //selected
+                if (GetActiveThumb(this) is TThumb addItem)
+                {
+                    AddSelectedThumb(MyCanvas, addItem);
+                }
             }
             else
             {
-                SetMyCanvas();
-                if (MyCanvas is not null)
+                CanvasThumb canvas = SetMyCanvas();
+                canvas.MyCurrentItem = this;
+                //selected
+                if (GetActiveThumb(this) is TThumb addItem)
                 {
-                    MyCanvas.MyCurrentItem = this;
+                    AddSelectedThumb(canvas, addItem);
                 }
             }
+        }
+        private static void AddSelectedThumb(CanvasThumb canvas, TThumb addItem)
+        {
+            if (canvas.MySelectedThumbs.Count > 0
+                && addItem.MyParentThumb != canvas.MySelectedThumbs[0]?.MyParentThumb)
+            {
+                canvas.MySelectedThumbs.Clear();
+            }
+            canvas.MySelectedThumbs.Add(addItem);
         }
 
         protected static Binding MakeTwoWayBinding(string path, object source)
@@ -332,11 +372,12 @@ namespace _20220704
             {
                 if (MyCurrentItem != value)
                 {
-                    SetIsCurrentItem(MyCurrentItem, value);
+                    SetIsMyCurrentItem(MyCurrentItem, value);
                     SetValue(MyCurrentItemProperty, value);
 
                     //MyActiveThumb = GetActiveThumb(value);
                     UpdateActiveThumb();
+                    //if (MyActiveThumb != null) MySelectedThumbs.Add(MyActiveThumb);
                 }
             }
         }
@@ -351,8 +392,10 @@ namespace _20220704
             {
                 if (MyActiveThumb != value)
                 {
-                    SetIsActiveThumb(MyActiveThumb, value);
+                    SetIsMyActiveThumb(MyActiveThumb, value);
                     SetValue(MyActiveThumbProperty, value);
+
+
                 }
             }
         }
@@ -407,7 +450,7 @@ namespace _20220704
             DependencyProperty.Register(nameof(MyActiveLayer), typeof(LayerThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
         //選択Thumb、グループ化などに使用
-        public ObservableCollection<TThumb> MySelectedThumbs { get; private set; } = new();
+        public SelectedCollection<TThumb> MySelectedThumbs { get; private set; } = new();
 
 
         /// <summary>
@@ -417,8 +460,21 @@ namespace _20220704
         public CanvasThumb(DataCanvas myData, string name = "") : base(myData, name)
         {
             MyChildren = new(Children);
-
+            MySelectedThumbs.CollectionChanged += MySelectedThumbs_CollectionChanged;
         }
+
+        private void MySelectedThumbs_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems?[0] is TThumb nItem)
+            {
+                SetIsMySelected(nItem, true);
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems?[0] is TThumb oItem)
+            {
+                SetIsMySelected(oItem, false);
+            }
+        }
+
         public void AddLayer(LayerThumb layer)
         {
             Children.Add(layer);
@@ -434,5 +490,30 @@ namespace _20220704
     #endregion グループ用Thumb
 
 
+    //選択Thumb保持用Collection
+    public class SelectedCollection<T> : ObservableCollection<T>
+    {
+        protected override void InsertItem(int index, T item)
+        {
+            if (Items.Contains(item))
+            {
+                Remove(item);
 
+            }
+            else base.InsertItem(index, item);
+        }
+        protected override void SetItem(int index, T item)
+        {
+            if (Items.Contains(item)) Remove(item);
+            else base.SetItem(index, item);
+        }
+        protected override void ClearItems()
+        {
+            for (int i = Items.Count -1; i >= 0; i--)
+            {
+                base.RemoveAt(i);
+            }
+            //base.ClearItems();
+        }
+    }
 }
