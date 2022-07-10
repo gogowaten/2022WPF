@@ -335,7 +335,8 @@ namespace _20220704
                     SetIsCurrentItem(MyCurrentItem, value);
                     SetValue(MyCurrentItemProperty, value);
 
-                    MyActiveThumb = GetActiveThumb(value);
+                    //MyActiveThumb = GetActiveThumb(value);
+                    UpdateActiveThumb();
                 }
             }
         }
@@ -386,15 +387,14 @@ namespace _20220704
                     SetIsEditingThumb(MyEditingThumb, value);
                     SetValue(MyEditingThumbProperty, value);
 
-                    MyActiveThumb = GetActiveThumb(MyCurrentItem);
+                    //MyActiveThumb = GetActiveThumb(MyCurrentItem);
+                    UpdateActiveThumb();
                 }
             }
         }
 
-        // Using a DependencyProperty as the backing store for MyEditingThumb.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MyEditingThumbProperty =
             DependencyProperty.Register("MyEditingThumb", typeof(GroupAndLayerBase), typeof(CanvasThumb), new PropertyMetadata(null));
-
 
 
         public LayerThumb? MyActiveLayer
@@ -403,10 +403,11 @@ namespace _20220704
             set { SetValue(MyActiveLayerProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for layerThumb.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MyActiveLayerProperty =
             DependencyProperty.Register(nameof(MyActiveLayer), typeof(LayerThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
+        //選択Thumb、グループ化などに使用
+        public ObservableCollection<TThumb> MySelectedThumbs { get; private set; } = new();
 
 
         /// <summary>
@@ -424,7 +425,10 @@ namespace _20220704
             layer.MyParentThumb = this;
         }
 
-
+        private void UpdateActiveThumb()
+        {
+            MyActiveThumb = GetActiveThumb(MyCurrentItem);
+        }
     }
 
     #endregion グループ用Thumb

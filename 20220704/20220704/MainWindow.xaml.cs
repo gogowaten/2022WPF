@@ -56,7 +56,7 @@ namespace _20220704
             MyCanvas.AddLayer(MyLayer0);
             var neko = MyCanvas.MyChildren;
             MyPanel.Children.Add(MyCanvas);
-
+            
             MyCanvas.MyEditingThumb = MyGroup;
         }
 
