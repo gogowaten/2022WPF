@@ -70,7 +70,7 @@ namespace _20220704
             Canvas.SetLeft(ttb1, 200);
             MyCanvas.MyEditingThumb = MyLayer0;
             var neko = MyCanvas.MySelectedThumbs;
-            
+            //MyCanvas.RenderTransform = new ScaleTransform(0.4, 0.4);
         }
 
         private void MyButtonCheck2_Click(object sender, RoutedEventArgs e)

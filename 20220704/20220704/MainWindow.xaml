@@ -13,7 +13,7 @@
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
 
-    <Canvas x:Name="MyPanel" UseLayoutRounding="True"/>
+    <Canvas x:Name="MyPanel" UseLayoutRounding="False"/>
 
     <StackPanel Grid.Column="1" Name="MyStackPanel">
       <Button x:Name="MyButtonCheck" Content="check" Click="MyButtonCheck_Click"/>

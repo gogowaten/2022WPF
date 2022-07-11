@@ -27,9 +27,40 @@ namespace _20220704
         public CanvasThumb? MyCanvas { get; set; }
         //public LayerThumb? MyLayerThumb { get; set; }
         //public GroupAndLayerBase? MyGroupThumb { get; set; }
-        public bool IsMyCurrentItem { get; private set; }
-        public bool IsMyActiveThumb { get; private set; }
-        public bool IsMySelected { get; private set; }
+        //public bool IsMyCurrentItem { get; private set; }
+
+
+
+        public bool IsMyCurrentItem
+        {
+            get { return (bool)GetValue(IsMyCurrentItemProperty); }
+            private set { SetValue(IsMyCurrentItemProperty, value); }
+        }
+        public static readonly DependencyProperty IsMyCurrentItemProperty =
+            DependencyProperty.Register(nameof(IsMyCurrentItem), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
+
+        //public bool IsMyActiveThumb { get; private set; }
+        public bool IsMyActiveThumb
+        {
+            get { return (bool)GetValue(IsMyActiveThumbProperty); }
+            private set { SetValue(IsMyActiveThumbProperty, value); }
+        }
+        public static readonly DependencyProperty IsMyActiveThumbProperty =
+            DependencyProperty.Register(nameof(IsMyActiveThumb), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
+
+        //public bool IsMySelected { get; private set; }
+        public bool IsMySelected
+        {
+            get { return (bool)GetValue(IsMySelectedProperty); }
+            private set { SetValue(IsMySelectedProperty, value); }
+        }
+        public static readonly DependencyProperty IsMySelectedProperty =
+            DependencyProperty.Register(nameof(IsMySelected), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
+
+
+        
+
+
         public TThumb? MyParentThumb { get; set; }
 
         public TThumb(Data myData, string name = "")
@@ -39,17 +70,7 @@ namespace _20220704
             DataContext = this;
 
             SetMyDataBinding();
-            //PreviewMouseDown += TThumb_PreviewMouseDown;
         }
-
-        //private void TThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        //{
-        //    if (MyCanvas is not CanvasThumb ct)
-        //    {
-        //        MyCanvas = GetMyCanvas();
-        //    }
-        //    MyCanvas?.MySelectedThumbs.Add(this);
-        //}
 
         protected static void SetIsMySelected(TThumb thumb, bool b)
         {
@@ -130,6 +151,10 @@ namespace _20220704
             b = new(nameof(MyData.Z)) { Source = MyData, Mode = BindingMode.TwoWay };
             this.SetBinding(Panel.ZIndexProperty, b);
 
+            //b = new() { Source = this, Path = new PropertyPath(ActualWidthProperty) };
+            //this.SetBinding(WidthProperty, b);
+            //b = new() { Source = this, Path = new PropertyPath(ActualHeightProperty) };
+            //this.SetBinding(HeightProperty, b);
         }
 
         public override string ToString()
@@ -150,12 +175,27 @@ namespace _20220704
         {
             waku = new(typeof(Rectangle));
             waku.SetValue(Panel.ZIndexProperty, 1);
+            MultiBinding mb = new();
+            mb.Converter = new MyConverterForWaku();
+            mb.Bindings.Add(MakeBind(TThumb.IsMyCurrentItemProperty));
+            mb.Bindings.Add(MakeBind(TThumb.IsMyActiveThumbProperty));
+            mb.Bindings.Add(MakeBind(TThumb.IsMySelectedProperty));
+            waku.SetBinding(Rectangle.StrokeProperty, mb);
+
             panel = new(typeof(Grid));
             panel.AppendChild(waku);
 
             SetTemplate();
 
             PreviewMouseDown += ItemThumb_PreviewMouseDown;
+            Binding MakeBind(DependencyProperty dp)
+            {
+                Binding b = new();
+                b.Source = this;
+                //b.Mode = BindingMode.TwoWay;
+                b.Path = new PropertyPath(dp);
+                return b;
+            }
         }
 
         //クリックしたとき、CurrentItemを更新、ActiveThumbを更新
@@ -174,56 +214,7 @@ namespace _20220704
             {
                 canvas.MySelectedThumbs.Add(actThumb);
             }
-            //if (canvas.MyActiveThumb is not TThumb active) return;
-            //canvas.MySelectedThumbs.Add(active);
-
-
-            //if (MyCanvas is null)
-            //{
-            //    AddSelectedThumb2(SetMyCanvas(), this);
-            //}
-            //else
-            //{
-            //    AddSelectedThumb2(MyCanvas, this);
-            //}
-
-            //AddSelectedThumb3(MyCanvas, GetActiveThumb(this));
         }
-        //private static void AddSelectedThumb(CanvasThumb canvas, TThumb addItem)
-        //{
-        //    if (canvas.MySelectedThumbs.Count > 0
-        //        && addItem.MyParentThumb != canvas.MySelectedThumbs[0]?.MyParentThumb)
-        //    {
-        //        canvas.MySelectedThumbs.Clear();
-        //    }
-        //    canvas.MySelectedThumbs.Add(addItem);
-        //}
-        private void AddSelectedThumb2(CanvasThumb canvas, ItemThumb item)
-        {
-
-            canvas.MyCurrentItem = item;
-            if (GetActiveThumb(item) is TThumb active)
-            {
-                if (canvas.MySelectedThumbs.Count > 0
-                    && active.MyParentThumb != canvas.MySelectedThumbs[0].MyParentThumb)
-                {
-                    canvas.MySelectedThumbs.Clear();
-                }
-                canvas.MySelectedThumbs.Add(active);
-            }
-        }
-        private void AddSelectedThumb3(CanvasThumb? canvas, TThumb? active)
-        {
-            if (active is null) return;
-            if (canvas is null) canvas = SetMyCanvas();
-            if (canvas.MySelectedThumbs.Count > 0
-                && active.MyParentThumb != canvas.MySelectedThumbs[0].MyParentThumb)
-            {
-                canvas.MySelectedThumbs.Clear();
-            }
-            canvas.MySelectedThumbs.Add(active);
-        }
-
 
         protected static Binding MakeTwoWayBinding(string path, object source)
         {
@@ -463,11 +454,9 @@ namespace _20220704
                     SetValue(MyEditingThumbProperty, value);
 
                     MyActiveThumb = GetActiveThumb(MyCurrentItem);
-                    //UpdateActiveThumb();
                 }
             }
         }
-
         public static readonly DependencyProperty MyEditingThumbProperty =
             DependencyProperty.Register("MyEditingThumb", typeof(GroupAndLayerBase), typeof(CanvasThumb), new PropertyMetadata(null));
 
@@ -477,12 +466,11 @@ namespace _20220704
             get { return (LayerThumb?)GetValue(MyActiveLayerProperty); }
             set { SetValue(MyActiveLayerProperty, value); }
         }
-
         public static readonly DependencyProperty MyActiveLayerProperty =
             DependencyProperty.Register(nameof(MyActiveLayer), typeof(LayerThumb), typeof(CanvasThumb), new PropertyMetadata(null));
 
+
         //選択Thumb、グループ化などに使用
-        //public SelectedCollection<TThumb> MySelectedThumbs { get; private set; } = new();
         public SelectedCollection2 MySelectedThumbs { get; private set; } = new();
 
         /// <summary>
@@ -514,10 +502,7 @@ namespace _20220704
             layer.MyParentThumb = this;
         }
 
-        //private void UpdateActiveThumb()
-        //{
-        //    MyActiveThumb = GetActiveThumb(MyCurrentItem);
-        //}
+
     }
 
     #endregion グループ用Thumb
@@ -586,6 +571,23 @@ namespace _20220704
                 base.RemoveAt(i);
             }
             //base.ClearItems();
+        }
+    }
+
+
+    public class MyConverterForWaku : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if ((bool)values[0]) { return Brushes.Red; }
+            else if ((bool)values[1]) { return Brushes.Green; }
+            else if ((bool)values[2]) { return Brushes.Blue; }
+            else return Brushes.Transparent;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 }

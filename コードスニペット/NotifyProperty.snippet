@@ -38,7 +38,7 @@ public $type$ $Id$
 			</Code>
 		</Snippet>
 	</CodeSnippet>
-	
+
 	<CodeSnippet Format="1.0.0">
 		<Header>
 			<Title>変更通知プロパティ(改行無し)</Title>
@@ -69,7 +69,7 @@ public $type$ $Id${get => $id$;	set	{if ($id$ == value) return; $id$ = value; On
 			</Code>
 		</Snippet>
 	</CodeSnippet>
-	
+
 	<CodeSnippet Format="1.0.0">
 		<Header>
 			<Title>変更通知プロパティ(改行無し2)</Title>
@@ -100,7 +100,7 @@ public $type$ $Id${get => $id$;	set	=> SetProperty(ref $id$, value);}
 			</Code>
 		</Snippet>
 	</CodeSnippet>
-	
+
 	<CodeSnippet Format="1.0.0">
 		<Header>
 			<Title>変更通知プロパティのイベント起動</Title>
@@ -121,5 +121,45 @@ protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServ
 			</Code>
 		</Snippet>
 	</CodeSnippet>
-	
+
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>依存プロパティ作成nameof使用</Title>
+			<Author>gogowaten</Author>
+			<Description>登録名をnameofで指定</Description>
+			<Shortcut>propdpn</Shortcut>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<Default>int</Default>
+				</Literal>
+				<Literal>
+					<ID>id</ID>
+					<Default>MyProperty</Default>
+				</Literal>
+				<Literal>
+					<ID>ownerclass</ID>
+					<Default>ownerclass</Default>
+				</Literal>
+				<Literal>
+					<ID>metadata</ID>
+					<Default>0</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp">
+				<![CDATA[
+        public $type$ $id$
+        {
+            get { return ($type$)GetValue($id$Property); }
+            set { SetValue($id$Property, value); }
+        }
+        public static readonly DependencyProperty $id$Property =
+            DependencyProperty.Register(nameof($id$), typeof($type$), typeof($ownerclass$), new PropertyMetadata($metadata$));
+						]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+
 </CodeSnippets>
