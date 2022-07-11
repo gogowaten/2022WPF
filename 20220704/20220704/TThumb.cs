@@ -25,10 +25,6 @@ namespace _20220704
     {
         public Data MyData { get; protected set; }
         public CanvasThumb? MyCanvas { get; set; }
-        //public LayerThumb? MyLayerThumb { get; set; }
-        //public GroupAndLayerBase? MyGroupThumb { get; set; }
-        //public bool IsMyCurrentItem { get; private set; }
-
 
 
         public bool IsMyCurrentItem
@@ -39,7 +35,6 @@ namespace _20220704
         public static readonly DependencyProperty IsMyCurrentItemProperty =
             DependencyProperty.Register(nameof(IsMyCurrentItem), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
 
-        //public bool IsMyActiveThumb { get; private set; }
         public bool IsMyActiveThumb
         {
             get { return (bool)GetValue(IsMyActiveThumbProperty); }
@@ -48,7 +43,6 @@ namespace _20220704
         public static readonly DependencyProperty IsMyActiveThumbProperty =
             DependencyProperty.Register(nameof(IsMyActiveThumb), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
 
-        //public bool IsMySelected { get; private set; }
         public bool IsMySelected
         {
             get { return (bool)GetValue(IsMySelectedProperty); }
@@ -58,10 +52,10 @@ namespace _20220704
             DependencyProperty.Register(nameof(IsMySelected), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
 
 
-        
 
 
-        public TThumb? MyParentThumb { get; set; }
+
+        public GroupBase? MyParentThumb { get; set; }
 
         public TThumb(Data myData, string name = "")
         {
@@ -83,7 +77,7 @@ namespace _20220704
             if (thumb == null) { return null; }
             else if (thumb.MyParentThumb is GroupAndLayerBase group)
             {
-                if (group.IsEditingThumb) { return thumb; }
+                if (group.IsMyEditingGroup) { return thumb; }
                 else { return GetActiveThumb(group); }
             }
             return null;
@@ -176,7 +170,7 @@ namespace _20220704
             waku = new(typeof(Rectangle));
             waku.SetValue(Panel.ZIndexProperty, 1);
             MultiBinding mb = new();
-            mb.Converter = new MyConverterForWaku();
+            mb.Converter = new MyConverterForItemWaku();
             mb.Bindings.Add(MakeBind(TThumb.IsMyCurrentItemProperty));
             mb.Bindings.Add(MakeBind(TThumb.IsMyActiveThumbProperty));
             mb.Bindings.Add(MakeBind(TThumb.IsMySelectedProperty));
@@ -300,6 +294,9 @@ namespace _20220704
         }
         protected override void SetTemplate()
         {
+            //Grid
+            // ┣ItemsControl
+            // ┗Rectangle
             FrameworkElementFactory panel = new(typeof(Grid));
 
             FrameworkElementFactory content = new(typeof(ItemsControl));
@@ -311,22 +308,95 @@ namespace _20220704
             panel.AppendChild(content);
 
             FrameworkElementFactory waku = new(typeof(Rectangle));
+            waku.SetValue(Panel.ZIndexProperty, 1);
+            MultiBinding mb = new();
+            mb.Converter = new MyConverterForGroupWaku();
+            mb.Bindings.Add(MakeBinding(IsMyActiveThumbProperty));
+            mb.Bindings.Add(MakeBinding(IsMySelectedProperty));
+            mb.Bindings.Add(MakeBinding(IsMyEditingGroupProperty));
+            waku.SetBinding(Rectangle.StrokeProperty, mb);
             panel.AppendChild(waku);
-
 
             ControlTemplate template = new();
             template.VisualTree = panel;
             this.Template = template;
 
+            Binding MakeBinding(DependencyProperty dp)
+            {
+                return new() { Source = this, Path = new PropertyPath(dp) };
+            }
         }
-        public bool IsEditingThumb { get; private set; }
+
+
+        public bool IsMyEditingGroup
+        {
+            get { return (bool)GetValue(IsMyEditingGroupProperty); }
+            set { SetValue(IsMyEditingGroupProperty, value); }
+        }
+        public static readonly DependencyProperty IsMyEditingGroupProperty =
+            DependencyProperty.Register(nameof(IsMyEditingGroup), typeof(bool), typeof(GroupBase), new PropertyMetadata(false));
+
         protected static void SetIsEditingThumb(GroupAndLayerBase? oldItem, GroupAndLayerBase? newItem)
         {
-            if (oldItem != null) oldItem.IsEditingThumb = false;
-            if (newItem != null) newItem.IsEditingThumb = true;
+            if (oldItem != null) oldItem.IsMyEditingGroup = false;
+            if (newItem != null) newItem.IsMyEditingGroup = true;
+        }
+
+        /// <summary>
+        /// 自身のRect(位置とサイズ)をThumbのコレクションから取得
+        /// </summary>
+        /// <param name="thumbs">Thumbのコレクション</param>
+        /// <returns></returns>
+        public (double x, double y, double w, double h) GetRectUnionChildren(IEnumerable<TThumb> thumbs)
+        {
+            if (Children.Count == 0) { return (0, 0, 0, 0); }
+
+            double x = double.MaxValue; double y = double.MaxValue;
+            double width = double.MinValue; double height = double.MinValue;
+            foreach (var item in thumbs)
+            {
+                x = Math.Min(x, item.MyData.X);
+                y = Math.Min(y, item.MyData.Y);
+                width = Math.Max(width, item.MyData.X + item.ActualWidth);
+                height = Math.Max(height, item.MyData.Y + item.ActualHeight);
+            }
+            width -= x; height -= y;
+            return (x, y, width, height);
+        }
+
+        //サイズと位置の更新
+        //使用場面は、追加、削除、グループ化、グループ解除
+        public void AjustSizeAndLocate3()
+        {
+            //新しいRect取得、Parentがnullの場合は0が返ってくる
+            (double x, double y, double w, double h) = GetRectUnionChildren(Children);
+
+            //位置とサイズともに変化無ければ終了
+            if (w == 0 && h == 0) { return; }
+            if (x == MyData.X &&
+                y == MyData.Y &&
+                w == Width &&
+                h == Height) { return; }
+
+            //位置が変化していた場合は自身と子要素の位置修正
+            if (x != 0 || y != 0)
+            {
+                //自身がGroupタイプなら位置修正する
+                if (MyData.DataType == DataType.Group)
+                { MyData.X += x; MyData.Y += y; }
+                //子要素の位置修正
+                foreach (var item in Children)
+                { item.MyData.X -= x; item.MyData.Y -= y; }
+            }
+            //自身のサイズが異なっていた場合は修正
+            if (w != Width || h != Height)
+            { Width = w; Height = h; }
+            //Parentを辿り、再帰処理する
+            if (MyParentThumb != null) { MyParentThumb.AjustSizeAndLocate3(); };
         }
 
     }
+
 
     //GroupとLayerの基本クラス
     public abstract class GroupAndLayerBase : GroupBase
@@ -355,6 +425,7 @@ namespace _20220704
                 }
             }
             thumb.MyParentThumb = this;
+            AjustSizeAndLocate3();
         }
     }
 
@@ -575,7 +646,7 @@ namespace _20220704
     }
 
 
-    public class MyConverterForWaku : IMultiValueConverter
+    public class MyConverterForItemWaku : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
@@ -590,4 +661,22 @@ namespace _20220704
             throw new NotImplementedException();
         }
     }
+
+    public class MyConverterForGroupWaku : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            if ((bool)values[0]) { return Brushes.Red; }
+            else if ((bool)values[1]) { return Brushes.Green; }
+            else if ((bool)values[2]) { return Brushes.Blue; }
+            else return Brushes.Transparent;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
 }
