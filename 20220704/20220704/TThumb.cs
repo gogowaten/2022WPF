@@ -52,11 +52,14 @@ namespace _20220704
             DependencyProperty.Register(nameof(IsMySelected), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
 
 
-
-
-
         public GroupBase? MyParentThumb { get; set; }
 
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="myData"></param>
+        /// <param name="name"></param>
         public TThumb(Data myData, string name = "")
         {
             MyData = myData;
@@ -64,6 +67,10 @@ namespace _20220704
             DataContext = this;
 
             SetMyDataBinding();
+
+            //サイズ変更があった場合はParentのサイズと位置を調整
+            //基本的にサイズ変更は最初に表示されるときだけ発生
+            SizeChanged += (a, b) => { MyParentThumb?.AjustSizeAndLocate3(); };
         }
 
         protected static void SetIsMySelected(TThumb thumb, bool b)
@@ -106,7 +113,7 @@ namespace _20220704
                 return cc;
             }
         }
-        protected CanvasThumb? GetMyCanvas()
+        private CanvasThumb? GetMyCanvas()
         {
             if (MyParentThumb is CanvasThumb canvas)
             {
@@ -123,16 +130,60 @@ namespace _20220704
 
         public void AddDragEvents()
         {
+            DragStarted += TThumb_DragStarted;
             DragDelta += TThumb_DragDelta;
+            DragCompleted += TThumb_DragCompleted;
+        }
+
+        private void TThumb_DragStarted(object sender, DragStartedEventArgs e)
+        {
+
+            CanvasThumb canvas = MyCanvas ?? SetMyCanvas();
+            canvas.MyActiveThumb = this;
+
+            //selected
+            if (Keyboard.Modifiers == ModifierKeys.None)
+            {
+                canvas.MySelectedThumbs.Clear();
+                canvas.MySelectedThumbs.Add(this);
+            }
+            else if (Keyboard.Modifiers == ModifierKeys.Control)
+            {
+                canvas.MySelectedThumbs.Add(this);
+            }
+
+
+        }
+
+        private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            MyParentThumb?.AjustSizeAndLocate3();
+
+            //if (e.HorizontalChange == 0 && e.VerticalChange == 0)
+            //{
+            //    CanvasThumb ct = MyCanvas ?? SetMyCanvas();
+            //    if (ct.MySelectedThumbs.Contains(this))
+            //    {
+            //        ct.MySelectedThumbs.Remove(this);
+            //    }
+            //}
+        }
+
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            CanvasThumb canvas = MyCanvas ?? SetMyCanvas();
+            foreach (var item in canvas.MySelectedThumbs)
+            {
+                item.MyData.X += e.HorizontalChange;
+                item.MyData.Y += e.VerticalChange;
+            }
+
+            MyData.X += e.HorizontalChange;
+            MyData.Y += e.VerticalChange;
         }
         public void RemoveDragEvents()
         {
             DragDelta -= TThumb_DragDelta;
-        }
-        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            MyData.X += e.HorizontalChange;
-            MyData.Y += e.VerticalChange;
         }
         private void SetMyDataBinding()
         {
@@ -164,7 +215,10 @@ namespace _20220704
         protected FrameworkElementFactory panel;
 
 
-
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="myData"></param>
         public ItemThumb(Data myData) : base(myData)
         {
             waku = new(typeof(Rectangle));
@@ -182,6 +236,7 @@ namespace _20220704
             SetTemplate();
 
             PreviewMouseDown += ItemThumb_PreviewMouseDown;
+            PreviewMouseUp += ItemThumb_PreviewMouseUp;
             Binding MakeBind(DependencyProperty dp)
             {
                 Binding b = new();
@@ -192,22 +247,41 @@ namespace _20220704
             }
         }
 
+        //マウスアップ時
+        //選択状態の解除、条件は
+        //選択状態が複数＋クリック対象が選択状態
+        private void ItemThumb_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        {
+
+        }
+
         //クリックしたとき、CurrentItemを更新、ActiveThumbを更新
         //ctrlキーが押されていたら選択Collectionに追加を試みる
         private void ItemThumb_PreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (MyCanvas is not CanvasThumb canvas)
-            {
-                canvas = SetMyCanvas();
-            }
-
+            //if (MyCanvas is not CanvasThumb canvas)
+            //{
+            //    canvas = SetMyCanvas();
+            //}
+            CanvasThumb canvas = MyCanvas ?? SetMyCanvas();
             canvas.MyCurrentItem = this;
-            canvas.MyActiveThumb = GetActiveThumb(this);
-            if (Keyboard.Modifiers == ModifierKeys.Control
-                && canvas.MyActiveThumb is TThumb actThumb)
-            {
-                canvas.MySelectedThumbs.Add(actThumb);
-            }
+            //TThumb? act = GetActiveThumb(this);
+            //canvas.MyActiveThumb = act;
+
+            ////selected
+            //if (act is not null)
+            //{
+            //    if (Keyboard.Modifiers == ModifierKeys.None)
+            //    {
+            //        canvas.MySelectedThumbs.Clear();
+            //        canvas.MySelectedThumbs.Add(act);
+            //    }
+            //    else if (Keyboard.Modifiers == ModifierKeys.Control)
+            //    {
+            //        canvas.MySelectedThumbs.Add(act);
+            //    }
+
+            //}
         }
 
         protected static Binding MakeTwoWayBinding(string path, object source)
@@ -244,7 +318,7 @@ namespace _20220704
         }
         public override string ToString()
         {
-            return $" {base.ToString()}, {MyData.Text}";
+            return $"{base.ToString()}, {MyData.Text}";
         }
 
     }
@@ -381,8 +455,8 @@ namespace _20220704
             //位置が変化していた場合は自身と子要素の位置修正
             if (x != 0 || y != 0)
             {
-                //自身がGroupタイプなら位置修正する
-                if (MyData.DataType == DataType.Group)
+                //自身がGroupタイプなら位置修正する(LayerとCanvasは修正しない常に0,0)
+                if (MyData.DataGroupType == DataGroupType.Group)
                 { MyData.X += x; MyData.Y += y; }
                 //子要素の位置修正
                 foreach (var item in Children)
@@ -607,7 +681,8 @@ namespace _20220704
     }
 
     //選択Thumb保持用Collection
-    //トグルにしたいので追加Itemがすでにある場合は追加せず逆に削除する
+    //トグルにしたいので追加Itemがすでにある場合は追加せず逆に削除する、だたし
+    //Countが1で、それが追加Itemと同じだった場合は何もしない。
     //同一ParentThumbのChildrenだけの要素群にしたいので、
     //違うものが追加されてきたときはClear(リセット)する
     public class SelectedCollection2 : ObservableCollection<TThumb>
@@ -616,8 +691,14 @@ namespace _20220704
         {
             if (Items.Contains(item))
             {
-                Remove(item);
-                return;
+                if (Items.Count == 1)
+                    return;
+                else
+                {
+
+                    Remove(item);
+                    return;
+                }
             }
             else if (Items.Count > 0 && item.MyParentThumb != Items[0].MyParentThumb)
             {

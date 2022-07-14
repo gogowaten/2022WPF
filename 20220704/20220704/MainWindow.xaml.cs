@@ -57,25 +57,27 @@ namespace _20220704
             var neko = MyCanvas.MyChildren;
             MyPanel.Children.Add(MyCanvas);
             
-            MyCanvas.MyEditingThumb = MyGroup;
+            MyCanvas.MyEditingThumb = MyLayer0;
         }
 
         private void MyTest()
         {
-
+            //Thumb t = new() { Width = 100, Height = 200, Background = Brushes.Red };
+            //MyPanel.Children.Add(t);
+            //t.DragCompleted += (x, y) => { var neko = 0; };
         }
         private void MyButtonCheck_Click(object sender, RoutedEventArgs e)
         {
             ttb1.MyData.Text = "kakikaeta";
             Canvas.SetLeft(ttb1, 200);
-            MyCanvas.MyEditingThumb = MyLayer0;
+            MyCanvas.MyEditingThumb = MyGroup;
             var neko = MyCanvas.MySelectedThumbs;
             //MyCanvas.RenderTransform = new ScaleTransform(0.4, 0.4);
         }
 
         private void MyButtonCheck2_Click(object sender, RoutedEventArgs e)
         {
-            MyCanvas.MyEditingThumb = MyGroup;
+            MyCanvas.MyEditingThumb = MyLayer0;
         }
     }
 }

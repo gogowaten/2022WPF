@@ -21,6 +21,12 @@
       <TextBlock Text="{Binding MyCurrentItem, StringFormat=current \= {0}}"/>
       <TextBlock Text="{Binding MyActiveThumb, StringFormat=active \= {0}}"/>
       <TextBlock Text="{Binding MyEditingThumb, StringFormat= edit \= {0}}"/>
+      <TextBlock Text="{Binding MySelectedThumbs.Count, StringFormat= 選択数 \= {0}}"/>
+      <TextBlock Text="{Binding MySelectedThumbs[0], StringFormat= 選択要素0 \= {0}}"/>
+      <TextBlock Text="{Binding MySelectedThumbs[1], StringFormat= 選択要素1 \= {0}}"/>
+      
+      <TextBlock Text="{Binding MySelectedThumbs[0].IsMySelected, StringFormat= 選択要素0 \= {0}}"/>
+      <TextBlock Text="{Binding MySelectedThumbs[1].IsMySelected, StringFormat= 選択要素1 \= {0}}"/>
     </StackPanel>
   </Grid>
 </Window>
