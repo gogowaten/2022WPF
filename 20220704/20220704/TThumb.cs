@@ -51,7 +51,8 @@ namespace _20220704
         public static readonly DependencyProperty IsMySelectedProperty =
             DependencyProperty.Register(nameof(IsMySelected), typeof(bool), typeof(TThumb), new PropertyMetadata(false));
 
-
+        //選択リストに追加削除のフラグ
+        public bool IsAddedJustBefore { get; set; }
         public GroupBase? MyParentThumb { get; set; }
 
 
@@ -146,11 +147,14 @@ namespace _20220704
             {
                 canvas.MySelectedThumbs.Clear();
                 canvas.MySelectedThumbs.Add(this);
+                this.IsAddedJustBefore = true;
             }
             else if (Keyboard.Modifiers == ModifierKeys.Control)
             {
                 canvas.MySelectedThumbs.Add(this);
+                this.IsAddedJustBefore = true;
             }
+
 
 
         }
@@ -159,14 +163,17 @@ namespace _20220704
         {
             MyParentThumb?.AjustSizeAndLocate3();
 
-            //if (e.HorizontalChange == 0 && e.VerticalChange == 0)
-            //{
-            //    CanvasThumb ct = MyCanvas ?? SetMyCanvas();
-            //    if (ct.MySelectedThumbs.Contains(this))
-            //    {
-            //        ct.MySelectedThumbs.Remove(this);
-            //    }
-            //}
+            if (IsAddedJustBefore)
+                IsAddedJustBefore = false;
+            else if (IsAddedJustBefore == false && e.HorizontalChange == 0 && e.VerticalChange == 0)
+            {
+                CanvasThumb ct = MyCanvas ?? SetMyCanvas();
+                if (ct.MySelectedThumbs.Contains(this))
+                {
+                    ct.MySelectedThumbs.Remove(this);
+                }
+            }
+
         }
 
         private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
@@ -178,8 +185,8 @@ namespace _20220704
                 item.MyData.Y += e.VerticalChange;
             }
 
-            MyData.X += e.HorizontalChange;
-            MyData.Y += e.VerticalChange;
+            //MyData.X += e.HorizontalChange;
+            //MyData.Y += e.VerticalChange;
         }
         public void RemoveDragEvents()
         {
