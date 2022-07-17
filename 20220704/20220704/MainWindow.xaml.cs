@@ -31,7 +31,7 @@ namespace _20220704
         public MainWindow()
         {
             InitializeComponent();
-
+            Top = 100; Left = 100;
             MyTest();
 
             MyCanvas = new(new DataCanvas(), "MyCanvas");
