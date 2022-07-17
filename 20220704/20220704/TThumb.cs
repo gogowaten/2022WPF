@@ -141,38 +141,41 @@ namespace _20220704
 
             CanvasThumb canvas = MyCanvas ?? SetMyCanvas();
             canvas.MyActiveThumb = this;
-
+            var selected = canvas.MySelectedThumbs;
             //selected
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
-                canvas.MySelectedThumbs.Clear();
-                canvas.MySelectedThumbs.Add(this);
-                this.IsAddedJustBefore = true;
+                
+                if ((selected.Contains(this) && selected.Count == 1) == false)
+                {
+                    selected.Clear();
+                    selected.Add(this);
+                }
             }
             else if (Keyboard.Modifiers == ModifierKeys.Control)
             {
-                canvas.MySelectedThumbs.Add(this);
-                this.IsAddedJustBefore = true;
+                if (selected.Contains(this))
+                {
+                    if (selected.Count > 1) this.IsAddedJustBefore = true;
+                }
+                else selected.Add(this);
             }
-
-
-
         }
 
         private void TThumb_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             MyParentThumb?.AjustSizeAndLocate3();
 
-            if (IsAddedJustBefore)
-                IsAddedJustBefore = false;
-            else if (IsAddedJustBefore == false && e.HorizontalChange == 0 && e.VerticalChange == 0)
-            {
-                CanvasThumb ct = MyCanvas ?? SetMyCanvas();
-                if (ct.MySelectedThumbs.Contains(this))
-                {
-                    ct.MySelectedThumbs.Remove(this);
-                }
-            }
+            //if (IsAddedJustBefore)
+            //    IsAddedJustBefore = false;
+            //else if (IsAddedJustBefore == false && e.HorizontalChange == 0 && e.VerticalChange == 0)
+            //{
+            //    CanvasThumb ct = MyCanvas ?? SetMyCanvas();
+            //    if (ct.MySelectedThumbs.Contains(this))
+            //    {
+            //        ct.MySelectedThumbs.Remove(this);
+            //    }
+            //}
 
         }
 
