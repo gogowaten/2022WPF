@@ -147,6 +147,7 @@ namespace _20220704
             //選択リストの更新、削除フラグ立て
             //でもこれはPreviewMouseDownで行ったほうがいいのかも
             //右クリックメニューを追加したときに期待しない動作になるかも
+            //E:\オレ\エクセル\WPFでPixtack紫陽花.xlsm_Thumb_$C$1718
             var selected = canvas.MySelectedThumbs;
             if (Keyboard.Modifiers == ModifierKeys.None)
             {
@@ -175,6 +176,7 @@ namespace _20220704
         {
             MyParentThumb?.AjustSizeAndLocate3();
             //削除フラグに従って削除処理
+            //E:\オレ\エクセル\WPFでPixtack紫陽花.xlsm_Thumb_$C$1718
             if (e.HorizontalChange == 0 && e.VerticalChange == 0)
             {
                 if (this.IsTargetOfRemove)
