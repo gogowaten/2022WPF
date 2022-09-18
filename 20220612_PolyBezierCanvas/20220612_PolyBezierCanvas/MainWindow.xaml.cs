@@ -46,9 +46,9 @@ namespace _20220612_PolyBezierCanvas
     /// </summary>
     public class PolyBezierCanvas2
     {
-        public Path MyBezierPath;//ベジェ曲線表示用
+        public Path MyBezierPath = new();//ベジェ曲線表示用
         //StartPointの管理に使う
-        public PathFigure MyBezierFigure { get; }
+        public PathFigure MyBezierFigure { get; } = new();
         //BezierSegmentのPoints
         public PointCollection MyBezierPoints { get; } = new();
         //ベジェ曲線を表示するPathの構成
@@ -66,7 +66,7 @@ namespace _20220612_PolyBezierCanvas
         //頂点の追加や削除はアンカー点を基準に行い、制御点だけを追加削除することはしない
         //アンカー点追加時は同時に制御点2つを追加
         //アンカー点削除時は同時に制御点2つを削除
-
+        public PolyBezierCanvas2() { }
         public PolyBezierCanvas2(Point anchor0, Point anchor1, Brush stroke, double thickness)
         {
             MyAnchorPoints.CollectionChanged += MyAnchorPoints_CollectionChanged;
