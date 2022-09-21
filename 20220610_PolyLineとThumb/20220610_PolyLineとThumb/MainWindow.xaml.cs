@@ -156,9 +156,7 @@ namespace _20220610_PolyLineとThumb
             if (sender is not TThumb t) { return; }
             double x = GetLeft(t) + e.HorizontalChange;
             double y = GetTop(t) + e.VerticalChange;
-            Point p = new(x, y);
-            int i = MyThumbs.IndexOf(t);
-            MyPoints[i] = p;
+            MyPoints[MyThumbs.IndexOf(t)] = new Point(x, y);
             SetLeft(t, x); SetTop(t, y);
         }
 

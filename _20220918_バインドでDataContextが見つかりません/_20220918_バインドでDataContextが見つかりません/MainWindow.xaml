@@ -13,7 +13,7 @@
     <StackPanel>
       <TextBlock Text="{Binding TextAAA}" FontSize="30"/>
       <TextBlock Text="{Binding TextBBB}" FontSize="30"/>
-      <TextBlock Text="{Binding TextCCC}" FontSize="30"/>
+      <TextBlock Text="{Binding Path=TextCCC}" FontSize="30"/>
     </StackPanel>
   </Grid>
 </Window>

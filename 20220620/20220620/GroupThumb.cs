@@ -647,12 +647,7 @@ namespace _20220620
         public Layer1(MainItemsControl main) : this(main, new Data1(DataType.Layer)) { }
         public Layer1(MainItemsControl main, Data1 data) : base(main, data)
         {
-            ////Layerなので編集状態にする
-            //NowEditingThumb = this;
-            //IsMyEditing = true;
-
-            //_SelectedThumbs.CollectionChanged += SelectedThumbs_CollectionChanged;
-            //SelectedThumbs = new(_SelectedThumbs);
+            //配下のThumb全てに自信を登録する
             SetMyLayer2(this);
         }
 

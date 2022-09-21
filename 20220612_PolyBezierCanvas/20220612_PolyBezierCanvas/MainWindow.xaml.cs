@@ -41,6 +41,7 @@ namespace _20220612_PolyBezierCanvas
         }
     }
 
+
     /// <summary>
     /// ベジェ曲線のアンカー点の追加と削除のテスト用
     /// </summary>
