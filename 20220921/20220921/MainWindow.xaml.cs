@@ -28,10 +28,12 @@ namespace _20220921
 
             MyPoints = new() { new Point(0, 30), new Point(100, 40) };
             Path path = new();
-            Polyline polyline = new();
-            polyline.Points = MyPoints;
-            polyline.StrokeThickness = 3.0;
-            polyline.Stroke = Brushes.Red;
+            Polyline polyline = new()
+            {
+                Points = MyPoints,
+                StrokeThickness = 3.0,
+                Stroke = Brushes.Red
+            };
             MyCanvas.Children.Add(polyline);
 
 
@@ -66,7 +68,7 @@ namespace _20220921
         public TThumb()
         {
             this.Template = MakeTemplate(typeof(Polyline));
-            Canvas.SetLeft(this, 0);Canvas.SetTop(this, 0);
+            Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
         }
         private ControlTemplate MakeTemplate(Type type)
         {
