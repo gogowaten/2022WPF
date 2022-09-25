@@ -26,6 +26,10 @@ namespace _20220921
         {
             InitializeComponent();
 
+            StrategyStructure strategy = new();
+            strategy.Start();
+
+
             MyPoints = new() { new Point(0, 30), new Point(100, 40) };
             Path path = new();
             Polyline polyline = new()
