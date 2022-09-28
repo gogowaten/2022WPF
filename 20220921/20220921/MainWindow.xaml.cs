@@ -26,9 +26,11 @@ namespace _20220921
         {
             InitializeComponent();
 
+
+            var c2 = new Class2();
             StrategyStructure strategy = new();
             strategy.Start();
-
+            
 
             MyPoints = new() { new Point(0, 30), new Point(100, 40) };
             Path path = new();
