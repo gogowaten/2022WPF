@@ -6,6 +6,11 @@ using System.Runtime;
 using System.Text;
 using System.Threading.Tasks;
 
+
+//Composite
+//https://refactoring.guru/ja/design-patterns/composite
+//より
+
 namespace _20220921
 {
     internal class Class2

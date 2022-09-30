@@ -26,6 +26,7 @@ namespace _20220921
         {
             InitializeComponent();
 
+            Class3 c3 = new();
 
             var c2 = new Class2();
             StrategyStructure strategy = new();
