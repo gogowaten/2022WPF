@@ -83,7 +83,7 @@ namespace _20221016_デザインパターンFactoryMethod
     {
         public string Operation()
         {
-            return "{Result of ConcreteProduct1}";
+            return "{Result of プロダクト1}";
         }
     }
 
@@ -91,7 +91,7 @@ namespace _20221016_デザインパターンFactoryMethod
     {
         public string Operation()
         {
-            return "{Result of ConcreteProduct2}";
+            return "{Result of プロダクト2}";
         }
     }
 
@@ -99,12 +99,13 @@ namespace _20221016_デザインパターンFactoryMethod
     {
         public void Main()
         {
-            Debug.WriteLine("App: Launched with the ConcreteCreator1.");
+            Debug.
+            Debug.WriteLine("App: Launched with the クリエイター1.");
             ClientCode(new ConcreteCreator1());
 
             Debug.WriteLine("");
 
-            Debug.WriteLine("App: Launched with the ConcreteCreator2.");
+            Debug.WriteLine("App: Launched with the クリエイター2.");
             ClientCode(new ConcreteCreator2());
         }
 
