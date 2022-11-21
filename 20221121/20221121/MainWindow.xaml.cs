@@ -27,8 +27,11 @@ namespace _20221121
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            var tt = new TThumb(new Data("text"!, 10, 10, 1));
-            MyCanvas.Children.Add(tt);
+            for (int i = 0; i < 100; i++)
+            {
+                MyCanvas.Children.Add(
+                    new TThumb(new Data("test", i, i, i)));
+            }
         }
     }
 }

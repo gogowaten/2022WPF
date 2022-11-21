@@ -29,7 +29,7 @@ namespace _20221121
         {
             MyData = data;
             DataContext = this;
-            MakeItem(data);
+            MakeItem();
             SetDataBinding();
         }
         private void SetDataBinding()
@@ -45,24 +45,29 @@ namespace _20221121
             this.SetBinding(Panel.ZIndexProperty, b);
 
         }
-        private void MakeItem(Data data)
+        private void MakeItem()
         {
             FrameworkElementFactory panel = new(typeof(Grid));
             FrameworkElementFactory textblock = new(typeof(TextBlock));
-            MySetBinding(textblock, TextBlock.TextProperty, nameof(data.Text));
+            MySetBinding(textblock, TextBlock.TextProperty, nameof(MyData.Text));
             panel.AppendChild(textblock);
             ControlTemplate template = new();
             template.VisualTree = panel;
             this.Template = template;
 
-            void MySetBinding(FrameworkElementFactory elem,DependencyProperty dp,string path)
+            void MySetBinding(FrameworkElementFactory elem, DependencyProperty dp, string path)
             {
                 elem.SetBinding(dp, MakeTowWayBinding(path, MyData));
             }
-            Binding MakeTowWayBinding(string path,object source)
+            Binding MakeTowWayBinding(string path, object source)
             {
                 return new(path) { Source = source, Mode = BindingMode.TwoWay };
             }
         }
+    }
+
+    public class TTGroup : Thumb
+    {
+
     }
 }

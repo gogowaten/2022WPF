@@ -23,6 +23,7 @@ namespace _20221121
 {
     class Data
     {
+        public ObservableCollection<Data> Children { get; set; } = new();
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
