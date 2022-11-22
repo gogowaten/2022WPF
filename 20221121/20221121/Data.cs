@@ -21,7 +21,7 @@ using System.Collections.Specialized;
 
 namespace _20221121
 {
-    class Data
+    public class Data
     {
         public ObservableCollection<Data> Children { get; set; } = new();
         public double X { get; set; }

@@ -33,5 +33,13 @@ namespace _20221121
                     new TThumb(new Data("test", i, i, i)));
             }
         }
+
+        private void Button2_Click(object sender, RoutedEventArgs e)
+        {
+            var data = new Data("group", 10, 101, 1);
+            data.Children.Add(new("child",10,10,10));
+            var groupT = new TTGroup(data);
+            MyCanvas.Children.Add(groupT);
+        }
     }
 }

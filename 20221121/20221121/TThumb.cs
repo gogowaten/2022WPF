@@ -29,7 +29,7 @@ namespace _20221121
         {
             MyData = data;
             DataContext = this;
-            MakeItem();
+            SetItem();
             SetDataBinding();
         }
         private void SetDataBinding()
@@ -45,29 +45,113 @@ namespace _20221121
             this.SetBinding(Panel.ZIndexProperty, b);
 
         }
-        private void MakeItem()
+        private void SetItem()
         {
-            FrameworkElementFactory panel = new(typeof(Grid));
+            //FrameworkElementFactory panel = new(typeof(Grid));
             FrameworkElementFactory textblock = new(typeof(TextBlock));
             MySetBinding(textblock, TextBlock.TextProperty, nameof(MyData.Text));
-            panel.AppendChild(textblock);
+            //panel.AppendChild(textblock);
             ControlTemplate template = new();
-            template.VisualTree = panel;
+            template.VisualTree = textblock;
             this.Template = template;
 
             void MySetBinding(FrameworkElementFactory elem, DependencyProperty dp, string path)
             {
-                elem.SetBinding(dp, MakeTowWayBinding(path, MyData));
+                elem.SetBinding(dp, MakeTwoWayBinding(path, MyData));
             }
-            Binding MakeTowWayBinding(string path, object source)
-            {
-                return new(path) { Source = source, Mode = BindingMode.TwoWay };
-            }
+            Binding MakeTwoWayBinding(string path, object source) =>
+                new Binding(path) { Source = source, Mode = BindingMode.TwoWay };
+
         }
     }
 
     public class TTGroup : Thumb
     {
+        public Data MyData { get; protected set; }
+        public ObservableCollection<TTGroup> Children { get; } = new();
 
+        public TTGroup(Data data)
+        {
+            MyData = data;
+            if (data.Children.Count > 0)
+            {
+                SetTemplate();
+                foreach (var item in data.Children)
+                {
+                    Children.Add(new TTGroup(item));
+                }
+            }
+            else { SetTemplate2(data); }
+        }
+
+        //for gourp
+        private void SetTemplate()
+        {
+            //Grid
+            // ┣ItemsControl
+            FrameworkElementFactory panel = new(typeof(Grid));
+
+            FrameworkElementFactory content = new(typeof(ItemsControl));
+            content.SetValue(ItemsControl.ItemsPanelProperty,
+                new ItemsPanelTemplate(
+                    new FrameworkElementFactory(typeof(Canvas))));
+            content.SetValue(ItemsControl.ItemsSourceProperty,
+                new Binding(nameof(Children)));
+            panel.AppendChild(content);
+
+            ControlTemplate template = new();
+            template.VisualTree = panel;
+            this.Template = template;
+
+        }
+
+        //for one item
+        private void SetTemplate2(Data data)
+        {
+            FrameworkElementFactory textblock = new(typeof(TextBlock));
+            MySetBinding(textblock, TextBlock.TextProperty, nameof(data.Text));
+            //panel.AppendChild(textblock);
+            ControlTemplate template = new();
+            template.VisualTree = textblock;
+            this.Template = template;
+
+            void MySetBinding(FrameworkElementFactory elem, DependencyProperty dp, string path)
+            {
+                elem.SetBinding(dp, MakeTwoWayBinding(path, data));
+            }
+            Binding MakeTwoWayBinding(string path, object source) =>
+                new Binding(path) { Source = source, Mode = BindingMode.TwoWay };
+
+        }
+    }
+
+    public class TTGroup2 : Thumb
+    {
+        public Data MyData { get;protected set; }
+        public ObservableCollection<TTGroup2> Items { get; } = new();
+        
+        public TTGroup2(Data data)
+        {
+            MyData = data;
+        }
+        
+
+        private void SetTemplate()
+        {
+            //Grid
+            // ┣ItemsControl
+            FrameworkElementFactory panel = new(typeof(Grid));
+            FrameworkElementFactory content = new(typeof(ItemsControl));
+            content.SetValue(ItemsControl.ItemsPanelProperty,
+                new ItemsPanelTemplate(
+                    new FrameworkElementFactory(typeof(Canvas))));
+            content.SetValue(ItemsControl.ItemsSourceProperty,
+                new Binding(nameof(Items)));
+            panel.AppendChild(content);
+
+            ControlTemplate template = new();
+            template.VisualTree = panel;
+            this.Template = template;
+        }
     }
 }
