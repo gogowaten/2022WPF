@@ -5,9 +5,17 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:_20221121"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-  <Canvas>
-    <Line x:Name="MyLine" Stroke="Red" X1="10" Y1="10" X2="110" Y2="110"/>
-    <Rectangle x:Name="MyRectangle" Fill="Red" Height="10" Width="10" Canvas.Left="10" Canvas.Top="10"/>
+             d:DesignHeight="250" d:DesignWidth="200"
+             Name="parent">
+  <Canvas DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:LLine}}">
+    <Line x:Name="MyLine" Stroke="{Binding Stroke}"
+          X1="{Binding X1}" Y1="{Binding Y1}"
+          X2="{Binding X2}" Y2="{Binding Y2}"
+          StrokeThickness="2"
+          SizeChanged="MyLine_SizeChanged"/>
+
+    <Rectangle x:Name="MyRectangle" Fill="Red"
+               Height="{Binding HeadSize}" Width="{Binding HeadSize}"
+               Canvas.Left="-10" Canvas.Top="0"/>
   </Canvas>
 </UserControl>

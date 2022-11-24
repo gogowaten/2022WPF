@@ -41,5 +41,12 @@ namespace _20221121
             var groupT = new TTGroup(data);
             MyCanvas.Children.Add(groupT);
         }
+
+        private void Button3_Click(object sender, RoutedEventArgs e)
+        {
+            MyLLine.Stroke = Brushes.MediumAquamarine;
+            MyLLine.Test1();
+            var ll = new LLine();
+        }
     }
 }
