@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -25,7 +26,7 @@ namespace _20221121
         {
             InitializeComponent();
         }
-
+        #region dp
         public Brush Stroke
         {
             get { return (Brush)GetValue(StrokeProperty); }
@@ -56,7 +57,7 @@ namespace _20221121
             set { SetValue(X2Property, value); }
         }
         public static readonly DependencyProperty X2Property =
-            DependencyProperty.Register(nameof(X2), typeof(double), typeof(LLine), new PropertyMetadata(550.0));
+            DependencyProperty.Register(nameof(X2), typeof(double), typeof(LLine), new PropertyMetadata(0.0));
 
         public double Y2
         {
@@ -73,6 +74,7 @@ namespace _20221121
         }
         public static readonly DependencyProperty HeadSizeProperty =
             DependencyProperty.Register(nameof(HeadSize), typeof(double), typeof(LLine), new PropertyMetadata(0.0));
+        #endregion
 
         public void Test1()
         {
@@ -91,11 +93,44 @@ namespace _20221121
             this.Height = MyLine.ActualHeight;
         }
     }
-    public class BeginPointConverter : IValueConverter
+
+    public class PointConverter : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {   
+            var locate = values[0] as double?;
+            var size = values[1] as double?;
+
+            if (locate != null && size != null) { return locate - (size / 2.0); }
+            else return 0;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class PP : IMultiValueConverter
+    {
+        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        {
+            var ll = (LLine)parameter;
+            var v = (double)values[0];
+            return 1;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+    public class PCon : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            throw new NotImplementedException();
+            var locate = (double)value;
+            var ll = (LLine)parameter;
+            return locate - (ll.HeadSize / 2.0);
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

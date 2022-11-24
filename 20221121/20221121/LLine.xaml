@@ -6,8 +6,48 @@
              xmlns:local="clr-namespace:_20221121"
              mc:Ignorable="d" 
              d:DesignHeight="250" d:DesignWidth="200"
-             Name="parent">
-  <Canvas DataContext="{Binding RelativeSource={RelativeSource AncestorType=local:LLine}}">
+             Name="parent"
+             DataContext="{Binding RelativeSource={RelativeSource Mode=Self}}">
+  <UserControl.Resources>
+    <local:PointConverter x:Key="pc"/>
+    <Style TargetType="Rectangle" x:Key="begin">
+      <Setter Property="Canvas.Left">
+        <Setter.Value>
+          <MultiBinding Converter="{StaticResource pc}">
+            <Binding Path= "X1" />
+            <Binding Path="HeadSize"/>
+          </MultiBinding>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="Canvas.Top">
+        <Setter.Value>
+          <MultiBinding Converter="{StaticResource pc}">
+            <Binding Path="Y1"/>
+            <Binding Path="HeadSize"/>
+          </MultiBinding>
+        </Setter.Value>
+      </Setter>
+    </Style>
+    <Style TargetType="Rectangle" x:Key="end">
+      <Setter Property="Canvas.Left">
+        <Setter.Value>
+          <MultiBinding Converter="{StaticResource pc}">
+            <Binding Path= "X2" />
+            <Binding Path="HeadSize"/>
+          </MultiBinding>
+        </Setter.Value>
+      </Setter>
+      <Setter Property="Canvas.Top">
+        <Setter.Value>
+          <MultiBinding Converter="{StaticResource pc}">
+            <Binding Path="Y2"/>
+            <Binding Path="HeadSize"/>
+          </MultiBinding>
+        </Setter.Value>
+      </Setter>
+    </Style>
+  </UserControl.Resources>
+  <Canvas>
     <Line x:Name="MyLine" Stroke="{Binding Stroke}"
           X1="{Binding X1}" Y1="{Binding Y1}"
           X2="{Binding X2}" Y2="{Binding Y2}"
@@ -16,6 +56,10 @@
 
     <Rectangle x:Name="MyRectangle" Fill="Red"
                Height="{Binding HeadSize}" Width="{Binding HeadSize}"
-               Canvas.Left="-10" Canvas.Top="0"/>
+               Style="{StaticResource begin}"/>
+    <Rectangle x:Name="MyEndPoint" Fill="Red"
+           Height="{Binding HeadSize}" Width="{Binding HeadSize}"
+               Style="{StaticResource end}"/>
+
   </Canvas>
 </UserControl>
