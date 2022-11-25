@@ -130,6 +130,9 @@ namespace _20221121
                 new FrameworkPropertyMetadata(0.0,
                     FrameworkPropertyMetadataOptions.AffectsRender |
                     FrameworkPropertyMetadataOptions.AffectsMeasure));
+//        図形コントロール
+//http://www.kanazawa-net.ne.jp/~pmansato/wpf/wpf_graph_drawtool.htm#arrow
+
         //affectsを付けるとデザイン画面で数値変更したときに即表示が更新されるようになる
         //Renderは表示更新
         //Measureはサイズ変更
