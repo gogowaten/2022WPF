@@ -16,6 +16,7 @@
       <local:LLine x:Name="MyLLine" Fill="Blue"
                    X1="50" Y1="30" X2="100" Y2="100"
                    HeadSize="30"/>
+      <local:Arrow X1="100" Y1="150" X2="0" Y2="200" HeadSize="10" Stroke="Black"/>
     </Canvas>
     <StackPanel Grid.Column="1">
       <Button x:Name="Button1" Content="button1" Click="Button1_Click"/>
