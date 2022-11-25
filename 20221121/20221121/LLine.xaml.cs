@@ -27,13 +27,13 @@ namespace _20221121
             InitializeComponent();
         }
         #region dp
-        public Brush Stroke
+        public Brush Fill
         {
-            get { return (Brush)GetValue(StrokeProperty); }
-            set { SetValue(StrokeProperty, value); }
+            get { return (Brush)GetValue(FillProperty); }
+            set { SetValue(FillProperty, value); }
         }
-        public static readonly DependencyProperty StrokeProperty =
-            DependencyProperty.Register(nameof(Stroke), typeof(Brush), typeof(LLine), new PropertyMetadata(Brushes.Black));
+        public static readonly DependencyProperty FillProperty =
+            DependencyProperty.Register(nameof(Fill), typeof(Brush), typeof(LLine), new PropertyMetadata(Brushes.Black));
 
         public double X1
         {
@@ -80,11 +80,11 @@ namespace _20221121
         {
             var height = MyLine.ActualHeight;
             var lineSize = MyLine.RenderSize;
-            var rectSize = MyRectangle.RenderSize;
+            var rectSize = MyBegin.RenderSize;
             var lineGeo = MyLine.RenderedGeometry;
-            var rectGeo = MyRectangle.RenderedGeometry;
+            var rectGeo = MyBegin.RenderedGeometry;
             var neko = Geometry.Combine(lineGeo, rectGeo, GeometryCombineMode.Union, null);
-            var tftv = MyRectangle.TransformToVisual(this);
+            var tftv = MyBegin.TransformToVisual(this);
         }
 
         private void MyLine_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -110,32 +110,5 @@ namespace _20221121
             throw new NotImplementedException();
         }
     }
-    public class PP : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
-        {
-            var ll = (LLine)parameter;
-            var v = (double)values[0];
-            return 1;
-        }
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
-    public class PCon : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var locate = (double)value;
-            var ll = (LLine)parameter;
-            return locate - (ll.HeadSize / 2.0);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
 }

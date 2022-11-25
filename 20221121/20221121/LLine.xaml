@@ -48,16 +48,16 @@
     </Style>
   </UserControl.Resources>
   <Canvas>
-    <Line x:Name="MyLine" Stroke="{Binding Stroke}"
+    <Line x:Name="MyLine" Stroke="{Binding Fill}"
           X1="{Binding X1}" Y1="{Binding Y1}"
           X2="{Binding X2}" Y2="{Binding Y2}"
           StrokeThickness="2"
           SizeChanged="MyLine_SizeChanged"/>
 
-    <Rectangle x:Name="MyRectangle" Fill="Red"
+    <Rectangle x:Name="MyBegin" Fill="{Binding Fill}"
                Height="{Binding HeadSize}" Width="{Binding HeadSize}"
                Style="{StaticResource begin}"/>
-    <Rectangle x:Name="MyEndPoint" Fill="Red"
+    <Rectangle x:Name="MyEndPoint" Fill="{Binding Fill}"
            Height="{Binding HeadSize}" Width="{Binding HeadSize}"
                Style="{StaticResource end}"/>
 

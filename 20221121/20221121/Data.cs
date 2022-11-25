@@ -33,4 +33,17 @@ namespace _20221121
             Text = text; X = x; Y = y; Z = z;
         }
     }
+
+    public class DataLine : Data
+    {
+        public double X1 { get; set; }
+        public double Y1 { get; set; }
+        public double X2 { get; set; }
+        public double Y2 { get; set; }
+        public double HeadSize { get; set; }
+
+        public DataLine(string text, double x, double y, double z) : base(text, x, y, z)
+        {
+        }
+    }
 }

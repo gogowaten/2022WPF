@@ -44,7 +44,7 @@ namespace _20221121
 
         private void Button3_Click(object sender, RoutedEventArgs e)
         {
-            MyLLine.Stroke = Brushes.MediumAquamarine;
+            MyLLine.Fill = Brushes.MediumAquamarine;
             MyLLine.Test1();
             var ll = new LLine();
         }

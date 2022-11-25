@@ -13,9 +13,9 @@
     </Grid.ColumnDefinitions>
     <Canvas Name="MyCanvas">
       <Line X1="10" Y1="100" X2="30" Y2="50" Stroke="Red"/>
-      <local:LLine x:Name="MyLLine" Stroke="Blue"
+      <local:LLine x:Name="MyLLine" Fill="Blue"
                    X1="50" Y1="30" X2="100" Y2="100"
-                   HeadSize="20"/>
+                   HeadSize="30"/>
     </Canvas>
     <StackPanel Grid.Column="1">
       <Button x:Name="Button1" Content="button1" Click="Button1_Click"/>
