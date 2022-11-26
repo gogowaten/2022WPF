@@ -7,6 +7,8 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-
+    <Canvas>
+      <local:Arrow X1="10" Y1="10" X2="100" Y2="100" Stroke="Red" HeadSize="10"/>
+    </Canvas>
     </Grid>
 </Window>
