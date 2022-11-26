@@ -31,17 +31,5 @@ namespace _20221126_矢印図形
                     FrameworkPropertyMetadataOptions.AffectsMeasure |
                     FrameworkPropertyMetadataOptions.AffectsRender));
 
-
-        public double Y1
-        {
-            get { return (double)GetValue(Y1Property); }
-            set { SetValue(Y1Property, value); }
-        }
-        public static readonly DependencyProperty Y1Property =
-            DependencyProperty.Register(nameof(Y1), typeof(double), typeof(Arrow),
-                new FrameworkPropertyMetadata(0.0,
-                    FrameworkPropertyMetadataOptions.AffectsRender |
-                    FrameworkPropertyMetadataOptions.AffectsMeasure));
-
     }
 }
