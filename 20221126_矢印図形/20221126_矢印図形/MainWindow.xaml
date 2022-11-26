@@ -5,10 +5,11 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221126_矢印図形"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="350" Width="600">
     <Grid>
     <Canvas>
-      <local:Arrow X1="10" Y1="10" X2="100" Y2="100" Stroke="Red" HeadSize="10"/>
+      <local:Arrow X1="100" Y1="100" X2="200" Y2="100" Fill="Purple" StrokeThickness="1" Stroke="Red" HeadSize="10"/>
+      
     </Canvas>
     </Grid>
 </Window>

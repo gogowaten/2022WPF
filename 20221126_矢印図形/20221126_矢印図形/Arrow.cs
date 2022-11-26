@@ -16,7 +16,8 @@ namespace _20221126_矢印図形
             get
             {
                 StreamGeometry geometry = new();
-                geometry.FillRule = FillRule.EvenOdd;
+                //geometry.FillRule = FillRule.EvenOdd;//いる？
+                geometry.FillRule = FillRule.Nonzero;
                 using (var context = geometry.Open())
                 {
                     InternalDraw(context);
@@ -48,6 +49,8 @@ namespace _20221126_矢印図形
             context.LineTo(pt3, true, true);
             context.LineTo(pt2, true, true);
             context.LineTo(pt4, true, true);
+            context.LineTo(pt2, true, true);
+            
         }
 
 

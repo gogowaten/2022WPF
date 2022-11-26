@@ -24,5 +24,12 @@ namespace _20221126_矢印図形
         {
             InitializeComponent();
         }
+        private void AddFigure()
+        {
+            Path path = new();
+            PathFigure figure = new();
+            StreamGeometryContext context;
+            
+        }
     }
 }
