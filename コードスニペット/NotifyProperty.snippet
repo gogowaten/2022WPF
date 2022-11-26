@@ -161,5 +161,48 @@ protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServ
 			</Code>
 		</Snippet>
 	</CodeSnippet>
+	
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>依存プロパティ作成、Shape継承クラス用</Title>
+			<Author>gogowaten</Author>
+			<Description>デザイン画面で値変更したときに図形サイズと表示を即更新</Description>
+			<Shortcut>propdps</Shortcut>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>type</ID>
+					<Default>int</Default>
+				</Literal>
+				<Literal>
+					<ID>id</ID>
+					<Default>MyProperty</Default>
+				</Literal>
+				<Literal>
+					<ID>ownerclass</ID>
+					<Default>ownerclass</Default>
+				</Literal>
+				<Literal>
+					<ID>metadata</ID>
+					<Default>0</Default>
+				</Literal>
+			</Declarations>
+			<Code Language="csharp">
+				<![CDATA[
+        public $type$ $id$
+        {
+            get { return ($type$)GetValue($id$Property); }
+            set { SetValue($id$Property, value); }
+        }
+        public static readonly DependencyProperty $id$Property =
+            DependencyProperty.Register(nameof($id$), typeof($type$), typeof($ownerclass$),
+				new FrameworkPropertyMetadata($metadata$),
+					FrameworkPropertyMetadataOptions.AffectsRender |
+					FrameworkPropertyMetadataOptions.AffectsMeasure));
+						]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
 
 </CodeSnippets>
