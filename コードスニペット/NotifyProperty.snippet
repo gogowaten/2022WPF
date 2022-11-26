@@ -197,7 +197,7 @@ protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServ
         }
         public static readonly DependencyProperty $id$Property =
             DependencyProperty.Register(nameof($id$), typeof($type$), typeof($ownerclass$),
-				new FrameworkPropertyMetadata($metadata$),
+				new FrameworkPropertyMetadata($metadata$,
 					FrameworkPropertyMetadataOptions.AffectsRender |
 					FrameworkPropertyMetadataOptions.AffectsMeasure));
 						]]>
