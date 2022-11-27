@@ -17,7 +17,7 @@ namespace _20221126_矢印図形
             {
                 StreamGeometry geometry = new();
                 //geometry.FillRule = FillRule.EvenOdd;//いる？
-                geometry.FillRule = FillRule.Nonzero;
+                geometry.FillRule = FillRule.Nonzero;//こっちのほうがいいかも
                 using (var context = geometry.Open())
                 {
                     InternalDraw(context);
@@ -47,10 +47,15 @@ namespace _20221126_矢印図形
             context.BeginFigure(pt1, true, false);
             context.LineTo(pt2, true, true);
             context.LineTo(pt3, true, true);
-            context.LineTo(pt2, true, true);
+            //context.LineTo(pt2, true, true);
             context.LineTo(pt4, true, true);
             context.LineTo(pt2, true, true);
-            
+
+
+            //Point pt11 = new(pt1.X + 10, pt1.Y + 10);
+            //Point pt12 = new(pt2.X + 10, pt2.Y + 10);
+            //context.BeginFigure(pt11, true, false);
+            //context.LineTo(pt12, true, true);
         }
 
 
