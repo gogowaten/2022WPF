@@ -6,6 +6,20 @@ using System.Threading.Tasks;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows;
+using Microsoft.VisualBasic;
+
+//    WPF Arrow and Custom Shapes - CodeProject
+//https://www.codeproject.com/Articles/23116/WPF-Arrow-and-Custom-Shapes
+//DefiningGeometry | 2,000 Things You Should Know About WPF
+//https://wpf.2000things.com/tag/defininggeometry/
+
+
+//        図形コントロール
+//http://www.kanazawa-net.ne.jp/~pmansato/wpf/wpf_graph_drawtool.htm#arrow
+
+//affectsを付けるとデザイン画面で数値変更したときに即表示が更新されるようになる
+//Renderは表示更新
+//Measureはサイズ変更
 
 namespace _20221126_矢印図形
 {
