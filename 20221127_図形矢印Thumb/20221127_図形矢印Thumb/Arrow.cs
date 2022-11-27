@@ -1,7 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using System.Windows;
+using System.Windows.Shapes;
 
 //    WPF Arrow and Custom Shapes - CodeProject
 //https://www.codeproject.com/Articles/23116/WPF-Arrow-and-Custom-Shapes
@@ -16,7 +20,7 @@ using System.Windows;
 //Renderは表示更新
 //Measureはサイズ変更
 
-namespace _20221126_矢印図形
+namespace _20221127_図形矢印Thumb
 {
     class Arrow : Shape
     {
