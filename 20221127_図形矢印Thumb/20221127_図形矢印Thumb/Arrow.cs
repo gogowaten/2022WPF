@@ -7,6 +7,12 @@ using System.Windows.Media;
 using System.Windows;
 using System.Windows.Shapes;
 
+
+
+
+//Shapeを継承して矢印クラス
+
+//参照したところ
 //    WPF Arrow and Custom Shapes - CodeProject
 //https://www.codeproject.com/Articles/23116/WPF-Arrow-and-Custom-Shapes
 //DefiningGeometry | 2,000 Things You Should Know About WPF

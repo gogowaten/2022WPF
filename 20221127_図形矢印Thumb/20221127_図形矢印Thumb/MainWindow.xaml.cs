@@ -14,6 +14,9 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Controls.Primitives;
 
+
+//矢印図形クラスをThumbのテンプレートにしてドラッグ移動
+
 namespace _20221127_図形矢印Thumb
 {
     /// <summary>

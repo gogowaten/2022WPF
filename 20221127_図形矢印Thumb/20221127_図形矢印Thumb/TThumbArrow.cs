@@ -10,6 +10,8 @@ using System.Windows.Data;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
+//矢印クラスをTemplateにしたThumb
+
 namespace _20221127_図形矢印Thumb
 {
     internal class TThumbArrow : Thumb
@@ -32,6 +34,7 @@ namespace _20221127_図形矢印Thumb
         public double TY2 { get; set; }
         public double THeadSize { get; set; }
         public Brush? TStroke { get; set; }
+        public double StrokeWidth { get; set; }
 
         public TThumbArrow()
         {
@@ -47,6 +50,7 @@ namespace _20221127_図形矢印Thumb
             //arrow.SetBinding(Arrow.Y2Property, MakeBind(nameof(TY2)));
             //arrow.SetBinding(Arrow.HeadSizeProperty, MakeBind(nameof(THeadSize)));
             //arrow.SetBinding(Arrow.StrokeProperty, MakeBind(nameof(TStroke)));
+            //arrow.SetBinding(Arrow.StrokeThicknessProperty, MakeBind(nameof(StrokeWidth)));
 
             //↕どちらでも同じ、TwoWayにしても依存プロパティにしないと変化しない
 
@@ -57,6 +61,7 @@ namespace _20221127_図形矢印Thumb
             arrow.SetBinding(Arrow.Y2Property, new Binding(nameof(TY2)));
             arrow.SetBinding(Arrow.HeadSizeProperty, new Binding(nameof(THeadSize)));
             arrow.SetBinding(Arrow.StrokeProperty, new Binding(nameof(TStroke)));
+            arrow.SetBinding(Arrow.StrokeThicknessProperty, new Binding(nameof(StrokeWidth)));
 
             ControlTemplate template = new();
             template.VisualTree = arrow;

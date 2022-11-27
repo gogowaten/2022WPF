@@ -8,9 +8,8 @@
         Title="MainWindow" Height="250" Width="400">
   <Grid>
     <Canvas Name="MyCanvas">
-      <!--<local:Arrow X1="10" Y1="10" X2="100" Y2="50" HeadSize="20"                   Stroke="Red"/>-->
       <local:TThumbArrow x:Name="TTArrow" TX1="50" TY1="10" TX2="120" TY2="100" THeadSize="20"
-                         TStroke="Blue"
+                         TStroke="Blue" StrokeWidth="5"
                          Canvas.Left="10" Canvas.Top="50"/>
       <Button x:Name="Button1" Content="button1" Click="Button1_Click" Canvas.Left="200"/>
       <local:TThumbTextBlock MyText="test!!!!!!"/>
