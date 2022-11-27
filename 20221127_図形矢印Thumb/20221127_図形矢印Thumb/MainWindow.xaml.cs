@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 
 namespace _20221127_図形矢印Thumb
 {
@@ -23,6 +24,22 @@ namespace _20221127_図形矢印Thumb
         public MainWindow()
         {
             InitializeComponent();
+
+            TTArrow.DragDelta += TTArrow_DragDelta;
+        }
+
+        private void TTArrow_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is TThumbArrow tt)
+            {
+                Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
+                Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
+            }
+        }
+
+        private void Button1_Click(object sender, RoutedEventArgs e)
+        {
+            TTArrow.TX1 = 200.0;
         }
     }
 }
