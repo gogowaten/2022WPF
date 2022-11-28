@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+//矢じりの角度を指定できるようにした
+
 namespace _20221128_矢印図形
 {
     /// <summary>

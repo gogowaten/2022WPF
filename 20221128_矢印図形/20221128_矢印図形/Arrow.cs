@@ -24,6 +24,8 @@ using System.Windows.Shapes;
 //Renderは表示更新
 //Measureはサイズ変更
 
+public enum ArrowHeadType { Type0, Type1, Type2, Type3 }
+
 namespace _20221128_矢印図形
 {
     internal class Arrow : Shape
@@ -37,72 +39,176 @@ namespace _20221128_矢印図形
                 geometry.FillRule = FillRule.Nonzero;//こっちのほうがいいかも
                 using (var context = geometry.Open())
                 {
-                    InternalDraw2(context);
-                    //InternalDraw(context);
+                    switch (HeadType)
+                    {
+                        case ArrowHeadType.Type0:
+                            InternalDraw0(context);
+                            StrokeStartLineCap = PenLineCap.Flat;
+                            StrokeEndLineCap = PenLineCap.Flat;
+                            Fill = null;
+                            break;
+                        case ArrowHeadType.Type1:
+                            InternalDraw1(context);
+                            Fill = null;
+                            StrokeStartLineCap = PenLineCap.Round;
+                            StrokeEndLineCap = PenLineCap.Round;
+                            break;
+                        case ArrowHeadType.Type2:
+                            InternalDraw2(context);
+                            StrokeStartLineCap = PenLineCap.Flat;
+                            StrokeEndLineCap = PenLineCap.Flat;
+                            Fill = Stroke;
+                            break;
+                        case ArrowHeadType.Type3:
+                            InternalDraw3(context);
+                            StrokeStartLineCap = PenLineCap.Round;
+                            StrokeEndLineCap = PenLineCap.Round;
+                            Fill = Stroke;
+                            break;
+                        default:
+                            InternalDraw0(context);
+                            break;
+                    }
                 }
                 geometry.Freeze();
                 return geometry;
             }
         }
 
-        private void InternalDraw(StreamGeometryContext context)
+        //矢じりが直線＆フラット
+        private void InternalDraw0(StreamGeometryContext context)
         {
-            double theta = Math.Atan2(Y1 - Y2, X1 - X2);
-            double sint = Math.Sin(theta);
-            double cost = Math.Cos(theta);
+            Point p1 = new(X1, Y1);
+            Point p2 = new(X2, Y2);
 
-            Point pt1 = new(X1, Y1);
-            Point pt2 = new(X2, Y2);
+            double beseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
+            double headRadian = AngleToRadian(Angle);
 
-            Point pt3 = new Point(
-                X2 + (HeadSize * cost - HeadSize * sint),
-                Y2 + (HeadSize * sint + HeadSize * cost));
+            double radian = beseRadian + headRadian;//矢じりの角度
+            Point p3 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
 
-            Point pt4 = new Point(
-                X2 + (HeadSize * cost + HeadSize * sint),
-                Y2 - (HeadSize * cost - HeadSize * sint));
+            radian = beseRadian - headRadian;//反対側の矢じりの角度
+            Point p4 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
 
-            context.BeginFigure(pt1, true, false);
-            context.LineTo(pt2, true, true);
-            context.LineTo(pt3, true, true);
-            //context.LineTo(pt2, true, true);
-            context.LineTo(pt4, true, true);
-            context.LineTo(pt2, true, true);
-
-
-            //Point pt11 = new(pt1.X + 10, pt1.Y + 10);
-            //Point pt12 = new(pt2.X + 10, pt2.Y + 10);
-            //context.BeginFigure(pt11, true, false);
-            //context.LineTo(pt12, true, true);
+            context.BeginFigure(p1, true, false);
+            context.LineTo(p2, true, true);
+            context.BeginFigure(p3, true, false);
+            context.LineTo(p2, true, false);
+            context.LineTo(p4, true, true);
         }
+        //矢じりが直線、端丸め
+        private void InternalDraw1(StreamGeometryContext context)
+        {
+            Point p1 = new(X1, Y1);
+            Point p2 = new(X2, Y2);
+
+            double beseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
+            double headRadian = AngleToRadian(Angle);
+
+            double radian = beseRadian + headRadian;//矢じりの角度
+            Point p3 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
+
+            radian = beseRadian - headRadian;//反対側の矢じりの角度
+            Point p4 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
+
+            context.BeginFigure(p1, true, false);
+            context.LineTo(p2, true, true);
+            context.BeginFigure(p3, true, false);
+            context.LineTo(p2, true, true);
+            context.LineTo(p4, true, true);
+        }
+
+        //矢じりが三角形＆端フラット鋭角
         private void InternalDraw2(StreamGeometryContext context)
         {
-            Point p1 = new(X1, Y1); Point p2 = new(X2, Y2);
+            Point p1 = new(X1, Y1);
+            Point p2 = new(X2, Y2);
+
             double beseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
-            double arrowRadian = AngleToRadian(Angle);
-            double radian = beseRadian + arrowRadian;
+            double headRadian = AngleToRadian(Angle);
 
-            double sin = Math.Sin(radian);
-            double cos = Math.Cos(radian);
-            double x = HeadSize * cos;
-            double y = HeadSize * sin;
-            Point p3 = new Point(X2 + x, Y2 + y);
+            double radian = beseRadian + headRadian;//矢じりの角度
+            Point p3 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
 
-            radian = beseRadian - arrowRadian;
-            sin = Math.Sin(radian);
-            cos = Math.Cos(radian);
-            x = HeadSize * cos;
-            y = HeadSize * sin;
-            Point p4 = new Point(X2 + x, Y2 + y);
+            radian = beseRadian - headRadian;//反対側の矢じりの角度
+            Point p4 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
+
+            context.BeginFigure(p1, true, false);
+            context.LineTo(p2, true, false);
+            context.BeginFigure(p2, true, false);
+            context.LineTo(p3, true, false);
+            context.LineTo(p4, true, false);
+            context.LineTo(p2, true, false);
+            context.LineTo(p3, true, false);
+        }
+
+        //矢じりが三角線＆端丸め
+        private void InternalDraw3(StreamGeometryContext context)
+        {
+            Point p1 = new(X1, Y1);
+            Point p2 = new(X2, Y2);
+
+            double beseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
+            double headRadian = AngleToRadian(Angle);
+
+            double radian = beseRadian + headRadian;//矢じりの角度
+            Point p3 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
+
+            radian = beseRadian - headRadian;//反対側の矢じりの角度
+            Point p4 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
 
             context.BeginFigure(p1, true, false);
             context.LineTo(p2, true, true);
             context.LineTo(p3, true, true);
             context.LineTo(p4, true, true);
-
-
+            context.LineTo(p2, true, true);
         }
-        private double AngleToRadian(double angle)
+
+        //未使用
+        private void InternalDraw4(StreamGeometryContext context)
+        {
+            Point p1 = new(X1, Y1);
+            Point p2 = new(X2, Y2);
+
+            double beseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
+            double headRadian = AngleToRadian(Angle);
+
+            double radian = beseRadian + headRadian;//矢じりの角度
+            Point p3 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
+
+            radian = beseRadian - headRadian;//反対側の矢じりの角度
+            Point p4 = new(
+                X2 + HeadSize * Math.Cos(radian),
+                Y2 + HeadSize * Math.Sin(radian));
+
+            context.BeginFigure(p1, false, false);
+            context.LineTo(p2, true, false);
+            context.BeginFigure(p2, true, false);
+            context.LineTo(p3, false, false);
+            context.LineTo(p4, false, false);
+            context.LineTo(p2, false, false);
+            context.LineTo(p3, false, false);
+        }
+
+        private static double AngleToRadian(double angle)
         {
             return angle / 360 * (Math.PI * 2.0);
         }
@@ -118,6 +224,18 @@ namespace _20221128_矢印図形
                     FrameworkPropertyMetadataOptions.AffectsMeasure |
                     FrameworkPropertyMetadataOptions.AffectsRender));
 
+
+
+        public ArrowHeadType HeadType
+        {
+            get { return (ArrowHeadType)GetValue(HeadTypeProperty); }
+            set { SetValue(HeadTypeProperty, value); }
+        }
+        public static readonly DependencyProperty HeadTypeProperty =
+            DependencyProperty.Register(nameof(HeadType), typeof(ArrowHeadType), typeof(Arrow),
+                new FrameworkPropertyMetadata(ArrowHeadType.Type1,
+                    FrameworkPropertyMetadataOptions.AffectsRender |
+                    FrameworkPropertyMetadataOptions.AffectsMeasure));
 
         public double Y1
         {
