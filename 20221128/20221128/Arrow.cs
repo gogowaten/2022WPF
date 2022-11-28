@@ -5,30 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Ink;
 using System.Windows.Media;
 using System.Windows.Shapes;
 
-//Shapeを継承して矢印クラス
-
-//参照したところ
-//    WPF Arrow and Custom Shapes - CodeProject
-//https://www.codeproject.com/Articles/23116/WPF-Arrow-and-Custom-Shapes
-//DefiningGeometry | 2,000 Things You Should Know About WPF
-//https://wpf.2000things.com/tag/defininggeometry/
-
-
-//        図形コントロール
-//http://www.kanazawa-net.ne.jp/~pmansato/wpf/wpf_graph_drawtool.htm#arrow
-
-//affectsを付けるとデザイン画面で数値変更したときに即表示が更新されるようになる
-//Renderは表示更新
-//Measureはサイズ変更
-
-public enum ArrowHeadType { Type0, Type1, Type2, Type3 }
-
-namespace _20221128_矢印図形
+namespace _20221128
 {
-    internal class Arrow : Shape
+    public enum ArrowHeadType { Type0, Type1, Type2, Type3 }
+    class Arrow : Shape
     {
         protected override Geometry DefiningGeometry
         {
@@ -45,7 +29,7 @@ namespace _20221128_矢印図形
                             InternalDraw0(context);
                             StrokeStartLineCap = PenLineCap.Flat;
                             StrokeEndLineCap = PenLineCap.Flat;
-                            Fill = null;
+                            Fill = Stroke;
                             break;
                         case ArrowHeadType.Type1:
                             InternalDraw1(context);
@@ -84,6 +68,9 @@ namespace _20221128_矢印図形
             double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
             double headRadian = AngleToRadian(Angle);
 
+            Point p21 = new(X2 - (Math.Cos(baseRadian) * HeadSize),
+                Y2 - (Math.Sin(baseRadian) * HeadSize));
+
             double radian = baseRadian + headRadian;//矢じりの角度
             Point p3 = new(
                 X2 + HeadSize * Math.Cos(radian),
@@ -94,11 +81,14 @@ namespace _20221128_矢印図形
                 X2 + HeadSize * Math.Cos(radian),
                 Y2 + HeadSize * Math.Sin(radian));
 
+            //直線描画
             context.BeginFigure(p1, true, false);
-            context.LineTo(p2, true, true);
-            context.BeginFigure(p3, true, false);
-            context.LineTo(p2, true, false);
-            context.LineTo(p4, true, true);
+            context.LineTo(p21, true, true);
+            //矢じり描画
+            context.BeginFigure(p2, true, true);//point, isFill, isClose
+            context.LineTo(p3, false, false);//point, isStroke, isSmoothJoin
+            context.LineTo(p4, false, true);
+            context.LineTo(p2, false, true);
         }
         //矢じりが直線、端丸め
         private void InternalDraw1(StreamGeometryContext context)

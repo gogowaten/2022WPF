@@ -1,0 +1,15 @@
+﻿<Window x:Class="_20221128.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20221128"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+    <Canvas>
+      <local:Arrow X1="20" Y1="200" X2="500" Y2="200" HeadSize="50" Angle="20" HeadType="Type0"
+                   Stroke="Red" StrokeThickness="20"/>
+    </Canvas>
+    </Grid>
+</Window>
