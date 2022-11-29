@@ -34,9 +34,6 @@ namespace _20221128
                             break;
                         case ArrowHeadType.Type1:
                             InternalDraw1(context);
-                            Fill = null;
-                            StrokeStartLineCap = PenLineCap.Round;
-                            StrokeEndLineCap = PenLineCap.Round;
                             break;
                         case ArrowHeadType.Type2:
                             InternalDraw2(context);
@@ -106,30 +103,21 @@ namespace _20221128
             context.LineTo(p4, false, true);
             context.LineTo(p2, false, true);
         }
-        //矢じりが直線、端丸め
+        //全部をFillで描画
         private void InternalDraw1(StreamGeometryContext context)
         {
-            Point p1 = new(X1, Y1);
-            Point p2 = new(X2, Y2);
-
             double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
-            double headRadian = AngleToRadian(Angle);
+            double bCos = Math.Cos(baseRadian);
+            double bSin = Math.Sin(baseRadian);
 
-            double radian = baseRadian + headRadian;//矢じりの角度
-            Point p3 = new(
-                X2 + HeadSize * Math.Cos(radian),
-                Y2 + HeadSize * Math.Sin(radian));
+            var st = StrokeThickness;
+            Point p1 = new(X1 + X1 * bCos, Y1 + Y1 * bSin);
 
-            radian = baseRadian - headRadian;//反対側の矢じりの角度
-            Point p4 = new(
-                X2 + HeadSize * Math.Cos(radian),
-                Y2 + HeadSize * Math.Sin(radian));
 
-            context.BeginFigure(p1, true, false);
-            context.LineTo(p2, true, true);
-            context.BeginFigure(p3, true, false);
-            context.LineTo(p2, true, true);
-            context.LineTo(p4, true, true);
+            context.BeginFigure(new Point(10, 10), true, false);
+            context.LineTo(new Point(100, 10), false, false);
+            context.LineTo(new Point(100, 100), false, false);
+            context.LineTo(new Point(10, 100), false, false);
         }
 
         //矢じりが三角形＆端フラット鋭角
