@@ -5,13 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221128"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600">
+        Title="MainWindow" Height="250" Width="400">
     <Grid>
     <Canvas>
-      <Rectangle Width="500" Height="20" Fill="Blue" Canvas.Top="120"/>
-      <Rectangle Width="500" Height="1" Fill="red" Canvas.Left="0" Canvas.Top="70"/>
-      <local:Arrow X1="200" Y1="50" X2="20" Y2="50" HeadSize="10" Angle="50" HeadType="Type1"
-                   Stroke="Red" Fill="Red" StrokeThickness="10"/>
+      <!--<Rectangle Width="500" Height="20" Fill="Blue" Canvas.Top="120"/>-->
+      <!--<Rectangle Width="500" Height="1" Fill="red" Canvas.Left="0" Canvas.Top="70"/>-->
+      <local:Arrow X1="200" Y1="130" X2="20" Y2="50" HeadSize="170" Angle="30" HeadType="Type2"
+                   Stroke="Red" Fill="Red" StrokeThickness="10.0"/>
+      <Line X1="200" Y1="130" X2="20" Y2="50" Stroke="Blue"/>
       
     </Canvas>
     </Grid>
