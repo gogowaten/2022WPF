@@ -131,9 +131,11 @@ namespace _20221128
         //Fillで矢印描画
         private void InternalDraw2(StreamGeometryContext context)
         {
+            //直線部分(始点から終点)のラジアン
             double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
+            //直線部分のラジアンに垂直(直角)なラジアン
             double verticalRadian = baseRadian + Math.PI / 2.0;
-
+            //指定された角度のラジアン
             double orderRadian = AngleToRadian(Angle);
             //矢じりの辺の長さ
             double sideLength = HeadSize * Math.Cos(orderRadian);
