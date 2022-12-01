@@ -43,8 +43,8 @@ namespace _20221128
                             break;
                         case ArrowHeadType.Type3:
                             InternalDraw3(context);
-                            StrokeStartLineCap = PenLineCap.Round;
-                            StrokeEndLineCap = PenLineCap.Round;
+                            //StrokeStartLineCap = PenLineCap.Round;
+                            //StrokeEndLineCap = PenLineCap.Round;
                             Fill = Stroke;
                             break;
                         default:
@@ -176,30 +176,49 @@ namespace _20221128
 
         }
 
-        //矢じりが三角線＆端丸め
+        //直線を伸ばしてつなぎ目問題解決
+        //矢じりの大きさを極端に小さく(4未満)すると直線がはみ出る不具合が出るけど
+        //実質的には問題ない
+        //Fillで描画するよりラクだし直線部分をベジェ曲線にするとかの応用も効く
         private void InternalDraw3(StreamGeometryContext context)
         {
             Point p1 = new(X1, Y1);
             Point p2 = new(X2, Y2);
 
+            //直線の角度
             double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
-            double headRadian = AngleToRadian(Angle);
+            double bCos = Math.Cos(baseRadian);
+            double bSin = Math.Sin(baseRadian);
 
-            double radian = baseRadian + headRadian;//矢じりの角度
+            //指定された角度
+            double radian = AngleToRadian(Angle);
+            double rCos = Math.Cos(radian);
+
+            //
+            double arrowHeadRadian = baseRadian + radian;//矢じりの角度
+
+            //直線と矢じりの接点
+            double zentai = HeadSize * rCos;
+            zentai -= 1.5;//伸ばす
+            Point pJoint = new(X2 + (bCos * zentai), Y2 + bSin * zentai);
+
             Point p3 = new(
-                X2 + HeadSize * Math.Cos(radian),
-                Y2 + HeadSize * Math.Sin(radian));
+                X2 + HeadSize * Math.Cos(arrowHeadRadian),
+                Y2 + HeadSize * Math.Sin(arrowHeadRadian));
 
-            radian = baseRadian - headRadian;//反対側の矢じりの角度
+            arrowHeadRadian = baseRadian - radian;//反対側の矢じりの角度
             Point p4 = new(
-                X2 + HeadSize * Math.Cos(radian),
-                Y2 + HeadSize * Math.Sin(radian));
+                X2 + HeadSize * Math.Cos(arrowHeadRadian),
+                Y2 + HeadSize * Math.Sin(arrowHeadRadian));
 
+            //直線描画、Strokeで描画
             context.BeginFigure(p1, true, false);
-            context.LineTo(p2, true, true);
-            context.LineTo(p3, true, true);
-            context.LineTo(p4, true, true);
-            context.LineTo(p2, true, true);
+            context.LineTo(pJoint, true, true);
+            //矢じり描画、StrokeじゃなくてFillで描画
+            context.BeginFigure(p2, true, true);//point, isFill, isClose
+            context.LineTo(p3, false, false);//point, isStroke, isSmoothJoin
+            context.LineTo(p4, false, true);
+            context.LineTo(p2, false, true);
         }
 
         //未使用

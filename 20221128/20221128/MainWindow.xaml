@@ -7,12 +7,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="250" Width="400">
     <Grid>
-    <Canvas>
+    <Canvas Background="Gold">
       <!--<Rectangle Width="500" Height="20" Fill="Blue" Canvas.Top="120"/>-->
       <!--<Rectangle Width="500" Height="1" Fill="red" Canvas.Left="0" Canvas.Top="70"/>-->
-      <local:Arrow X1="200" Y1="130" X2="20" Y2="50" HeadSize="170" Angle="30" HeadType="Type2"
-                   Stroke="Red" Fill="Red" StrokeThickness="10.0"/>
-      <Line X1="200" Y1="130" X2="20" Y2="50" Stroke="Blue"/>
+      <local:Arrow X1="20" Y1="30" X2="200" Y2="30" HeadSize="5" Angle="50" HeadType="Type3"
+                   Stroke="Red" Fill="Red" StrokeThickness="2.0"/>
+      <Line X1="200" Y1="50" X2="20" Y2="50" Stroke="Blue"/>
       
     </Canvas>
     </Grid>
