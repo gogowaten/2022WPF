@@ -82,7 +82,7 @@ namespace _20221201_矢印図形Fillで描画
             double orderRadian = AngleToRadian(Angle);
             //矢じりの辺の長さ
             double sideLength = HeadSize * Math.Cos(orderRadian);
-            //終点(X2,Y2)と接合部座標の差            
+            //終点(X2,Y2)と直線部分との接合部座標の差
             double jointXDiff = sideLength * Math.Cos(baseRadian);
             double jointYDiff = sideLength * Math.Sin(baseRadian);
 
@@ -131,7 +131,7 @@ namespace _20221201_矢印図形Fillで描画
             double orderRadian = AngleToRadian(Angle);
             //矢じりの辺の長さ
             double sideLength = HeadSize * Math.Cos(orderRadian);
-            //終点(X2,Y2)と接合部座標の差            
+            //終点(X2,Y2)と直線部分との接合部座標の差
             double jointXDiff = sideLength * Math.Cos(baseRadian);
             double jointYDiff = sideLength * Math.Sin(baseRadian);
 
