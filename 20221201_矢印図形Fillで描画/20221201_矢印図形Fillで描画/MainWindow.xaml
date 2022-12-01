@@ -5,8 +5,20 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221201_矢印図形Fillで描画"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+        Title="MainWindow" Height="350" Width="600">
+  <Grid>
+    <Canvas>
+      <local:Arrow HeadSize="30" Angle="30" HeadType="Type1" X1="100" Y1="50" X2="300" Y2="30"
+                   Fill="Red" StrokeThickness="10"/>
+      <local:Arrow HeadSize="50" Angle="10" HeadType="Type1" X1="100" Y1="90" X2="300" Y2="70"
+                   Fill="Red" StrokeThickness="10"/>
+      <local:Arrow HeadSize="50" Angle="10" HeadType="Type2" X1="100" Y1="150" X2="300" Y2="130"
+                   Fill="Red" StrokeThickness="10" Stroke="Black"/>
+      <!--<Line X1="100" Y1="150" X2="300" Y2="130" Stroke="Blue"/>-->
+      <local:Arrow HeadSize="10" Angle="50" HeadType="Type1" X1="100" Y1="200" X2="300" Y2="200"
+                   Fill="Red" StrokeThickness="1"/>
+      <local:Arrow HeadSize="10" Angle="50" HeadType="Type1" X1="100" Y1="220" X2="300" Y2="220"
+                   Fill="Red" StrokeThickness="2"/>
+    </Canvas>
+  </Grid>
 </Window>

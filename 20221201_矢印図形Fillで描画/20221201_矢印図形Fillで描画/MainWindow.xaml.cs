@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+//描画にStrokeを使わずにFillで描画することで
+//直線部分と矢じりの接合部をなくした結果つなぎ目問題解決
 namespace _20221201_矢印図形Fillで描画
 {
     /// <summary>
