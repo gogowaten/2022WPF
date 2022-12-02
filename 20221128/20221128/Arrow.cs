@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace _20221128
 {
-    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4, Type5 }
+    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4, Type5, Type6 }
     class Arrow : Shape
     {
         protected override Geometry DefiningGeometry
@@ -53,6 +53,10 @@ namespace _20221128
                             break;
                         case ArrowHeadType.Type5:
                             InternalDraw5(context);
+                            Fill = Stroke;
+                            break;
+                        case ArrowHeadType.Type6:
+                            InternalDraw6(context);
                             Fill = Stroke;
                             break;
                         default:
@@ -279,21 +283,17 @@ namespace _20221128
         private void InternalDraw5(StreamGeometryContext context)
         {
             Point p1 = new(X1, Y1);
-            Point p2 = new(X2, Y2);
 
             //直線の角度
             double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
             double bCos = Math.Cos(baseRadian);
             double bSin = Math.Sin(baseRadian);
 
-            //ヘッドサイズ自動調整、線の太さと矢じり角度によって変化させる            
+            //ヘッドサイズ自動調整、線の太さによって変化させる
             HeadSize = StrokeThickness;
 
-            //直線と矢じりは別々に描画している
-            //直線と矢じりの接点座標が必要
-            //接点は矢じり側に多少シフトさせて、重なる部分ができるようにしている、
-            //もしぴったり座標の場合は隙間ができてしまう
-            //座標シフト、矢じりを短く見せかければ、その分直線が伸びる
+            //直線と先端図形は別々に描画している
+            //直線と図形の接点座標が必要
             double sideLength = HeadSize - 1.5;
             Point pContact = new(X2 + (bCos * sideLength), Y2 + bSin * sideLength);
 
@@ -301,7 +301,7 @@ namespace _20221128
             double verticalRadian = baseRadian - Math.PI / 2.0;
             double xDiff = HeadSize * Math.Cos(verticalRadian);
             double yDiff = HeadSize * Math.Sin(verticalRadian);
-            //座標
+            //四角形の四隅の座標
             Point p3 = new(X2 + xDiff, Y2 + yDiff);
             Point p4 = new(X2 - xDiff, Y2 - yDiff);
             xDiff = HeadSize * 2 * Math.Cos(baseRadian);
@@ -312,13 +312,61 @@ namespace _20221128
             //直線描画はStrokeで描画
             context.BeginFigure(p1, true, false);
             context.LineTo(pContact, true, true);
-            //矢じり描画はFillで描画。もしStrokeで描画すると先端部分が伸びてしまい、見た目が指定座標とずれる
+            //図形描画はFillで描画。もしStrokeで描画すると先端部分が伸びてしまい、見た目が指定座標とずれる
             context.BeginFigure(p3, true, true);//point, isFill, isClose
             //context.LineTo(p3, false, false);//point, isStroke, isSmoothJoin
             context.LineTo(p4, false, false);
             context.LineTo(p6, false, false);
             context.LineTo(p5, false, false);
             context.LineTo(p3, false, false);
+        }
+        //先端図形が円
+        private void InternalDraw6(StreamGeometryContext context)
+        {
+            Point p1 = new(X1, Y1);
+
+            //直線の角度
+            double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
+            double bCos = Math.Cos(baseRadian);
+            double bSin = Math.Sin(baseRadian);
+
+            //先端図形サイズ自動調整、線の太さによって変化させる
+            //線の太さを円の半径にしてみた
+            double radius = StrokeThickness / 2.0;
+
+            //直線と先端図形は別々に描画している
+            //円の中心座標
+            double sideLength = radius * 2.0;
+            Point pContact = new(X2 + (bCos * sideLength), Y2 + bSin * sideLength);
+
+            //直線描画はStrokeで描画
+            context.BeginFigure(p1, true, false);
+            context.LineTo(pContact, true, true);
+            //円はArcよりBezierのほうが効率がいいらしい、近似だけど全く問題ない
+            //How to draw a full ellipse in a StreamGeometry in WPF? - Stack Overflow
+            //https://stackoverflow.com/questions/2979834/how-to-draw-a-full-ellipse-in-a-streamgeometry-in-wpf
+            //Fillで描画。もしStrokeで描画するとStrokeの幅分が伸びてしまい、見た目が指定座標とずれる
+            double controlPointRatio = (Math.Sqrt(2) - 1) * 4 / 3;//制御点
+            double cx = pContact.X;
+            double c0 = cx - radius;
+            double c1 = cx - radius * controlPointRatio;
+            double c2 = cx;
+            double c3 = cx + radius * controlPointRatio;
+            double c4 = cx + radius;
+
+            double cy = pContact.Y;
+            double s0 = cy - radius;
+            double s1 = cy - radius * controlPointRatio;
+            double s2 = cy;
+            double s3 = cy + radius * controlPointRatio;
+            double s4 = cy + radius;
+
+            context.BeginFigure(new Point(c2, s0), true, false);
+            context.BezierTo(new(c3, s0), new(c4, s1), new(c4, s2), true, true);
+            context.BezierTo(new(c4, s3), new(c3, s4), new(c2, s4), true, true);
+            context.BezierTo(new(c1, s4), new(c0, s3), new(c0, s2), true, true);
+            context.BezierTo(new(c0, s1), new(c1, s0), new(c2, s0), true, true);
+
         }
 
         private static double AngleToRadian(double angle)

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221128"
         mc:Ignorable="d"
-        Title="MainWindow" Height="250" Width="400">
+        Title="MainWindow" Height="300" Width="400">
     <Grid>
     <Canvas Background="Gold">
       <!--<Rectangle Width="500" Height="20" Fill="Blue" Canvas.Top="120"/>-->
@@ -14,7 +14,11 @@
                    Stroke="Red" Fill="Red" StrokeThickness="50.0"/>
       <local:Arrow X1="20" Y1="130" X2="300" Y2="130" HeadSize="50" Angle="30" HeadType="Type5"
                    Stroke="Red" Fill="Red" StrokeThickness="50.0"/>
+      <local:Arrow X1="20" Y1="230" X2="300" Y2="250" HeadSize="50" Angle="30" HeadType="Type6"
+                   Stroke="Red" Fill="Red" StrokeThickness="50.0"/>
+      
       <Line X1="300" Y1="50" X2="20" Y2="50" Stroke="Blue"/>
+      
       <!--<Rectangle Width="100" Height="100" Fill="Blue" Canvas.Left="100" Canvas.Top="100"/>-->
 
     </Canvas>
