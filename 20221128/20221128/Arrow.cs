@@ -140,7 +140,7 @@ namespace _20221128
             //矢じりの辺の長さ
             double sideLength = HeadSize * Math.Cos(orderRadian);
             //終点(X2,Y2)と接合部座標の差            
-            double jointXDiff = sideLength * Math.Cos(baseRadian);            
+            double jointXDiff = sideLength * Math.Cos(baseRadian);
             double jointYDiff = sideLength * Math.Sin(baseRadian);
 
             double halfWidth = StrokeThickness / 2.0;
@@ -200,7 +200,7 @@ namespace _20221128
             //直線と矢じりの接点
             double zentai = HeadSize * rCos;
             zentai -= 1.5;//伸ばす
-            Point pJoint = new(X2 + (bCos * zentai), Y2 + bSin * zentai);
+            Point pContact = new(X2 + (bCos * zentai), Y2 + bSin * zentai);
 
             Point p3 = new(
                 X2 + HeadSize * Math.Cos(arrowHeadRadian),
@@ -213,12 +213,12 @@ namespace _20221128
 
             //直線描画、Strokeで描画
             context.BeginFigure(p1, true, false);
-            context.LineTo(pJoint, true, true);
+            context.LineTo(pContact, true, true);
             //矢じり描画、StrokeじゃなくてFillで描画
             context.BeginFigure(p2, true, true);//point, isFill, isClose
             context.LineTo(p3, false, false);//point, isStroke, isSmoothJoin
-            context.LineTo(p4, false, true);
-            context.LineTo(p2, false, true);
+            context.LineTo(p4, false, false);
+            context.LineTo(p2, false, false);
         }
 
         //未使用
