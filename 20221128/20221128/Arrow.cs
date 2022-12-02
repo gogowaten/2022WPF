@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace _20221128
 {
-    public enum ArrowHeadType { Type0, Type1, Type2, Type3 }
+    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4 }
     class Arrow : Shape
     {
         protected override Geometry DefiningGeometry
@@ -45,6 +45,10 @@ namespace _20221128
                             InternalDraw3(context);
                             //StrokeStartLineCap = PenLineCap.Round;
                             //StrokeEndLineCap = PenLineCap.Round;
+                            Fill = Stroke;
+                            break;
+                        case ArrowHeadType.Type4:
+                            InternalDraw4(context);
                             Fill = Stroke;
                             break;
                         default:
@@ -194,14 +198,12 @@ namespace _20221128
             double radian = AngleToRadian(Angle);
             double rCos = Math.Cos(radian);
 
-            //
-            double arrowHeadRadian = baseRadian + radian;//矢じりの角度
-
             //直線と矢じりの接点
             double zentai = HeadSize * rCos;
             zentai -= 1.5;//伸ばす
             Point pContact = new(X2 + (bCos * zentai), Y2 + bSin * zentai);
 
+            double arrowHeadRadian = baseRadian + radian;//矢じりの角度
             Point p3 = new(
                 X2 + HeadSize * Math.Cos(arrowHeadRadian),
                 Y2 + HeadSize * Math.Sin(arrowHeadRadian));
@@ -221,32 +223,52 @@ namespace _20221128
             context.LineTo(p2, false, false);
         }
 
-        //未使用
+        //矢印図形描画、ヘッドサイズ自動調整版
         private void InternalDraw4(StreamGeometryContext context)
         {
             Point p1 = new(X1, Y1);
             Point p2 = new(X2, Y2);
 
+            //直線の角度
             double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
-            double headRadian = AngleToRadian(Angle);
+            double bCos = Math.Cos(baseRadian);
+            double bSin = Math.Sin(baseRadian);
 
-            double radian = baseRadian + headRadian;//矢じりの角度
+            //指定された角度
+            double radian = AngleToRadian(Angle);
+            double rCos = Math.Cos(radian);
+            //ヘッドサイズ自動調整、線の太さと矢じり角度によって変化させる            
+            HeadSize = StrokeThickness * 1.0 / Math.Sin(radian);
+            //線の太さが1とか細かったり、矢じり指定角度が大きい(60度以上)ときは下の方がよさそう
+            //HeadSize = StrokeThickness * 2.0 / Math.Sin(radian);
+
+            //直線と矢じりは別々に描画している
+            //直線と矢じりの接点座標が必要
+            //接点は矢じり側に多少シフトさせて、重なる部分ができるようにしている、
+            //もしぴったり座標の場合は隙間ができてしまう
+            //座標シフト、矢じりを短く見せかければ、その分直線が伸びる
+            double sideLength = HeadSize * rCos - 1.5;
+            Point pContact = new(X2 + (bCos * sideLength), Y2 + bSin * sideLength);
+
+            double arrowHeadRadian = baseRadian + radian;//矢じりの角度
+            //矢じりの翼端座標
             Point p3 = new(
-                X2 + HeadSize * Math.Cos(radian),
-                Y2 + HeadSize * Math.Sin(radian));
+                X2 + HeadSize * Math.Cos(arrowHeadRadian),
+                Y2 + HeadSize * Math.Sin(arrowHeadRadian));
 
-            radian = baseRadian - headRadian;//反対側の矢じりの角度
+            arrowHeadRadian = baseRadian - radian;//反対側の矢じりの角度
             Point p4 = new(
-                X2 + HeadSize * Math.Cos(radian),
-                Y2 + HeadSize * Math.Sin(radian));
+                X2 + HeadSize * Math.Cos(arrowHeadRadian),
+                Y2 + HeadSize * Math.Sin(arrowHeadRadian));
 
-            context.BeginFigure(p1, false, false);
-            context.LineTo(p2, true, false);
-            context.BeginFigure(p2, true, false);
-            context.LineTo(p3, false, false);
+            //直線描画はStrokeで描画
+            context.BeginFigure(p1, true, false);
+            context.LineTo(pContact, true, true);
+            //矢じり描画はFillで描画。もしStrokeで描画すると先端部分が伸びてしまい、見た目が指定座標とずれる
+            context.BeginFigure(p2, true, true);//point, isFill, isClose
+            context.LineTo(p3, false, false);//point, isStroke, isSmoothJoin
             context.LineTo(p4, false, false);
             context.LineTo(p2, false, false);
-            context.LineTo(p3, false, false);
         }
 
         private static double AngleToRadian(double angle)

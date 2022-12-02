@@ -12,7 +12,7 @@
                    X1="10" Y1="50" X2="200" Y2="50"
                    Stroke="Red" StrokeThickness="20"/>
       <local:Arrow HeadSize="50" Angle="30" HeadType="Type1"
-                   X1="10" Y1="100" X2="200" Y2="100"
+                   X1="10" Y1="110" X2="200" Y2="110"
                    Stroke="Red" StrokeThickness="20"/>
       
     </Canvas>

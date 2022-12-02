@@ -10,10 +10,11 @@
     <Canvas Background="Gold">
       <!--<Rectangle Width="500" Height="20" Fill="Blue" Canvas.Top="120"/>-->
       <!--<Rectangle Width="500" Height="1" Fill="red" Canvas.Left="0" Canvas.Top="70"/>-->
-      <local:Arrow X1="20" Y1="30" X2="200" Y2="30" HeadSize="50" Angle="70" HeadType="Type3"
-                   Stroke="Red" Fill="Red" StrokeThickness="20.0"/>
-      <Line X1="200" Y1="50" X2="20" Y2="50" Stroke="Blue"/>
-      
+      <local:Arrow X1="20" Y1="30" X2="300" Y2="30" HeadSize="50" Angle="30" HeadType="Type4"
+                   Stroke="Red" Fill="Red" StrokeThickness="50.0"/>
+      <Line X1="300" Y1="50" X2="20" Y2="50" Stroke="Blue"/>
+      <Rectangle Width="100" Height="100" Fill="Blue" Canvas.Left="100" Canvas.Top="100"/>
+
     </Canvas>
     </Grid>
 </Window>
