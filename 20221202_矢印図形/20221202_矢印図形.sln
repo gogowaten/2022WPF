@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20221202_矢印図形", "20221202_矢印図形\20221202_矢印図形.csproj", "{9EC83909-0D54-4BCD-B561-BF11B96D5A6B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9EC83909-0D54-4BCD-B561-BF11B96D5A6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EC83909-0D54-4BCD-B561-BF11B96D5A6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EC83909-0D54-4BCD-B561-BF11B96D5A6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EC83909-0D54-4BCD-B561-BF11B96D5A6B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {54AA11EE-D05E-4303-BD0F-14C489E0C824}
+	EndGlobalSection
+EndGlobal
