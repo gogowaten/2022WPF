@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace _20221128
 {
-    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4 }
+    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4, Type5 }
     class Arrow : Shape
     {
         protected override Geometry DefiningGeometry
@@ -49,6 +49,10 @@ namespace _20221128
                             break;
                         case ArrowHeadType.Type4:
                             InternalDraw4(context);
+                            Fill = Stroke;
+                            break;
+                        case ArrowHeadType.Type5:
+                            InternalDraw5(context);
                             Fill = Stroke;
                             break;
                         default:
@@ -269,6 +273,52 @@ namespace _20221128
             context.LineTo(p3, false, false);//point, isStroke, isSmoothJoin
             context.LineTo(p4, false, false);
             context.LineTo(p2, false, false);
+        }
+
+        //先端が四角形直線
+        private void InternalDraw5(StreamGeometryContext context)
+        {
+            Point p1 = new(X1, Y1);
+            Point p2 = new(X2, Y2);
+
+            //直線の角度
+            double baseRadian = Math.Atan2(Y1 - Y2, X1 - X2);
+            double bCos = Math.Cos(baseRadian);
+            double bSin = Math.Sin(baseRadian);
+
+            //ヘッドサイズ自動調整、線の太さと矢じり角度によって変化させる            
+            HeadSize = StrokeThickness;
+
+            //直線と矢じりは別々に描画している
+            //直線と矢じりの接点座標が必要
+            //接点は矢じり側に多少シフトさせて、重なる部分ができるようにしている、
+            //もしぴったり座標の場合は隙間ができてしまう
+            //座標シフト、矢じりを短く見せかければ、その分直線が伸びる
+            double sideLength = HeadSize - 1.5;
+            Point pContact = new(X2 + (bCos * sideLength), Y2 + bSin * sideLength);
+
+            //角度は直線に対して直角
+            double verticalRadian = baseRadian - Math.PI / 2.0;
+            double xDiff = HeadSize * Math.Cos(verticalRadian);
+            double yDiff = HeadSize * Math.Sin(verticalRadian);
+            //座標
+            Point p3 = new(X2 + xDiff, Y2 + yDiff);
+            Point p4 = new(X2 - xDiff, Y2 - yDiff);
+            xDiff = HeadSize * 2 * Math.Cos(baseRadian);
+            yDiff = HeadSize * 2 * Math.Sin(baseRadian);
+            Point p5 = new(p3.X + xDiff, p3.Y + yDiff);
+            Point p6 = new(p4.X + xDiff, p4.Y + yDiff);
+
+            //直線描画はStrokeで描画
+            context.BeginFigure(p1, true, false);
+            context.LineTo(pContact, true, true);
+            //矢じり描画はFillで描画。もしStrokeで描画すると先端部分が伸びてしまい、見た目が指定座標とずれる
+            context.BeginFigure(p3, true, true);//point, isFill, isClose
+            //context.LineTo(p3, false, false);//point, isStroke, isSmoothJoin
+            context.LineTo(p4, false, false);
+            context.LineTo(p6, false, false);
+            context.LineTo(p5, false, false);
+            context.LineTo(p3, false, false);
         }
 
         private static double AngleToRadian(double angle)
