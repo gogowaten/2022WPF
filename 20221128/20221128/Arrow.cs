@@ -369,6 +369,7 @@ namespace _20221128
 
         }
 
+
         private static double AngleToRadian(double angle)
         {
             return angle / 360 * (Math.PI * 2.0);
