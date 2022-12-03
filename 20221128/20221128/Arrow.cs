@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace _20221128
 {
-    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4, Type5, Type6 }
+    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4, Type5, Type6, Type11 }
     class Arrow : Shape
     {
         protected override Geometry DefiningGeometry
@@ -57,6 +57,10 @@ namespace _20221128
                             break;
                         case ArrowHeadType.Type6:
                             InternalDraw6(context);
+                            Fill = Stroke;
+                            break;
+                        case ArrowHeadType.Type11:
+                            InternalDraw11(context);
                             Fill = Stroke;
                             break;
                         default:
@@ -369,6 +373,37 @@ namespace _20221128
 
         }
 
+        //Fillで直線部分だけ描画、太さ1でもくっきり
+        //Strokeなら座標を0～0.5シフト
+        private void InternalDraw11(StreamGeometryContext context)
+        {
+            double baseRadian = Math.Atan2(Y2 - Y1, X2 - X1);
+            double xDiff = 0.5 * Math.Sin(baseRadian);
+            double yDiff = 0.5 * Math.Cos(baseRadian);
+
+            context.BeginFigure(new(X1 + xDiff, Y1 + yDiff), false, false);
+            context.LineTo(new(X2 + xDiff, Y2 + yDiff), true, false);
+
+            //double verticalRadian = baseRadian + Math.PI / 2.0;
+            //double vCos = Math.Cos(verticalRadian);
+            //double vSin = Math.Sin(verticalRadian);
+
+            //double halfWidth = StrokeThickness / 2.0;
+            //double dCos = halfWidth * vCos;
+            //double dSin = halfWidth * vSin;
+
+            //Point p1 = new(X1 + dCos, Y1 + dSin);
+            //Point p2 = new(X2 + dCos, Y2 + dSin);
+            //Point p3 = new(X2 - dCos, Y2 - dSin);
+            //Point p4 = new(X1 - dCos, Y1 - dSin);
+
+            //context.BeginFigure(p1, true, false);//isFill, isClose
+            //context.LineTo(p2, true, false);//isStroke, isSmooth
+            //context.LineTo(p3, true, false);
+            //context.LineTo(p4, true, false);
+            //context.LineTo(p1, true, false);
+
+        }
 
         private static double AngleToRadian(double angle)
         {
@@ -457,4 +492,5 @@ namespace _20221128
                     FrameworkPropertyMetadataOptions.AffectsMeasure));
 
     }
+
 }
