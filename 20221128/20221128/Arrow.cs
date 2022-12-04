@@ -13,7 +13,7 @@ using System.Windows.Shapes;
 
 namespace _20221128
 {
-    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4, Type5, Type6, Type11 }
+    public enum ArrowHeadType { Type0, Type1, Type2, Type3, Type4, Type5, Type6, Type11, Type12, Type13 }
     class Arrow : Shape
     {
         protected override Geometry DefiningGeometry
@@ -61,6 +61,14 @@ namespace _20221128
                             break;
                         case ArrowHeadType.Type11:
                             InternalDraw11(context);
+                            Fill = Stroke;
+                            break;
+                        case ArrowHeadType.Type12:
+                            InternalDraw12(context);
+                            Fill = Stroke;
+                            break;
+                        case ArrowHeadType.Type13:
+                            InternalDraw13(context);
                             Fill = Stroke;
                             break;
                         default:
@@ -374,34 +382,70 @@ namespace _20221128
         }
 
         //Fillで直線部分だけ描画、太さ1でもくっきり
-        //Strokeなら座標を0～0.5シフト
         private void InternalDraw11(StreamGeometryContext context)
+        {
+            //Fill
+            double baseRadian = Math.Atan2(Y2 - Y1, X2 - X1);
+            double xDiff = 0.5 * Math.Sin(baseRadian);
+            double yDiff = 0.5 * Math.Cos(baseRadian);
+            double xd1 = X1 + xDiff;
+            double xd2 = X2 + xDiff;
+            double yd1 = Y1 + yDiff;
+            double yd2 = Y2 + yDiff;
+            double verticalRadian = baseRadian + Math.PI / 2.0;
+            double halfWidth = StrokeThickness / 2.0;
+            double xvDiff = halfWidth * Math.Cos(verticalRadian);
+            double yvDiff = halfWidth * Math.Sin(verticalRadian);
+            Point p1 = new(xd1 + xvDiff, yd1 + yvDiff);
+            Point p2 = new(xd2 + xvDiff, yd2 + yvDiff);
+            Point p3 = new(xd1 - xvDiff, yd1 - yvDiff);
+            Point p4 = new(xd2 - xvDiff, yd2 - yvDiff);
+            context.BeginFigure(p1, true, false);
+            context.LineTo(p2, false, false);
+            context.LineTo(p4, false, false);
+            context.LineTo(p3, false, false);
+            context.LineTo(p1, false, false);
+        }
+        //Strokeならラクにくっきり
+        private void InternalDraw12(StreamGeometryContext context)
         {
             double baseRadian = Math.Atan2(Y2 - Y1, X2 - X1);
             double xDiff = 0.5 * Math.Sin(baseRadian);
             double yDiff = 0.5 * Math.Cos(baseRadian);
-
+            //Stroke
             context.BeginFigure(new(X1 + xDiff, Y1 + yDiff), false, false);
             context.LineTo(new(X2 + xDiff, Y2 + yDiff), true, false);
+        }
+        private void InternalDraw13(StreamGeometryContext context)
+        {
+            double baseRadian = Math.Atan2(Y2 - Y1, X2 - X1);
+            double xDiff = 0.5 * Math.Sin(baseRadian);
+            double yDiff = 0.5 * Math.Cos(baseRadian);
+            double c1 = X1 + xDiff;
+            double s1 = Y1 + yDiff;
+            double c2 = X2 + xDiff;
+            double s2 = Y2 + yDiff;
+            //直線描画
+            context.BeginFigure(new(c1, s1), false, false);
+            context.LineTo(new(c2, s2), true, false);
 
-            //double verticalRadian = baseRadian + Math.PI / 2.0;
-            //double vCos = Math.Cos(verticalRadian);
-            //double vSin = Math.Sin(verticalRadian);
+            //正方形
+            double hSize = StrokeThickness;
+            double tyuusinX = c2 - hSize * Math.Cos(baseRadian);
+            double tyuusinY = s2 - hSize * Math.Sin(baseRadian);
+            double dCos = Math.Cos(baseRadian - Math.PI / 4.0) * hSize * Math.Sqrt(2);
+            double dSin = Math.Sin(baseRadian - Math.PI / 4.0) * hSize * Math.Sqrt(2);
+            Point pp1 = new(tyuusinX + dCos, tyuusinY + dSin);
+            Point pp2 = new(tyuusinX + dCos, tyuusinY - dSin);
+            Point pp3 = new(tyuusinX - dCos, tyuusinY + dSin);
+            Point pp4 = new(tyuusinX - dCos, tyuusinY - dSin);
 
-            //double halfWidth = StrokeThickness / 2.0;
-            //double dCos = halfWidth * vCos;
-            //double dSin = halfWidth * vSin;
+            context.BeginFigure(pp1, true, true);
+            context.LineTo(pp2, false, false);
+            context.LineTo(pp4, false, false);
+            context.LineTo(pp3, false, false);
+            context.LineTo(pp1, false, false);
 
-            //Point p1 = new(X1 + dCos, Y1 + dSin);
-            //Point p2 = new(X2 + dCos, Y2 + dSin);
-            //Point p3 = new(X2 - dCos, Y2 - dSin);
-            //Point p4 = new(X1 - dCos, Y1 - dSin);
-
-            //context.BeginFigure(p1, true, false);//isFill, isClose
-            //context.LineTo(p2, true, false);//isStroke, isSmooth
-            //context.LineTo(p3, true, false);
-            //context.LineTo(p4, true, false);
-            //context.LineTo(p1, true, false);
 
         }
 
