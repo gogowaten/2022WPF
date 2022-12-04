@@ -430,11 +430,11 @@ namespace _20221128
             context.LineTo(new(c2, s2), true, false);
 
             //正方形
-            double hSize = StrokeThickness;
-            double tyuusinX = c2 - hSize * Math.Cos(baseRadian);
-            double tyuusinY = s2 - hSize * Math.Sin(baseRadian);
-            double dCos = Math.Cos(baseRadian - Math.PI / 4.0) * hSize * Math.Sqrt(2);
-            double dSin = Math.Sin(baseRadian - Math.PI / 4.0) * hSize * Math.Sqrt(2);
+            //double HeadSize = StrokeThickness;
+            double tyuusinX = c2 - HeadSize * Math.Cos(baseRadian);
+            double tyuusinY = s2 - HeadSize * Math.Sin(baseRadian);
+            double dCos = Math.Cos(baseRadian - Math.PI / 4.0) * HeadSize * Math.Sqrt(2);
+            double dSin = Math.Sin(baseRadian - Math.PI / 4.0) * HeadSize * Math.Sqrt(2);
             Point pp1 = new(tyuusinX + dCos, tyuusinY + dSin);
             Point pp2 = new(tyuusinX + dCos, tyuusinY - dSin);
             Point pp3 = new(tyuusinX - dCos, tyuusinY + dSin);

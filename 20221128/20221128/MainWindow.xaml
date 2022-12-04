@@ -14,8 +14,8 @@
                    Stroke="Blue" StrokeThickness="9.0"/>
       <local:Arrow X1="20" Y1="12" X2="300" Y2="12" HeadSize="50" Angle="30" HeadType="Type12"
                    Stroke="Blue" StrokeThickness="5.0"/>
-      <local:Arrow X1="20" Y1="40" X2="300" Y2="40" HeadSize="50" Angle="30" HeadType="Type13"
-                   Stroke="Blue" StrokeThickness="2.0"/>
+      <local:Arrow X1="20" Y1="40" X2="300" Y2="40" HeadSize="2" Angle="30" HeadType="Type13"
+                   Stroke="Blue" StrokeThickness="1.0"/>
       
       
       <!--<Line X1="300" Y1="50" X2="20" Y2="50" Stroke="Blue"/>-->
