@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -19,16 +20,7 @@ namespace _20221205
         {
             SetLocate(data.X, data.Y);
             //this.Template = MakeTemplate(data.DataType);
-        }
-        private void SetLocate(double x, double y)
-        {
-            Canvas.SetLeft(this, x);
-            Canvas.SetTop(this, y);
-        }
-
-        private ControlTemplate MakeTemplate(DataType type)
-        {
-            switch (type)
+            switch (data.DataType)
             {
                 case DataType.None:
                     break;
@@ -37,16 +29,53 @@ namespace _20221205
                 default:
                     break;
             }
-            FrameworkElementFactory element = new(typeof(TextBlock));
-            element.SetValue(TextBlock.TextProperty, "Text");
-            element.SetValue(TextBlock.FontSizeProperty, 20.0);
-            element.SetValue(TextBlock.ForegroundProperty, Brushes.MediumAquamarine);
-
-            ControlTemplate template = new();
-            template.VisualTree = element;
-            return template;
+            switch (data.Type)
+            {
+                case nameof(TextBlock):
+                    break;
+                default:
+                    break;
+            }
+        }
+        private void SetLocate(double x, double y)
+        {
+            Canvas.SetLeft(this, x);
+            Canvas.SetTop(this, y);
         }
 
 
+
+    }
+    public abstract class Product : Thumb { }
+    public class IdTextblock : Product
+    {
+        public Data Data { get; private set; }
+        internal IdTextblock(Data data)
+        {
+            this.Data = data;
+        }
+    }
+    public abstract class Factory
+    {
+        public Product Create(Data data)
+        {
+            Product p = CreateProduct(data);
+            RegisterProduct(p);
+            return p;
+        }
+        protected abstract Product CreateProduct(Data data);
+        protected abstract void RegisterProduct(Product product);
+    }
+    public class IdFactory : Factory
+    {
+        protected override Product CreateProduct(Data data)
+        {
+            
+        }
+
+        protected override void RegisterProduct(Product product)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

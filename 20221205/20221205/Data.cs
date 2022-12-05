@@ -44,8 +44,10 @@ namespace _20221205
 
         private double _y; public double Y { get => _y; set => SetProperty(ref _y, value); }
         public abstract DataType DataType { get; }
+        private Type? _type;
+        public Type? Type { get => _type; set => SetProperty(ref _type, value); }
 
-        
+
     }
     public class DDTextBlock : Data
     {
@@ -60,6 +62,7 @@ namespace _20221205
         private double _fontSize = 12.0;
         public double FontSize { get => _fontSize; set => SetProperty(ref _fontSize, value); }
 
+        
         public override DataType DataType => DataType.TextBlock;
     }
 }
