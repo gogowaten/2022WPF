@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
+using System.Windows.Data;
 using System.Windows.Media;
 
 namespace _20221205
 {
     internal class TThumb : Thumb
     {
-        public TThumb()
+
+        public TThumb(Data data)
         {
-            this.Template = MakeTemplate();
-            SetLocate(0, 0);
-        }
-        public TThumb(double x, double y) : this()
-        {
-            SetLocate(x, y);
+            SetLocate(data.X, data.Y);
+            //this.Template = MakeTemplate(data.DataType);
         }
         private void SetLocate(double x, double y)
         {
@@ -27,8 +26,17 @@ namespace _20221205
             Canvas.SetTop(this, y);
         }
 
-        private ControlTemplate MakeTemplate()
+        private ControlTemplate MakeTemplate(DataType type)
         {
+            switch (type)
+            {
+                case DataType.None:
+                    break;
+                case DataType.TextBlock:
+                    break;
+                default:
+                    break;
+            }
             FrameworkElementFactory element = new(typeof(TextBlock));
             element.SetValue(TextBlock.TextProperty, "Text");
             element.SetValue(TextBlock.FontSizeProperty, 20.0);
@@ -38,6 +46,7 @@ namespace _20221205
             template.VisualTree = element;
             return template;
         }
+
 
     }
 }

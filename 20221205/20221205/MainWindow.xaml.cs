@@ -29,17 +29,11 @@ namespace _20221205
         }
         private void Test1()
         {
-            MyCanvas.Children.Add(new TThumb(0,0));
-            MyCanvas.Children.Add(new TThumb(10, 10));
+            //MyCanvas.Children.Add(new TThumb(new DDTextBlock()));
+            DDTextBlock data = new() { FontColor = Brushes.MediumOrchid, FontSize = 20.0,Text="TTTT" };
+            MyCanvas.Children.Add(new TTTextBlock(data));
         }
 
-        public int MyProperty
-        {
-            get { return (int)GetValue(MyPropertyProperty); }
-            set { SetValue(MyPropertyProperty, value); }
-        }
-        public static readonly DependencyProperty MyPropertyProperty =
-            DependencyProperty.Register(nameof(MyProperty), typeof(int), typeof(Data), new PropertyMetadata(0));
-
+     
     }
 }

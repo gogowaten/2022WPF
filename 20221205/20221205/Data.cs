@@ -21,10 +21,16 @@ using System.Runtime.Serialization;
 
 namespace _20221205
 {
+    public enum DataType
+    {
+        None = 0, TextBlock,
+    }
+    
     [DataContract]
-    public class Data : INotifyPropertyChanged
+    public abstract class Data : INotifyPropertyChanged
     {
         public Data() { }
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
         protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
@@ -37,12 +43,15 @@ namespace _20221205
         private double _x; public double X { get => _x; set => SetProperty(ref _x, value); }
 
         private double _y; public double Y { get => _y; set => SetProperty(ref _y, value); }
+        public abstract DataType DataType { get; }
+
+        
     }
     public class DDTextBlock : Data
     {
         public DDTextBlock() { }
 
-        private string _text = "";
+        private string _text = "Default";
         public string Text { get => _text; set => SetProperty(ref _text, value); }
 
         private Brush _fontColor = Brushes.Black;
@@ -51,5 +60,6 @@ namespace _20221205
         private double _fontSize = 12.0;
         public double FontSize { get => _fontSize; set => SetProperty(ref _fontSize, value); }
 
+        public override DataType DataType => DataType.TextBlock;
     }
 }
