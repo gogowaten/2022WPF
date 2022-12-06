@@ -29,13 +29,7 @@ namespace _20221205
                 default:
                     break;
             }
-            switch (data.Type)
-            {
-                case nameof(TextBlock):
-                    break;
-                default:
-                    break;
-            }
+          
         }
         private void SetLocate(double x, double y)
         {
