@@ -12,9 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Controls.Primitives;
 
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Xml;
+
+using System.Windows.Markup;
+using System.Xml.Serialization;
+using System.Runtime.Serialization;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Tracing;
 
 namespace _20221205
 {
@@ -28,7 +36,7 @@ namespace _20221205
             InitializeComponent();
 
             //Test1();
-            TestJson();
+            TestSerial();
 
         }
         private void Test1()
@@ -50,13 +58,90 @@ namespace _20221205
                 Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
             };
         }
-
-        private void TestJson()
+        private void TestSerial()
         {
-            TT3 tt = new();
-            string js=JsonSerializer.Serialize(tt);
-        }
+            //TT3 tt = new() { Text = "serialiserTest" };
+            //JData tt = new() { Text ="22", Brush= Brushes.LightGray };
+            //BBData tt = new BB() { MyProperty = Brushes.Yellow }.MakeDatas();
+            BB tt = new BB() { MyProperty = Brushes.Yellow };
 
+            Save($"E:\\MyDependencyData", tt);
+        }
+        private void Save(string filename, BB tt)
+        {
+            XmlWriterSettings settings = new()
+            {
+                Encoding = new UTF8Encoding(false),
+                Indent = true,
+                NewLineOnAttributes = false,
+                ConformanceLevel = ConformanceLevel.Fragment
+            };
+            DataContractSerializer serializer = new(typeof(BB));
+            using (var stream = XmlWriter.Create(filename, settings))
+            {
+                try
+                {
+                    serializer.WriteObject(stream, tt);
+                }
+                catch (Exception ex)
+                {
+
+                    throw;
+                }
+            }
+        }
+    }
+
+    [KnownType(typeof(SolidColorBrush))]
+    [KnownType(typeof(MatrixTransform))]
+    public class JData : DependencyObject
+    {
+        [DataMember]
+        public string Text { get; set; }
+        [DataMember]
+        public Brush Brush { get; set; }
+
+        [DataMember]
+        public int MyProperty
+        {
+            get { return (int)GetValue(MyPropertyProperty); }
+            set { SetValue(MyPropertyProperty, value); }
+        }
+        public static readonly DependencyProperty MyPropertyProperty =
+            DependencyProperty.Register(nameof(MyProperty), typeof(int), typeof(JData), new PropertyMetadata(0));
+
+
+    }
+    [Serializable]
+    public class BB : Thumb
+    {
+        [DataMember]
+        public Brush MyProperty
+        {
+            get { return (Brush)GetValue(MyPropertyProperty); }
+            set { SetValue(MyPropertyProperty, value); }
+        }
+        public static readonly DependencyProperty MyPropertyProperty =
+            DependencyProperty.Register(nameof(MyProperty), typeof(Brush), typeof(BB), new PropertyMetadata(Brushes.MediumAquamarine));
+
+        public BB()
+        {
+            DataContext = this;
+            SetBinding(Thumb.BackgroundProperty, new Binding(nameof(MyProperty)));
+        }
+        public BBData MakeDatas()
+        {
+            BBData data = new() { Brush = MyProperty };
+            return data;
+        }
+    }
+    [DataContract]
+    [KnownType(typeof(SolidColorBrush))]
+    [KnownType(typeof(MatrixTransform))]
+    public class BBData
+    {
+        [DataMember]
+        public Brush Brush { get; set; } = Brushes.Black;
     }
 }
 

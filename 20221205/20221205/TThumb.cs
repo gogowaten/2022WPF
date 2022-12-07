@@ -12,6 +12,11 @@ using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Runtime.Serialization;
+using System.Xml.Serialization;
+using Microsoft.Windows.Themes;
 
 namespace _20221205
 {
@@ -76,11 +81,38 @@ namespace _20221205
             this.Template = new() { VisualTree = elem };
         }
     }
+    public class TTEllipse : TThumb
+    {
+        public new DDRectangle MyData;
+        public Ellipse? MyTemplate { get; private set; }
+        public TTEllipse(DDRectangle data) : base(data)
+        {
+            MyData = data;
+            SetTemplate();
+            MyTemplate?.SetBinding(Ellipse.WidthProperty, new Binding(nameof(MyData.Width)));
+            MyTemplate?.SetBinding(Ellipse.HeightProperty, new Binding(nameof(MyData.Height)));
+            MyTemplate?.SetBinding(Ellipse.FillProperty, new Binding(nameof(MyData.Fill)));
 
+        }
+        public TTEllipse():base(new DDRectangle())
+        {
+            
+
+        }
+        protected override void SetTemplate()
+        {
+            FrameworkElementFactory element = new(typeof(Ellipse), "element");
+            ControlTemplate template = new();
+            template.VisualTree = element;
+            this.Template = template;
+            this.ApplyTemplate();
+            MyTemplate = (Ellipse)this.Template.FindName("element", this);
+        }
+    }
 
     public class TT3 : Thumb
     {
-
+        [DataMember]
         public string Text
         {
             get { return (string)GetValue(TextProperty); }
@@ -89,21 +121,28 @@ namespace _20221205
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register(nameof(Text), typeof(string), typeof(TT3), new PropertyMetadata(""));
 
-        public string SText
+        public Brush FontColor
         {
-            get { return (string)GetValue(STextProperty); }
-            set { SetValue(STextProperty, value); }
+            get { return (Brush)GetValue(FontColorProperty); }
+            set { SetValue(FontColorProperty, value); }
         }
-        public static readonly DependencyProperty STextProperty =
-            DependencyProperty.Register(nameof(SText), typeof(string), typeof(TT3),
-                new FrameworkPropertyMetadata("",
-                    FrameworkPropertyMetadataOptions.AffectsRender |
-                    FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly DependencyProperty FontColorProperty =
+            DependencyProperty.Register(nameof(FontColor), typeof(Brush), typeof(TT3), new PropertyMetadata(Brushes.Red));
+
+
+        public DDTextBlock MyData { get; private set; }
         public TT3()
         {
+            MyData = new DDTextBlock();
             this.DataContext = this;
             FrameworkElementFactory element = new(typeof(TextBlock));
-            element.SetBinding(TextBlock.TextProperty, new Binding("Text"));
+            Binding bind = new(nameof(MyData.Text));
+            element.SetBinding(TT3.TextProperty, bind);
+            SetBinding(TT3.TextProperty, bind);
+            bind = new(nameof(MyData.FontColor));
+            element.SetBinding(TT3.FontColorProperty, bind);
+            SetBinding(TT3.FontColorProperty, bind);
+
             Template = new() { VisualTree = element };
 
         }
