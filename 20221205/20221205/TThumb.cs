@@ -9,67 +9,53 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Data;
+using System.Windows.Markup;
 using System.Windows.Media;
 
 namespace _20221205
 {
-    internal class TThumb : Thumb
+    public abstract class TThumb : Thumb
     {
-
+        public Data MyData;
+        public DataType MyDataType { get; private set; }
         public TThumb(Data data)
         {
+            this.MyData = data;
+            MyDataType = data.DataType;
             SetLocate(data.X, data.Y);
-            //this.Template = MakeTemplate(data.DataType);
-            switch (data.DataType)
-            {
-                case DataType.None:
-                    break;
-                case DataType.TextBlock:
-                    break;
-                default:
-                    break;
-            }
-          
         }
         private void SetLocate(double x, double y)
         {
             Canvas.SetLeft(this, x);
             Canvas.SetTop(this, y);
         }
-
+        protected abstract void SetTemplate();
 
 
     }
-    public abstract class Product : Thumb { }
-    public class IdTextblock : Product
+    public class TTTextBlock : TThumb
     {
-        public Data Data { get; private set; }
-        internal IdTextblock(Data data)
+        public new DDTextBlock MyData;
+        public TTTextBlock(DDTextBlock data) : base(data)
         {
-            this.Data = data;
-        }
-    }
-    public abstract class Factory
-    {
-        public Product Create(Data data)
-        {
-            Product p = CreateProduct(data);
-            RegisterProduct(p);
-            return p;
-        }
-        protected abstract Product CreateProduct(Data data);
-        protected abstract void RegisterProduct(Product product);
-    }
-    public class IdFactory : Factory
-    {
-        protected override Product CreateProduct(Data data)
-        {
-            
+            MyData = data;
+            this.DataContext = MyData;
+            SetTemplate();
         }
 
-        protected override void RegisterProduct(Product product)
+
+
+        protected override void SetTemplate()
         {
-            throw new NotImplementedException();
+            FrameworkElementFactory elem = new(typeof(TextBlock));
+            elem.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+            elem.SetBinding(TextBlock.ForegroundProperty, new Binding(nameof(MyData.FontColor)));
+            elem.SetBinding(TextBlock.FontSizeProperty, new Binding(nameof(MyData.FontSize)));
+            ControlTemplate template = new();
+            template.VisualTree = elem;
+            this.Template = template;
         }
     }
+
+
 }
