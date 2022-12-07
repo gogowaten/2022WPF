@@ -23,7 +23,7 @@ namespace _20221205
 {
     public enum DataType
     {
-        None = 0, TextBlock,
+        None = 0, TextBlock,Rectangle,
     }
     
     [DataContract]
@@ -62,7 +62,22 @@ namespace _20221205
         private double _fontSize = 12.0;
         public double FontSize { get => _fontSize; set => SetProperty(ref _fontSize, value); }
 
-        
+
         public override DataType DataType => DataType.TextBlock;
+        
+    }
+    public class DDRectangle : Data
+    {
+        public override DataType DataType => DataType.Rectangle;
+
+        private double _width;
+        public double Width { get => _width; set => SetProperty(ref _width, value); }
+
+        private double _height;
+        public double Height { get => _height; set => SetProperty(ref _height, value); }
+
+        private Brush _fill = SystemColors.WindowFrameBrush;
+        public Brush Fill { get => _fill; set => SetProperty(ref _fill, value); }
+
     }
 }

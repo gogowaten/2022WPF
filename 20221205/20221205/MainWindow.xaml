@@ -8,7 +8,8 @@
         Title="MainWindow" Height="450" Width="600">
     <Grid>
     <Canvas Name="MyCanvas">
-      
+      <local:TT3 Text="testtttttttttttttttttttttt" DragDelta="TT3_DragDelta"
+                 Canvas.Left="0" Canvas.Top="10"/>
     </Canvas>
     </Grid>
 </Window>

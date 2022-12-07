@@ -13,6 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace _20221205
 {
     /// <summary>
@@ -24,16 +27,36 @@ namespace _20221205
         {
             InitializeComponent();
 
-            Test1();
+            //Test1();
+            TestJson();
 
         }
         private void Test1()
         {
             //MyCanvas.Children.Add(new TThumb(new DDTextBlock()));
-            DDTextBlock data = new() { FontColor = Brushes.MediumOrchid, FontSize = 20.0,Text="TTTT" };
+            DDTextBlock data = new() { FontColor = Brushes.MediumOrchid, FontSize = 20.0, Text = "TTTT" };
             MyCanvas.Children.Add(new TTTextBlock(data));
+            DDRectangle rData = new() { Width = 100, Height = 30, Fill = Brushes.MediumAquamarine, X = 100, Y = 20 };
+            MyCanvas.Children.Add(new TTRectAngle(rData));
+            var neko = new TTRectAngle(rData);
+            var inu = neko.MyData;
         }
 
-     
+        private void TT3_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (sender is TT3 tt)
+            {
+                Canvas.SetLeft(tt, Canvas.GetLeft(tt) + e.HorizontalChange);
+                Canvas.SetTop(tt, Canvas.GetTop(tt) + e.VerticalChange);
+            };
+        }
+
+        private void TestJson()
+        {
+            TT3 tt = new();
+            string js=JsonSerializer.Serialize(tt);
+        }
+
     }
 }
+
