@@ -94,9 +94,9 @@ namespace _20221205
             MyTemplate?.SetBinding(Ellipse.FillProperty, new Binding(nameof(MyData.Fill)));
 
         }
-        public TTEllipse():base(new DDRectangle())
+        public TTEllipse() : base(new DDRectangle())
         {
-            
+
 
         }
         protected override void SetTemplate()
@@ -113,13 +113,13 @@ namespace _20221205
     public class TT3 : Thumb
     {
         [DataMember]
-        public string Text
+        public string MyText
         {
             get { return (string)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
         public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register(nameof(Text), typeof(string), typeof(TT3), new PropertyMetadata(""));
+            DependencyProperty.Register(nameof(MyText), typeof(string), typeof(TT3), new PropertyMetadata(""));
 
         public Brush FontColor
         {
@@ -136,9 +136,15 @@ namespace _20221205
             MyData = new DDTextBlock();
             this.DataContext = this;
             FrameworkElementFactory element = new(typeof(TextBlock));
-            Binding bind = new(nameof(MyData.Text));
-            element.SetBinding(TT3.TextProperty, bind);
-            SetBinding(TT3.TextProperty, bind);
+            Binding bind = new(nameof(MyText));
+            //Binding bind = new(nameof(MyData.Text));
+            //element.SetBinding(TT3.TextProperty, bind);
+            //SetBinding(TT3.TextProperty, bind);
+            element.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyData.Text)));
+            SetBinding(TextBlock.TextProperty, new Binding(nameof(MyText)));
+
+            //element.SetBinding(TextBlock.TextProperty, new Binding(nameof(Text)));
+
             bind = new(nameof(MyData.FontColor));
             element.SetBinding(TT3.FontColorProperty, bind);
             SetBinding(TT3.FontColorProperty, bind);
@@ -148,8 +154,37 @@ namespace _20221205
         }
     }
 
+    public class AAA : Thumb
+    {
+        public DDTextBlock MyData { get; set; } = new();
+        public AAA()
+        {
+            DataContext = MyData;
 
+            FrameworkElementFactory elem = new(typeof(TextBlock));
 
+            elem.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyText)) { Source = this});
+
+            Template = new() { VisualTree = elem };
+
+            //TwoWay必須
+            SetBinding(MyTextProperty, new Binding(nameof(MyData.Text)) { Mode = BindingMode.TwoWay });
+        }
+        public AAA(DDTextBlock data) : this()
+        {
+            MyData = data;
+
+        }
+
+        public string MyText
+        {
+            get { return (string)GetValue(MyTextProperty); }
+            set { SetValue(MyTextProperty, value); }
+        }
+        public static readonly DependencyProperty MyTextProperty =
+            DependencyProperty.Register(nameof(MyText), typeof(string), typeof(AAA), new PropertyMetadata("MyText"));
+
+    }
 
 
 

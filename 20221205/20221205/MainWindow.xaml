@@ -6,15 +6,18 @@
         xmlns:local="clr-namespace:_20221205"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="600">
-    <Grid>
+  <Grid>
     <Canvas Name="MyCanvas">
-      <local:TT3 Text="testttttttttaaaatttttttttttt"
+      <local:TT3 x:Name="MyTT3"
+                 MyText="TestText"
                  Foreground="MediumPurple"
                  FontSize="50"
                  DragDelta="TT3_DragDelta"
-                 Canvas.Left="0" Canvas.Top="10"/>
+                 Canvas.Left="10" Canvas.Top="10"/>
       <Ellipse Width="100" Height="100" Fill="Pink" Canvas.Left="20" Canvas.Top="100"/>
       <local:BB Width="100" Height="100" Canvas.Left="150" Canvas.Top="100"/>
+      <Button Name="Button1" Content="Button1" Click="Button1_Click" Canvas.Left="200"/>
+      <local:AAA x:Name="MyAAA" MyText="XAML1" FontSize="50"/>
     </Canvas>
-    </Grid>
+  </Grid>
 </Window>

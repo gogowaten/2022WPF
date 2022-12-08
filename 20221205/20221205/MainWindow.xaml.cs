@@ -36,7 +36,7 @@ namespace _20221205
             InitializeComponent();
 
             //Test1();
-            TestSerial();
+            //TestSerial();
 
         }
         private void Test1()
@@ -90,6 +90,25 @@ namespace _20221205
                 }
             }
         }
+
+        private void Button1_Click(object sender, RoutedEventArgs e)
+        {
+            var neko = MyTT3.MyText;
+            var inu = MyTT3.MyData.Text;
+            MyTT3.MyText= "Testttttttttt";
+            neko = MyTT3.MyText;
+            inu = MyTT3.MyData.Text;
+
+            neko = MyAAA.MyText;
+            inu = MyAAA.MyData.Text;
+            MyAAA.MyText = "プロパティ値を書き換えた";
+            neko = MyAAA.MyText;
+            inu = MyAAA.MyData.Text;
+            MyAAA.MyData.Text = "Data書き換えた";
+            neko = MyAAA.MyText;
+            inu = MyAAA.MyData.Text;
+
+        }
     }
 
     [KnownType(typeof(SolidColorBrush))]
@@ -112,7 +131,7 @@ namespace _20221205
 
 
     }
-    [Serializable]
+    
     public class BB : Thumb
     {
         [DataMember]
