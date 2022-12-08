@@ -226,11 +226,10 @@ namespace _20221205
         {
             DataContext = this;
 
-            FrameworkElementFactory canvas = new(typeof(Canvas));
-
+            FrameworkElementFactory panel = new(typeof(Canvas));
             FrameworkElementFactory elem = new(typeof(ItemsControl));
             elem.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
-            elem.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
+            elem.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
             Template = new() { VisualTree = elem };
         }
     }
