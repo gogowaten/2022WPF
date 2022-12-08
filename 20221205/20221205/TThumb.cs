@@ -17,6 +17,7 @@ using System.Text.Json.Serialization;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using Microsoft.Windows.Themes;
+using System.Collections.ObjectModel;
 
 namespace _20221205
 {
@@ -154,6 +155,7 @@ namespace _20221205
         }
     }
 
+    //依存プロパティとDataの両方所持
     public class AAA : Thumb
     {
         public DDTextBlock MyData { get; set; } = new();
@@ -163,7 +165,7 @@ namespace _20221205
 
             FrameworkElementFactory elem = new(typeof(TextBlock));
 
-            elem.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyText)) { Source = this});
+            elem.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyText)) { Source = this });
 
             Template = new() { VisualTree = elem };
 
@@ -173,6 +175,7 @@ namespace _20221205
         public AAA(DDTextBlock data) : this()
         {
             MyData = data;
+            DataContext = MyData;
 
         }
 
@@ -186,6 +189,50 @@ namespace _20221205
 
     }
 
+    //依存プロパティだけの所持
+    public class BBB : Thumb
+    {
 
+        public BBB()
+        {
+            DataContext = this;
+
+            FrameworkElementFactory elem = new(typeof(TextBlock));
+
+            elem.SetBinding(TextBlock.TextProperty, new Binding(nameof(MyText)));
+
+            Template = new() { VisualTree = elem };
+        }
+
+        public BBB(DDTextBlock data) : this()
+        {
+            MyText = data.Text;
+        }
+
+        public string MyText
+        {
+            get { return (string)GetValue(MyTextProperty); }
+            set { SetValue(MyTextProperty, value); }
+        }
+        public static readonly DependencyProperty MyTextProperty =
+            DependencyProperty.Register(nameof(MyText), typeof(string), typeof(BBB), new PropertyMetadata("MyText"));
+
+    }
+
+    public class GBBB : Thumb
+    {
+        public ObservableCollection<BBB> Children { get; set; } = new();
+        public GBBB()
+        {
+            DataContext = this;
+
+            FrameworkElementFactory canvas = new(typeof(Canvas));
+
+            FrameworkElementFactory elem = new(typeof(ItemsControl));
+            elem.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
+            elem.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(canvas));
+            Template = new() { VisualTree = elem };
+        }
+    }
 
 }

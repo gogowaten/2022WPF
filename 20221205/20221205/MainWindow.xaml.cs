@@ -37,6 +37,7 @@ namespace _20221205
 
             //Test1();
             //TestSerial();
+            TestGBBB();
 
         }
         private void Test1()
@@ -108,6 +109,43 @@ namespace _20221205
             neko = MyAAA.MyText;
             inu = MyAAA.MyData.Text;
 
+            DDTextBlock aData = new() { Text = "saisyo" };
+
+            AAA a = new(aData);
+            MyCanvas.Children.Add(a);
+            neko = a.MyData.Text;
+            inu = a.MyText;
+            a.MyData.Text = "datakakikae";
+            neko = a.MyData.Text;
+            inu = a.MyText;
+
+            a.MyText = "mytextkakikae";
+            neko = a.MyData.Text;
+            inu = a.MyText;
+
+            aData.Text = "BBBDAta";
+            BBB b=new(aData);
+            Canvas.SetLeft(b, 10);Canvas.SetTop(b, 150);
+            MyCanvas.Children.Add(b);
+        }
+        private void TestGBBB()
+        {
+            GBBB group = new();
+            BBB bbb = new() { MyText = "BBBBB" };
+            Canvas.SetLeft(bbb, 0);Canvas.SetTop(bbb, 0);
+            bbb.DragDelta += Bbb_DragDelta;
+            group.Children.Add(bbb);
+            MyCanvas.Children.Add(group);
+            
+        }
+
+        private void Bbb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if(sender is BBB b)
+            {
+                Canvas.SetLeft(b,Canvas.GetLeft(b)+e.HorizontalChange);
+                Canvas.SetTop(b,Canvas.GetTop(b)+e.VerticalChange);
+            }
         }
     }
 
