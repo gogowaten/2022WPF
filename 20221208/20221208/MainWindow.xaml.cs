@@ -20,6 +20,7 @@ namespace _20221208
     /// </summary>
     public partial class MainWindow : Window
     {
+        TTTextBlock MyTTT;
         public MainWindow()
         {
             InitializeComponent();
@@ -27,7 +28,12 @@ namespace _20221208
         }
         private void Test1()
         {
-            
+            MyTTT = new TTTextBlock() { X = 100, Y = 100, Text = "MyTTT", FontColor = Brushes.Gold, FontSize = 30 };
+            MyTTT.DragDelta += TT_DragDelta;
+            MyCanvas.Children.Add(MyTTT);
+            Data data = new() { Width= 100, Height = 100 ,BackColor = Brushes.Blue};
+            TTRectangle rr= new TTRectangle(data);
+            MyCanvas.Children.Add(rr);
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
@@ -40,7 +46,7 @@ namespace _20221208
 
         private void TT_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
-            if(sender is TThumb tt)
+            if (sender is TThumb tt)
             {
                 Canvas.SetLeft(tt, tt.X + e.HorizontalChange);
                 Canvas.SetTop(tt, tt.Y + e.VerticalChange);
