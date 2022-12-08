@@ -23,6 +23,28 @@ namespace _20221208
         public MainWindow()
         {
             InitializeComponent();
+            Test1();
+        }
+        private void Test1()
+        {
+            
+        }
+
+        private void Button1_Click(object sender, RoutedEventArgs e)
+        {
+            var neko = MyRectangle.X;
+            var inu = Canvas.GetLeft(MyRectangle);
+            inu = Canvas.GetLeft(MyTextBlock);
+            neko = MyTextBlock.X;
+        }
+
+        private void TT_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if(sender is TThumb tt)
+            {
+                Canvas.SetLeft(tt, tt.X + e.HorizontalChange);
+                Canvas.SetTop(tt, tt.Y + e.VerticalChange);
+            }
         }
     }
 }

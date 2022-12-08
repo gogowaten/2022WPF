@@ -5,8 +5,14 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221208"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+        Title="MainWindow" Height="450" Width="600">
+  <Grid>
+    <Canvas Name="MyCanvas">
+      <local:TTTextBlock x:Name="MyTextBlock" Text="TTTXAML" FontSize="20" Y="50" X="50" Z="2"
+                         DragDelta="TT_DragDelta"/>
+      <local:TTRectangle x:Name="MyRectangle" Fill="Pink" Width="100" Height="50" X="20" Y="50" Z="0"
+                         DragDelta="TT_DragDelta"/>
+      <Button Name="Button1" Content="kakunin" Click="Button1_Click" Canvas.Left="200"/>
+    </Canvas>
+  </Grid>
 </Window>
