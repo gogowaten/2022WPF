@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Runtime.Serialization;
 using static System.Net.Mime.MediaTypeNames;
 using System.Windows.Shapes;
+using System.Collections.ObjectModel;
 
 namespace _20221208
 {
@@ -66,22 +67,28 @@ namespace _20221208
         public TThumb()
         {
             DataContext = this;
-            SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });
+            //Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
+            SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });            
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
-
+            DragDelta += TThumb_DragDelta;
         }
+
+        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            X += e.HorizontalChange;Y += e.VerticalChange;
+        }
+
         protected abstract void SetData(Data data);
         public TThumb(Data data) : this()
         {
             SetData(data);
         }
     }
-    public interface ISetData
-    {
-        //public Data Data { get; set; }
-        public void SetData(Data data);
-    }
+    //public interface ISetData
+    //{
+    //    public void SetData(Data data);
+    //}
     public class TTTextBlock : TThumb
     {
         #region 依存プロパティ
@@ -102,6 +109,15 @@ namespace _20221208
         public static readonly DependencyProperty FontColorProperty =
             DependencyProperty.Register(nameof(FontColor), typeof(Brush), typeof(TTTextBlock), new PropertyMetadata(Brushes.Black));
 
+
+        public Brush BackColor
+        {
+            get { return (Brush)GetValue(BackColorProperty); }
+            set { SetValue(BackColorProperty, value); }
+        }
+        public static readonly DependencyProperty BackColorProperty =
+            DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock), new PropertyMetadata(Brushes.Snow));
+
         #endregion
 
         public TTTextBlock()
@@ -109,7 +125,7 @@ namespace _20221208
             FrameworkElementFactory elem = new(typeof(TextBlock));
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
-
+            elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
             this.Template = new() { VisualTree = elem };
 
         }
@@ -118,6 +134,7 @@ namespace _20221208
         {
             Text = data.Text;
             FontColor = data.ForeColor ?? Brushes.Black;
+            BackColor = data.BackColor ?? Brushes.Transparent;
             FontSize = data.FontSize;
         }
     }
@@ -133,6 +150,18 @@ namespace _20221208
         }
         public static readonly DependencyProperty FillProperty =
             DependencyProperty.Register(nameof(Fill), typeof(Brush), typeof(TTRectangle), new PropertyMetadata(Brushes.Red));
+
+        //public Brush FillBrush
+        //{
+        //    get { return (Brush)GetValue(FillBrushProperty); }
+        //    set { SetValue(FillBrushProperty, value); }
+        //}
+        //public static readonly DependencyProperty FillBrushProperty =
+        //    DependencyProperty.Register(nameof(FillBrush), typeof(Brush), typeof(TTRectangle),
+        //        new FrameworkPropertyMetadata(Brushes.Red,
+        //            FrameworkPropertyMetadataOptions.AffectsRender |
+        //            FrameworkPropertyMetadataOptions.AffectsMeasure));
+
 
         public double ShapeWidth
         {
@@ -155,8 +184,9 @@ namespace _20221208
 
         public TTRectangle()
         {
-            FrameworkElementFactory elem = new(typeof(Rectangle));
-            elem.SetValue(Shape.FillProperty, new Binding(nameof(Fill)));
+            //DataContext = this;
+            FrameworkElementFactory elem = new(typeof(Rectangle));            
+            elem.SetValue(Shape.FillProperty, new Binding(nameof(Fill)));            
             elem.SetValue(WidthProperty, new Binding(nameof(ShapeWidth)));
             elem.SetValue(HeightProperty, new Binding(nameof(ShapeHeight)));
             this.Template = new() { VisualTree = elem };
@@ -168,14 +198,54 @@ namespace _20221208
         }
         protected override void SetData(Data data)
         {
-            Fill = data.BackColor ?? Brushes.Red;
-            ShapeWidth = data.Width; ShapeHeight = data.Height;
+            //Fill = data.BackColor ?? Brushes.Red;
+            //ShapeWidth = data.Width; ShapeHeight = data.Height;
         }
     }
 
-    [System.AttributeUsage(System.AttributeTargets.Property)]
-    public class Req : Attribute
+    public class TTGroup : TThumb
     {
-
+        public ObservableCollection<TThumb> Children { get; protected set; } = new();
+        public TTGroup()
+        {
+            FrameworkElementFactory panel = new(typeof(Canvas));
+            FrameworkElementFactory ic = new(typeof(ItemsControl));
+            ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
+            ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
+            this.Template = new() { VisualTree = ic };
+        }
+        public TTGroup(Data data) : this()
+        {
+            SetData(data);
+        }
+        protected override void SetData(Data data)
+        {
+            if (data.Datas != null)
+            {
+                foreach (var item in data.Datas)
+                {
+                    Add(item);
+                }
+            }
+        }
+        private void Add(Data data)
+        {
+            switch (data.Type)
+            {
+                case TType.TextBlock:
+                    Children.Add(new TTTextBlock(data));
+                    break;
+                case TType.Rectangle:
+                    Children.Add(new TTRectangle(data));
+                    break;
+                case TType.Group:
+                    Children.Add(new TTGroup(data));
+                    break;
+                default:
+                    break;
+            }
+        }
+        public void Add(TThumb thumb) { Children.Add(thumb); }
     }
+
 }

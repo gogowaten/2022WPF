@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,20 +21,53 @@ namespace _20221208
     /// </summary>
     public partial class MainWindow : Window
     {
-        TTTextBlock MyTTT;
+        TTTextBlock? MyTTT;
         public MainWindow()
         {
             InitializeComponent();
-            Test1();
+            //GroupDataAdd();
+            //Test1();
+            ItemAddFromData();
+            ItemAddFromItem();
+        }
+        private IEnumerable<Data> MakeTextDatas2(int count, string text, Brush color, double size)
+        {
+            return Enumerable.Range(0, count).Select(a => new Data(TType.TextBlock)
+            { Text = text + a, ForeColor = color, FontSize = size, X = a * 10, Y = a * 10 });
+        }
+        private void GroupDataAdd()
+        {
+            var neko = MakeTextDatas2(3, "neko", Brushes.Red, 30);
+            Data gData = new(TType.Group) { Datas = new ObservableCollection<Data>(neko) };
+            var gt = new TTGroup(gData);
+            MyCanvas.Children.Add(gt);
+        }
+        private void ItemAddFromData()
+        {
+            Data data = new(TType.TextBlock) { Text = nameof(ItemAddFromData), X = 30, Y = 30, ForeColor = Brushes.MediumAquamarine, FontSize = 30 };
+            TTTextBlock text = new(data);
+            MyCanvas.Children.Add(text);
+            data = new(TType.Rectangle) { BackColor = Brushes.MediumPurple, Width = 100, Height = 30, X = 50, Y = 200 };
+            TTRectangle rect = new(data);
+            MyCanvas.Children.Add(rect);
+
+        }
+        private void ItemAddFromItem()
+        {            
+            TTTextBlock text = new() { Text = nameof(ItemAddFromItem), X = 30, Y = 50, FontColor = Brushes.MediumOrchid, FontSize = 30 };
+            MyCanvas.Children.Add(text);
+            TTRectangle rect = new() { Fill = Brushes.Lime, Width = 100, Height = 30, X = 50, Y = 200 };
+            MyCanvas.Children.Add(rect);
         }
         private void Test1()
         {
             MyTTT = new TTTextBlock() { X = 100, Y = 100, Text = "MyTTT", FontColor = Brushes.Gold, FontSize = 30 };
-            MyTTT.DragDelta += TT_DragDelta;
+            //MyTTT.DragDelta += TT_DragDelta;
             MyCanvas.Children.Add(MyTTT);
-            Data data = new() { Width= 100, Height = 100 ,BackColor = Brushes.Blue};
-            TTRectangle rr= new TTRectangle(data);
+            Data data = new(TType.Rectangle) { Width = 100, Height = 100, BackColor = Brushes.Blue, X = 200, Y = 50 };
+            TTRectangle rr = new(data);
             MyCanvas.Children.Add(rr);
+
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)

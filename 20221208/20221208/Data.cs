@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,8 +8,12 @@ using System.Windows.Media;
 
 namespace _20221208
 {
-   public class Data
+    public enum TType { TextBlock = 0, Rectangle, Group, }
+    public class Data
     {
+        public Data(TType type) { Type = type; }
+        public TType Type { get;private set; }
+        public ObservableCollection<Data>? Datas { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
         public int Z { get; set; }
