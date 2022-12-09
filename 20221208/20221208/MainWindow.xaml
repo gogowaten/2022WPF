@@ -8,10 +8,11 @@
         Title="MainWindow" Height="450" Width="600">
   <Grid>
     <Canvas Name="MyCanvas">
-      <local:TTTextBlock x:Name="MyTextBlock" Text="TTTXAML" FontSize="20" Y="50" X="50" Z="2"
+      <local:TTTextBlock x:Name="MyTextBlock" Text="TTTXAML" FontSize="20" Y="50" X="250" Z="0"
                          BackColor="Aqua" FontColor="Magenta"/>
-      <local:TTRectangle x:Name="MyRectangle" Fill="Blue" Width="100" Height="50" X="20" Y="50" Z="0"
+      <local:TTRectangle x:Name="MyRectangle" Fill="Blue" Width="10" Height="200" X="50" Y="50" Z="0"
                          />
+      
       <Button Name="Button1" Content="kakunin" Click="Button1_Click" Canvas.Left="300"/>
     </Canvas>
   </Grid>

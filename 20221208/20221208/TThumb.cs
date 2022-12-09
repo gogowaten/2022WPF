@@ -66,9 +66,10 @@ namespace _20221208
         #endregion
         public TThumb()
         {
-            DataContext = this;
+
             //Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
-            SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });            
+            DataContext = this;
+            SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
             DragDelta += TThumb_DragDelta;
@@ -76,19 +77,22 @@ namespace _20221208
 
         private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            X += e.HorizontalChange;Y += e.VerticalChange;
+            X += e.HorizontalChange; Y += e.VerticalChange;
         }
 
-        protected abstract void SetData(Data data);
+        protected virtual void SetData(Data data)
+        {
+            X = data.X; Y = data.Y; Z = data.Z;
+            if (string.IsNullOrEmpty(Name) && string.IsNullOrEmpty(data.Name) == false)
+                Name = data.Name;
+        }
+
         public TThumb(Data data) : this()
         {
             SetData(data);
         }
     }
-    //public interface ISetData
-    //{
-    //    public void SetData(Data data);
-    //}
+
     public class TTTextBlock : TThumb
     {
         #region 依存プロパティ
@@ -136,7 +140,9 @@ namespace _20221208
             FontColor = data.ForeColor ?? Brushes.Black;
             BackColor = data.BackColor ?? Brushes.Transparent;
             FontSize = data.FontSize;
+            base.SetData(data);
         }
+
     }
 
     public class TTRectangle : TThumb
@@ -151,44 +157,18 @@ namespace _20221208
         public static readonly DependencyProperty FillProperty =
             DependencyProperty.Register(nameof(Fill), typeof(Brush), typeof(TTRectangle), new PropertyMetadata(Brushes.Red));
 
-        //public Brush FillBrush
-        //{
-        //    get { return (Brush)GetValue(FillBrushProperty); }
-        //    set { SetValue(FillBrushProperty, value); }
-        //}
-        //public static readonly DependencyProperty FillBrushProperty =
-        //    DependencyProperty.Register(nameof(FillBrush), typeof(Brush), typeof(TTRectangle),
-        //        new FrameworkPropertyMetadata(Brushes.Red,
-        //            FrameworkPropertyMetadataOptions.AffectsRender |
-        //            FrameworkPropertyMetadataOptions.AffectsMeasure));
-
-
-        public double ShapeWidth
-        {
-            get { return (double)GetValue(ShapeWidthProperty); }
-            set { SetValue(ShapeWidthProperty, value); }
-        }
-        public static readonly DependencyProperty ShapeWidthProperty =
-            DependencyProperty.Register(nameof(ShapeWidth), typeof(double), typeof(TTRectangle), new PropertyMetadata(0.0));
-
-        public double ShapeHeight
-        {
-            get { return (double)GetValue(ShapeHeightProperty); }
-            set { SetValue(ShapeHeightProperty, value); }
-        }
-        public static readonly DependencyProperty ShapeHeightProperty =
-            DependencyProperty.Register(nameof(ShapeHeight), typeof(double), typeof(TTRectangle), new PropertyMetadata(0.0));
-
 
         #endregion 依存プロパティ
 
         public TTRectangle()
         {
-            //DataContext = this;
-            FrameworkElementFactory elem = new(typeof(Rectangle));            
-            elem.SetValue(Shape.FillProperty, new Binding(nameof(Fill)));            
-            elem.SetValue(WidthProperty, new Binding(nameof(ShapeWidth)));
-            elem.SetValue(HeightProperty, new Binding(nameof(ShapeHeight)));
+            //Canvas.SetLeft(this,100);Canvas.SetTop(this,0);
+            FrameworkElementFactory elem = new(typeof(Rectangle));
+            elem.SetValue(Shape.FillProperty, new Binding(nameof(Fill)));
+            elem.SetValue(Rectangle.WidthProperty, new Binding(nameof(Width)));
+            elem.SetValue(Rectangle.HeightProperty, new Binding(nameof(Height)));
+            //elem.SetValue(Rectangle.FillProperty, new Binding(nameof(Fill)));
+
             this.Template = new() { VisualTree = elem };
 
         }
@@ -198,8 +178,10 @@ namespace _20221208
         }
         protected override void SetData(Data data)
         {
-            //Fill = data.BackColor ?? Brushes.Red;
-            //ShapeWidth = data.Width; ShapeHeight = data.Height;
+            Fill = data.BackColor ?? Brushes.Red;
+            Width = data.Width;
+            Height = data.Height;
+            base.SetData(data);
         }
     }
 
