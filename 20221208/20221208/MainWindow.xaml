@@ -14,6 +14,7 @@
                          />
       
       <Button Name="Button1" Content="kakunin" Click="Button1_Click" Canvas.Left="300"/>
+      <local:TTGroup x:Name="MyRootGroup"/>
     </Canvas>
   </Grid>
 </Window>

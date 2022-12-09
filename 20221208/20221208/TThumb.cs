@@ -12,10 +12,11 @@ using System.Runtime.Serialization;
 using static System.Net.Mime.MediaTypeNames;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace _20221208
 {
-    public abstract class TThumb : Thumb
+    public class TThumb : Thumb
     {
         #region 依存プロパティ
 
@@ -64,20 +65,14 @@ namespace _20221208
 
 
         #endregion
+        public TTGroup? ParentThumb { get; internal set; }
         public TThumb()
         {
-
-            //Canvas.SetLeft(this, 0); Canvas.SetTop(this, 0);
             DataContext = this;
             SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
-            DragDelta += TThumb_DragDelta;
-        }
 
-        private void TThumb_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            X += e.HorizontalChange; Y += e.VerticalChange;
         }
 
         protected virtual void SetData(Data data)
@@ -195,7 +190,34 @@ namespace _20221208
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
             this.Template = new() { VisualTree = ic };
+            Children.CollectionChanged += Children_CollectionChanged;
         }
+
+        private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            var neko = (ObservableCollection<TThumb>?)sender;
+
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    var uma = e.NewItems?[0];
+                    TThumb? t = (TThumb?)neko?[0];
+                    var inu = t?.Name;
+                    if (t != null) { t.ParentThumb = this; }
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    break;
+                case NotifyCollectionChangedAction.Replace:
+                    break;
+                case NotifyCollectionChangedAction.Move:
+                    break;
+                case NotifyCollectionChangedAction.Reset:
+                    break;
+                default:
+                    break;
+            }
+        }
+
         public TTGroup(Data data) : this()
         {
             SetData(data);

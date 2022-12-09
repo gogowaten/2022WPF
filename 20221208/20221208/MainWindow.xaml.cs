@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -22,35 +23,75 @@ namespace _20221208
     public partial class MainWindow : Window
     {
         TTTextBlock? MyTTT;
+
         public MainWindow()
         {
             InitializeComponent();
 
             //GroupDataAdd();
             //Test1();
-            ItemAddFromData();
+            //ItemAddFromData();
             //ItemAddFromItem();
+
+            TTGroup group = MakeTextGroup();
+            foreach (var item in group.Children)
+            {
+                item.DragDelta += A_DragDelta;
+
+                item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
+            }
+            MyRootGroup.Add(group);
         }
+
+        private void Item_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not TThumb tt) return;
+            var neko = tt.Name;
+            var inu = tt.Parent;
+            var uma = tt.ParentThumb?.Name;
+        }
+
+        private void A_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is TThumb tt)
+            {
+                tt.X += e.HorizontalChange; tt.Y += e.VerticalChange;
+            }
+        }
+
         private IEnumerable<Data> MakeTextDatas2(int count, string text, Brush color, double size)
         {
             return Enumerable.Range(0, count).Select(a => new Data(TType.TextBlock)
-            { Text = text + a, ForeColor = color, FontSize = size, X = a * 10, Y = a * 10 });
+            { Text = text + a, ForeColor = color, FontSize = size, X = a * 10, Y = a * 10, Name = text + a });
         }
-        private void GroupDataAdd()
+        private TTGroup MakeTextGroup()
         {
             var neko = MakeTextDatas2(3, "neko", Brushes.Red, 30);
             Data gData = new(TType.Group) { Datas = new ObservableCollection<Data>(neko) };
-            var gt = new TTGroup(gData);
-            MyCanvas.Children.Add(gt);
+            return new TTGroup(gData);
         }
         private void ItemAddFromData()
         {
-            Data data = new(TType.TextBlock) { Name = nameof(ItemAddFromData) + "text",
-                Text = nameof(ItemAddFromData), X = 30, Y = 30, ForeColor = Brushes.MediumAquamarine, FontSize = 30 };
+            Data data = new(TType.TextBlock)
+            {
+                Name = nameof(ItemAddFromData) + "text",
+                Text = nameof(ItemAddFromData),
+                X = 30,
+                Y = 30,
+                ForeColor = Brushes.MediumAquamarine,
+                FontSize = 30
+            };
             TTTextBlock text = new(data);
             MyCanvas.Children.Add(text);
-            data = new(TType.Rectangle) { Name = nameof(ItemAddFromData) + "rect",
-                BackColor = Brushes.MediumPurple, Width = 20, Height = 300, X = 50, Y = 200 };
+            data = new(TType.Rectangle)
+            {
+                Name = nameof(ItemAddFromData) + "rect",
+                BackColor = Brushes.MediumPurple,
+                Width = 20,
+                Height = 300,
+                X = 50,
+                Y = 200
+            };
             TTRectangle rect = new(data);
             MyCanvas.Children.Add(rect);
 
