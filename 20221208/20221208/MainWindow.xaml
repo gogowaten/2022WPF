@@ -12,7 +12,6 @@
                          BackColor="Aqua" FontColor="Magenta"/>
       <local:TTRectangle x:Name="MyRectangle" Fill="Blue" Width="10" Height="200" X="50" Y="50" Z="0"
                          />
-      
       <Button Name="Button1" Content="kakunin" Click="Button1_Click" Canvas.Left="300"/>
       <local:TTGroup x:Name="MyRootGroup"/>
     </Canvas>

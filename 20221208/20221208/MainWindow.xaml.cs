@@ -39,8 +39,14 @@ namespace _20221208
                 item.DragDelta += A_DragDelta;
 
                 item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
+                item.PreviewMouseDown += Item_PreviewMouseDown;
             }
             MyRootGroup.Add(group);
+        }
+
+        private void Item_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            
         }
 
         private void Item_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

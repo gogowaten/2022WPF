@@ -195,26 +195,25 @@ namespace _20221208
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            var neko = (ObservableCollection<TThumb>?)sender;
-
-            switch (e.Action)
+            if (e.NewItems?[0] is TThumb tt)
             {
-                case NotifyCollectionChangedAction.Add:
-                    var uma = e.NewItems?[0];
-                    TThumb? t = (TThumb?)neko?[0];
-                    var inu = t?.Name;
-                    if (t != null) { t.ParentThumb = this; }
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    break;
-                case NotifyCollectionChangedAction.Replace:
-                    break;
-                case NotifyCollectionChangedAction.Move:
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    break;
-                default:
-                    break;
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        tt.ParentThumb = this;
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        tt.ParentThumb = null;
+                        break;
+                    case NotifyCollectionChangedAction.Replace:
+                        break;
+                    case NotifyCollectionChangedAction.Move:
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        break;
+                    default:
+                        break;
+                }
             }
         }
 
