@@ -72,7 +72,7 @@ namespace _20221208
             SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
-
+            SetBinding(NameProperty, new Binding(nameof(Name)) { Mode = BindingMode.TwoWay });
         }
 
         protected virtual void SetData(Data data)
