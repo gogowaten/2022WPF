@@ -23,20 +23,29 @@ namespace _20221210_Thumb継承したItem候補
         public MainWindow()
         {
             InitializeComponent();
-            MyCanvas.Children.Add(new TTTextBlock(new Data(TType.TextBlock)
+            MyCanvas.Children.Add(new TTTextBlock(new TextBlockData()
             {
                 Text = "アプリ起動時に追加したもの",
                 FontSize = 20,
-                BackColor = Brushes.MediumOrchid,
+                BackColorBrush = Brushes.MediumOrchid,
+                FontColorBrush = Brushes.White,
                 //Font = new FontFamily("Meiryo UI"),
-                //Font = new FontFamily("ＭＳ 明朝"),
-                X= 30,Y= 50
+                Font = new FontFamily("ＭＳ 明朝"),
+                X = 30,
+                Y = 50
             }));
+            MyCanvas.Children.Add(new TTPolyline(new PolylineData()
+            {
+                Points = new PointCollection(new List<Point>() { new(100, 100), new(110, 200), new(200, 200) }),
+                LineColorBrush = Brushes.BlueViolet,
+                Thickness = 20,
+            }));
+            TTTextBlock tb=new TTTextBlock(,)
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-           var ps = MyPolyline.Points;
+            var ps = MyPolyline.Points;
             ps[0] = new Point(10, 300);
         }
     }

@@ -156,15 +156,19 @@ namespace _20221210_Thumb継承したItem候補
         }
         public TTTextBlock(Data data) : this() { SetData(data); }
         protected override void SetData(Data data)
+        {            
+            if(data is TextBlockData td) { SetData(td); }
+            else { throw new ArgumentException(); }
+        }
+        public override void SetData(TextBlockData data)
         {
             Text = data.Text;
-            FontColor = data.ForeColor ?? Brushes.Black;
-            BackColor = data.BackColor ?? Brushes.Transparent;
+            FontColor = data.FontColorBrush ?? Brushes.Black;
+            BackColor = data.BackColorBrush ?? Brushes.Transparent;
             if (data.FontSize > 0.0) FontSize = data.FontSize;
             Font = data.Font;// ?? this.Font;
             base.SetData(data);
         }
-
 
     }
 
@@ -243,6 +247,10 @@ namespace _20221210_Thumb継承したItem候補
             elem.SetValue(Polyline.StrokeProperty, new Binding(nameof(LineColor)));
             elem.SetValue(Polyline.StrokeThicknessProperty, new Binding(nameof(LineThickness)));
             this.Template = new() { VisualTree = elem };
+        }
+        public TTPolyline(Data data) : this()
+        {
+            SetData(data);
         }
         protected override void SetData(Data data)
         {
