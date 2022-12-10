@@ -6,7 +6,11 @@
         xmlns:local="clr-namespace:_20221210_Thumb継承したItem候補"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+  <Grid>
+    <Canvas Name="MyCanvas">
+      <local:TTTextBlock Text="ThumbTest" FontSize="20" BackColor="Orange" X="150" Y="20"/>
+      <local:TTPolyline x:Name="MyPolyline" Points="10,10 30,100 100,20" LineColor="Red" LineThickness="3"/>
+      <Button Name="Button1" Content="test1" Click="Button1_Click" Canvas.Left="300"/>
+    </Canvas>
+  </Grid>
 </Window>

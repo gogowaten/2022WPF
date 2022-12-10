@@ -11,10 +11,13 @@ namespace _20221208
     public enum TType { TextBlock = 0, Rectangle, Group, }
     public class Data
     {
-        public Data(TType type) { Type = type; }
-        public TType Type { get;private set; }
+        public Data(TType type)
+        {
+            Type = type;
+        }
+        public TType Type { get; private set; }
         public ObservableCollection<Data>? Datas { get; set; }
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
         public int Z { get; set; }
