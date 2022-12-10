@@ -16,7 +16,7 @@ using System.Collections.Specialized;
 
 namespace _20221208
 {
-    public class TThumb : Thumb
+    public abstract class TThumb : Thumb
     {
         #region 依存プロパティ
 
