@@ -34,7 +34,7 @@ namespace _20220409CanvasSample
             {
                 new PathItem { X = 50, Y = 50, Width = 50, Height = 50, Stroke = Brushes.Red, Data = "M0,25L25,50L50,25L25,0Z", },
                 new EllipseItem { X = 200, Y = 50, Width = 50, Height = 100, Fill = Brushes.Green, },
-                new ImageItem { X = 50, Y = 200, Width = 32, Height = 32, Source = new BitmapImage(new Uri("https://teratail-v2.storage.googleapis.com/uploads/avatars/u13/132786/KnkDDC5A_thumbnail_32x32.jpg")), },
+                new ImageItem { X = 50, Y = 200, Width = 128, Height = 128, Source = new BitmapImage(new Uri("D:\\ブログ用\\テスト用画像\\collection2.png")), },
                 new RectangleItem { X = 200, Y = 200, Width = 100, Height = 50, Fill = Brushes.Blue, },
                 new RichTextBoxItem { X = 400, Y = 50, Width = 300, Height = 300, Text = "RichTextBoxItem" },
             };

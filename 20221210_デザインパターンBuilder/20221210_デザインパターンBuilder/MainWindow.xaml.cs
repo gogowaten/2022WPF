@@ -16,6 +16,8 @@ using System.Windows.Shapes;
 //Builder
 //https://refactoring.guru/ja/design-patterns/builder
 
+//なんか違う、これじゃないみたい
+
 namespace _20221210_デザインパターンBuilder
 {
     /// <summary>
@@ -31,9 +33,14 @@ namespace _20221210_デザインパターンBuilder
 
     public class Director
     {
-        public Director()
+        private Builder Builder;
+        public Director(Builder builder)
         {
-
+            this.Builder = builder;
+        }
+        public void Create()
+        {
+            Builder.SetFillBrush(Brushes.Red);
         }
 
     }
@@ -41,29 +48,27 @@ namespace _20221210_デザインパターンBuilder
     {
         void Reset();
         void SetFillBrush(Brush fillBrush);
-        void GetProduct();
+        //void GetProduct();
     }
     public class RectangleBuilder : Builder
     {
-        private MyRectangle _rectangle = new();
+        public MyRectangle Product { get; private set; }
         public RectangleBuilder()
         {
+            Product = new MyRectangle();
             Reset();
         }
 
-        public void GetProduct()
-        {
-            
-        }
-
+        //public MyRectangle GetProduct { get; }
+        
         public void Reset()
         {
-            _rectangle = new MyRectangle();
+            Product = new();
         }
 
         public void SetFillBrush(Brush fillBrush)
         {
-            _rectangle.FillBrush = fillBrush;
+            Product.FillBrush = fillBrush;
         }
     }
     public class EllipseBuilder : Builder
