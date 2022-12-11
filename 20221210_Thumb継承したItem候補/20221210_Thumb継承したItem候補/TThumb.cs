@@ -247,7 +247,6 @@ namespace _20221210_Thumb継承したItem候補
         {
             FrameworkElementFactory elem = new(typeof(Polyline));
             elem.SetValue(Polyline.PointsProperty, new Binding(nameof(Points)));
-            //elem.SetValue(Polyline.FillProperty, new Binding(nameof(LineColor)));
             elem.SetValue(Polyline.StrokeProperty, new Binding(nameof(LineColor)));
             elem.SetValue(Polyline.StrokeThicknessProperty, new Binding(nameof(LineThickness)));
             this.Template = new() { VisualTree = elem };
@@ -258,15 +257,16 @@ namespace _20221210_Thumb継承したItem候補
         }
         protected override void SetData(Data data)
         {
-            if (data is PolylineData dd) { base.SetData(data); SetData(dd); }
-            else { throw new ArgumentException(nameof(data)); }
+            if (data is not PolylineData dd) throw new ArgumentException();
+            else
+            {
+                base.SetData(data);
+                Points ??= dd.Points ?? new();
+                LineColor = dd.LineColorBrush ?? Brushes.Orange;
+                if (dd.Thickness > 0.0) { LineThickness = dd.Thickness; }
+            }
         }
-        private void SetData(PolylineData data)
-        {
-            Points ??= data.Points ?? new();
-            LineColor = data.LineColorBrush ?? Brushes.Orange;
-            if (data.Thickness > 0.0) { LineThickness = data.Thickness; }
-        }
+
     }
 
 }

@@ -13,9 +13,11 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 
 namespace _20221208
 {
+
     public abstract class TThumb : Thumb
     {
         #region 依存プロパティ
@@ -64,30 +66,48 @@ namespace _20221208
                     FrameworkPropertyMetadataOptions.AffectsMeasure));
 
 
-        public string ZName
+        public string MyName
         {
             get { return (string)GetValue(ZNameProperty); }
             set { SetValue(ZNameProperty, value); }
         }
         public static readonly DependencyProperty ZNameProperty =
-            DependencyProperty.Register(nameof(ZName), typeof(string), typeof(TThumb), new PropertyMetadata(""));
+            DependencyProperty.Register(nameof(MyName), typeof(string), typeof(TThumb), new PropertyMetadata(""));
 
         #endregion
         public TTGroup? ParentThumb { get; internal set; }
+        public TTGroup? RootThumb { get; internal set; }
         public TThumb()
         {
             DataContext = this;
             SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
-            SetBinding(NameProperty, new Binding(nameof(ZName)) { Mode = BindingMode.TwoWay });
+            SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
+            PreviewMouseLeftButtonDown += TThumb_PreviewMouseLeftButtonDown;
+        }
+
+        private void TThumb_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            if (ParentThumb != null && RootThumb!=null)
+            {
+                if (this is TTGroup group)
+                {
+                    ParentThumb.ClickedItem = group.ClickedItem;
+                }
+                else
+                {
+                    ParentThumb.ClickedItem = this;
+
+                }
+            }
         }
 
         protected virtual void SetData(Data data)
         {
             X = data.X; Y = data.Y; Z = data.Z;
-            if (string.IsNullOrEmpty(ZName) && string.IsNullOrEmpty(data.Name) == false)
-                ZName = data.Name;
+            if (string.IsNullOrEmpty(MyName) && string.IsNullOrEmpty(data.MyName) == false)
+                MyName = data.MyName;
         }
 
         public TThumb(Data data) : this()
@@ -188,9 +208,12 @@ namespace _20221208
         }
     }
 
-    public class TTGroup : TThumb
+    public class TTGroup : TThumb, INotifyPropertyChanged
     {
         public ObservableCollection<TThumb> Children { get; protected set; } = new();
+
+        //public TThumb? ClickedItem { get; set; }
+
         public TTGroup()
         {
             FrameworkElementFactory panel = new(typeof(Canvas));
@@ -200,6 +223,19 @@ namespace _20221208
             this.Template = new() { VisualTree = ic };
             Children.CollectionChanged += Children_CollectionChanged;
         }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private TThumb? _clickedItem;
+        public TThumb? ClickedItem { get => _clickedItem; set => SetProperty(ref _clickedItem, value); }
+
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
@@ -227,6 +263,7 @@ namespace _20221208
 
         public TTGroup(Data data) : this()
         {
+            base.SetData(data);
             SetData(data);
         }
         protected override void SetData(Data data)

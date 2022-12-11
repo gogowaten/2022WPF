@@ -7,13 +7,27 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="600">
   <Grid>
-    <Canvas Name="MyCanvas">
+    <Grid.RowDefinitions>
+      <RowDefinition/>
+      <RowDefinition Height="150"/>
+    </Grid.RowDefinitions>
+    <Canvas Name="MyCanvas" Grid.Row="0">
       <local:TTTextBlock x:Name="MyTextBlock" Text="TTTXAML" FontSize="20" Y="50" X="250" Z="0"
                          BackColor="Aqua" FontColor="Magenta"/>
       <local:TTRectangle x:Name="MyRectangle" Fill="Blue" Width="10" Height="200" X="50" Y="50" Z="0"
                          />
-      <Button Name="Button1" Content="kakunin" Click="Button1_Click" Canvas.Left="300"/>
       <local:TTGroup x:Name="MyRootGroup"/>
     </Canvas>
+    <StackPanel Grid.Row="1">
+      <Button Name="Button1" Content="kakunin" Click="Button1_Click"/>      
+      <TextBlock Text="{Binding}"/>
+      <TextBlock Text="{Binding Name}"/>
+      <TextBlock Text="{Binding ClickedItem.Name}"/>
+      <TextBlock Text="{Binding ClickedItem.MyName}"/>
+      <TextBlock Text="{Binding ClickedItem.X}"/>
+      <TextBlock Text="{Binding ClickedItem.Y}"/>
+      <TextBlock DataContext="{Binding ClickedItem}" Text="{Binding Name}"/>
+      
+    </StackPanel>
   </Grid>
 </Window>

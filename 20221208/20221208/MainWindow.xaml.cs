@@ -23,38 +23,40 @@ namespace _20221208
     public partial class MainWindow : Window
     {
         TTTextBlock? MyTTT;
-
+        public TTGroup MainGroup { get; set; }
+        
         public MainWindow()
         {
             InitializeComponent();
-
             //GroupDataAdd();
             //Test1();
             //ItemAddFromData();
             //ItemAddFromItem();
 
-            TTGroup group = MakeTextGroup();
-            foreach (var item in group.Children)
+            
+            MainGroup = MakeTextGroup();
+            DataContext = MainGroup;
+            foreach (var item in MainGroup.Children)
             {
                 item.DragDelta += A_DragDelta;
 
                 item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
-                item.PreviewMouseDown += Item_PreviewMouseDown;
+
             }
-            MyRootGroup.Add(group);
+            MyRootGroup.Add(MainGroup);
         }
 
-        private void Item_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            
-        }
+
 
         private void Item_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is not TThumb tt) return;
-            var neko = tt.Name;
-            var inu = tt.Parent;
-            var uma = tt.ParentThumb?.Name;
+            var clickedName = tt.Name;            
+            var parentName = tt.ParentThumb?.Name;
+            var parent = tt.ParentThumb;
+
+            var neko = parent?.ParentThumb?.ClickedItem?.Name;
+            
         }
 
         private void A_DragDelta(object sender, DragDeltaEventArgs e)
@@ -68,19 +70,23 @@ namespace _20221208
         private IEnumerable<Data> MakeTextDatas2(int count, string text, Brush color, double size)
         {
             return Enumerable.Range(0, count).Select(a => new Data(TType.TextBlock)
-            { Text = text + a, ForeColor = color, FontSize = size, X = a * 10, Y = a * 10, Name = text + a });
+            { Text = text + a, ForeColor = color, FontSize = size, X = a * 10, Y = a * 10, MyName = text + a });
         }
         private TTGroup MakeTextGroup()
         {
             var neko = MakeTextDatas2(3, "neko", Brushes.Red, 30);
-            Data gData = new(TType.Group) { Datas = new ObservableCollection<Data>(neko) };
+            Data gData = new(TType.Group)
+            {
+                MyName = "Group",
+                Datas = new ObservableCollection<Data>(neko)
+            };
             return new TTGroup(gData);
         }
         private void ItemAddFromData()
         {
             Data data = new(TType.TextBlock)
             {
-                Name = nameof(ItemAddFromData) + "text",
+                MyName = nameof(ItemAddFromData) + "text",
                 Text = nameof(ItemAddFromData),
                 X = 30,
                 Y = 30,
@@ -91,7 +97,7 @@ namespace _20221208
             MyCanvas.Children.Add(text);
             data = new(TType.Rectangle)
             {
-                Name = nameof(ItemAddFromData) + "rect",
+                MyName = nameof(ItemAddFromData) + "rect",
                 BackColor = Brushes.MediumPurple,
                 Width = 20,
                 Height = 300,
@@ -114,7 +120,7 @@ namespace _20221208
             MyTTT = new TTTextBlock() { Name = nameof(Test1) + "text", X = 100, Y = 100, Text = "MyTTT", FontColor = Brushes.Gold, FontSize = 30 };
             //MyTTT.DragDelta += TT_DragDelta;
             MyCanvas.Children.Add(MyTTT);
-            Data data = new(TType.Rectangle) { Name = nameof(Test1) + "rect", Width = 100, Height = 100, BackColor = Brushes.Blue, X = 200, Y = 50 };
+            Data data = new(TType.Rectangle) { MyName = nameof(Test1) + "rect", Width = 100, Height = 100, BackColor = Brushes.Blue, X = 200, Y = 50 };
             TTRectangle rr = new(data);
             MyCanvas.Children.Add(rr);
 
@@ -122,11 +128,13 @@ namespace _20221208
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            var id = Guid.NewGuid();
+
             var neko = MyRectangle.X;
             var inu = Canvas.GetLeft(MyRectangle);
             inu = Canvas.GetLeft(MyTextBlock);
             neko = MyTextBlock.X;
+            
+
         }
 
         private void TT_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)

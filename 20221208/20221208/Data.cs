@@ -17,7 +17,7 @@ namespace _20221208
         }
         public TType Type { get; private set; }
         public ObservableCollection<Data>? Datas { get; set; }
-        public string? Name { get; set; }
+        public string MyName { get; set; } = "";
         public double X { get; set; }
         public double Y { get; set; }
         public int Z { get; set; }
@@ -27,5 +27,36 @@ namespace _20221208
         public double FontSize { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
+    }
+    public class Builder
+    {
+        private TThumb? Product { get; set; }
+        public Builder()
+        {
+            
+        }
+        public void Build(Data data)
+        {
+            switch (data.Type)
+            {
+                case TType.TextBlock:
+                    Product = new TTTextBlock()
+                    {
+                        Text = data.Text,
+                        X = data.X,
+                        Y = data.Y,
+                        Z = data.Z,
+                        FontColor = data.ForeColor ?? Brushes.Red,
+                    };
+                    break;
+                case TType.Rectangle:
+                    break;
+                case TType.Group:
+                    break;
+                default:
+                    break;
+            }
+        }
+        public TThumb? GetProduct() { return Product; }
     }
 }
