@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 //Canvasコントロールの子要素を動的に増減させたい
 //https://teratail.com/questions/359699
@@ -39,13 +40,32 @@ namespace _20220409CanvasSample
                 new RichTextBoxItem { X = 400, Y = 50, Width = 300, Height = 300, Text = "RichTextBoxItem" },
             };
         }
+
+        private void Button1_Click(object sender, RoutedEventArgs e)
+        {
+            Items[0].X += 10.0;//移動
+            //移動はできるけどマウスドラッグ移動はできない？
+        }
     }
-    public class Item
+    public class Item : INotifyPropertyChanged
     {
-        public double X { get; set; }
+        //public double X { get; set; }
         public double Y { get; set; }
         public double Width { get; set; }
         public double Height { get; set; }
+
+        #region 通知プロパティ
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        private double _x;
+        public double X { get => _x; set => SetProperty(ref _x, value); }
+        #endregion 通知プロパティ
+
     }
 
     public class PathItem : Item

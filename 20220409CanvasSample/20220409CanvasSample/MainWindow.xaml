@@ -56,5 +56,6 @@
         </Style>
       </ItemsControl.ItemContainerStyle>
     </ItemsControl>
+    <Button Name="Button1" Content="button1" Click="Button1_Click" Width="200" Height="20"/>
   </Grid>
 </Window>

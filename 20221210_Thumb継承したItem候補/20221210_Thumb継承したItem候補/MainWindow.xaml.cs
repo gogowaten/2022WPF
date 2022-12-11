@@ -23,6 +23,9 @@ namespace _20221210_Thumb継承したItem候補
         public MainWindow()
         {
             InitializeComponent();
+            TTTextBlock tb = new(new TextBlockData() { Text = "data", FontSize = 20, }); 
+            
+
             MyCanvas.Children.Add(new TTTextBlock(new TextBlockData()
             {
                 Text = "アプリ起動時に追加したもの",
@@ -40,7 +43,7 @@ namespace _20221210_Thumb継承したItem候補
                 LineColorBrush = Brushes.BlueViolet,
                 Thickness = 20,
             }));
-            TTTextBlock tb=new TTTextBlock(,)
+            
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)

@@ -156,18 +156,17 @@ namespace _20221210_Thumb継承したItem候補
         }
         public TTTextBlock(Data data) : this() { SetData(data); }
         protected override void SetData(Data data)
-        {            
-            if(data is TextBlockData td) { SetData(td); }
+        {
+            if (data is TextBlockData td) { base.SetData(data); SetData(td); }
             else { throw new ArgumentException(); }
         }
-        public override void SetData(TextBlockData data)
+        private void SetData(TextBlockData data)
         {
             Text = data.Text;
             FontColor = data.FontColorBrush ?? Brushes.Black;
             BackColor = data.BackColorBrush ?? Brushes.Transparent;
             if (data.FontSize > 0.0) FontSize = data.FontSize;
             Font = data.Font;// ?? this.Font;
-            base.SetData(data);
         }
 
     }
@@ -203,10 +202,15 @@ namespace _20221210_Thumb継承したItem候補
         }
         protected override void SetData(Data data)
         {
-            Fill = data.BackColor ?? Brushes.Red;
-            Width = data.Width;
-            Height = data.Height;
-            base.SetData(data);
+            if (data is RectangleData dd) { base.SetData(data); SetData(dd); }
+            else { throw new ArgumentException("aaaaaaaa"); }
+        }
+        private void SetData(RectangleData data)
+        {
+            Fill = data.FillColorBrush ?? Brushes.Red;
+            Width = data.ShapeWidth;
+            Height = data.ShapeHeight;
+
         }
     }
 
@@ -254,10 +258,13 @@ namespace _20221210_Thumb継承したItem候補
         }
         protected override void SetData(Data data)
         {
-            base.SetData(data);
+            if (data is PolylineData dd) { base.SetData(data); SetData(dd); }
+            else { throw new ArgumentException(nameof(data)); }
+        }
+        private void SetData(PolylineData data)
+        {
             Points ??= data.Points ?? new();
-            LineColor = data.ForeColor ?? Brushes.Orange;
-            LineThickness = data.Thickness;
+            LineColor = data.LineColorBrush ?? Brushes.Orange;
             if (data.Thickness > 0.0) { LineThickness = data.Thickness; }
         }
     }
