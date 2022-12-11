@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,12 +29,14 @@ namespace _20221208
         public double Width { get; set; }
         public double Height { get; set; }
     }
+
+    //未使用
     public class Builder
     {
         private TThumb? Product { get; set; }
         public Builder()
         {
-            
+
         }
         public void Build(Data data)
         {
@@ -58,5 +61,29 @@ namespace _20221208
             }
         }
         public TThumb? GetProduct() { return Product; }
+    }
+
+    public class Manager:INotifyPropertyChanged
+    {
+        
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private TThumb? _active;
+        public TThumb? Active { get => _active; set => SetProperty(ref _active, value); }
+
+        private TThumb? _enable;
+        public TThumb? Enable { get => _enable; set => SetProperty(ref _enable, value); }
+
+        private TThumb? _clicked;
+        public TThumb? Cliced { get => _clicked; set => SetProperty(ref _clicked, value); }
+        
     }
 }
