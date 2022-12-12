@@ -126,6 +126,14 @@ namespace _20221208
             MyRootThumb.Children.Add(rr);
 
         }
+        private void TT_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (sender is TThumb tt)
+            {
+                Canvas.SetLeft(tt, tt.X + e.HorizontalChange);
+                Canvas.SetTop(tt, tt.Y + e.VerticalChange);
+            }
+        }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
@@ -134,18 +142,13 @@ namespace _20221208
             var neko = Item_0_0_0_0.ParentThumb;
             var inu = Canvas.GetLeft(MyRectangle);
             inu = Canvas.GetLeft(MyTextBlock);
-            
-            
-
+        
         }
 
-        private void TT_DragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+
+        private void Button2_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is TThumb tt)
-            {
-                Canvas.SetLeft(tt, tt.X + e.HorizontalChange);
-                Canvas.SetTop(tt, tt.Y + e.VerticalChange);
-            }
+            MyRootThumb.EnableThumb = MyRootThumb;
         }
     }
 }
