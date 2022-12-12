@@ -34,16 +34,17 @@ namespace _20221208
             //ItemAddFromItem();
 
             
+
             MainGroup = MakeTextGroup();
-            DataContext = MainGroup;
+            DataContext = MyRootThumb;
             foreach (var item in MainGroup.Children)
             {
-                item.DragDelta += A_DragDelta;
+                //item.DragDelta += A_DragDelta;
 
                 item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
 
             }
-            MyRootGroup.Add(MainGroup);
+            MyGroup_0.Add(MainGroup);
         }
 
 
@@ -55,7 +56,7 @@ namespace _20221208
             var parentName = tt.ParentThumb?.Name;
             var parent = tt.ParentThumb;
 
-            var neko = parent?.ParentThumb?.ClickedItem?.Name;
+            //var neko = parent?.ParentThumb?.ClickedItem?.Name;
             
         }
 
@@ -94,7 +95,7 @@ namespace _20221208
                 FontSize = 30
             };
             TTTextBlock text = new(data);
-            MyCanvas.Children.Add(text);
+            MyRootThumb.Children.Add(text);
             data = new(TType.Rectangle)
             {
                 MyName = nameof(ItemAddFromData) + "rect",
@@ -105,34 +106,35 @@ namespace _20221208
                 Y = 200
             };
             TTRectangle rect = new(data);
-            MyCanvas.Children.Add(rect);
+            MyRootThumb.Children.Add(rect);
 
         }
         private void ItemAddFromItem()
         {
             TTTextBlock text = new() { Name = nameof(ItemAddFromItem) + "_text", Text = nameof(ItemAddFromItem), X = 30, Y = 50, FontColor = Brushes.MediumOrchid, FontSize = 30 };
-            MyCanvas.Children.Add(text);
+            MyRootThumb.Children.Add(text);
             TTRectangle rect = new() { Name = nameof(ItemAddFromItem) + "_rect", Fill = Brushes.Lime, Width = 100, Height = 30, X = 50, Y = 200 };
-            MyCanvas.Children.Add(rect);
+            MyRootThumb.Children.Add(rect);
         }
         private void Test1()
         {
             MyTTT = new TTTextBlock() { Name = nameof(Test1) + "text", X = 100, Y = 100, Text = "MyTTT", FontColor = Brushes.Gold, FontSize = 30 };
             //MyTTT.DragDelta += TT_DragDelta;
-            MyCanvas.Children.Add(MyTTT);
+            MyRootThumb.Children.Add(MyTTT);
             Data data = new(TType.Rectangle) { MyName = nameof(Test1) + "rect", Width = 100, Height = 100, BackColor = Brushes.Blue, X = 200, Y = 50 };
             TTRectangle rr = new(data);
-            MyCanvas.Children.Add(rr);
+            MyRootThumb.Children.Add(rr);
 
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-
-            var neko = MyRectangle.X;
+            MyRootThumb.EnableThumb = MyGroup_0;
+            var act = MyRectangle.ActiveThumb;
+            var neko = Item_0_0_0_0.ParentThumb;
             var inu = Canvas.GetLeft(MyRectangle);
             inu = Canvas.GetLeft(MyTextBlock);
-            neko = MyTextBlock.X;
+            
             
 
         }

@@ -5,29 +5,54 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221208"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600">
+        Title="MainWindow" Height="550" Width="600">
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition/>
-      <RowDefinition Height="150"/>
+      <RowDefinition Height="250"/>
     </Grid.RowDefinitions>
-    <Canvas Name="MyCanvas" Grid.Row="0">
+    <local:TTRoot x:Name="MyRootThumb" Grid.Row="0">
       <local:TTTextBlock x:Name="MyTextBlock" Text="TTTXAML" FontSize="20" Y="50" X="250" Z="0"
                          BackColor="Aqua" FontColor="Magenta"/>
       <local:TTRectangle x:Name="MyRectangle" Fill="Blue" Width="10" Height="200" X="50" Y="50" Z="0"
                          />
-      <local:TTGroup x:Name="MyRootGroup"/>
-    </Canvas>
-    <StackPanel Grid.Row="1">
-      <Button Name="Button1" Content="kakunin" Click="Button1_Click"/>      
+      <local:TTGroup x:Name="MyGroup_0">
+        <local:TTTextBlock Text="ダイレクトコンテンツをサポートします" x:Name="ダイレクト"
+                             BackColor="BlueViolet" FontColor="White"
+                             FontSize="20" FontFamily="ＭＳ 明朝" X="20" Y="200"/>
+
+        <!--<local:TTGroup.Children>
+            <local:TTTextBlock Text="ダイレクトコンテンツをサポートしていない場合はこの書き方"/>
+          </local:TTGroup.Children>-->
+        <local:TTGroup x:Name="MyGroup_0_0" X="100" Y="0">
+          <local:TTTextBlock x:Name="Item_0_0_0" Text="Item_0-0-0"/>
+          <local:TTGroup x:Name="MyGroup_0_0_0" X="10" Y="20">
+            <local:TTTextBlock x:Name="Item_0_0_0_0" Text="Item_0-0-0-0"/>
+            <local:TTTextBlock x:Name="Item_0_0_0_1" Text="Item_0-0-0-1" Y="20"/>
+          </local:TTGroup>
+        </local:TTGroup>
+        <local:TTGroup x:Name="MyGroup_0_1" X="100" Y="80">
+          <local:TTTextBlock x:Name="Item_0_1_0" Text="Item_0-1-0"/>
+        </local:TTGroup>
+      </local:TTGroup>
+
+    </local:TTRoot>
+    <StackPanel Grid.Row="1" DataContext="{Binding ElementName=MyRootThumb}">
+      <Button Name="Button1" Content="kakunin" Click="Button1_Click"/>
       <TextBlock Text="{Binding}"/>
-      <TextBlock Text="{Binding Name}"/>
-      <TextBlock Text="{Binding ClickedItem.Name}"/>
-      <TextBlock Text="{Binding ClickedItem.MyName}"/>
-      <TextBlock Text="{Binding ClickedItem.X}"/>
-      <TextBlock Text="{Binding ClickedItem.Y}"/>
-      <TextBlock DataContext="{Binding ClickedItem}" Text="{Binding Name}"/>
-      
+      <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb, StringFormat= Clicked \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.MyName, StringFormat= Clicked \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.X, StringFormat=Clicked_X  \= 0}"/>
+      <TextBlock Text="{Binding ClickedThumb.Y, StringFormat=Clicked_Y \= 0}"/>
+      <TextBlock Text="{Binding EnableThumb, StringFormat=EnableT \= {0}}"/>
+      <TextBlock Text="{Binding EnableThumb.X, StringFormat=EnableT_X \= {0}}"/>
+      <TextBlock Text="{Binding EnableThumb.Y, StringFormat=EnableT_Y \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Name, StringFormat=Active \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.X, StringFormat=Active_X \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Y, StringFormat=Active_Y \= {0}}"/>
+      <TextBlock DataContext="{Binding ClickedThumb}" Text="{Binding Name}"/>
+
     </StackPanel>
   </Grid>
 </Window>

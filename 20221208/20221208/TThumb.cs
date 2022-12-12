@@ -14,11 +14,13 @@ using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Windows.Markup;
+using System.Windows.Input;
 
 namespace _20221208
 {
 
-    public abstract class TThumb : Thumb
+    public abstract class TThumb : Thumb, INotifyPropertyChanged
     {
         #region 依存プロパティ
 
@@ -75,6 +77,36 @@ namespace _20221208
             DependencyProperty.Register(nameof(MyName), typeof(string), typeof(TThumb), new PropertyMetadata(""));
 
         #endregion
+
+        #region 通知プロパティ
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private TThumb? _active;
+        public TThumb? ActiveThumb
+        {
+            get => _active; set
+            {
+                //自身がGroupなら子要素のActiveも変更
+                if (this is TTGroup tt)
+                {
+                    foreach (var item in tt.Children)
+                    {
+                        item.ActiveThumb = value;
+                    }
+                }
+
+                SetProperty(ref _active, value);
+            }
+        }
+
+        #endregion 通知プロパティ
+
         public TTGroup? ParentThumb { get; internal set; }
         public TTGroup? RootThumb { get; internal set; }
         public TThumb()
@@ -84,24 +116,10 @@ namespace _20221208
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
             SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
-            PreviewMouseLeftButtonDown += TThumb_PreviewMouseLeftButtonDown;
+
         }
 
-        private void TThumb_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (ParentThumb != null && RootThumb!=null)
-            {
-                if (this is TTGroup group)
-                {
-                    ParentThumb.ClickedItem = group.ClickedItem;
-                }
-                else
-                {
-                    ParentThumb.ClickedItem = this;
 
-                }
-            }
-        }
 
         protected virtual void SetData(Data data)
         {
@@ -113,6 +131,10 @@ namespace _20221208
         public TThumb(Data data) : this()
         {
             SetData(data);
+        }
+        public override string ToString()
+        {
+            return MyName;
         }
     }
 
@@ -143,7 +165,7 @@ namespace _20221208
             set { SetValue(BackColorProperty, value); }
         }
         public static readonly DependencyProperty BackColorProperty =
-            DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock), new PropertyMetadata(Brushes.Snow));
+            DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock), new PropertyMetadata(Brushes.Transparent));
 
         #endregion
 
@@ -208,7 +230,15 @@ namespace _20221208
         }
     }
 
-    public class TTGroup : TThumb, INotifyPropertyChanged
+    //WPFカスタムコントロールとダイレクトコンテンツのサポート
+    //    https://stackoverflow.com/questions/4633568/wpf-custom-control-and-direct-content-support
+
+    //WPF4.5入門 その10 「コンテンツ構文」 - かずきのBlog@hatena
+    //  https://blog.okazuki.jp/entry/20130103/1357202019
+    //これでXAMLでも子要素を追加できるようになる、ContentProperty(コレクション変数名)
+    //もっとも、ダイレクトコンテンツをサポートしていない場合は<local:TTGroup.Children>で追加できる
+    [ContentProperty(nameof(Children))]
+    public class TTGroup : TThumb
     {
         public ObservableCollection<TThumb> Children { get; protected set; } = new();
 
@@ -222,19 +252,8 @@ namespace _20221208
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
             this.Template = new() { VisualTree = ic };
             Children.CollectionChanged += Children_CollectionChanged;
+
         }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return;
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
-
-        private TThumb? _clickedItem;
-        public TThumb? ClickedItem { get => _clickedItem; set => SetProperty(ref _clickedItem, value); }
 
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -296,4 +315,82 @@ namespace _20221208
         public void Add(TThumb thumb) { Children.Add(thumb); }
     }
 
+
+    public class TTRoot : TTGroup
+    {
+        //public event PropertyChangedEventHandler? PropertyChanged;
+        //protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(field, value)) return;
+        //    field = value;
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        //}
+
+        //private TThumb? _active;
+        //public TThumb? ActiveThumb { get => _active; set => SetProperty(ref _active, value); }
+
+        private TThumb? _enable;
+        //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新する
+        public TThumb? EnableThumb
+        {
+            get => _enable; set
+            {
+                if (_enable != value)
+                {
+                    if (_enable as TTGroup != null)
+                    {
+                        foreach (var item in ((TTGroup)_enable).Children)
+                        {
+                            item.DragDelta -= Item_DragDelta;
+                            item.ActiveThumb = null;
+                        }
+                    }
+                    if (value as TTGroup != null)
+                    {
+                        foreach (var item in ((TTGroup)value).Children)
+                        {
+                            item.DragDelta += Item_DragDelta;
+                            item.ActiveThumb = item;//
+                        }
+                    }
+                }
+                SetProperty(ref _enable, value);
+            }
+        }
+
+        private TThumb? _clicked;
+        public TThumb? ClickedThumb { get => _clicked; set => SetProperty(ref _clicked, value); }
+        public TTRoot()
+        {
+            Loaded += TTRoot_Loaded;
+
+        }
+
+        private void TTRoot_Loaded(object sender, RoutedEventArgs e)
+        {
+            //
+            EnableThumb ??= this;
+        }
+
+        private void Item_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is TThumb tt)
+            {
+                tt.X += e.HorizontalChange;
+                tt.Y += e.VerticalChange;
+            }
+        }
+
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            var source = e.Source;
+            var origin = e.OriginalSource;
+            //クリックされたThumbを登録
+            if (((FrameworkElement)e.OriginalSource).TemplatedParent is TThumb tt)
+            {
+                ClickedThumb = tt;
+            }
+            base.OnPreviewMouseLeftButtonDown(e);
+        }
+    }
 }

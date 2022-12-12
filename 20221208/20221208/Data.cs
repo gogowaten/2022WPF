@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace _20221208
@@ -63,9 +67,10 @@ namespace _20221208
         public TThumb? GetProduct() { return Product; }
     }
 
-    public class Manager:INotifyPropertyChanged
+    //未使用、TTRootへ移行
+    public class Manager : Canvas, INotifyPropertyChanged
     {
-        
+
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -83,7 +88,25 @@ namespace _20221208
         public TThumb? Enable { get => _enable; set => SetProperty(ref _enable, value); }
 
         private TThumb? _clicked;
-        public TThumb? Cliced { get => _clicked; set => SetProperty(ref _clicked, value); }
-        
+        public TThumb? Clicked { get => _clicked; set => SetProperty(ref _clicked, value); }
+        public Manager()
+        {
+            PreviewMouseLeftButtonDown += Manager_PreviewMouseLeftButtonDown;
+        }
+
+        private void Manager_PreviewMouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        {
+            var source = e.Source;
+            var origin = e.OriginalSource;
+        }
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        {
+            //クリックされたThumbを登録
+            if (((FrameworkElement)e.OriginalSource).TemplatedParent is TThumb tt)
+            {
+                Clicked = tt;
+            }
+            base.OnPreviewMouseLeftButtonDown(e);
+        }
     }
 }
