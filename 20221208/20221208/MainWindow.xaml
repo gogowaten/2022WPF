@@ -46,8 +46,8 @@
       <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb, StringFormat= Clicked \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb.MyName, StringFormat= Clicked \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.X, StringFormat=Clicked_X  \= 0}"/>
-      <TextBlock Text="{Binding ClickedThumb.Y, StringFormat=Clicked_Y \= 0}"/>
+      <TextBlock Text="{Binding ClickedThumb.X, StringFormat=Clicked_X  \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.Y, StringFormat=Clicked_Y \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb, StringFormat=EnableT \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb.X, StringFormat=EnableT_X \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb.Y, StringFormat=EnableT_Y \= {0}}"/>
