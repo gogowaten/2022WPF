@@ -138,7 +138,7 @@ namespace _20221208
         {
            var temp = MyRootThumb?.ClickedThumb?.Template;
 
-            MyRootThumb.EnableThumb = MyGroup_0;
+            //MyRootThumb.EnableThumb = MyGroup_0;
             //var act = MyRectangle.ActiveThumb;
             //var neko = Item_0_0_0_0.ParentThumb;
             //var inu = Canvas.GetLeft(MyRectangle);

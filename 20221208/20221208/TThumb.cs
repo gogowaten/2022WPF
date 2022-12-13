@@ -109,8 +109,8 @@ namespace _20221208
         #endregion 通知プロパティ
 
         #region プロパティ
-        public double Right { get; protected set; }
-        public double Bottom { get; protected set; }
+        public double Right { get; protected set; }//いらないかも
+        public double Bottom { get; protected set; }//いらないかも
 
         #endregion プロパティ
         public TTGroup? ParentThumb { get; internal set; }
@@ -156,8 +156,9 @@ namespace _20221208
         {
             Right = X + ActualWidth;
             Bottom = Y + ActualHeight;
-            //Width = ActualWidth;
-            //this.Height = ActualHeight;
+
+            Width = ActualWidth;
+            Height = ActualHeight;
         }
 
         private void TThumb_Loaded(object sender, RoutedEventArgs e)
@@ -216,13 +217,15 @@ namespace _20221208
         #endregion
 
         public TTTextBlock()
-        {            
+        {
             var panel = MakeBaseTemplate();
             FrameworkElementFactory elem = new(typeof(TextBlock));
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
             panel.AppendChild(elem);
+
+            //panel.SetBinding(WidthProperty, new Binding() { Source = elem, Path = new PropertyPath(ActualWidthProperty) });
 
             this.Template = new() { VisualTree = panel };
         }
@@ -390,7 +393,36 @@ namespace _20221208
             Bottom = Height + Y;
 
         }
-
+        //
+        internal (double x, double y, double w, double h) GetUnionRect()
+        {
+            if (Children.Count == 0) { return (0, 0, 0, 0); }
+            double x = double.MaxValue, y = double.MaxValue;
+            double w = double.MinValue, h = double.MinValue;
+            foreach (var item in Children)
+            {
+                x = Math.Min(x, item.X);
+                y = Math.Min(y, item.Y);
+                w = Math.Max(w, item.X + item.Width);
+                h = Math.Max(h, item.Y + item.Height);
+            }
+            w -= x; h -= y;
+            return (x, y, w, h);
+        }
+        internal void UpdateRect(bool allGroups = false)
+        {
+            if (allGroups)
+            {
+                foreach (var item in Children)
+                {
+                    if (item is TTGroup group) { group.UpdateRect(allGroups); }
+                }
+            }
+            (double x, double y, double w, double h) = GetUnionRect();
+            if (w == 0 && h == 0) { return; }
+            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
+            X = x; Y = y; Width = w; Height = h;
+        }
 
         protected void OffsetX(double offset)
         {
@@ -441,7 +473,7 @@ namespace _20221208
             {
                 if (t.ParentThumb is TTGroup ttg)
                 {
-                    ttg.UpdateSizeLocate();
+                    //ttg.UpdateSizeLocate();
                 }
             }
         }
@@ -459,6 +491,7 @@ namespace _20221208
             EnableThumb ??= this;
             //
             //UpdateSizeLocate();
+            UpdateRect(true);
         }
 
         private void Item_DragDelta(object sender, DragDeltaEventArgs e)
