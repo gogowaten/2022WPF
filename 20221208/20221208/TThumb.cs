@@ -16,6 +16,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Windows.Markup;
 using System.Windows.Input;
+using System.Globalization;
 
 namespace _20221208
 {
@@ -107,8 +108,16 @@ namespace _20221208
 
         #endregion 通知プロパティ
 
+        #region プロパティ
+        public double Right { get; protected set; }
+        public double Bottom { get; protected set; }
+
+        #endregion プロパティ
         public TTGroup? ParentThumb { get; internal set; }
-        public TTGroup? RootThumb { get; internal set; }
+        //public TTGroup? RootThumb { get; internal set; }
+
+        #region コンストラクタ
+
         public TThumb()
         {
             DataContext = this;
@@ -116,21 +125,42 @@ namespace _20221208
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
             SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
-
+            //Loaded += TThumb_Loaded;
+            SizeChanged += TThumb_SizeChanged;
+            
         }
 
+        protected void SetWaku(ref FrameworkElementFactory vt)
+        {
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
+            waku.SetValue(Rectangle.StrokeProperty, Brushes.Red);
 
+            vt.AppendChild(waku);
+        }
+        private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Right = X + ActualWidth;
+            Bottom = Y + ActualHeight;
+        }
+
+        private void TThumb_Loaded(object sender, RoutedEventArgs e)
+        {
+            var width = this.ActualWidth; var height = this.ActualHeight;
+        }
+
+        public TThumb(Data data) : this()
+        {
+            SetData(data);
+        }
+
+        #endregion コンストラクタ
 
         protected virtual void SetData(Data data)
         {
             X = data.X; Y = data.Y; Z = data.Z;
             if (string.IsNullOrEmpty(MyName) && string.IsNullOrEmpty(data.MyName) == false)
                 MyName = data.MyName;
-        }
-
-        public TThumb(Data data) : this()
-        {
-            SetData(data);
         }
         public override string ToString()
         {
@@ -171,12 +201,27 @@ namespace _20221208
 
         public TTTextBlock()
         {
+            //FrameworkElementFactory canvas = new(typeof(Canvas));
+
             FrameworkElementFactory elem = new(typeof(TextBlock));
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
-            this.Template = new() { VisualTree = elem };
 
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
+            waku.SetValue(Rectangle.StrokeProperty, Brushes.Red);
+            //waku.SetValue(WidthProperty, 100.0);
+            //waku.SetValue(HeightProperty, 100.0);
+            waku.SetValue(WidthProperty, new Binding(nameof(ActualWidth)) { Source = elem });
+            waku.SetValue(HeightProperty, new Binding(nameof(ActualHeight)) { Source=this});
+
+            //canvas.AppendChild(elem);
+            elem.AppendChild(waku);
+
+            //SetWaku(ref elem);
+
+            this.Template = new() { VisualTree = elem };
         }
         public TTTextBlock(Data data) : this() { SetData(data); }
         protected override void SetData(Data data)
@@ -255,7 +300,6 @@ namespace _20221208
 
         }
 
-
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             if (e.NewItems?[0] is TThumb tt)
@@ -313,21 +357,67 @@ namespace _20221208
             }
         }
         public void Add(TThumb thumb) { Children.Add(thumb); }
+
+
+        //protected void UpdateSizeLocate3(TTGroup group)
+        //{
+        //    foreach (var item in group.Children)
+        //    {
+        //        if (item is TTGroup tt) { UpdateSizeLocate3(tt); }
+        //    }
+        //    var left = group.Children.Select(a => a.X).Min();
+        //    //子要素全体の位置が0じゃない場合は全体をオフセット修正＋グループの位置も修正
+        //    if (left != 0.0) { OffsetX(left); group.X += left; }
+
+        //    double top = group.Children.Select(a => a.Y).Min();
+        //    if (top != 0.0)
+        //    {
+        //        foreach (var item in group.Children) { item.Y -= top; }
+        //        group.Y += top;
+        //    }
+        //    var right = group.Children.Select(a => a.Right).Max();
+        //    var bottom = group.Children.Select(a => a.Bottom).Max();
+        //    group.Width = right - left;
+        //    group.Right = group.Width + X;
+        //    group.Height = bottom - top;
+        //    group.Bottom = group.Height + Y;
+
+        //}
+        internal void UpdateSizeLocate()
+        {
+            foreach (var item in Children)
+            {
+                if (item is TTGroup tt) { tt.UpdateSizeLocate(); }
+            }
+            var left = Children.Select(a => a.X).Min();
+            //子要素全体の位置が0じゃない場合は全体をオフセット修正＋グループの位置も修正
+            if (left != 0.0) { OffsetX(left); X += left; }
+
+            double top = Children.Select(a => a.Y).Min();
+            if (top != 0.0)
+            {
+                foreach (var item in Children) { item.Y -= top; }
+                Y += top;
+            }
+            var right = Children.Select(a => a.Right).Max();
+            var bottom = Children.Select(a => a.Bottom).Max();
+            Width = right - left;
+            Right = Width + X;
+            Height = bottom - top;
+            Bottom = Height + Y;
+
+        }
+
+
+        protected void OffsetX(double offset)
+        {
+            foreach (var item in Children) { item.X -= offset; }
+        }
     }
 
 
     public class TTRoot : TTGroup
     {
-        //public event PropertyChangedEventHandler? PropertyChanged;
-        //protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        //{
-        //    if (EqualityComparer<T>.Default.Equals(field, value)) return;
-        //    field = value;
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        //}
-
-        //private TThumb? _active;
-        //public TThumb? ActiveThumb { get => _active; set => SetProperty(ref _active, value); }
 
         private TThumb? _enable;
         //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新する
@@ -342,6 +432,7 @@ namespace _20221208
                         foreach (var item in ((TTGroup)_enable).Children)
                         {
                             item.DragDelta -= Item_DragDelta;
+                            item.DragCompleted -= Item_DragCompleted;
                             item.ActiveThumb = null;
                         }
                     }
@@ -350,6 +441,7 @@ namespace _20221208
                         foreach (var item in ((TTGroup)value).Children)
                         {
                             item.DragDelta += Item_DragDelta;
+                            item.DragCompleted += Item_DragCompleted;
                             item.ActiveThumb = item;//
                         }
                     }
@@ -358,6 +450,18 @@ namespace _20221208
             }
         }
 
+        private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            var source = e.Source;
+            var origin = e.OriginalSource;
+            if (e.OriginalSource is TThumb t)
+            {
+                if (t.ParentThumb is TTGroup ttg)
+                {
+                    ttg.UpdateSizeLocate();
+                }
+            }
+        }
         private TThumb? _clicked;
         public TThumb? ClickedThumb { get => _clicked; set => SetProperty(ref _clicked, value); }
         public TTRoot()
@@ -370,6 +474,11 @@ namespace _20221208
         {
             //
             EnableThumb ??= this;
+            //
+            //UpdateSizeLocate();
+            //UpdatesizeLocate2();
+            //UpdateSizeLocate3(this);
+            UpdateSizeLocate();
         }
 
         private void Item_DragDelta(object sender, DragDeltaEventArgs e)
@@ -393,4 +502,6 @@ namespace _20221208
             base.OnPreviewMouseLeftButtonDown(e);
         }
     }
+
+
 }

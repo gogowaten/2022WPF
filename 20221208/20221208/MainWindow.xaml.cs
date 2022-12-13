@@ -35,16 +35,15 @@ namespace _20221208
 
             
 
-            MainGroup = MakeTextGroup();
-            DataContext = MyRootThumb;
-            foreach (var item in MainGroup.Children)
-            {
-                //item.DragDelta += A_DragDelta;
+            //MainGroup = MakeTextGroup();
+            //DataContext = MyRootThumb;
+            //foreach (var item in MainGroup.Children)
+            //{
+               
+            //    item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
 
-                item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
-
-            }
-            MyGroup_0.Add(MainGroup);
+            //}
+            //MyGroup_0.Add(MainGroup);
         }
 
 
@@ -138,11 +137,11 @@ namespace _20221208
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.EnableThumb = MyGroup_0;
-            var act = MyRectangle.ActiveThumb;
-            var neko = Item_0_0_0_0.ParentThumb;
-            var inu = Canvas.GetLeft(MyRectangle);
-            inu = Canvas.GetLeft(MyTextBlock);
-        
+            //var act = MyRectangle.ActiveThumb;
+            //var neko = Item_0_0_0_0.ParentThumb;
+            //var inu = Canvas.GetLeft(MyRectangle);
+            //inu = Canvas.GetLeft(MyTextBlock);
+
         }
 
 
