@@ -114,7 +114,6 @@ namespace _20221208
 
         #endregion プロパティ
         public TTGroup? ParentThumb { get; internal set; }
-        //public TTGroup? RootThumb { get; internal set; }
 
         #region コンストラクタ
 
@@ -127,7 +126,22 @@ namespace _20221208
             SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
             //Loaded += TThumb_Loaded;
             SizeChanged += TThumb_SizeChanged;
-            
+
+        }
+        protected FrameworkElementFactory MakeBaseTemplate()
+        {
+            FrameworkElementFactory panel = new(typeof(Grid));
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            panel.AppendChild(waku);
+            waku.SetValue(Shape.StrokeProperty, Brushes.Red);
+            waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
+            waku.SetValue(Panel.ZIndexProperty, 1);
+            //waku.SetValue(WidthProperty, new Binding(nameof(Width)));
+            //waku.SetValue(HeightProperty, new Binding(nameof(Height)));
+            //waku.SetValue(Rectangle.WidthProperty, new Binding(nameof(ActualWidth)) { Source = this });
+            //waku.SetValue(Rectangle.HeightProperty, new Binding(nameof(ActualHeight)) { Source = this });
+
+            return panel;
         }
 
         protected void SetWaku(ref FrameworkElementFactory vt)
@@ -142,11 +156,13 @@ namespace _20221208
         {
             Right = X + ActualWidth;
             Bottom = Y + ActualHeight;
+            //Width = ActualWidth;
+            //this.Height = ActualHeight;
         }
 
         private void TThumb_Loaded(object sender, RoutedEventArgs e)
         {
-            var width = this.ActualWidth; var height = this.ActualHeight;
+            Width = ActualWidth; Height = ActualHeight;
         }
 
         public TThumb(Data data) : this()
@@ -200,29 +216,17 @@ namespace _20221208
         #endregion
 
         public TTTextBlock()
-        {
-            //FrameworkElementFactory canvas = new(typeof(Canvas));
-
+        {            
+            var panel = MakeBaseTemplate();
             FrameworkElementFactory elem = new(typeof(TextBlock));
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
+            panel.AppendChild(elem);
 
-            FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
-            waku.SetValue(Rectangle.StrokeProperty, Brushes.Red);
-            //waku.SetValue(WidthProperty, 100.0);
-            //waku.SetValue(HeightProperty, 100.0);
-            waku.SetValue(WidthProperty, new Binding(nameof(ActualWidth)) { Source = elem });
-            waku.SetValue(HeightProperty, new Binding(nameof(ActualHeight)) { Source=this});
-
-            //canvas.AppendChild(elem);
-            elem.AppendChild(waku);
-
-            //SetWaku(ref elem);
-
-            this.Template = new() { VisualTree = elem };
+            this.Template = new() { VisualTree = panel };
         }
+
         public TTTextBlock(Data data) : this() { SetData(data); }
         protected override void SetData(Data data)
         {
@@ -252,14 +256,13 @@ namespace _20221208
 
         public TTRectangle()
         {
-            //Canvas.SetLeft(this,100);Canvas.SetTop(this,0);
             FrameworkElementFactory elem = new(typeof(Rectangle));
             elem.SetValue(Shape.FillProperty, new Binding(nameof(Fill)));
             elem.SetValue(Rectangle.WidthProperty, new Binding(nameof(Width)));
             elem.SetValue(Rectangle.HeightProperty, new Binding(nameof(Height)));
-            //elem.SetValue(Rectangle.FillProperty, new Binding(nameof(Fill)));
-
-            this.Template = new() { VisualTree = elem };
+            FrameworkElementFactory pp = MakeBaseTemplate();
+            pp.AppendChild(elem);
+            this.Template = new() { VisualTree = pp };
 
         }
         public TTRectangle(Data data) : this()
@@ -295,7 +298,11 @@ namespace _20221208
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
-            this.Template = new() { VisualTree = ic };
+            FrameworkElementFactory pp = MakeBaseTemplate();
+            pp.AppendChild(ic);
+            this.Template = new() { VisualTree = pp };
+
+
             Children.CollectionChanged += Children_CollectionChanged;
 
         }
@@ -359,30 +366,6 @@ namespace _20221208
         public void Add(TThumb thumb) { Children.Add(thumb); }
 
 
-        //protected void UpdateSizeLocate3(TTGroup group)
-        //{
-        //    foreach (var item in group.Children)
-        //    {
-        //        if (item is TTGroup tt) { UpdateSizeLocate3(tt); }
-        //    }
-        //    var left = group.Children.Select(a => a.X).Min();
-        //    //子要素全体の位置が0じゃない場合は全体をオフセット修正＋グループの位置も修正
-        //    if (left != 0.0) { OffsetX(left); group.X += left; }
-
-        //    double top = group.Children.Select(a => a.Y).Min();
-        //    if (top != 0.0)
-        //    {
-        //        foreach (var item in group.Children) { item.Y -= top; }
-        //        group.Y += top;
-        //    }
-        //    var right = group.Children.Select(a => a.Right).Max();
-        //    var bottom = group.Children.Select(a => a.Bottom).Max();
-        //    group.Width = right - left;
-        //    group.Right = group.Width + X;
-        //    group.Height = bottom - top;
-        //    group.Bottom = group.Height + Y;
-
-        //}
         internal void UpdateSizeLocate()
         {
             foreach (var item in Children)
@@ -476,9 +459,6 @@ namespace _20221208
             EnableThumb ??= this;
             //
             //UpdateSizeLocate();
-            //UpdatesizeLocate2();
-            //UpdateSizeLocate3(this);
-            UpdateSizeLocate();
         }
 
         private void Item_DragDelta(object sender, DragDeltaEventArgs e)
@@ -495,10 +475,22 @@ namespace _20221208
             var source = e.Source;
             var origin = e.OriginalSource;
             //クリックされたThumbを登録
-            if (((FrameworkElement)e.OriginalSource).TemplatedParent is TThumb tt)
+            if (e.OriginalSource is FrameworkElement fe)
             {
-                ClickedThumb = tt;
+                if (fe is TThumb th)
+                {
+                    ClickedThumb = th;
+                }
+                if (fe.TemplatedParent is TThumb tt)
+                {
+                    ClickedThumb = tt;
+                }
             }
+
+            //if (((FrameworkElement)e.OriginalSource).TemplatedParent is TThumb tt)
+            //{
+            //    ClickedThumb = tt;
+            //}
             base.OnPreviewMouseLeftButtonDown(e);
         }
     }

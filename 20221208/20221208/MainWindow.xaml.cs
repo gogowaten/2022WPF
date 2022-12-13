@@ -136,6 +136,8 @@ namespace _20221208
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
+           var temp = MyRootThumb?.ClickedThumb?.Template;
+
             MyRootThumb.EnableThumb = MyGroup_0;
             //var act = MyRectangle.ActiveThumb;
             //var neko = Item_0_0_0_0.ParentThumb;

@@ -38,10 +38,11 @@
           </local:TTGroup>
         </local:TTGroup>
 
-        <!--<local:TTGroup x:Name="TTG" Background="Red" BorderBrush="Red" BorderThickness="2">
+        <local:TTGroup x:Name="TTG" Background="Red" BorderBrush="Red" BorderThickness="2">
           <local:TTTextBlock x:Name="Item1" Text="Test1" FontSize="30" BackColor="Gold"/>
-          <local:TTTextBlock x:Name="Item2" Text="Test2" FontSize="30" BackColor="gold  " X="100"/>
-        </local:TTGroup>-->
+          <local:TTTextBlock x:Name="Item2" Text="Test2" FontSize="30" BackColor="Gold" X="100"/>
+          <local:TTRectangle x:Name="Item3" Fill="Lime" Width="100" Height="20" Y="50"/>
+        </local:TTGroup>
         
       </local:TTRoot>
     </Canvas>
@@ -57,10 +58,10 @@
       <TextBlock Text="{Binding ClickedThumb.Width, StringFormat=Clicked_Width  \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb.Y, StringFormat=Clicked_Y \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb, StringFormat=EnableT \= {0}}"/>
-      <TextBlock Text="{Binding EnableThumb.X, StringFormat=EnableT_X \= {0}}"/>
+      <TextBlock Text="{Binding EnableThumb.Width, StringFormat=EnableT_Width \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb.Y, StringFormat=EnableT_Y \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Name, StringFormat=Active \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.X, StringFormat=Active_X \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Width, StringFormat=Active_Width \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Y, StringFormat=Active_Y \= {0}}"/>
       <TextBlock DataContext="{Binding ClickedThumb}" Text="{Binding Name}"/>
 
