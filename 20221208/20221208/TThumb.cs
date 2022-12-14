@@ -130,7 +130,7 @@ namespace _20221208
 
         }
         protected FrameworkElementFactory MakeBaseTemplate()
-        {            
+        {
             FrameworkElementFactory panel = new(typeof(Grid));
             FrameworkElementFactory waku = new(typeof(Rectangle));
             panel.AppendChild(waku);
@@ -300,7 +300,7 @@ namespace _20221208
         {
 
             FrameworkElementFactory panel = new(typeof(ExCanvas));
-//            FrameworkElementFactory panel = new(typeof(Canvas));
+            //            FrameworkElementFactory panel = new(typeof(Canvas));
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
@@ -477,7 +477,7 @@ namespace _20221208
             //
             EnableThumb ??= this;
             //すべての要素のサイズと位置の更新
-            UpRect(this);
+            //UpRect(this);
             //UpdateRect(this);
         }
         private void UpRect(TTGroup group)
@@ -520,7 +520,17 @@ namespace _20221208
             }
         }
 
+        protected override Size MeasureOverride(Size constraint)
+        {
+            foreach (var item in Children)
+            {
+                double x = item.X + item.ActualWidth;
+                double y = item.Y + item.ActualHeight;
 
+                item.Measure()
+            }
+            return base.MeasureOverride(constraint);
+        }
         //クリックされたThumbを登録
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
