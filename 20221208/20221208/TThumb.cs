@@ -293,7 +293,7 @@ namespace _20221208
     {
         public ObservableCollection<TThumb> Children { get; protected set; } = new();
 
-        //public TThumb? ClickedItem { get; set; }
+
 
         public TTGroup()
         {
@@ -304,7 +304,6 @@ namespace _20221208
             FrameworkElementFactory pp = MakeBaseTemplate();
             pp.AppendChild(ic);
             this.Template = new() { VisualTree = pp };
-
 
             Children.CollectionChanged += Children_CollectionChanged;
 
@@ -389,21 +388,7 @@ namespace _20221208
             w -= x; h -= y;
             return (x, y, w, h);
         }
-        /// <summary>
-        /// 起動時に実行、すべての要素のサイズと位置の更新
-        /// </summary>
-        internal void UpdateRectAllGroup()
-        {
-            foreach (var item in Children)
-            {
-                if (item is TTGroup group) { group.UpdateRectAllGroup(); }
-            }
-            (double x, double y, double w, double h) = GetGroupRect(this);
-            if (w == 0 && h == 0) { return; }
-            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
 
-            X = x; Y = y; Width = w; Height = h;
-        }
         /// <summary>
         /// GroupThumbのサイズと位置の更新、Thumb移動後などに実行
         /// </summary>
@@ -414,7 +399,7 @@ namespace _20221208
             (double x, double y, double w, double h) = GetGroupRect(group);
             if (w == 0 && h == 0) { return; }
             if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
-
+            
             group.Width = w; group.Height = h;
             if (x != 0 || y != 0)
             {
@@ -422,7 +407,9 @@ namespace _20221208
                 {
                     item.X -= x; item.Y -= y;
                 }
+
                 if (group is not TTRoot) { group.X += x; group.Y += y; }
+
             }
 
             //連なる親要素も更新する
@@ -430,8 +417,6 @@ namespace _20221208
             {
                 UpdateRect(parentt);
             }
-
-
         }
 
         protected void OffsetX(double offset)
@@ -488,20 +473,38 @@ namespace _20221208
         {
             //
             EnableThumb ??= this;
-            //
+            //すべての要素のサイズと位置の更新
+            UpRect(this);
+            UpdateRect(this);
+        }
+        private void UpRect(TTGroup group)
+        {
+            foreach (var item in group.Children)
+            {
+                if (item is TTGroup ttg)
+                {
+                    UpRect(ttg);
+                    (double x, double y, double w, double h) = GetGroupRect(ttg);
+                    if (w == 0 && h == 0) { continue; }
+                    if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { continue; }
 
-            UpdateRectAllGroup();
+                    ttg.Width = w; ttg.Height = h;
+                    foreach (var subItem in ttg.Children)
+                    {
+                        subItem.X -= x;
+                        subItem.Y -= y;
+                    }
+                }
+            }
         }
         private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             var source = e.Source;
             var origin = e.OriginalSource;
-            //if (this is TTGroup) { return; }
             if (e.OriginalSource is TThumb t)
             {
                 if (t.ParentThumb is not null)
                 {
-                    //UpdateRectAllGroup();
                     UpdateRect(EnableThumb);
                 }
             }
@@ -540,6 +543,5 @@ namespace _20221208
             base.OnPreviewMouseLeftButtonDown(e);
         }
     }
-
 
 }
