@@ -297,6 +297,7 @@ namespace _20221208
 
         public TTGroup()
         {
+
             FrameworkElementFactory panel = new(typeof(Canvas));
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
@@ -499,8 +500,6 @@ namespace _20221208
         }
         private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            var source = e.Source;
-            var origin = e.OriginalSource;
             if (e.OriginalSource is TThumb t)
             {
                 if (t.ParentThumb is not null)
@@ -521,8 +520,6 @@ namespace _20221208
 
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            var source = e.Source;
-            var origin = e.OriginalSource;
             //クリックされたThumbを登録
             if (e.OriginalSource is FrameworkElement fe)
             {
@@ -535,11 +532,6 @@ namespace _20221208
                     ClickedThumb = tt;
                 }
             }
-
-            //if (((FrameworkElement)e.OriginalSource).TemplatedParent is TThumb tt)
-            //{
-            //    ClickedThumb = tt;
-            //}
             base.OnPreviewMouseLeftButtonDown(e);
         }
     }

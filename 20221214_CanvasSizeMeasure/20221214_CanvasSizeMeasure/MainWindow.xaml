@@ -1,0 +1,32 @@
+﻿<Window x:Class="_20221214_CanvasSizeMeasure.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20221214_CanvasSizeMeasure"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="250" Width="400">
+  <Grid>
+    <Canvas>
+      <local:MyCanvas x:Name="MyCanvas" Background="AliceBlue" >
+        <Rectangle Width="50" Height="20" Fill="Red"/>
+        <Rectangle Width="50" Height="20" Fill="Red" Canvas.Left="20" Canvas.Top="90"/>
+      </local:MyCanvas>
+      <StackPanel Canvas.Top="120" DataContext="{Binding ElementName=MyCanvas}">
+        <TextBlock Text="{Binding Path=Name}"/>
+        <TextBlock Text="{Binding Path=ActualWidth, StringFormat=ActualWidth \= {0}}"/>
+        <TextBlock Text="{Binding Path=ActualHeight, StringFormat=ActualHeight \= {0}}"/>
+      </StackPanel>
+      
+      <Canvas x:Name="NormalCanvas" Background="AliceBlue" Canvas.Left="200">
+        <Rectangle Width="50" Height="20" Fill="Red"/>
+        <Rectangle Width="50" Height="20" Fill="Red" Canvas.Left="20" Canvas.Top="90"/>
+      </Canvas>
+      <StackPanel Canvas.Top="120" Canvas.Left="200" DataContext="{Binding ElementName=NormalCanvas}">
+        <TextBlock Text="{Binding Path=Name}"/>
+        <TextBlock Text="{Binding Path=ActualWidth, StringFormat=ActualWidth \= {0}}"/>
+        <TextBlock Text="{Binding Path=ActualHeight, StringFormat=ActualHeight \= {0}}"/>
+      </StackPanel>
+    </Canvas>
+  </Grid>
+</Window>
