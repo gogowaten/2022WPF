@@ -140,6 +140,7 @@ namespace _20221208
         {
            var temp = MyRootThumb?.ClickedThumb?.Template;
             MyRootThumb.EnableThumb = TTG;
+            Item1.FontSize = 50;
         }
 
 

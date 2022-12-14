@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Windows.Markup;
 using System.Windows.Input;
 using System.Globalization;
+using System.Windows.Media.Animation;
 
 namespace _20221208
 {
@@ -129,7 +130,7 @@ namespace _20221208
 
         }
         protected FrameworkElementFactory MakeBaseTemplate()
-        {
+        {            
             FrameworkElementFactory panel = new(typeof(Grid));
             FrameworkElementFactory waku = new(typeof(Rectangle));
             panel.AppendChild(waku);
@@ -298,7 +299,8 @@ namespace _20221208
         public TTGroup()
         {
 
-            FrameworkElementFactory panel = new(typeof(Canvas));
+            FrameworkElementFactory panel = new(typeof(ExCanvas));
+//            FrameworkElementFactory panel = new(typeof(Canvas));
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
@@ -400,7 +402,7 @@ namespace _20221208
             (double x, double y, double w, double h) = GetGroupRect(group);
             if (w == 0 && h == 0) { return; }
             if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
-            
+
             group.Width = w; group.Height = h;
             if (x != 0 || y != 0)
             {
@@ -476,7 +478,7 @@ namespace _20221208
             EnableThumb ??= this;
             //すべての要素のサイズと位置の更新
             UpRect(this);
-            UpdateRect(this);
+            //UpdateRect(this);
         }
         private void UpRect(TTGroup group)
         {
@@ -504,7 +506,7 @@ namespace _20221208
             {
                 if (t.ParentThumb is not null)
                 {
-                    UpdateRect(EnableThumb);
+                    //UpdateRect(EnableThumb);
                 }
             }
         }
@@ -518,9 +520,10 @@ namespace _20221208
             }
         }
 
+
+        //クリックされたThumbを登録
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            //クリックされたThumbを登録
             if (e.OriginalSource is FrameworkElement fe)
             {
                 if (fe is TThumb th)
@@ -536,4 +539,26 @@ namespace _20221208
         }
     }
 
+    public class ExCanvas : Canvas
+    {
+        protected override Size MeasureOverride(Size constraint)
+        {
+            Size size = new();
+            foreach (var item in Children.OfType<FrameworkElement>())
+            {
+                double x = GetLeft(item) + item.Width;
+                if (x > size.Width && !double.IsNaN(x))
+                {
+                    size.Width = x;
+                }
+                double y = GetTop(item) + item.Height;
+                if (y > size.Height && !double.IsNaN(y))
+                {
+                    size.Height = y;
+                }
+            }
+            base.MeasureOverride(constraint);
+            return size;
+        }
+    }
 }
