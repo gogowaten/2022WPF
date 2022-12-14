@@ -42,6 +42,12 @@
           <local:TTTextBlock x:Name="Item2" Text="Test2" FontSize="30" BackColor="Gold" X="100"/>
           <local:TTRectangle x:Name="Item3" Fill="Lime" Width="100" Height="20" Y="50"/>
         </local:TTGroup>
+        <local:TTGroup x:Name="TTG2" X="200" Y="0">
+          <local:TTTextBlock x:Name="Item21" Text="Test21" FontSize="30" BackColor="Gold"/>
+          <local:TTTextBlock x:Name="Item22" Text="Test22" FontSize="30" BackColor="Gold" X="100"/>
+          <local:TTRectangle x:Name="Item23" Fill="Lime" Width="100" Height="20" Y="50"/>
+        </local:TTGroup>
+        
 
       </local:TTRoot>
     </Canvas>

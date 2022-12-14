@@ -144,14 +144,14 @@ namespace _20221208
             return panel;
         }
 
-        protected void SetWaku(ref FrameworkElementFactory vt)
-        {
-            FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
-            waku.SetValue(Rectangle.StrokeProperty, Brushes.Red);
+        //protected void SetWaku(ref FrameworkElementFactory vt)
+        //{
+        //    FrameworkElementFactory waku = new(typeof(Rectangle));
+        //    waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
+        //    waku.SetValue(Rectangle.StrokeProperty, Brushes.Red);
 
-            vt.AppendChild(waku);
-        }
+        //    vt.AppendChild(waku);
+        //}
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             Right = X + ActualWidth;
@@ -369,37 +369,17 @@ namespace _20221208
         public void Add(TThumb thumb) { Children.Add(thumb); }
 
 
-        internal void UpdateSizeLocate()
-        {
-            foreach (var item in Children)
-            {
-                if (item is TTGroup tt) { tt.UpdateSizeLocate(); }
-            }
-            var left = Children.Select(a => a.X).Min();
-            //子要素全体の位置が0じゃない場合は全体をオフセット修正＋グループの位置も修正
-            if (left != 0.0) { OffsetX(left); X += left; }
-
-            double top = Children.Select(a => a.Y).Min();
-            if (top != 0.0)
-            {
-                foreach (var item in Children) { item.Y -= top; }
-                Y += top;
-            }
-            var right = Children.Select(a => a.Right).Max();
-            var bottom = Children.Select(a => a.Bottom).Max();
-            Width = right - left;
-            Right = Width + X;
-            Height = bottom - top;
-            Bottom = Height + Y;
-
-        }
-        //
-        internal (double x, double y, double w, double h) GetUnionRect()
+        /// <summary>
+        /// 対象GroupThumbのRectを取得、UnionRect
+        /// </summary>
+        /// <param name="group"></param>
+        /// <returns></returns>
+        internal (double x, double y, double w, double h) GetGroupRect(TTGroup group)
         {
             if (Children.Count == 0) { return (0, 0, 0, 0); }
             double x = double.MaxValue, y = double.MaxValue;
             double w = double.MinValue, h = double.MinValue;
-            foreach (var item in Children)
+            foreach (var item in group.Children)
             {
                 x = Math.Min(x, item.X);
                 y = Math.Min(y, item.Y);
@@ -409,19 +389,49 @@ namespace _20221208
             w -= x; h -= y;
             return (x, y, w, h);
         }
-        internal void UpdateRect(bool allGroups = false)
+        /// <summary>
+        /// 起動時に実行、すべての要素のサイズと位置の更新
+        /// </summary>
+        internal void UpdateRectAllGroup()
         {
-            if (allGroups)
+            foreach (var item in Children)
             {
-                foreach (var item in Children)
-                {
-                    if (item is TTGroup group) { group.UpdateRect(allGroups); }
-                }
+                if (item is TTGroup group) { group.UpdateRectAllGroup(); }
             }
-            (double x, double y, double w, double h) = GetUnionRect();
+            (double x, double y, double w, double h) = GetGroupRect(this);
             if (w == 0 && h == 0) { return; }
             if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
+
             X = x; Y = y; Width = w; Height = h;
+        }
+        /// <summary>
+        /// GroupThumbのサイズと位置の更新、Thumb移動後などに実行
+        /// </summary>
+        /// <param name="group">更新対象のGroupThumb</param>
+        internal void UpdateRect(TTGroup? group)
+        {
+            if (group == null) return;
+            (double x, double y, double w, double h) = GetGroupRect(group);
+            if (w == 0 && h == 0) { return; }
+            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
+
+            group.Width = w; group.Height = h;
+            if (x != 0 || y != 0)
+            {
+                foreach (var item in group.Children)
+                {
+                    item.X -= x; item.Y -= y;
+                }
+                if (group is not TTRoot) { group.X += x; group.Y += y; }
+            }
+
+            //連なる親要素も更新する
+            if (group.ParentThumb is TTGroup parentt)
+            {
+                UpdateRect(parentt);
+            }
+
+
         }
 
         protected void OffsetX(double offset)
@@ -434,9 +444,9 @@ namespace _20221208
     public class TTRoot : TTGroup
     {
 
-        private TThumb? _enable;
+        private TTGroup? _enable;
         //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新する
-        public TThumb? EnableThumb
+        public TTGroup? EnableThumb
         {
             get => _enable; set
             {
@@ -465,18 +475,7 @@ namespace _20221208
             }
         }
 
-        private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            var source = e.Source;
-            var origin = e.OriginalSource;
-            if (e.OriginalSource is TThumb t)
-            {
-                if (t.ParentThumb is TTGroup ttg)
-                {
-                    //ttg.UpdateSizeLocate();
-                }
-            }
-        }
+
         private TThumb? _clicked;
         public TThumb? ClickedThumb { get => _clicked; set => SetProperty(ref _clicked, value); }
         public TTRoot()
@@ -490,8 +489,22 @@ namespace _20221208
             //
             EnableThumb ??= this;
             //
-            //UpdateSizeLocate();
-            UpdateRect(true);
+
+            UpdateRectAllGroup();
+        }
+        private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            var source = e.Source;
+            var origin = e.OriginalSource;
+            //if (this is TTGroup) { return; }
+            if (e.OriginalSource is TThumb t)
+            {
+                if (t.ParentThumb is not null)
+                {
+                    //UpdateRectAllGroup();
+                    UpdateRect(EnableThumb);
+                }
+            }
         }
 
         private void Item_DragDelta(object sender, DragDeltaEventArgs e)

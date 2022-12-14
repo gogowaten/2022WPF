@@ -23,11 +23,13 @@ namespace _20221208
     public partial class MainWindow : Window
     {
         TTTextBlock? MyTTT;
-        public TTGroup MainGroup { get; set; }
+        public TTGroup? MainGroup { get; set; }
         
         public MainWindow()
         {
             InitializeComponent();
+
+            //MyRootThumb.EnableThumb = TTG;
             //GroupDataAdd();
             //Test1();
             //ItemAddFromData();
@@ -137,13 +139,7 @@ namespace _20221208
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
            var temp = MyRootThumb?.ClickedThumb?.Template;
-
-            //MyRootThumb.EnableThumb = MyGroup_0;
-            //var act = MyRectangle.ActiveThumb;
-            //var neko = Item_0_0_0_0.ParentThumb;
-            //var inu = Canvas.GetLeft(MyRectangle);
-            //inu = Canvas.GetLeft(MyTextBlock);
-
+            MyRootThumb.EnableThumb = TTG2;
         }
 
 
