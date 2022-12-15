@@ -139,7 +139,7 @@ namespace _20221208
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
            var temp = MyRootThumb?.ClickedThumb?.Template;
-            MyRootThumb.EnableThumb = TTG;
+            //MyRootThumb.EnableThumb = TTG2;
             Item1.FontSize = 150;
         }
 

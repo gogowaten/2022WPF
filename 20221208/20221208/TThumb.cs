@@ -69,6 +69,28 @@ namespace _20221208
                     FrameworkPropertyMetadataOptions.AffectsRender |
                     FrameworkPropertyMetadataOptions.AffectsMeasure));
 
+        public double TTWidth
+        {
+            get { return (double)GetValue(TTWidthProperty); }
+            set { SetValue(TTWidthProperty, value); }
+        }
+        public static readonly DependencyProperty TTWidthProperty =
+            DependencyProperty.Register(nameof(TTWidth), typeof(double), typeof(TThumb),
+                new FrameworkPropertyMetadata(0.0,
+                    FrameworkPropertyMetadataOptions.AffectsRender |
+                    FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+        public double TTHeight
+        {
+            get { return (double)GetValue(TTHeightProperty); }
+            set { SetValue(TTHeightProperty, value); }
+        }
+        public static readonly DependencyProperty TTHeightProperty =
+            DependencyProperty.Register(nameof(TTHeight), typeof(double), typeof(TThumb),
+                new FrameworkPropertyMetadata(0.0,
+                    FrameworkPropertyMetadataOptions.AffectsRender |
+                    FrameworkPropertyMetadataOptions.AffectsMeasure));
+
 
         public string MyName
         {
@@ -125,6 +147,8 @@ namespace _20221208
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
             SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
+            
+            
             //Loaded += TThumb_Loaded;
             //SizeChanged += TThumb_SizeChanged;
 
@@ -157,11 +181,11 @@ namespace _20221208
         //}
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            Right = X + ActualWidth;
-            Bottom = Y + ActualHeight;
+            //Right = X + ActualWidth;
+            //Bottom = Y + ActualHeight;
 
-            //Width = ActualWidth;
-            //Height = ActualHeight;
+            Width = ActualWidth;
+            Height = ActualHeight;
         }
 
         private void TThumb_Loaded(object sender, RoutedEventArgs e)
@@ -228,8 +252,16 @@ namespace _20221208
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
             panel.AppendChild(elem);
 
-            //panel.SetBinding(WidthProperty, new Binding() { Source = elem, Path = new PropertyPath(ActualWidthProperty) });
-
+            
+            panel.SetValue(WidthProperty, new Binding()
+            {
+                Source = elem,
+                Path = new PropertyPath(ActualWidthProperty)
+            });
+            panel.SetValue(Panel.HeightProperty, new Binding(nameof(ActualHeight))
+            {
+                Source = elem,
+            });
             this.Template = new() { VisualTree = panel };
         }
 
@@ -300,18 +332,10 @@ namespace _20221208
 
         public TTGroup()
         {
-
-            //FrameworkElementFactory panel = new(typeof(ExCanvas));
             FrameworkElementFactory panel = new(typeof(Canvas));
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
-
-
-            //Style sty = new();
-            //sty.Setters.Add(new Setter(Canvas.TopProperty, new Binding(nameof(Y))));
-            //sty.Setters.Add(new Setter(Canvas.TopProperty, new Binding(nameof(X))));
-            //ic.SetValue(ItemsControl.ItemContainerStyleProperty, sty);
 
             FrameworkElementFactory baseGridPanel = MakeBaseTemplate();
             baseGridPanel.AppendChild(ic);
