@@ -306,9 +306,16 @@ namespace _20221208
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
-            FrameworkElementFactory pp = MakeBaseTemplate();
-            pp.AppendChild(ic);
-            this.Template = new() { VisualTree = pp };
+
+
+            //Style sty = new();
+            //sty.Setters.Add(new Setter(Canvas.TopProperty, new Binding(nameof(Y))));
+            //sty.Setters.Add(new Setter(Canvas.TopProperty, new Binding(nameof(X))));
+            //ic.SetValue(ItemsControl.ItemContainerStyleProperty, sty);
+
+            FrameworkElementFactory baseGridPanel = MakeBaseTemplate();
+            baseGridPanel.AppendChild(ic);
+            this.Template = new() { VisualTree = baseGridPanel };
 
             Children.CollectionChanged += Children_CollectionChanged;
 
@@ -378,7 +385,7 @@ namespace _20221208
         /// </summary>
         /// <param name="group"></param>
         /// <returns></returns>
-        internal (double x, double y, double w, double h) GetGroupRect(TTGroup group)
+        internal (double x, double y, double w, double h) GetGroupRect(TTGroup group, bool actualSize)
         {
             if (Children.Count == 0) { return (0, 0, 0, 0); }
             double x = double.MaxValue, y = double.MaxValue;
@@ -387,8 +394,17 @@ namespace _20221208
             {
                 x = Math.Min(x, item.X);
                 y = Math.Min(y, item.Y);
-                w = Math.Max(w, item.X + item.Width);
-                h = Math.Max(h, item.Y + item.Height);
+                if (actualSize)
+                {
+
+                    w = Math.Max(w, item.X + item.ActualWidth);
+                    h = Math.Max(h, item.Y + item.ActualHeight);
+                }
+                else
+                {
+                    w = Math.Max(w, item.X + item.Width);
+                    h = Math.Max(h, item.Y + item.Height);
+                }
             }
             w -= x; h -= y;
             return (x, y, w, h);
@@ -398,10 +414,10 @@ namespace _20221208
         /// GroupThumbのサイズと位置の更新、Thumb移動後などに実行
         /// </summary>
         /// <param name="group">更新対象のGroupThumb</param>
-        internal void UpdateRect(TTGroup? group)
+        internal void UpdateRect(TTGroup? group, bool actualSize=true)
         {
             if (group == null) return;
-            (double x, double y, double w, double h) = GetGroupRect(group);
+            (double x, double y, double w, double h) = GetGroupRect(group, actualSize);
             if (w == 0 && h == 0) { return; }
             if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
 
@@ -412,15 +428,13 @@ namespace _20221208
                 {
                     item.X -= x; item.Y -= y;
                 }
-
                 if (group is not TTRoot) { group.X += x; group.Y += y; }
-
             }
 
             //連なる親要素も更新する
             if (group.ParentThumb is TTGroup parentt)
             {
-                UpdateRect(parentt);
+                UpdateRect(parentt, false);
             }
         }
 
@@ -428,22 +442,6 @@ namespace _20221208
         {
             foreach (var item in Children) { item.X -= offset; }
         }
-        //protected override Size MeasureOverride(Size constraint)
-        //{
-        //    Size size = base.MeasureOverride(constraint);
-            
-        //    foreach (var item in Children)
-        //    {
-        //        double x = item.X + item.Width;
-        //        double y = item.Y + item.Height;
-        //        //double x = item.X + item.ActualWidth;
-        //        //double y = item.Y + item.ActualHeight;
-        //        if (x > size.Width) { size.Width = x; }
-        //        if (y > size.Height) { size.Height = y; }
-
-        //    }
-        //    return size;
-        //}
 
     }
 
@@ -496,36 +494,64 @@ namespace _20221208
             //
             EnableThumb ??= this;
             //すべての要素のサイズと位置の更新
-            //UpRect(this);
+            //下の要素から実行する必要があるので、下の要素を取得する
+            //各グループの1要素だけでいい
             //UpdateRect(this);
+            UpdateRect2(this, false);
         }
-        private void UpRect(TTGroup group)
+        private void UpdateRect2(TTGroup group, bool actualSize)
         {
             foreach (var item in group.Children)
             {
-                if (item is TTGroup ttg)
+                if(item is TTGroup ttg)
                 {
-                    UpRect(ttg);
-                    (double x, double y, double w, double h) = GetGroupRect(ttg);
-                    if (w == 0 && h == 0) { continue; }
-                    if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { continue; }
-
-                    ttg.Width = w; ttg.Height = h;
-                    foreach (var subItem in ttg.Children)
-                    {
-                        subItem.X -= x;
-                        subItem.Y -= y;
-                    }
+                    UpdateRect2(ttg,true);
                 }
             }
+            if (group == null) return;
+            (double x, double y, double w, double h) = GetGroupRect(group, actualSize);
+            if (w == 0 && h == 0) { return; }
+            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
+
+            group.Width = w; group.Height = h;
+            if (x != 0 || y != 0)
+            {
+                foreach (var item in group.Children)
+                {
+                    item.X -= x; item.Y -= y;
+                }
+                if (group is not TTRoot) { group.X += x; group.Y += y; }
+            }
+
         }
+
+        //private void UpRect(TTGroup group)
+        //{
+        //    foreach (var item in group.Children)
+        //    {
+        //        if (item is TTGroup ttg)
+        //        {
+        //            UpRect(ttg);
+        //            (double x, double y, double w, double h) = GetGroupRect(ttg);
+        //            if (w == 0 && h == 0) { continue; }
+        //            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { continue; }
+
+        //            ttg.Width = w; ttg.Height = h;
+        //            foreach (var subItem in ttg.Children)
+        //            {
+        //                subItem.X -= x;
+        //                subItem.Y -= y;
+        //            }
+        //        }
+        //    }
+        //}
         private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             if (e.OriginalSource is TThumb t)
             {
                 if (t.ParentThumb is not null)
                 {
-                    //UpdateRect(EnableThumb);
+                    UpdateRect(EnableThumb);
                 }
             }
         }
@@ -539,7 +565,7 @@ namespace _20221208
             }
         }
 
-     
+
         //クリックされたThumbを登録
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
@@ -558,30 +584,57 @@ namespace _20221208
         }
     }
 
+
     public class ExCanvas : Canvas
     {
-        protected override Size MeasureOverride(Size constraint)
-        {
-           Size size= base.MeasureOverride(constraint);
-            //Size size = new();
-            foreach (var item in Children.OfType<TThumb>())
-            {
-                double x = item.X + item.DesiredSize.Width;
-                //double x = GetLeft(item) + item.DesiredSize.Width;
-                //double x = GetLeft(item) + item.Width;
-                if (x > size.Width && !double.IsNaN(x))
-                {
-                    size.Width = x;
-                }
-                double y = item.Y + item.DesiredSize.Height;
-                //double y = GetTop(item) + item.DesiredSize.Height;
-                //double y = GetTop(item) + item.Height;
-                if (y > size.Height && !double.IsNaN(y))
-                {
-                    size.Height = y;
-                }
-            }
-            return size;
-        }
+        //c# - WPF: Sizing Canvas to contain its children - Stack Overflow
+        //https://stackoverflow.com/questions/55101074/wpf-sizing-canvas-to-contain-its-children
+        //protected override Size MeasureOverride(Size constraint)
+        //{
+        //    base.MeasureOverride(constraint);
+        //    Size size = new();
+        //    foreach (var item in Children.OfType<FrameworkElement>())
+        //    {
+        //        double x = GetLeft(item) + item.Width;
+        //        if (x > size.Width && !double.IsNaN(x))
+        //        {
+        //            size.Width = x;
+        //        }
+        //        double y = GetTop(item) + item.Height;
+        //        if (y > size.Height && !double.IsNaN(y))
+        //        {
+        //            size.Height = y;
+        //        }
+        //    }
+        //    return size;
+        //}
+
+        //protected override Size MeasureOverride(Size constraint)
+        //{
+        //    base.MeasureOverride(constraint);
+        //    Size size = new();
+        //    foreach (var item in Children.OfType<TThumb>())
+        //    {
+        //        double x = item.X;
+        //        double w = item.DesiredSize.Width;
+        //        if (w == double.PositiveInfinity) { w = 0.0; }
+        //        x += w;
+        //        if (x > size.Width && !double.IsNaN(x))
+        //        {
+        //            size.Width = x;
+        //        }
+        //        double y = item.Y;
+
+        //        double h = item.DesiredSize.Height;
+        //        if (h == double.PositiveInfinity) { h = 0.0; }
+        //        y += h;
+        //        if (y > size.Height && !double.IsNaN(y))
+        //        {
+        //            size.Height = y;
+        //        }
+        //    }
+        //    return size;
+        //}
+
     }
 }

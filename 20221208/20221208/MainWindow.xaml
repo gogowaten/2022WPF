@@ -9,7 +9,7 @@
   <Grid>
     <Grid.RowDefinitions>
       <RowDefinition/>
-      <RowDefinition Height="250"/>
+      <RowDefinition Height="350"/>
     </Grid.RowDefinitions>
     <Canvas Grid.Row="0">
       <local:TTRoot x:Name="MyRootThumb">
@@ -42,15 +42,15 @@
           <local:TTTextBlock x:Name="Item2" Text="Test2" FontSize="30" BackColor="Gold" X="90" Y="10"/>
           <local:TTRectangle x:Name="Item3" Fill="Lime" Width="80" Height="20" Y="60"/>
         </local:TTGroup>
-        <!--<local:TTGroup x:Name="TTG2" X="20" Y="100">
-          <local:TTTextBlock x:Name="Item21" Text="Test21" FontSize="10" BackColor="Gold"/>
+        <local:TTGroup x:Name="TTG2" X="20" Y="100">
+          <local:TTTextBlock x:Name="Item21" Text="Test21" FontSize="20" BackColor="Gold"/>
           <local:TTRectangle x:Name="Item22" Fill="Lime" Width="100" Height="20" X="300" Y="100"/>
           <local:TTGroup x:Name="TTG3" X="100" Y="20">
             <local:TTRectangle x:Name="Item31" Fill="Lime" Width="100" Height="20" Y="0"/>
             <local:TTRectangle x:Name="Item32" Fill="Lime" Width="100" Height="20" X="50" Y="50"/>
           </local:TTGroup>
 
-        </local:TTGroup>-->
+        </local:TTGroup>
 
 
       </local:TTRoot>
@@ -69,10 +69,13 @@
       <TextBlock Text="{Binding ClickedThumb.Y, StringFormat=Clicked_Y \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb, StringFormat=EnableT \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb.Width, StringFormat=EnableT_Width \= {0}}"/>
+      <TextBlock Text="{Binding EnableThumb.ActualWidth, StringFormat=EnableT_ActualWidth \= {0}}"/>
+      <TextBlock Text="{Binding EnableThumb.ActualHeight, StringFormat=EnableT_ActualHeight \= {0}}"/>
       <TextBlock Text="{Binding EnableThumb.Y, StringFormat=EnableT_Y \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Name, StringFormat=Active \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Width, StringFormat=Active_Width \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Height, StringFormat=Active_Height \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.ActualWidth, StringFormat=Active_ActualWidth \= {0}}"/>
+      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.ActualHeight, StringFormat=Active_ActualHeight \= {0}}"/>
       <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Y, StringFormat=Active_Y \= {0}}"/>
       <TextBlock DataContext="{Binding ElementName=Item1}" Text="{Binding ActualWidth, StringFormat=acWidth \= {0}}"/>
 
