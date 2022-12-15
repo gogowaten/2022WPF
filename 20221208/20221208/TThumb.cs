@@ -126,14 +126,14 @@ namespace _20221208
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
             SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
             //Loaded += TThumb_Loaded;
-            SizeChanged += TThumb_SizeChanged;
+            //SizeChanged += TThumb_SizeChanged;
 
+            //SetBinding(WidthProperty, new Binding(nameof(Width)));
+            //SetBinding(HeightProperty, new Binding(nameof(Height)));
         }
         protected FrameworkElementFactory MakeBaseTemplate()
         {
-            FrameworkElementFactory panel = new(typeof(Grid));
             FrameworkElementFactory waku = new(typeof(Rectangle));
-            panel.AppendChild(waku);
             waku.SetValue(Shape.StrokeProperty, Brushes.Red);
             waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
             waku.SetValue(Panel.ZIndexProperty, 1);
@@ -141,6 +141,8 @@ namespace _20221208
             //waku.SetValue(HeightProperty, new Binding(nameof(Height)));
             //waku.SetValue(Rectangle.WidthProperty, new Binding(nameof(ActualWidth)) { Source = this });
             //waku.SetValue(Rectangle.HeightProperty, new Binding(nameof(ActualHeight)) { Source = this });
+            FrameworkElementFactory panel = new(typeof(Grid));
+            panel.AppendChild(waku);
 
             return panel;
         }
@@ -158,8 +160,8 @@ namespace _20221208
             Right = X + ActualWidth;
             Bottom = Y + ActualHeight;
 
-            Width = ActualWidth;
-            Height = ActualHeight;
+            //Width = ActualWidth;
+            //Height = ActualHeight;
         }
 
         private void TThumb_Loaded(object sender, RoutedEventArgs e)
@@ -426,6 +428,23 @@ namespace _20221208
         {
             foreach (var item in Children) { item.X -= offset; }
         }
+        //protected override Size MeasureOverride(Size constraint)
+        //{
+        //    Size size = base.MeasureOverride(constraint);
+            
+        //    foreach (var item in Children)
+        //    {
+        //        double x = item.X + item.Width;
+        //        double y = item.Y + item.Height;
+        //        //double x = item.X + item.ActualWidth;
+        //        //double y = item.Y + item.ActualHeight;
+        //        if (x > size.Width) { size.Width = x; }
+        //        if (y > size.Height) { size.Height = y; }
+
+        //    }
+        //    return size;
+        //}
+
     }
 
 
@@ -520,17 +539,7 @@ namespace _20221208
             }
         }
 
-        protected override Size MeasureOverride(Size constraint)
-        {
-            foreach (var item in Children)
-            {
-                double x = item.X + item.ActualWidth;
-                double y = item.Y + item.ActualHeight;
-
-                item.Measure()
-            }
-            return base.MeasureOverride(constraint);
-        }
+     
         //クリックされたThumbを登録
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
@@ -553,21 +562,25 @@ namespace _20221208
     {
         protected override Size MeasureOverride(Size constraint)
         {
-            Size size = new();
-            foreach (var item in Children.OfType<FrameworkElement>())
+           Size size= base.MeasureOverride(constraint);
+            //Size size = new();
+            foreach (var item in Children.OfType<TThumb>())
             {
-                double x = GetLeft(item) + item.Width;
+                double x = item.X + item.DesiredSize.Width;
+                //double x = GetLeft(item) + item.DesiredSize.Width;
+                //double x = GetLeft(item) + item.Width;
                 if (x > size.Width && !double.IsNaN(x))
                 {
                     size.Width = x;
                 }
-                double y = GetTop(item) + item.Height;
+                double y = item.Y + item.DesiredSize.Height;
+                //double y = GetTop(item) + item.DesiredSize.Height;
+                //double y = GetTop(item) + item.Height;
                 if (y > size.Height && !double.IsNaN(y))
                 {
                     size.Height = y;
                 }
             }
-            base.MeasureOverride(constraint);
             return size;
         }
     }
