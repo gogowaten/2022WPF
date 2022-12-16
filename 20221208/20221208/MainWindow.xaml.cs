@@ -24,24 +24,20 @@ namespace _20221208
     {
         TTTextBlock? MyTTT;
         public TTGroup? MainGroup { get; set; }
-        
+
         public MainWindow()
         {
             InitializeComponent();
 
-            //MyRootThumb.EnableThumb = TTG;
-            //GroupDataAdd();
-            //Test1();
-            //ItemAddFromData();
-            //ItemAddFromItem();
+            MyRootThumb.EnableThumb = TTG2;
 
-            
+
 
             //MainGroup = MakeTextGroup();
             //DataContext = MyRootThumb;
             //foreach (var item in MainGroup.Children)
             //{
-               
+
             //    item.PreviewMouseLeftButtonDown += Item_PreviewMouseLeftButtonDown;
 
             //}
@@ -53,12 +49,12 @@ namespace _20221208
         private void Item_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is not TThumb tt) return;
-            var clickedName = tt.Name;            
+            var clickedName = tt.Name;
             var parentName = tt.ParentThumb?.Name;
             var parent = tt.ParentThumb;
 
             //var neko = parent?.ParentThumb?.ClickedItem?.Name;
-            
+
         }
 
         private void A_DragDelta(object sender, DragDeltaEventArgs e)
@@ -138,7 +134,7 @@ namespace _20221208
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-           var temp = MyRootThumb?.ClickedThumb?.Template;
+            var temp = MyRootThumb?.ClickedThumb?.Template;
             //MyRootThumb.EnableThumb = TTG2;
             //Item1.TTFontSize = 150;
             Item1.FontSize = 150;
@@ -148,6 +144,28 @@ namespace _20221208
         private void Button2_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.EnableThumb = MyRootThumb;
+        }
+
+        private void ButtonTTAdd_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyRootThumb?.EnableThumb is TTGroup group)
+            {
+                TThumb? ac = group.ActiveThumb;
+                Data data = new(TType.TextBlock)
+                {
+                    Text = TextBox1.Text,
+                    X = ac == null ? 0 : ac.X + 32,
+                    Y = ac == null ? 0 : ac.Y + 32
+                };
+                group.Add(new TTTextBlock(data));
+
+            }
+
+        }
+
+        private void ButtonTTRemove_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }

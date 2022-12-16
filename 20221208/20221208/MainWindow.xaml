@@ -7,13 +7,13 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="550" Width="600">
   <Grid>
-    <Grid.RowDefinitions>
-      <RowDefinition/>
-      <RowDefinition Height="350"/>
-    </Grid.RowDefinitions>
-    <Canvas Grid.Row="0" UseLayoutRounding="True">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas Grid.Column="0" UseLayoutRounding="True">
       <local:TTRoot x:Name="MyRootThumb">
-        <local:TTRectangle x:Name="Rect1" Width="20" Height="100" X="280" Y="130" Fill="Blue"/>
+        <local:TTRectangle x:Name="Rect1" Width="20" Height="100" X="230" Y="30" Fill="Blue"/>
         <!--<local:TTGroup.Children>
             <local:TTTextBlock Text="ダイレクトコンテンツをサポートしていない場合はこの書き方"/>
           </local:TTGroup.Children>-->
@@ -39,46 +39,62 @@
         </local:TTGroup>-->
 
         <local:TTGroup x:Name="TTG">
-          <local:TTTextBlock x:Name="Item1" Text="Test1" FontSize="30" BackColor="Gold"/>
-          <local:TTTextBlock x:Name="Item2" Text="Test2" FontSize="20" BackColor="Gold" X="90" Y="10"/>
-          <local:TTRectangle x:Name="Item3" Fill="Lime" Width="80" Height="20" Y="60"/>
+          <local:TTTextBlock x:Name="Item1" Text="Item1" FontSize="30" BackColor="Gold"/>
+          <local:TTTextBlock x:Name="Item2" Text="Item2" FontSize="20" BackColor="Gold" X="90" Y="10"/>
+          <local:TTRectangle x:Name="Item3" Fill="Purple" Width="80" Height="20" Y="60"/>
         </local:TTGroup>
         <local:TTGroup x:Name="TTG2" X="20" Y="100">
-          <local:TTTextBlock x:Name="Item21" Text="Test21" FontSize="20" BackColor="Gold"/>
-          <local:TTRectangle x:Name="Item22" Fill="Lime" Width="100" Height="20" X="300" Y="100"/>
-          <local:TTGroup x:Name="TTG3" X="100" Y="20">
-            <local:TTRectangle x:Name="Item31" Fill="Lime" Width="100" Height="20" Y="0"/>
-            <local:TTRectangle x:Name="Item32" Fill="Lime" Width="100" Height="20" X="50" Y="50"/>
+          <local:TTTextBlock x:Name="Item21" Text="Item21" FontSize="20" BackColor="Gold"/>
+          <local:TTRectangle x:Name="Item22" Fill="Pink" Width="100" Height="20" X="70" Y="100"/>
+          <local:TTGroup x:Name="TTG3" X="50" Y="20">
+            <local:TTRectangle x:Name="Item31" Fill="HotPink" Width="100" Height="20" Y="0"/>
+            <local:TTRectangle x:Name="Item32" Fill="Magenta" Width="100" Height="20" X="50" Y="50"/>
           </local:TTGroup>
         </local:TTGroup>
 
 
       </local:TTRoot>
     </Canvas>
-    <StackPanel Grid.Row="1" DataContext="{Binding ElementName=MyRootThumb}">
+    <StackPanel Grid.Column="1" DataContext="{Binding ElementName=MyRootThumb}">
+      <Slider Value="{Binding ElementName=Item2, Path= FontSize}"
+              Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
       <StackPanel Orientation="Horizontal">
         <Button Name="Button1" Content="kakunin" Click="Button1_Click"/>
         <Button Name="Button2" Content="kakunin2" Click="Button2_Click"/>
       </StackPanel>
-      <TextBlock Text="{Binding}"/>
-      <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb, StringFormat= Clicked \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.MyName, StringFormat= Clicked \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActualWidth, StringFormat=Clicked_ActualWidth  \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActualHeight, StringFormat=Clicked_ActualHeight  \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.Y, StringFormat=Clicked_Y \= {0}}"/>
-      <TextBlock Text="{Binding EnableThumb, StringFormat=EnableT \= {0}}"/>
-      <TextBlock Text="{Binding EnableThumb.Width, StringFormat=EnableT_Width \= {0}}"/>
-      <TextBlock Text="{Binding EnableThumb.ActualWidth, StringFormat=EnableT_ActualWidth \= {0}}"/>
-      <TextBlock Text="{Binding EnableThumb.ActualHeight, StringFormat=EnableT_ActualHeight \= {0}}"/>
-      <TextBlock Text="{Binding EnableThumb.Y, StringFormat=EnableT_Y \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Name, StringFormat=Active \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Width, StringFormat=Active_Width \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.ActualWidth, StringFormat=Active_ActualWidth \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.ActualHeight, StringFormat=Active_ActualHeight \= {0}}"/>
-      <TextBlock Text="{Binding ClickedThumb.ActiveThumb.Y, StringFormat=Active_Y \= {0}}"/>
-      <TextBlock DataContext="{Binding ElementName=Item1}" Text="{Binding ActualWidth, StringFormat=acWidth \= {0}}"/>
-
+      <DockPanel>
+        <Button Name="ButtonTTAdd" Content="text add" Click="ButtonTTAdd_Click"/>
+        <Button Name="ButtonTTRemove" Content="text add" Click="ButtonTTRemove_Click"/>
+      </DockPanel>
+      <TextBox Name="TextBox1" Text="AddTextThumb"/>
+      
+      <GroupBox Header="{Binding Name}">
+        <StackPanel>
+          <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+          <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox DataContext="{Binding ClickedThumb}" Header="ClickedThumb">
+        <StackPanel>
+          <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+          <TextBlock Text="{Binding ActualWidth, StringFormat= ActualWidth\={0:0.0}}"/>
+          <TextBlock Text="{Binding Y, StringFormat=Y \= {0}}"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox DataContext="{Binding EnableThumb}" Header="EnableThumb">
+        <StackPanel>
+          <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+          <TextBlock Text="{Binding ActualWidth, StringFormat= ActualWidth\={0:0.0}}"/>
+          <TextBlock Text="{Binding Y, StringFormat=Y \= {0}}"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox DataContext="{Binding ClickedThumb.ActiveThumb}" Header="ActiveThumb">
+        <StackPanel>
+          <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+          <TextBlock Text="{Binding ActualWidth, StringFormat= ActualWidth\={0:0.0}}"/>
+          <TextBlock Text="{Binding Y, StringFormat=Y \= {0}}"/>
+        </StackPanel>
+      </GroupBox>
     </StackPanel>
 
   </Grid>

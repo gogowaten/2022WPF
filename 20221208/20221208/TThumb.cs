@@ -158,7 +158,7 @@ namespace _20221208
         protected FrameworkElementFactory MakeBaseTemplate()
         {
             FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Shape.StrokeProperty, Brushes.Red);
+            waku.SetValue(Shape.StrokeProperty, Brushes.Cyan);
             waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
             waku.SetValue(Panel.ZIndexProperty, 1);
             //waku.SetValue(WidthProperty, new Binding(nameof(Width)));
@@ -519,7 +519,44 @@ namespace _20221208
 
 
         private TThumb? _clicked;
-        public TThumb? ClickedThumb { get => _clicked; set => SetProperty(ref _clicked, value); }
+        public TThumb? ClickedThumb
+        {
+            get => _clicked;
+            set
+            {
+                SetProperty(ref _clicked, value);
+                //ActiveThumbの更新
+                if (value == null) { ActiveThumb = null; }
+                else
+                {
+                    ActiveThumb = GetActiveThumb(value);
+                }
+
+            }
+        }
+        //ActiveThumbはEnableThumbのChildrenのどれかになる
+        //
+        /// <summary>
+        /// ActiveThumbを探す、指定Thumbから親要素を辿ってEnableがあれば、引数がActiveってことになる
+        /// </summary>
+        /// <param name="itemThumb"></param>
+        /// <returns></returns>
+        private TThumb? GetActiveThumb(TThumb itemThumb)
+        {
+            if (itemThumb.ParentThumb is TTGroup group)
+            {
+                if (group == EnableThumb)
+                {
+                    return itemThumb;
+                }
+                else
+                {
+                    return GetActiveThumb(group);
+                }
+            }
+            else return null;
+        }
+
         public TTRoot()
         {
             Loaded += TTRoot_Loaded;
@@ -533,7 +570,6 @@ namespace _20221208
             EnableThumb ??= this;
             //すべてのGroupのサイズ更新
             //下のGroupから実行する
-            //UpdateRect(this);
             UpdateRect2(this, false);
         }
         /// <summary>
@@ -568,26 +604,6 @@ namespace _20221208
 
         }
 
-        //private void UpRect(TTGroup group)
-        //{
-        //    foreach (var item in group.Children)
-        //    {
-        //        if (item is TTGroup ttg)
-        //        {
-        //            UpRect(ttg);
-        //            (double x, double y, double w, double h) = GetGroupRect(ttg);
-        //            if (w == 0 && h == 0) { continue; }
-        //            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { continue; }
-
-        //            ttg.Width = w; ttg.Height = h;
-        //            foreach (var subItem in ttg.Children)
-        //            {
-        //                subItem.X -= x;
-        //                subItem.Y -= y;
-        //            }
-        //        }
-        //    }
-        //}
         private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             if (e.OriginalSource is TThumb t)
@@ -612,18 +628,21 @@ namespace _20221208
         //クリックされたThumbを登録
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            if (e.OriginalSource is FrameworkElement fe)
+            base.OnPreviewMouseLeftButtonDown(e);
+            if (e.OriginalSource is FrameworkElement fwElement)
             {
-                if (fe is TThumb th)
+                if (fwElement is TThumb th)
                 {
+                    if (th is TTGroup) { return; }//GroupはClickedにはしない
                     ClickedThumb = th;
                 }
-                if (fe.TemplatedParent is TThumb tt)
+                if (fwElement.TemplatedParent is TThumb tt)
                 {
+                    if (tt is TTGroup) { return; }
                     ClickedThumb = tt;
                 }
+
             }
-            base.OnPreviewMouseLeftButtonDown(e);
         }
     }
 

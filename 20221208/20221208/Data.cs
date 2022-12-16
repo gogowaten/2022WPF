@@ -29,7 +29,7 @@ namespace _20221208
         public string Text { get; set; } = "";
         public Brush? ForeColor { get; set; }
         public Brush? BackColor { get; set; }
-        public double FontSize { get; set; }
+        public double FontSize { get; set; } = Application.Current.MainWindow.FontSize;
         public double Width { get; set; }
         public double Height { get; set; }
     }
