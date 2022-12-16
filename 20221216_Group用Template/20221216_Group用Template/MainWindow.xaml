@@ -5,20 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221216_Group用Template"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="MainWindow" Height="550" Width="600">
+  <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
-    <Canvas>
+    <Canvas UseLayoutRounding="True">
       <local:TTGroupA x:Name="GroupA">
         <local:TTTextBlock x:Name="TB1" Text="TextBlock1"/>
       </local:TTGroupA>
       <local:TTGroupA x:Name="GroupA2" X="20" Y="80">
         <local:TTTextBlock x:Name="TB21" Text="TB21"/>
-        <local:TTGroupA x:Name="GroupA21">
-          
+        <local:TTGroupA x:Name="GroupA21" X="30" Y="40">
+          <local:TTTextBlock x:Name="TB211" Text="TB211" TTFontSize="30"/>
+          <local:TTTextBlock x:Name="TB212" Text="TB212" TTFontSize="30" X="30" Y="50"/>
         </local:TTGroupA>
       </local:TTGroupA>
     </Canvas>
@@ -27,17 +28,51 @@
         <StackPanel>
           <TextBlock Text="{Binding ActualWidth, StringFormat= AcWid \= {0:0}}"/>
           <TextBlock Text="{Binding Width, StringFormat= Wid \= {0:0}}"/>
+          <GroupBox DataContext="{Binding ElementName=TB1}" Header="TextBlock1">
+            <StackPanel>
+              <TextBlock Text="{Binding ActualWidth, StringFormat= AcWid \= {0:0}}"/>
+              <TextBlock Text="{Binding Width, StringFormat= Wid \= {0:0}}"/>
+              <TextBlock Text="{Binding TTFontSize, StringFormat= FontSize \= {0:0}}"/>
+              <Slider Minimum="10" Maximum="100" Value="{Binding TTFontSize}"
+                  IsSnapToTickEnabled="True" TickFrequency="10"/>
+            </StackPanel>
+          </GroupBox>
         </StackPanel>
       </GroupBox>
-      <GroupBox DataContext="{Binding ElementName=TB1}" Header="TextBlock1">
-        <StackPanel>
-          <TextBlock Text="{Binding ActualWidth, StringFormat= AcWid \= {0:0}}"/>
-          <TextBlock Text="{Binding Width, StringFormat= Wid \= {0:0}}"/>
-          <TextBlock Text="{Binding TTFontSize, StringFormat= FontSize \= {0:0}}"/>
-          <Slider Minimum="10" Maximum="100" Value="{Binding TTFontSize}"
+      <GroupBox DataContext="{Binding ElementName=GroupA2}" Header="{Binding Name}">
+        <StackPanel DataContext="{Binding ElementName=GroupA2}">
+          <TextBlock Text="{Binding ActualWidth, StringFormat=AcWidth \= {0:0.0}}"/>
+          <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+          <GroupBox DataContext="{Binding ElementName=TB21}" Header="{Binding Name}">
+            <StackPanel>
+              <TextBlock Text="{Binding ActualWidth, StringFormat=AcWidth \= {0:0.0}}"/>
+              <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+            </StackPanel>
+          </GroupBox>
+          <GroupBox DataContext="{Binding ElementName=GroupA21}" Header="{Binding Name}">
+            <StackPanel>
+              <TextBlock Text="{Binding ActualWidth, StringFormat=AcWidth \= {0:0.0}}"/>
+              <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+              <GroupBox DataContext="{Binding ElementName=TB211}" Header="{Binding Name}">
+                <StackPanel>
+                  <TextBlock Text="{Binding ActualWidth, StringFormat=AcWidth \= {0:0.0}}"/>
+                  <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+                </StackPanel>
+              </GroupBox>
+              <GroupBox DataContext="{Binding ElementName=TB212}" Header="{Binding Name}">
+                <StackPanel>
+                  <TextBlock Text="{Binding ActualWidth, StringFormat=AcWidth \= {0:0.0}}"/>
+                  <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+                  <TextBlock Text="{Binding TTFontSize, StringFormat= FontSize \= {0:0}}"/>
+                  <Slider Minimum="10" Maximum="100" Value="{Binding TTFontSize}"
                   IsSnapToTickEnabled="True" TickFrequency="10"/>
+                </StackPanel>
+              </GroupBox>
+            </StackPanel>
+
+          </GroupBox>
         </StackPanel>
       </GroupBox>
     </StackPanel>
-    </Grid>
+  </Grid>
 </Window>

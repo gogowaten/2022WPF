@@ -197,7 +197,7 @@ namespace _20221216_Group用Template
         /// </summary>
         /// <param name="group"></param>
         /// <returns></returns>
-        internal (double x, double y, double w, double h) GetGroupRect(TTGroup group, bool actualSize)
+        private (double x, double y, double w, double h) GetGroupRect(TTGroup group, bool actualSize)
         {
             if (Children.Count == 0) { return (0, 0, 0, 0); }
             double x = double.MaxValue, y = double.MaxValue;
@@ -221,6 +221,10 @@ namespace _20221216_Group用Template
             w -= x; h -= y;
             return (x, y, w, h);
         }
+        /// <summary>
+        /// 対象Groupの位置とサイズ更新、親要素に伝播する
+        /// </summary>
+        /// <param name="target"></param>
         public void SetGroupRect(TTGroup target)
         {
             var (x, y, w, h) = GetGroupRect(target, true);
@@ -233,6 +237,7 @@ namespace _20221216_Group用Template
                 {
                     item.X -= x; item.Y -= y;
                 }
+                //親要素も更新
                 if (target.ParentGroup is TTGroup parent)
                 {
                     SetGroupRect(parent);
@@ -275,7 +280,7 @@ namespace _20221216_Group用Template
         private void SetTemplate()
         {
             FrameworkElementFactory waku = new(typeof(Rectangle));
-            waku.SetValue(Shape.StrokeProperty, Brushes.Orange);
+            waku.SetValue(Shape.StrokeProperty, Brushes.Purple);
             waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
             waku.SetValue(Panel.ZIndexProperty, 1);
             FrameworkElementFactory canvas = new(typeof(Canvas));
