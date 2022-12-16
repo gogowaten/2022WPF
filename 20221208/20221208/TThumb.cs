@@ -147,10 +147,10 @@ namespace _20221208
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
             SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
-            
-            
+
+
             //Loaded += TThumb_Loaded;
-            //SizeChanged += TThumb_SizeChanged;
+            SizeChanged += TThumb_SizeChanged;
 
             //SetBinding(WidthProperty, new Binding(nameof(Width)));
             //SetBinding(HeightProperty, new Binding(nameof(Height)));
@@ -184,8 +184,9 @@ namespace _20221208
             //Right = X + ActualWidth;
             //Bottom = Y + ActualHeight;
 
-            Width = ActualWidth;
-            Height = ActualHeight;
+            //Width = ActualWidth;
+            //Height = ActualHeight;
+            ParentThumb?.UpdateRect(ParentThumb);
         }
 
         private void TThumb_Loaded(object sender, RoutedEventArgs e)
@@ -241,6 +242,14 @@ namespace _20221208
         public static readonly DependencyProperty BackColorProperty =
             DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock), new PropertyMetadata(Brushes.Transparent));
 
+        //public double TTFontSize
+        //{
+        //    get { return (double)GetValue(TTFontSizeProperty); }
+        //    set { SetValue(TTFontSizeProperty, value); }
+        //}
+        //public static readonly DependencyProperty TTFontSizeProperty =
+        //    DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock), new PropertyMetadata(20.0));
+
         #endregion
 
         public TTTextBlock()
@@ -250,18 +259,20 @@ namespace _20221208
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
+            //フォントサイズプロパティはThumbにもあるし、名前も変える必要ないのでそのままBinding
+            elem.SetValue(TextBlock.FontSizeProperty, new Binding() { Path = new PropertyPath(Thumb.FontSizeProperty) });
             panel.AppendChild(elem);
 
-            
-            panel.SetValue(WidthProperty, new Binding()
-            {
-                Source = elem,
-                Path = new PropertyPath(ActualWidthProperty)
-            });
-            panel.SetValue(Panel.HeightProperty, new Binding(nameof(ActualHeight))
-            {
-                Source = elem,
-            });
+
+            //panel.SetValue(WidthProperty, new Binding()
+            //{
+            //    Source = elem,
+            //    Path = new PropertyPath(ActualWidthProperty)
+            //});
+            //panel.SetValue(Panel.HeightProperty, new Binding(nameof(ActualHeight))
+            //{
+            //    Source = elem,
+            //});
             this.Template = new() { VisualTree = panel };
         }
 
@@ -271,6 +282,7 @@ namespace _20221208
             Text = data.Text;
             FontColor = data.ForeColor ?? Brushes.Black;
             BackColor = data.BackColor ?? Brushes.Transparent;
+            //TTFontSize = data.FontSize;
             FontSize = data.FontSize;
             base.SetData(data);
         }

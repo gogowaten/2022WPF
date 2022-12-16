@@ -13,6 +13,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+//スライダーでTextblockのフォントサイズ変更で親要素のGroupThumbのサイズが変化するのを確認できる
+
 namespace _20221216_Group用Template
 {
     /// <summary>

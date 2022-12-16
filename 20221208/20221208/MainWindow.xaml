@@ -11,7 +11,7 @@
       <RowDefinition/>
       <RowDefinition Height="350"/>
     </Grid.RowDefinitions>
-    <Canvas Grid.Row="0">
+    <Canvas Grid.Row="0" UseLayoutRounding="True">
       <local:TTRoot x:Name="MyRootThumb">
         <local:TTRectangle x:Name="Rect1" Width="20" Height="100" X="280" Y="130" Fill="Blue"/>
         <!--<local:TTGroup.Children>
@@ -38,9 +38,9 @@
           </local:TTGroup>
         </local:TTGroup>-->
 
-        <local:TTGroup x:Name="TTG" Background="Red" BorderBrush="Red" BorderThickness="2">
+        <local:TTGroup x:Name="TTG">
           <local:TTTextBlock x:Name="Item1" Text="Test1" FontSize="30" BackColor="Gold"/>
-          <local:TTTextBlock x:Name="Item2" Text="Test2" FontSize="30" BackColor="Gold" X="90" Y="10"/>
+          <local:TTTextBlock x:Name="Item2" Text="Test2" FontSize="20" BackColor="Gold" X="90" Y="10"/>
           <local:TTRectangle x:Name="Item3" Fill="Lime" Width="80" Height="20" Y="60"/>
         </local:TTGroup>
         <local:TTGroup x:Name="TTG2" X="20" Y="100">
