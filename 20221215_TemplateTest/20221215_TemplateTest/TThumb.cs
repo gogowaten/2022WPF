@@ -22,62 +22,37 @@ namespace _20221215_TemplateTest
 {
     public class TThumb : Thumb
     {
-        #region 依存プロパティ
-        //デザイン画面での値変更時に描画更新対応した、依存プロパティ
-        public double X
-        {
-            get { return (double)GetValue(XProperty); }
-            set { SetValue(XProperty, value); }
-        }
-        public static readonly DependencyProperty XProperty =
-            DependencyProperty.Register(nameof(X), typeof(double), typeof(TThumb),
-                new FrameworkPropertyMetadata(0.0,
-                    FrameworkPropertyMetadataOptions.AffectsRender |
-                    FrameworkPropertyMetadataOptions.AffectsMeasure));
-
-        public double Y
-        {
-            get { return (double)GetValue(YProperty); }
-            set { SetValue(YProperty, value); }
-        }
-        public static readonly DependencyProperty YProperty =
-            DependencyProperty.Register(nameof(Y), typeof(double), typeof(TThumb),
-                new FrameworkPropertyMetadata(0.0,
-                    FrameworkPropertyMetadataOptions.AffectsRender |
-                    FrameworkPropertyMetadataOptions.AffectsMeasure));
-
-        public int Z
-        {
-            get { return (int)GetValue(ZProperty); }
-            set { SetValue(ZProperty, value); }
-        }
-        public static readonly DependencyProperty ZProperty =
-            DependencyProperty.Register(nameof(Z), typeof(int), typeof(TThumb),
-                new FrameworkPropertyMetadata(0,
-                    FrameworkPropertyMetadataOptions.AffectsRender |
-                    FrameworkPropertyMetadataOptions.AffectsMeasure));
-
-
-        public string MyName
-        {
-            get { return (string)GetValue(ZNameProperty); }
-            set { SetValue(ZNameProperty, value); }
-        }
-        public static readonly DependencyProperty ZNameProperty =
-            DependencyProperty.Register(nameof(MyName), typeof(string), typeof(TThumb), new PropertyMetadata(""));
-
-        #endregion
+     
 
         
         public TThumb()
         {
             DataContext = this;
-
+            SizeChanged += TThumb_SizeChanged;
         }
 
-
+        private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            string name = this.Name;
+            double ah = this.ActualHeight;
+            double h = this.Height;
+            Size size = this.DesiredSize;
+            var source = e.Source;
+            var origin = e.OriginalSource;
+        }
+        protected override void OnRender(DrawingContext drawingContext)
+        {
+            base.OnRender(drawingContext);
+        }
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+        }
     }
 
+    /// <summary>
+    /// TextblockとのBindingをTemplate作成中に行う
+    /// </summary>
     public class TTTextBlock : TThumb
     {
         
@@ -109,6 +84,14 @@ namespace _20221215_TemplateTest
             DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock),
                 new PropertyMetadata(Brushes.Transparent));
 
+        public double TTFontSize
+        {
+            get { return (double)GetValue(TTFontSizeProperty); }
+            set { SetValue(TTFontSizeProperty, value); }
+        }
+        public static readonly DependencyProperty TTFontSizeProperty =
+            DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock), new PropertyMetadata(20.0));
+
 
         #endregion
 
@@ -127,6 +110,7 @@ namespace _20221215_TemplateTest
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
+            elem.SetValue(TextBlock.FontSizeProperty, new Binding(nameof(TTFontSize)));
             FrameworkElementFactory panel = new(typeof(Grid));
             //FrameworkElementFactory panel = new(typeof(Canvas));//Canvasだとサイズが常に0になる
             panel.AppendChild(elem);
@@ -135,6 +119,10 @@ namespace _20221215_TemplateTest
             
         }
     }
+    /// <summary>
+    /// TextblockとのBindingをTemplateから取り出したTextblockと行う
+    /// あとからでもTextblockに対して色々できる
+    /// </summary>
     public class TTTextBlock2 : TTTextBlock
     {
         protected const string MY_TEMPLATE_NAME = "myTemplate";
@@ -147,6 +135,7 @@ namespace _20221215_TemplateTest
                 TemplateTextBlock.SetBinding(TextBlock.TextProperty, new Binding(nameof(Text)));
                 TemplateTextBlock.SetBinding(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
                 TemplateTextBlock.SetBinding(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
+                TemplateTextBlock.SetBinding(TextBlock.FontSizeProperty, new Binding(nameof(TTFontSize)));
             }
             
 
@@ -164,6 +153,7 @@ namespace _20221215_TemplateTest
             panel.AppendChild(waku);
             this.Template = new() { VisualTree = panel };
             this.ApplyTemplate();
+            //Textblock取り出し
             this.TemplateTextBlock = (TextBlock)this.Template.FindName(MY_TEMPLATE_NAME, this);
 
         }

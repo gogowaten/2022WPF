@@ -5,15 +5,39 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221215_TemplateTest"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="600">
   <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
     <Canvas>
       <local:TTTextBlock Text="TTTextBlock" FontColor="AliceBlue" BackColor="MediumAquamarine"
-                         Canvas.Left="100" FontSize="20"/>
+                        x:Name="T1" Canvas.Left="10" TTFontSize="20"/>
       <local:TTTextBlock2 Text="TTTextBlock2" FontColor="AliceBlue" BackColor="MediumAquamarine"
-                         Canvas.Left="100" Canvas.Top="50" FontSize="20"/>
-      
-      <TextBlock Text="normal" Background="Red"/>
+                        x:Name="T2" Canvas.Left="10" Canvas.Top="150" TTFontSize="20"/>
     </Canvas>
+    <StackPanel Grid.Column="1">
+      <GroupBox DataContext="{Binding ElementName=T1}" Header="TTTextBlock1">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=ActualHeight, StringFormat=AH \= {0:0}}"/>
+          <TextBlock Text="{Binding Path=Height, StringFormat=H \= {0:0}}"/>
+          <TextBlock Text="{Binding Path=DesiredSize, StringFormat=H \= ({0: 0})}"/>
+          <TextBlock Text="{Binding TTFontSize, StringFormat= FontSize \= 0}"/>
+          <Slider Value="{Binding Path=TTFontSize}"
+              Minimum="10" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox DataContext="{Binding ElementName=T2}" Header="TTTextBlock2">
+        <StackPanel>
+          <TextBlock Text="{Binding Path=ActualHeight, StringFormat=AH \= {0:0}}"/>
+          <TextBlock Text="{Binding Path=Height, StringFormat=H \= {0:0}}"/>
+          <TextBlock Text="{Binding TTFontSize, StringFormat= FontSize \= 0}"/>
+          <Slider Value="{Binding Path=TTFontSize}"
+              Minimum="10" Maximum="100" TickFrequency="10" IsSnapToTickEnabled="True"/>
+        </StackPanel>
+      </GroupBox>
+      <Button x:Name="Button1" Content="test1" Click="Button1_Click"/>
+    </StackPanel>
   </Grid>
 </Window>
