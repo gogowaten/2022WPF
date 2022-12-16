@@ -13,13 +13,13 @@
     </Grid.ColumnDefinitions>
     <Canvas UseLayoutRounding="True">
       <local:TTGroupA x:Name="GroupA">
-        <local:TTTextBlock x:Name="TB1" Text="TextBlock1"/>
+        <local:TTTextBlock x:Name="TB1" Text="TextBlock1" FontSize="20"/>
       </local:TTGroupA>
       <local:TTGroupA x:Name="GroupA2" X="20" Y="80">
-        <local:TTTextBlock x:Name="TB21" Text="TB21"/>
+        <local:TTTextBlock x:Name="TB21" Text="TB21" FontSize="20"/>
         <local:TTGroupA x:Name="GroupA21" X="30" Y="40">
-          <local:TTTextBlock x:Name="TB211" Text="TB211" TTFontSize="30"/>
-          <local:TTTextBlock x:Name="TB212" Text="TB212" TTFontSize="30" X="30" Y="50"/>
+          <local:TTTextBlock x:Name="TB211" Text="TB211" FontSize="30"/>
+          <local:TTTextBlock x:Name="TB212" Text="TB212" FontSize="30" X="30" Y="50"/>
         </local:TTGroupA>
       </local:TTGroupA>
     </Canvas>
@@ -32,8 +32,8 @@
             <StackPanel>
               <TextBlock Text="{Binding ActualWidth, StringFormat= AcWid \= {0:0}}"/>
               <TextBlock Text="{Binding Width, StringFormat= Wid \= {0:0}}"/>
-              <TextBlock Text="{Binding TTFontSize, StringFormat= FontSize \= {0:0}}"/>
-              <Slider Minimum="10" Maximum="100" Value="{Binding TTFontSize}"
+              <TextBlock Text="{Binding FontSize, StringFormat= FontSize \= {0:0}}"/>
+              <Slider Minimum="10" Maximum="100" Value="{Binding FontSize}"
                   IsSnapToTickEnabled="True" TickFrequency="10"/>
             </StackPanel>
           </GroupBox>
@@ -63,8 +63,8 @@
                 <StackPanel>
                   <TextBlock Text="{Binding ActualWidth, StringFormat=AcWidth \= {0:0.0}}"/>
                   <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
-                  <TextBlock Text="{Binding TTFontSize, StringFormat= FontSize \= {0:0}}"/>
-                  <Slider Minimum="10" Maximum="100" Value="{Binding TTFontSize}"
+                  <TextBlock Text="{Binding FontSize, StringFormat= FontSize \= {0:0}}"/>
+                  <Slider Minimum="10" Maximum="100" Value="{Binding FontSize}"
                   IsSnapToTickEnabled="True" TickFrequency="10"/>
                 </StackPanel>
               </GroupBox>

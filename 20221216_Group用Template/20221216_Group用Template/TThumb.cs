@@ -142,13 +142,13 @@ namespace _20221216_Group用Template
             DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock),
                 new PropertyMetadata(Brushes.Transparent));
 
-        public double TTFontSize
-        {
-            get { return (double)GetValue(TTFontSizeProperty); }
-            set { SetValue(TTFontSizeProperty, value); }
-        }
-        public static readonly DependencyProperty TTFontSizeProperty =
-            DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock), new PropertyMetadata(20.0));
+        //public double TTFontSize
+        //{
+        //    get { return (double)GetValue(TTFontSizeProperty); }
+        //    set { SetValue(TTFontSizeProperty, value); }
+        //}
+        //public static readonly DependencyProperty TTFontSizeProperty =
+        //    DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock), new PropertyMetadata(20.0));
 
 
         #endregion
@@ -168,7 +168,8 @@ namespace _20221216_Group用Template
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
-            elem.SetValue(TextBlock.FontSizeProperty, new Binding(nameof(TTFontSize)));
+            //フォントサイズはThumbにもあるし、名前も変える必要ないのでそのままBinding
+            elem.SetValue(TextBlock.FontSizeProperty, new Binding() { Path=new PropertyPath(Thumb.FontSizeProperty)});
             FrameworkElementFactory panel = new(typeof(Grid));
             //FrameworkElementFactory panel = new(typeof(Canvas));//Canvasだとサイズが常に0になる
             panel.AppendChild(elem);
