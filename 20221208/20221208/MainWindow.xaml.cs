@@ -146,6 +146,7 @@ namespace _20221208
             MyRootThumb.EnableThumb = MyRootThumb;
         }
 
+        //Item追加テスト
         private void ButtonTTAdd_Click(object sender, RoutedEventArgs e)
         {
             if (MyRootThumb?.EnableThumb is TTGroup group)
@@ -154,11 +155,13 @@ namespace _20221208
                 Data data = new(TType.TextBlock)
                 {
                     Text = TextBox1.Text,
+                    MyName = TextBox1.Text,
                     X = ac == null ? 0 : ac.X + 32,
                     Y = ac == null ? 0 : ac.Y + 32
                 };
-                group.Add(new TTTextBlock(data));
-
+                
+                var ttt = new TTTextBlock(data);
+                group.AddItem(ttt);
             }
 
         }

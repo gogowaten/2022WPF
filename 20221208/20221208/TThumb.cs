@@ -102,38 +102,10 @@ namespace _20221208
 
         #endregion
 
-        //#region 通知プロパティ
-        //public event PropertyChangedEventHandler? PropertyChanged;
-        //protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        //{
-        //    if (EqualityComparer<T>.Default.Equals(field, value)) return;
-        //    field = value;
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        //}
-
-        //private TThumb? _active;
-        //public TThumb? ActiveThumb
-        //{
-        //    get => _active; set
-        //    {
-        //        //自身がGroupなら子要素のActiveも変更
-        //        if (this is TTGroup tt)
-        //        {
-        //            foreach (var item in tt.Children)
-        //            {
-        //                item.ActiveThumb = value;
-        //            }
-        //        }
-
-        //        SetProperty(ref _active, value);
-        //    }
-        //}
-
-        //#endregion 通知プロパティ
-
         #region プロパティ
         public double Right { get; protected set; }//いらないかも
         public double Bottom { get; protected set; }//いらないかも
+        public TTRoot? MyTTRootThumb { get; internal set; }
 
         #endregion プロパティ
         public TTGroup? ParentThumb { get; internal set; }
@@ -325,16 +297,11 @@ namespace _20221208
         }
 
         private TThumb? _active;
-        public TThumb? ActiveThumb
-        {
-            get => _active;
-            set
-            {
-                SetProperty(ref _active, value);
-            }
-        }
+        public TThumb? ActiveThumb { get => _active; set => SetProperty(ref _active, value); }
 
         #endregion 通知プロパティ
+
+
 
         public TTGroup()
         {
@@ -349,6 +316,7 @@ namespace _20221208
 
             Children.CollectionChanged += Children_CollectionChanged;
 
+
         }
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -359,6 +327,15 @@ namespace _20221208
                 {
                     case NotifyCollectionChangedAction.Add:
                         tt.ParentThumb = this;
+                        //if (this is TTRoot root) { tt.MyTTRootThumb = root; }
+                        tt.MyTTRootThumb = this.MyTTRootThumb;
+
+                        //自身がEnableThumbなら要素にドラッグ移動系のイベント付加する
+                        if (tt.MyTTRootThumb?.EnableThumb == this)
+                        {
+                            tt.DragDelta += Item_DragDelta;
+                            tt.DragCompleted += Item_DragCompleted;
+                        }
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         tt.ParentThumb = null;
@@ -386,11 +363,11 @@ namespace _20221208
             {
                 foreach (var item in data.Datas)
                 {
-                    Add(item);
+                    AddItem(item);
                 }
             }
         }
-        private void Add(Data data)
+        private void AddItem(Data data)
         {
             switch (data.Type)
             {
@@ -407,7 +384,10 @@ namespace _20221208
                     break;
             }
         }
-        public void Add(TThumb thumb) { Children.Add(thumb); }
+        public void AddItem(TThumb thumb)
+        {
+            Children.Add(thumb);
+        }
 
 
         /// <summary>
@@ -469,7 +449,25 @@ namespace _20221208
             }
         }
 
+        protected void Item_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            if (e.OriginalSource is TThumb t)
+            {
+                if (t.ParentThumb is TTGroup group)
+                {
+                    UpdateRect(group.MyTTRootThumb?.EnableThumb);
+                }
+            }
+        }
 
+        protected void Item_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is TThumb tt)
+            {
+                tt.X += e.HorizontalChange;
+                tt.Y += e.VerticalChange;
+            }
+        }
     }
 
 
@@ -477,7 +475,7 @@ namespace _20221208
     {
 
         private TTGroup? _enable;
-        //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新(nullに)する
+        //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新(nullに)する        
         public TTGroup? EnableThumb
         {
             get => _enable; set
@@ -487,21 +485,21 @@ namespace _20221208
                     if (_enable != null)
                     {
                         _enable.ActiveThumb = null;
+                        //_enable.IsEnabledThumb = false;
                         foreach (var item in _enable.Children)
                         {
                             item.DragDelta -= Item_DragDelta;
                             item.DragCompleted -= Item_DragCompleted;
-                            //item.ActiveThumb = null;
                         }
                     }
                     if (value != null)
                     {
                         value.ActiveThumb = null;
+                        //value.IsEnabledThumb = true;
                         foreach (var item in value.Children)
                         {
                             item.DragDelta += Item_DragDelta;
                             item.DragCompleted += Item_DragCompleted;
-                            //item.ActiveThumb = null;//
                         }
                     }
                 }
@@ -553,10 +551,13 @@ namespace _20221208
             if (me.ParentThumb == target) return true;
             else { return IsRelated(target, me.ParentThumb); }
         }
+        #region コンストラクタ
         public TTRoot()
         {
             Loaded += TTRoot_Loaded;
+            MyTTRootThumb = this;
         }
+        #endregion コンストラクタ
 
         //起動直後
         private void TTRoot_Loaded(object sender, RoutedEventArgs e)
@@ -599,28 +600,9 @@ namespace _20221208
 
         }
 
-        private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            if (e.OriginalSource is TThumb t)
-            {
-                if (t.ParentThumb is not null)
-                {
-                    UpdateRect(EnableThumb);
-                }
-            }
-        }
 
-        private void Item_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            if (sender is TThumb tt)
-            {
-                tt.X += e.HorizontalChange;
-                tt.Y += e.VerticalChange;
-            }
-        }
-
-
-        //クリックされたThumbを登録
+        //マウス左クリック時
+        //クリックされたThumbをClickedThumbに登録
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             base.OnPreviewMouseLeftButtonDown(e);
@@ -638,6 +620,20 @@ namespace _20221208
                 }
 
             }
+        }
+    }
+
+
+    public class ConverterThumbBool : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 
