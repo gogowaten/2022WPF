@@ -450,7 +450,7 @@ namespace _20221208
             }
         }
 
-        protected void Item_DragCompleted(object sender, DragCompletedEventArgs e)
+        internal void Item_DragCompleted(object sender, DragCompletedEventArgs e)
         {
             if (e.OriginalSource is TThumb t)
             {
@@ -460,11 +460,8 @@ namespace _20221208
                 }
             }
         }
-        private TTGroup GetEnableThumb(TThumb begin)
-        {
-            
-        }
-        protected void Item_DragDelta(object sender, DragDeltaEventArgs e)
+
+        internal void Item_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is TThumb tt)
             {
@@ -492,8 +489,8 @@ namespace _20221208
                         //_enable.IsEnabledThumb = false;
                         foreach (var item in _enable.Children)
                         {
-                            item.DragDelta -= Item_DragDelta;
-                            item.DragCompleted -= Item_DragCompleted;
+                            item.DragDelta -= _enable.Item_DragDelta;
+                            item.DragCompleted -= _enable.Item_DragCompleted;
                         }
                     }
                     if (value != null)
@@ -502,8 +499,8 @@ namespace _20221208
                         //value.IsEnabledThumb = true;
                         foreach (var item in value.Children)
                         {
-                            item.DragDelta += Item_DragDelta;
-                            item.DragCompleted += Item_DragCompleted;
+                            item.DragDelta += value.Item_DragDelta;
+                            item.DragCompleted += value.Item_DragCompleted;
                         }
                     }
                 }
