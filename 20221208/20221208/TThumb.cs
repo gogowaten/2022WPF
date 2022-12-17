@@ -22,7 +22,7 @@ using System.Windows.Media.Animation;
 namespace _20221208
 {
 
-    public abstract class TThumb : Thumb, INotifyPropertyChanged
+    public abstract class TThumb : Thumb//, INotifyPropertyChanged
     {
         #region 依存プロパティ
 
@@ -102,34 +102,34 @@ namespace _20221208
 
         #endregion
 
-        #region 通知プロパティ
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return;
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        //#region 通知プロパティ
+        //public event PropertyChangedEventHandler? PropertyChanged;
+        //protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(field, value)) return;
+        //    field = value;
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        //}
 
-        private TThumb? _active;
-        public TThumb? ActiveThumb
-        {
-            get => _active; set
-            {
-                //自身がGroupなら子要素のActiveも変更
-                if (this is TTGroup tt)
-                {
-                    foreach (var item in tt.Children)
-                    {
-                        item.ActiveThumb = value;
-                    }
-                }
+        //private TThumb? _active;
+        //public TThumb? ActiveThumb
+        //{
+        //    get => _active; set
+        //    {
+        //        //自身がGroupなら子要素のActiveも変更
+        //        if (this is TTGroup tt)
+        //        {
+        //            foreach (var item in tt.Children)
+        //            {
+        //                item.ActiveThumb = value;
+        //            }
+        //        }
 
-                SetProperty(ref _active, value);
-            }
-        }
+        //        SetProperty(ref _active, value);
+        //    }
+        //}
 
-        #endregion 通知プロパティ
+        //#endregion 通知プロパティ
 
         #region プロパティ
         public double Right { get; protected set; }//いらないかも
@@ -171,14 +171,7 @@ namespace _20221208
             return panel;
         }
 
-        //protected void SetWaku(ref FrameworkElementFactory vt)
-        //{
-        //    FrameworkElementFactory waku = new(typeof(Rectangle));
-        //    waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
-        //    waku.SetValue(Rectangle.StrokeProperty, Brushes.Red);
 
-        //    vt.AppendChild(waku);
-        //}
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //Right = X + ActualWidth;
@@ -242,13 +235,6 @@ namespace _20221208
         public static readonly DependencyProperty BackColorProperty =
             DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock), new PropertyMetadata(Brushes.Transparent));
 
-        //public double TTFontSize
-        //{
-        //    get { return (double)GetValue(TTFontSizeProperty); }
-        //    set { SetValue(TTFontSizeProperty, value); }
-        //}
-        //public static readonly DependencyProperty TTFontSizeProperty =
-        //    DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock), new PropertyMetadata(20.0));
 
         #endregion
 
@@ -263,16 +249,6 @@ namespace _20221208
             elem.SetValue(TextBlock.FontSizeProperty, new Binding() { Path = new PropertyPath(Thumb.FontSizeProperty) });
             panel.AppendChild(elem);
 
-
-            //panel.SetValue(WidthProperty, new Binding()
-            //{
-            //    Source = elem,
-            //    Path = new PropertyPath(ActualWidthProperty)
-            //});
-            //panel.SetValue(Panel.HeightProperty, new Binding(nameof(ActualHeight))
-            //{
-            //    Source = elem,
-            //});
             this.Template = new() { VisualTree = panel };
         }
 
@@ -282,7 +258,6 @@ namespace _20221208
             Text = data.Text;
             FontColor = data.ForeColor ?? Brushes.Black;
             BackColor = data.BackColor ?? Brushes.Transparent;
-            //TTFontSize = data.FontSize;
             FontSize = data.FontSize;
             base.SetData(data);
         }
@@ -336,11 +311,30 @@ namespace _20221208
     //これでXAMLでも子要素を追加できるようになる、ContentProperty(コレクション変数名)
     //もっとも、ダイレクトコンテンツをサポートしていない場合は<local:TTGroup.Children>で追加できる
     [ContentProperty(nameof(Children))]
-    public class TTGroup : TThumb
+    public class TTGroup : TThumb, INotifyPropertyChanged
     {
         public ObservableCollection<TThumb> Children { get; protected set; } = new();
 
+        #region 通知プロパティ
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
 
+        private TThumb? _active;
+        public TThumb? ActiveThumb
+        {
+            get => _active;
+            set
+            {
+                SetProperty(ref _active, value);
+            }
+        }
+
+        #endregion 通知プロパティ
 
         public TTGroup()
         {
@@ -475,10 +469,6 @@ namespace _20221208
             }
         }
 
-        protected void OffsetX(double offset)
-        {
-            foreach (var item in Children) { item.X -= offset; }
-        }
 
     }
 
@@ -487,7 +477,7 @@ namespace _20221208
     {
 
         private TTGroup? _enable;
-        //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新する
+        //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新(nullに)する
         public TTGroup? EnableThumb
         {
             get => _enable; set
@@ -496,20 +486,22 @@ namespace _20221208
                 {
                     if (_enable != null)
                     {
+                        _enable.ActiveThumb = null;
                         foreach (var item in _enable.Children)
                         {
                             item.DragDelta -= Item_DragDelta;
                             item.DragCompleted -= Item_DragCompleted;
-                            item.ActiveThumb = null;
+                            //item.ActiveThumb = null;
                         }
                     }
                     if (value != null)
                     {
+                        value.ActiveThumb = null;
                         foreach (var item in value.Children)
                         {
                             item.DragDelta += Item_DragDelta;
                             item.DragCompleted += Item_DragCompleted;
-                            item.ActiveThumb = item;//
+                            //item.ActiveThumb = null;//
                         }
                     }
                 }
@@ -524,14 +516,17 @@ namespace _20221208
             get => _clicked;
             set
             {
-                SetProperty(ref _clicked, value);
                 //ActiveThumbの更新
-                if (value == null) { ActiveThumb = null; }
-                else
+                if (value != _clicked)
                 {
-                    ActiveThumb = GetActiveThumb(value);
+                    //今のActiveThumbとClickedの関連がなければActiveを更新
+                    if (IsRelated(ActiveThumb, value) == false)
+                    {
+                        if (value == null) { ActiveThumb = null; }
+                        else { ActiveThumb = GetActiveThumb(value); }
+                    }
                 }
-
+                SetProperty(ref _clicked, value);
             }
         }
         //ActiveThumbはEnableThumbのChildrenのどれかになる
@@ -545,22 +540,22 @@ namespace _20221208
         {
             if (itemThumb.ParentThumb is TTGroup group)
             {
-                if (group == EnableThumb)
-                {
-                    return itemThumb;
-                }
-                else
-                {
-                    return GetActiveThumb(group);
-                }
+                if (group == EnableThumb) return itemThumb;
+                else return GetActiveThumb(group);
             }
             else return null;
         }
-
+        //関連の有無を返す、自分自身か関連があればtrueを返す
+        private bool IsRelated(TThumb? target, TThumb? me)
+        {
+            if (target == null || me == null) return false;
+            if (target == me) return true;
+            if (me.ParentThumb == target) return true;
+            else { return IsRelated(target, me.ParentThumb); }
+        }
         public TTRoot()
         {
             Loaded += TTRoot_Loaded;
-
         }
 
         //起動直後

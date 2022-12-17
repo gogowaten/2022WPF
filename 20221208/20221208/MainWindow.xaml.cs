@@ -29,7 +29,7 @@ namespace _20221208
         {
             InitializeComponent();
 
-            MyRootThumb.EnableThumb = TTG2;
+            //MyRootThumb.EnableThumb = TTG2;
 
 
 
@@ -136,8 +136,8 @@ namespace _20221208
         {
             var temp = MyRootThumb?.ClickedThumb?.Template;
             //MyRootThumb.EnableThumb = TTG2;
-            //Item1.TTFontSize = 150;
-            Item1.FontSize = 150;
+            var actItem21 = MyRootThumb?.ActiveThumb;
+            //Item1.FontSize = 150;
         }
 
 
@@ -166,6 +166,26 @@ namespace _20221208
         private void ButtonTTRemove_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void Button3_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableThumb = TTG;
+        }
+
+        private void Button4_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableThumb = TTG2;
+        }
+
+        private void Button5_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableThumb = TTG3;
+        }
+
+        private void Button6_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableThumb = MyRootThumb;
         }
     }
 }

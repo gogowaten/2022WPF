@@ -58,16 +58,21 @@
     <StackPanel Grid.Column="1" DataContext="{Binding ElementName=MyRootThumb}">
       <Slider Value="{Binding ElementName=Item2, Path= FontSize}"
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
-      <StackPanel Orientation="Horizontal">
+      <WrapPanel Orientation="Horizontal">
         <Button Name="Button1" Content="kakunin" Click="Button1_Click"/>
         <Button Name="Button2" Content="kakunin2" Click="Button2_Click"/>
-      </StackPanel>
+        <Button Name="Button3" Content="TTGEnable" Click="Button3_Click"/>
+        <Button Name="Button4" Content="TTG2Enable" Click="Button4_Click"/>
+        <Button Name="Button5" Content="TTG3Enable" Click="Button5_Click"/>
+        <Button Name="Button6" Content="RootEnable" Click="Button6_Click"/>
+
+      </WrapPanel>
       <DockPanel>
         <Button Name="ButtonTTAdd" Content="text add" Click="ButtonTTAdd_Click"/>
         <Button Name="ButtonTTRemove" Content="text add" Click="ButtonTTRemove_Click"/>
       </DockPanel>
       <TextBox Name="TextBox1" Text="AddTextThumb"/>
-      
+
       <GroupBox Header="{Binding Name}">
         <StackPanel>
           <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
@@ -88,7 +93,7 @@
           <TextBlock Text="{Binding Y, StringFormat=Y \= {0}}"/>
         </StackPanel>
       </GroupBox>
-      <GroupBox DataContext="{Binding ClickedThumb.ActiveThumb}" Header="ActiveThumb">
+      <GroupBox DataContext="{Binding ElementName=MyRootThumb, Path=ActiveThumb}" Header="ActiveThumb">
         <StackPanel>
           <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
           <TextBlock Text="{Binding ActualWidth, StringFormat= ActualWidth\={0:0.0}}"/>
