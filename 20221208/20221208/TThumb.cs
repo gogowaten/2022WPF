@@ -289,7 +289,8 @@ namespace _20221208
 
         #region 通知プロパティ
         public event PropertyChangedEventHandler? PropertyChanged;
-        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        protected void SetProperty<T>(ref T field, T value,
+            [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return;
             field = value;
@@ -459,7 +460,10 @@ namespace _20221208
                 }
             }
         }
-
+        private TTGroup GetEnableThumb(TThumb begin)
+        {
+            
+        }
         protected void Item_DragDelta(object sender, DragDeltaEventArgs e)
         {
             if (sender is TThumb tt)
