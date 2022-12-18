@@ -47,7 +47,7 @@
           <local:TTTextBlock x:Name="Item21" Text="Item21" FontSize="20" BackColor="Gold"/>
           <local:TTRectangle x:Name="Item22" Fill="Pink" Width="100" Height="20" X="70" Y="100"/>
           <local:TTGroup x:Name="TTG3" X="50" Y="20">
-            <local:TTRectangle x:Name="Item31" Fill="HotPink" Width="100" Height="20" Y="0"/>
+            <local:TTRectangle x:Name="Item31" Fill="HotPink" Width="30" Height="20" Y="0"/>
             <local:TTRectangle x:Name="Item32" Fill="Magenta" Width="100" Height="20" X="50" Y="50"/>
           </local:TTGroup>
         </local:TTGroup>

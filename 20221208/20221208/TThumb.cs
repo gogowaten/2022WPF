@@ -105,7 +105,7 @@ namespace _20221208
         #region プロパティ
         public double Right { get; protected set; }//いらないかも
         public double Bottom { get; protected set; }//いらないかも
-        public TTRoot? MyTTRootThumb { get; internal set; }
+        //public TTRoot? MyTTRootThumb { get; internal set; }
 
         #endregion プロパティ
         public TTGroup? ParentThumb { get; internal set; }
@@ -287,24 +287,24 @@ namespace _20221208
     //これでXAMLでも子要素を追加できるようになる、ContentProperty(コレクション変数名)
     //もっとも、ダイレクトコンテンツをサポートしていない場合は<local:TTGroup.Children>で追加できる
     [ContentProperty(nameof(Children))]
-    public class TTGroup : TThumb, INotifyPropertyChanged
+    public class TTGroup : TThumb
     {
         public ObservableCollection<TThumb> Children { get; protected set; } = new();
 
-        #region 通知プロパティ
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void SetProperty<T>(ref T field, T value,
-            [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value)) return;
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        }
+        //#region 通知プロパティ
+        //public event PropertyChangedEventHandler? PropertyChanged;
+        //protected void SetProperty<T>(ref T field, T value,
+        //    [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        //{
+        //    if (EqualityComparer<T>.Default.Equals(field, value)) return;
+        //    field = value;
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        //}
 
-        private TThumb? _active;
-        public TThumb? ActiveThumb { get => _active; set => SetProperty(ref _active, value); }
+        //private TThumb? _active;
+        //public TThumb? ActiveThumb { get => _active; set => SetProperty(ref _active, value); }
 
-        #endregion 通知プロパティ
+        //#endregion 通知プロパティ
 
 
 
@@ -333,7 +333,7 @@ namespace _20221208
                     case NotifyCollectionChangedAction.Add:
                         tt.ParentThumb = this;
                         //if (this is TTRoot root) { tt.MyTTRootThumb = root; }
-                        tt.MyTTRootThumb = this.MyTTRootThumb;
+                        //tt.MyTTRootThumb = this.MyTTRootThumb;
 
                         ////自身がEnableThumbなら要素にドラッグ移動系のイベント付加する
                         //if (tt.MyTTRootThumb?.EnableThumb == this)
@@ -403,9 +403,9 @@ namespace _20221208
         /// <returns></returns>
         internal (double x, double y, double w, double h) GetGroupRect(TTGroup group, bool actualSize)
         {
-            if (Children.Count == 0) { return (0, 0, 0, 0); }
+            if (group.Children.Count == 0) { return (0, 0, 0, 0); }
             double x = double.MaxValue, y = double.MaxValue;
-            double w = double.MinValue, h = double.MinValue;
+            double w = 0.0, h = 0.0;
             foreach (var item in group.Children)
             {
                 x = Math.Min(x, item.X);
@@ -479,20 +479,36 @@ namespace _20221208
     }
 
 
-    public class TTRoot : TTGroup
+    public class TTRoot : TTGroup, INotifyPropertyChanged
     {
+        #region 通知プロパティ
+        public event PropertyChangedEventHandler? PropertyChanged;
+        protected void SetProperty<T>(ref T field, T value,
+            [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+        //通知プロパティの必要ないかも
+        private TThumb? _active;
+        public TThumb? ActiveThumb { get => _active; set => SetProperty(ref _active, value); }
+
+        #endregion 通知プロパティ
 
         private TTGroup? _enable;
         //入れ替え時に子要素のDragDeltaの付け外しをする＋ActiveThumbも更新(nullに)する        
         public TTGroup? EnableThumb
         {
-            get => _enable; set
+            get => _enable;
+            set
             {
                 if (_enable != value)
                 {
+                    //ActiveThumb = value;
                     if (_enable != null)
                     {
-                        _enable.ActiveThumb = null;
+                        //_enable.ActiveThumb = null;
                         //_enable.IsEnabledThumb = false;
                         foreach (var item in _enable.Children)
                         {
@@ -502,7 +518,7 @@ namespace _20221208
                     }
                     if (value != null)
                     {
-                        value.ActiveThumb = null;
+                        //value.ActiveThumb = null;
                         //value.IsEnabledThumb = true;
                         foreach (var item in value.Children)
                         {
@@ -561,6 +577,10 @@ namespace _20221208
                         if (value == null) { ActiveThumb = null; }
                         else { ActiveThumb = GetActiveThumb(value); }
                     }
+                    //else
+                    //{
+                    //    ActiveThumb = value;
+                    //}
                 }
                 SetProperty(ref _clicked, value);
             }
@@ -589,11 +609,16 @@ namespace _20221208
             if (me.ParentThumb == target) return true;
             else { return IsRelated(target, me.ParentThumb); }
         }
+
+        //グループ化に使う
+        public ObservableCollection<TThumb> SelectedThumbs { get; set; } = new();
+
+
         #region コンストラクタ
         public TTRoot()
         {
             Loaded += TTRoot_Loaded;
-            MyTTRootThumb = this;
+            //MyTTRootThumb = this;
         }
         #endregion コンストラクタ
 
@@ -604,20 +629,20 @@ namespace _20221208
             EnableThumb ??= this;
             //すべてのGroupのサイズ更新
             //下のGroupから実行する
-            UpdateRect2(this, false);
+            UpdateAllRect(this, false);
         }
         /// <summary>
         /// Root専用、すべてのGroupのサイズ更新、下側から実行、最後にRootのサイズ更新になる
         /// </summary>
         /// <param name="group">Root</param>
         /// <param name="isActualSize">false指定でWidhtHeightで計算</param>
-        private void UpdateRect2(TTGroup group, bool isActualSize)
+        private void UpdateAllRect(TTGroup group, bool isActualSize)
         {
             foreach (var item in group.Children)
             {
                 if (item is TTGroup ttg)
                 {
-                    UpdateRect2(ttg, true);
+                    UpdateAllRect(ttg, true);
                 }
             }
             if (group == null) return;
@@ -660,7 +685,11 @@ namespace _20221208
             }
         }
 
-
+        /// <summary>
+        /// Item追加
+        /// </summary>
+        /// <param name="thumb">追加するThumb</param>
+        /// <param name="group">追加先Group、指定なしならEnableThumbに追加する</param>
         public void AddItem(TThumb thumb, TTGroup? group = null)
         {
             group ??= EnableThumb;
@@ -668,8 +697,15 @@ namespace _20221208
             {
                 group.Children.Add(thumb);
                 AddDragEvent(thumb);
+                ActiveThumb = thumb;
+                //if (group == EnableThumb) { group.ActiveThumb = thumb; }
             }
         }
+        /// <summary>
+        /// Item削除
+        /// </summary>
+        /// <param name="thumb">削除するThumb、未指定ならActiveThumbを削除する</param>
+        /// <param name="group">削除対象を保有するGroup、未指定ならEnableThumb</param>
         public void RemoveItem(TThumb? thumb = null, TTGroup? group = null)
         {
             group ??= EnableThumb;
@@ -679,6 +715,31 @@ namespace _20221208
                 group.Children.Remove(thumb);
                 RemoveDragEvent(thumb);
                 ActiveThumb = null;
+                if (ClickedThumb == thumb) { ClickedThumb = null; }
+                //Childrenが1個になったらGroupを削除して、残りの1個を上に上げる(移動)
+                //ただし、GroupがRootだった場合を除く
+                if (group.Children.Count == 1)
+                {
+                    
+                    TTGroup? parent = group.ParentThumb;
+                    EnableThumb = parent;//Enable更新
+                    RemoveItem(group);//Group削除
+                    //残りの1個を確保してひとつ上のGroupに追加、座標修正はGroupの座標+になる
+                    TThumb? nokori = group.Children[0];
+                    nokori.X += group.X; nokori.Y += group.Y;
+                    group.Children.Clear();
+                    AddItem(nokori);
+                    
+                }
+                //サイズと位置の更新
+                UpdateRect(group, false);
+
+                ////Childrenが0個になったらGroupも削除
+                //if (group.Children.Count == 0)
+                //{
+                //    RemoveItem(group, group.ParentThumb);
+                //    EnableThumb = group.ParentThumb;
+                //}
             }
         }
 
@@ -698,7 +759,8 @@ namespace _20221208
             {
                 if (t.ParentThumb is TTGroup group)
                 {
-                    UpdateRect(group.MyTTRootThumb?.EnableThumb);
+                    //UpdateRect(group.MyTTRootThumb?.EnableThumb);
+                    UpdateRect(group, false);
                 }
             }
         }

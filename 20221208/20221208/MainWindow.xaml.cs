@@ -151,7 +151,7 @@ namespace _20221208
         {
             if (MyRootThumb?.EnableThumb is TTGroup group)
             {
-                TThumb? ac = group.ActiveThumb;
+                TThumb? ac = MyRootThumb.ActiveThumb;
                 Data data = new(TType.TextBlock)
                 {
                     Text = TextBox1.Text,
@@ -171,7 +171,6 @@ namespace _20221208
         private void ButtonTTRemove_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.RemoveItem(MyRootThumb?.ActiveThumb);
-            var neko = MyRootThumb?.ActiveThumb;
         }
 
         private void Button3_Click(object sender, RoutedEventArgs e)
