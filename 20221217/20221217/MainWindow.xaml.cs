@@ -25,74 +25,25 @@ namespace _20221217
         public MainWindow()
         {
             InitializeComponent();
-            //BBB bb1 = new();
-            //var neko = bb1.MyBool;
-            //bb1.MyProperty = new();
-            //var inu = bb1.MyBool;
-            //bb1.MyProperty = null;
-            //var uma = bb1.MyBool;
-            //bb1.MyBool = true;
+
         }
 
         private void Button1_Click(object sender, RoutedEventArgs e)
         {
-            MyStackPanel.Children.Remove(MyText1);
+           var neko =  MyCanvas.Children[0];
+            MyCanvas.Children.RemoveAt(0);
+            MyCanvas.Children.Add(neko);
         }
 
         private void Button2_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show(MyText1.Name);
-        }
-    }
-    public class AAA : TextBlock
-    {
-
-        public bool MyBool
-        {
-            get { return (bool)GetValue(MyBoolProperty); }
-            set { SetValue(MyBoolProperty, value); }
-        }
-        public static readonly DependencyProperty MyBoolProperty =
-            DependencyProperty.Register(nameof(MyBool), typeof(bool), typeof(AAA), new PropertyMetadata(false));
-
-    }
-    public class BBB : AAA
-    {
-        //public TextBlock MyTextBlock
-        //{
-        //    get { return (TextBlock)GetValue(MyTextBlockProperty); }
-        //    set { SetValue(MyTextBlockProperty, value); }
-        //}
-        //public static readonly DependencyProperty MyTextBlockProperty =
-        //    DependencyProperty.Register(nameof(MyTextBlock), typeof(TextBlock), typeof(BBB), new PropertyMetadata(null));
-
-        public AAA? MyProperty
-        {
-            get { return (AAA)GetValue(MyPropertyProperty); }
-            set { SetValue(MyPropertyProperty, value); }
-        }
-        public static readonly DependencyProperty MyPropertyProperty =
-            DependencyProperty.Register(nameof(MyProperty), typeof(AAA), typeof(AAA), new PropertyMetadata(null));
-
-        public BBB()
-        {
-            DataContext = this;
             
-            //SetBinding(MyBoolProperty, new Binding(nameof(MyProperty)) { Converter = new ConvAB() });
-            SetBinding(MyPropertyProperty,new Binding(nameof(MyBool)) { Converter=new ConvAB() });
         }
     }
+  
+ 
 
-    public class ConvAB : IValueConverter
-    {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            return value != null;
-        }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
-    }
+
+
 }
