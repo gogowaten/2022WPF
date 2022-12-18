@@ -69,7 +69,7 @@
       </WrapPanel>
       <DockPanel>
         <Button Name="ButtonTTAdd" Content="text add" Click="ButtonTTAdd_Click"/>
-        <Button Name="ButtonTTRemove" Content="text add" Click="ButtonTTRemove_Click"/>
+        <Button Name="ButtonTTRemove" Content="remove" Click="ButtonTTRemove_Click"/>
       </DockPanel>
       <TextBox Name="TextBox1" Text="AddTextThumb"/>
 

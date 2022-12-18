@@ -92,13 +92,13 @@ namespace _20221208
                     FrameworkPropertyMetadataOptions.AffectsMeasure));
 
 
-        public string MyName
-        {
-            get { return (string)GetValue(ZNameProperty); }
-            set { SetValue(ZNameProperty, value); }
-        }
-        public static readonly DependencyProperty ZNameProperty =
-            DependencyProperty.Register(nameof(MyName), typeof(string), typeof(TThumb), new PropertyMetadata(""));
+        //public string Name
+        //{
+        //    get { return (string)GetValue(NameProperty); }
+        //    set { SetValue(NameProperty, value); }
+        //}
+        //public static readonly DependencyProperty NameProperty =
+        //    DependencyProperty.Register(nameof(Name), typeof(string), typeof(TThumb), new PropertyMetadata(""));
 
         #endregion
 
@@ -118,8 +118,8 @@ namespace _20221208
             SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
             SetBinding(Panel.ZIndexProperty, new Binding(nameof(Z)) { Mode = BindingMode.TwoWay });
-            SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
-
+            //SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
+            SetBinding(FrameworkElement.NameProperty, new Binding() { Path = new PropertyPath(Thumb.NameProperty) });
 
             //Loaded += TThumb_Loaded;
             SizeChanged += TThumb_SizeChanged;
@@ -149,8 +149,12 @@ namespace _20221208
             //Right = X + ActualWidth;
             //Bottom = Y + ActualHeight;
 
-            //Width = ActualWidth;
-            //Height = ActualHeight;
+            //重要：実際のサイズをサイズに指定する
+            //TextBlockなどはサイズがNaNになるので実際のサイズを入れる
+            Width = ActualWidth;
+            Height = ActualHeight;
+
+            //親要素のサイズと位置の更新
             ParentThumb?.UpdateRect(ParentThumb);
         }
 
@@ -169,12 +173,12 @@ namespace _20221208
         protected virtual void SetData(Data data)
         {
             X = data.X; Y = data.Y; Z = data.Z;
-            if (string.IsNullOrEmpty(MyName) && string.IsNullOrEmpty(data.MyName) == false)
-                MyName = data.MyName;
+            if (string.IsNullOrEmpty(Name) && string.IsNullOrEmpty(data.Name) == false)
+                Name = data.Name;
         }
         public override string ToString()
         {
-            return MyName;
+            return Name;
         }
     }
 
@@ -331,12 +335,12 @@ namespace _20221208
                         //if (this is TTRoot root) { tt.MyTTRootThumb = root; }
                         tt.MyTTRootThumb = this.MyTTRootThumb;
 
-                        //自身がEnableThumbなら要素にドラッグ移動系のイベント付加する
-                        if (tt.MyTTRootThumb?.EnableThumb == this)
-                        {
-                            tt.DragDelta += Item_DragDelta;
-                            tt.DragCompleted += Item_DragCompleted;
-                        }
+                        ////自身がEnableThumbなら要素にドラッグ移動系のイベント付加する
+                        //if (tt.MyTTRootThumb?.EnableThumb == this)
+                        //{
+                        //    tt.DragDelta += Item_DragDelta;
+                        //    tt.DragCompleted += Item_DragCompleted;
+                        //}
                         break;
                     case NotifyCollectionChangedAction.Remove:
                         tt.ParentThumb = null;
@@ -358,37 +362,38 @@ namespace _20221208
             base.SetData(data);
             SetData(data);
         }
-        protected override void SetData(Data data)
-        {
-            if (data.Datas != null)
-            {
-                foreach (var item in data.Datas)
-                {
-                    AddItem(item);
-                }
-            }
-        }
-        private void AddItem(Data data)
-        {
-            switch (data.Type)
-            {
-                case TType.TextBlock:
-                    Children.Add(new TTTextBlock(data));
-                    break;
-                case TType.Rectangle:
-                    Children.Add(new TTRectangle(data));
-                    break;
-                case TType.Group:
-                    Children.Add(new TTGroup(data));
-                    break;
-                default:
-                    break;
-            }
-        }
-        public void AddItem(TThumb thumb)
-        {
-            Children.Add(thumb);
-        }
+        //protected override void SetData(Data data)
+        //{
+        //    if (data.Datas != null)
+        //    {
+        //        foreach (var item in data.Datas)
+        //        {
+        //            AddItem(item);
+        //        }
+        //    }
+        //}
+
+        //private void AddItem(Data data)
+        //{
+        //    switch (data.Type)
+        //    {
+        //        case TType.TextBlock:
+        //            Children.Add(new TTTextBlock(data));
+        //            break;
+        //        case TType.Rectangle:
+        //            Children.Add(new TTRectangle(data));
+        //            break;
+        //        case TType.Group:
+        //            Children.Add(new TTGroup(data));
+        //            break;
+        //        default:
+        //            break;
+        //    }
+        //}
+        //public void AddItem(TThumb thumb)
+        //{
+        //    Children.Add(thumb);
+        //}
 
 
         /// <summary>
@@ -450,25 +455,27 @@ namespace _20221208
             }
         }
 
-        internal void Item_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            if (e.OriginalSource is TThumb t)
-            {
-                if (t.ParentThumb is TTGroup group)
-                {
-                    UpdateRect(group.MyTTRootThumb?.EnableThumb);
-                }
-            }
-        }
+        //internal void Item_DragCompleted(object sender, DragCompletedEventArgs e)
+        //{
+        //    if (e.OriginalSource is TThumb t)
+        //    {
+        //        if (t.ParentThumb is TTGroup group)
+        //        {
+        //            UpdateRect(group.MyTTRootThumb?.EnableThumb);
+        //        }
+        //    }
+        //}
 
-        internal void Item_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            if (sender is TThumb tt)
-            {
-                tt.X += e.HorizontalChange;
-                tt.Y += e.VerticalChange;
-            }
-        }
+        //internal void Item_DragDelta(object sender, DragDeltaEventArgs e)
+        //{
+        //    if (sender is TThumb tt)
+        //    {
+        //        tt.X += e.HorizontalChange;
+        //        tt.Y += e.VerticalChange;
+        //    }
+        //}
+
+
     }
 
 
@@ -489,8 +496,8 @@ namespace _20221208
                         //_enable.IsEnabledThumb = false;
                         foreach (var item in _enable.Children)
                         {
-                            item.DragDelta -= _enable.Item_DragDelta;
-                            item.DragCompleted -= _enable.Item_DragCompleted;
+                            item.DragDelta -= Item_DragDelta;
+                            item.DragCompleted -= Item_DragCompleted;
                         }
                     }
                     if (value != null)
@@ -499,14 +506,44 @@ namespace _20221208
                         //value.IsEnabledThumb = true;
                         foreach (var item in value.Children)
                         {
-                            item.DragDelta += value.Item_DragDelta;
-                            item.DragCompleted += value.Item_DragCompleted;
+                            item.DragDelta += Item_DragDelta;
+                            item.DragCompleted += Item_DragCompleted;
                         }
                     }
                 }
                 SetProperty(ref _enable, value);
             }
         }
+        //  public TTGroup? EnableThumb
+        //{
+        //    get => _enable; set
+        //    {
+        //        if (_enable != value)
+        //        {
+        //            if (_enable != null)
+        //            {
+        //                _enable.ActiveThumb = null;
+        //                //_enable.IsEnabledThumb = false;
+        //                foreach (var item in _enable.Children)
+        //                {
+        //                    item.DragDelta -= _enable.Item_DragDelta;
+        //                    item.DragCompleted -= _enable.Item_DragCompleted;
+        //                }
+        //            }
+        //            if (value != null)
+        //            {
+        //                value.ActiveThumb = null;
+        //                //value.IsEnabledThumb = true;
+        //                foreach (var item in value.Children)
+        //                {
+        //                    item.DragDelta += value.Item_DragDelta;
+        //                    item.DragCompleted += value.Item_DragCompleted;
+        //                }
+        //            }
+        //        }
+        //        SetProperty(ref _enable, value);
+        //    }
+        //}
 
 
         private TThumb? _clicked;
@@ -622,6 +659,59 @@ namespace _20221208
 
             }
         }
+
+
+        public void AddItem(TThumb thumb, TTGroup? group = null)
+        {
+            group ??= EnableThumb;
+            if (group != null)
+            {
+                group.Children.Add(thumb);
+                AddDragEvent(thumb);
+            }
+        }
+        public void RemoveItem(TThumb? thumb = null, TTGroup? group = null)
+        {
+            group ??= EnableThumb;
+            thumb ??= ActiveThumb;
+            if (group != null && thumb != null)
+            {
+                group.Children.Remove(thumb);
+                RemoveDragEvent(thumb);
+                ActiveThumb = null;
+            }
+        }
+
+        private void AddDragEvent(TThumb thumb)
+        {
+            thumb.DragDelta += Item_DragDelta;
+            thumb.DragCompleted += Item_DragCompleted;
+        }
+        private void RemoveDragEvent(TThumb thumb)
+        {
+            thumb.DragDelta -= Item_DragDelta;
+            thumb.DragCompleted -= Item_DragCompleted;
+        }
+        private void Item_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            if (e.OriginalSource is TThumb t)
+            {
+                if (t.ParentThumb is TTGroup group)
+                {
+                    UpdateRect(group.MyTTRootThumb?.EnableThumb);
+                }
+            }
+        }
+
+        private void Item_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            if (sender is TThumb tt)
+            {
+                tt.X += e.HorizontalChange;
+                tt.Y += e.VerticalChange;
+            }
+        }
+
     }
 
 

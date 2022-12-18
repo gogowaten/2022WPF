@@ -68,14 +68,14 @@ namespace _20221208
         private IEnumerable<Data> MakeTextDatas2(int count, string text, Brush color, double size)
         {
             return Enumerable.Range(0, count).Select(a => new Data(TType.TextBlock)
-            { Text = text + a, ForeColor = color, FontSize = size, X = a * 10, Y = a * 10, MyName = text + a });
+            { Text = text + a, ForeColor = color, FontSize = size, X = a * 10, Y = a * 10, Name = text + a });
         }
         private TTGroup MakeTextGroup()
         {
             var neko = MakeTextDatas2(3, "neko", Brushes.Red, 30);
             Data gData = new(TType.Group)
             {
-                MyName = "Group",
+                Name = "Group",
                 Datas = new ObservableCollection<Data>(neko)
             };
             return new TTGroup(gData);
@@ -84,7 +84,7 @@ namespace _20221208
         {
             Data data = new(TType.TextBlock)
             {
-                MyName = nameof(ItemAddFromData) + "text",
+                Name = nameof(ItemAddFromData) + "text",
                 Text = nameof(ItemAddFromData),
                 X = 30,
                 Y = 30,
@@ -95,7 +95,7 @@ namespace _20221208
             MyRootThumb.Children.Add(text);
             data = new(TType.Rectangle)
             {
-                MyName = nameof(ItemAddFromData) + "rect",
+                Name = nameof(ItemAddFromData) + "rect",
                 BackColor = Brushes.MediumPurple,
                 Width = 20,
                 Height = 300,
@@ -118,7 +118,7 @@ namespace _20221208
             MyTTT = new TTTextBlock() { Name = nameof(Test1) + "text", X = 100, Y = 100, Text = "MyTTT", FontColor = Brushes.Gold, FontSize = 30 };
             //MyTTT.DragDelta += TT_DragDelta;
             MyRootThumb.Children.Add(MyTTT);
-            Data data = new(TType.Rectangle) { MyName = nameof(Test1) + "rect", Width = 100, Height = 100, BackColor = Brushes.Blue, X = 200, Y = 50 };
+            Data data = new(TType.Rectangle) { Name = nameof(Test1) + "rect", Width = 100, Height = 100, BackColor = Brushes.Blue, X = 200, Y = 50 };
             TTRectangle rr = new(data);
             MyRootThumb.Children.Add(rr);
 
@@ -155,20 +155,23 @@ namespace _20221208
                 Data data = new(TType.TextBlock)
                 {
                     Text = TextBox1.Text,
-                    MyName = TextBox1.Text,
+                    Name = TextBox1.Text,
                     X = ac == null ? 0 : ac.X + 32,
                     Y = ac == null ? 0 : ac.Y + 32
                 };
                 
                 var ttt = new TTTextBlock(data);
-                group.AddItem(ttt);
+                //group.AddItem(ttt);
+                MyRootThumb.AddItem(ttt);
             }
 
         }
 
+        //Item削除テスト
         private void ButtonTTRemove_Click(object sender, RoutedEventArgs e)
         {
-
+            MyRootThumb.RemoveItem(MyRootThumb?.ActiveThumb);
+            var neko = MyRootThumb?.ActiveThumb;
         }
 
         private void Button3_Click(object sender, RoutedEventArgs e)

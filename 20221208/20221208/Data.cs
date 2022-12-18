@@ -22,7 +22,7 @@ namespace _20221208
         }
         public TType Type { get; private set; }
         public ObservableCollection<Data>? Datas { get; set; }
-        public string MyName { get; set; } = "";
+        public string Name { get; set; } = "";
         public double X { get; set; }
         public double Y { get; set; }
         public int Z { get; set; }
