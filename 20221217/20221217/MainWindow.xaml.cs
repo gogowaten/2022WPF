@@ -25,13 +25,23 @@ namespace _20221217
         public MainWindow()
         {
             InitializeComponent();
-            BBB bb1 = new();
-            var neko = bb1.MyBool;
-            bb1.MyProperty = new();
-            var inu = bb1.MyBool;
-            bb1.MyProperty = null;
-            var uma = bb1.MyBool;
-            bb1.MyBool = true;
+            //BBB bb1 = new();
+            //var neko = bb1.MyBool;
+            //bb1.MyProperty = new();
+            //var inu = bb1.MyBool;
+            //bb1.MyProperty = null;
+            //var uma = bb1.MyBool;
+            //bb1.MyBool = true;
+        }
+
+        private void Button1_Click(object sender, RoutedEventArgs e)
+        {
+            MyStackPanel.Children.Remove(MyText1);
+        }
+
+        private void Button2_Click(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show(MyText1.Name);
         }
     }
     public class AAA : TextBlock
