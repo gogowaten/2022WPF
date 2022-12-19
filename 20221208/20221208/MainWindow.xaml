@@ -69,14 +69,15 @@
       </WrapPanel>
       <DockPanel>
         <Button Name="ButtonTTAdd" Content="text add" Click="ButtonTTAdd_Click"/>
-        <Button Name="ButtonTTRemove" Content="remove" Click="ButtonTTRemove_Click"/>
+        <Button Name="ButtonTTRemove" Content="AC remove" Click="ButtonTTRemove_Click"/>
+        <Button x:Name="ButtonAddGroup" Content="グループ化" Click="ButtonAddGroup_Click"/>
       </DockPanel>
       <TextBox Name="TextBox1" Text="AddTextThumb"/>
 
       <GroupBox Header="{Binding Name}">
         <StackPanel>
-          <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
           <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+          <TextBlock Text="{Binding Children.Count, StringFormat=要素数 \= {0}}"/>
         </StackPanel>
       </GroupBox>
       <GroupBox DataContext="{Binding ClickedThumb}" Header="ClickedThumb">
@@ -98,6 +99,18 @@
           <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
           <TextBlock Text="{Binding ActualWidth, StringFormat= ActualWidth\={0:0.0}}"/>
           <TextBlock Text="{Binding Y, StringFormat=Y \= {0}}"/>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox DataContext="{Binding SelectedThumbs}" Header="SelectedThumbs">
+        <StackPanel>
+          <TextBlock Text="{Binding Count, StringFormat=選択数 \= {0}}"/>
+          <ListBox ItemsSource="{Binding}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}"/>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
         </StackPanel>
       </GroupBox>
     </StackPanel>

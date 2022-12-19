@@ -159,7 +159,7 @@ namespace _20221208
                     X = ac == null ? 0 : ac.X + 32,
                     Y = ac == null ? 0 : ac.Y + 32
                 };
-                
+
                 var ttt = new TTTextBlock(data);
                 //group.AddItem(ttt);
                 MyRootThumb.AddItem(ttt);
@@ -191,6 +191,16 @@ namespace _20221208
         private void Button6_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.EnableThumb = MyRootThumb;
+        }
+
+        //グループ化
+        private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
+        {
+            if (MyRootThumb.SelectedThumbs.Count >= 2)
+            {
+                MyRootThumb.MoveItemNewGroup(MyRootThumb.SelectedThumbs,MyRootThumb.EnableThumb,"newwwwwGroup");
+                
+            }
         }
     }
 }
