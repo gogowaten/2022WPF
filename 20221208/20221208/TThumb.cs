@@ -668,9 +668,12 @@ namespace _20221208
         //クリックされたThumbをClickedThumbに登録
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
+            //SourceはRootThumb、OriginalSourceはItemThumbのTemplateの中の要素になる
+            //TextBlockThumbならTextBlock、RectangleThumbならRectangle
             base.OnPreviewMouseLeftButtonDown(e);
             if (e.OriginalSource is FrameworkElement fwElement)
             {
+                //ItemThumbがクリックされた場合はClickedThumbを更新する
                 if (fwElement is TThumb th)
                 {
                     if (th is TTGroup) { return; }//GroupはClickedにはしない
@@ -681,7 +684,15 @@ namespace _20221208
                     if (tt is TTGroup) { return; }
                     ClickedThumb = tt;
                 }
-
+                //クリックされたときCtrlキーが押されていた場合は
+                //SelectedThumbsにActiveThumbを追加する(複数Thumb選択用)
+                if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    if (ActiveThumb != null && SelectedThumbs.Contains(ActiveThumb) == false)
+                    {
+                        SelectedThumbs.Add(ActiveThumb);
+                    }
+                }
             }
         }
 
@@ -720,7 +731,7 @@ namespace _20221208
                 //ただし、GroupがRootだった場合を除く
                 if (group.Children.Count == 1)
                 {
-                    
+
                     TTGroup? parent = group.ParentThumb;
                     EnableThumb = parent;//Enable更新
                     RemoveItem(group);//Group削除
@@ -729,7 +740,7 @@ namespace _20221208
                     nokori.X += group.X; nokori.Y += group.Y;
                     group.Children.Clear();
                     AddItem(nokori);
-                    
+
                 }
                 //サイズと位置の更新
                 UpdateRect(group, false);
