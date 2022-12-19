@@ -180,12 +180,12 @@ namespace _20221208
 
         private void Button4_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.EnableThumb = TTG2;
+            //MyRootThumb.EnableThumb = TTG2;
         }
 
         private void Button5_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.EnableThumb = TTG3;
+            //MyRootThumb.EnableThumb = TTG3;
         }
 
         private void Button6_Click(object sender, RoutedEventArgs e)

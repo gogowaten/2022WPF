@@ -469,7 +469,7 @@ namespace _20221208
             if (group == null) return;
             (double x, double y, double w, double h) = GetGroupRect(group, actualSize);
             //if (w == 0 && h == 0) { return; }
-            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
+            //if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
             //if (X == x && Y == y && w == group.ActualWidth && h == group.ActualHeight) { return; }
 
             group.Width = w; group.Height = h;
@@ -839,8 +839,8 @@ namespace _20221208
             {
                 if (t.ParentThumb is TTGroup group)
                 {
-                    //UpdateRect(group.MyTTRootThumb?.EnableThumb);
-                    UpdateRect(group, false);
+                    //UpdateRect(group, false);//これだとおかしい
+                    UpdateRect(group, true);//これが正解、Actualで計算する
                 }
             }
 
