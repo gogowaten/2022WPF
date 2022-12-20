@@ -198,9 +198,48 @@ namespace _20221208
         {
             if (MyRootThumb.SelectedThumbs.Count >= 2)
             {
-                MyRootThumb.MoveItemNewGroup(MyRootThumb.SelectedThumbs,MyRootThumb.EnableThumb,"newwwwwGroup");
-                
+                MyRootThumb.MoveItemNewGroup(MyRootThumb.SelectedThumbs, MyRootThumb.EnableThumb, "newwwwwGroup");
+
             }
         }
     }
+    //public class SizeChangeTest : Thumb
+    //{
+
+    //    public string MyText
+    //    {
+    //        get { return (string)GetValue(MyTextProperty); }
+    //        set { SetValue(MyTextProperty, value); }
+    //    }
+    //    public static readonly DependencyProperty MyTextProperty =
+    //        DependencyProperty.Register(nameof(MyText), typeof(string), typeof(SizeChangeTest), new PropertyMetadata(""));
+
+    //    public double MyFontSize
+    //    {
+    //        get { return (double)GetValue(MyFontSizeProperty); }
+    //        set { SetValue(MyFontSizeProperty, value); }
+    //    }
+    //    public static readonly DependencyProperty MyFontSizeProperty =
+    //        DependencyProperty.Register(nameof(MyFontSize), typeof(double), typeof(SizeChangeTest), new PropertyMetadata(20.0));
+
+
+    //    public SizeChangeTest()
+    //    {
+    //        DataContext = this;
+    //        FrameworkElementFactory grid = new(typeof(Grid));
+    //        FrameworkElementFactory rect = new(typeof(Rectangle));
+    //        FrameworkElementFactory textb = new(typeof(TextBlock));
+    //        grid.AppendChild(rect);
+    //        grid.AppendChild(textb);
+
+    //        textb.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+    //        textb.SetValue(TextBlock.FontSizeProperty, new Binding(nameof(MyFontSize)));
+    //        rect.SetValue(Panel.ZIndexProperty, 1);
+
+    //        this.Template = new ControlTemplate() { VisualTree = grid };
+    //    }
+    //}
+
+
 }
+

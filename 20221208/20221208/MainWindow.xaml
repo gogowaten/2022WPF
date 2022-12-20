@@ -15,6 +15,7 @@
       <local:TTRoot x:Name="MyRootThumb">
         <local:TTRectangle x:Name="Rect1" Width="20" Height="100" X="230" Y="30" Fill="Blue"/>
         <local:TTTextBlock Text="fontsize" FontSize="30" X="200"/>
+        
         <!--<local:TTGroup.Children>
             <local:TTTextBlock Text="ダイレクトコンテンツをサポートしていない場合はこの書き方"/>
           </local:TTGroup.Children>-->
@@ -39,7 +40,7 @@
           </local:TTGroup>
         </local:TTGroup>-->
 
-        <local:TTGroup x:Name="TTG">          
+        <local:TTGroup x:Name="TTG">
           <local:TTTextBlock x:Name="Item1" Text="Item1" FontSize="30" BackColor="Gold"/>
           <local:TTTextBlock x:Name="Item2" Text="Item2" FontSize="20" BackColor="Gold" X="90" Y="10"/>
           <local:TTRectangle x:Name="Item3" Fill="Purple" Width="80" Height="20" Y="60"/>

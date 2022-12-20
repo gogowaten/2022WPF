@@ -121,7 +121,7 @@ namespace _20221208
             //SetBinding(NameProperty, new Binding(nameof(MyName)) { Mode = BindingMode.TwoWay });
             SetBinding(FrameworkElement.NameProperty, new Binding() { Path = new PropertyPath(Thumb.NameProperty) });
 
-            //Loaded += TThumb_Loaded;
+            Loaded += TThumb_Loaded;
             SizeChanged += TThumb_SizeChanged;
 
         }
@@ -136,7 +136,7 @@ namespace _20221208
 
             return panel;
         }
-        
+
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //Right = X + ActualWidth;
@@ -148,7 +148,7 @@ namespace _20221208
             Height = ActualHeight;
 
             //親要素のサイズと位置の更新
-            ParentThumb?.UpdateRect(ParentThumb);
+            //ParentThumb?.UpdateRect(ParentThumb);
         }
 
         private void TThumb_Loaded(object sender, RoutedEventArgs e)
@@ -222,11 +222,11 @@ namespace _20221208
         //public static readonly DependencyProperty TTFontSizeProperty =
         //    DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock),
         //        new PropertyMetadata(System.Windows.SystemFonts.MenuFontSize));
-        protected override Size MeasureOverride(Size constraint)
-        {
-            return base.MeasureOverride(constraint);
-            
-        }
+        //protected override Size MeasureOverride(Size constraint)
+        //{
+        //    return base.MeasureOverride(constraint);
+
+        //}
 
         #endregion
 
@@ -241,6 +241,9 @@ namespace _20221208
 
             //フォントサイズプロパティはThumbにもあるし、名前も変える必要ないのでそのままBinding
             elem.SetValue(TextBlock.FontSizeProperty, new Binding() { Path = new PropertyPath(Thumb.FontSizeProperty) });
+
+            //elem.SetValue(TTFontSizeProperty, new Binding() { Source=this,Path=new PropertyPath(TextBlock.FontSizeProperty)});
+            
             panel.AppendChild(elem);
 
             this.Template = new() { VisualTree = panel };
@@ -651,37 +654,46 @@ namespace _20221208
             EnableThumb ??= this;
             //すべてのGroupのサイズ更新
             //下のGroupから実行する
-            UpdateAllRect(this, false);
+            UpdateAllRect(this);
         }
         /// <summary>
         /// Root専用、すべてのGroupのサイズ更新、下側から実行、最後にRootのサイズ更新になる
         /// </summary>
         /// <param name="group">Root</param>
         /// <param name="isActualSize">false指定でWidhtHeightで計算</param>
-        private void UpdateAllRect(TTGroup group, bool isActualSize)
+        private void UpdateAllRect(TTGroup group)
         {
+            //Groupのサイズを更新だけど、ItemはActualでしかサイズが取れない、逆にGroupはActualがNaN
+            //ActualはreadonlyなのでItemのSizeにActualを入れてからSizeでRect計測、結果をGroupのSizeに入れる
             foreach (var item in group.Children)
             {
+
                 if (item is TTGroup ttg)
                 {
-                    UpdateAllRect(ttg, true);
+                    UpdateAllRect(ttg);
+                }
+                else
+                {
+                    item.Width = item.ActualWidth;
+                    item.Height = item.ActualHeight;
                 }
             }
-            if (group == null) return;
-            (double x, double y, double w, double h) = GetGroupRect(group, isActualSize);
+            
+            (double x, double y, double w, double h) = GetGroupRect(group, false);
             if (w == 0 && h == 0) { return; }
-            if (X == x && Y == y && w == ActualWidth && h == ActualHeight) { return; }
 
             //Actualは変更できないので、通常のWidhtHeightを変更
             group.Width = w; group.Height = h;
-            if (x != 0 || y != 0)
-            {
-                foreach (var item in group.Children)
-                {
-                    item.X -= x; item.Y -= y;
-                }
-                if (group is not TTRoot) { group.X += x; group.Y += y; }
-            }
+            group.UpdateLayout();//これがないと反映されない
+
+            //if (x != 0 || y != 0)
+            //{
+            //    foreach (var item in group.Children)
+            //    {
+            //        item.X -= x; item.Y -= y;
+            //    }
+            //    if (group is not TTRoot) { group.X += x; group.Y += y; }
+            //}
 
         }
 
@@ -770,9 +782,14 @@ namespace _20221208
         {
             group ??= EnableThumb;
             thumb ??= ActiveThumb;
+            
             if (group != null && thumb != null)
             {
                 group.Children.Remove(thumb);
+                if (SelectedThumbs.Contains(thumb))
+                {
+                    SelectedThumbs.Remove(thumb);
+                }
                 RemoveDragEvent(thumb);
                 ActiveThumb = null;
                 //if (ClickedThumb == thumb) { ClickedThumb = null; }
@@ -803,7 +820,7 @@ namespace _20221208
                     UpdateRect(group, false);
                 }
 
-                
+
             }
         }
 
@@ -819,7 +836,7 @@ namespace _20221208
                 neko = GetItemsTopLeft(origin.Children);
             }
             //UpdateRect(origin);
-            neko=GetItemsTopLeft(origin.Children);
+            neko = GetItemsTopLeft(origin.Children);
 
             //新しいグループ作成
             var (x, y) = GetItemsTopLeft(items);
@@ -827,7 +844,8 @@ namespace _20221208
             {
                 //X = x + origin.X,
                 //Y = y + origin.Y,
-                X=0, Y=0,
+                X = 0,
+                Y = 0,
                 Name = name
             };
             TTGroup group = new(data);
