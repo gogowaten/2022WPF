@@ -793,17 +793,17 @@ namespace _20221208
         }
 
      
-        public void MoveItemNewGroup(ObservableCollection<TThumb> thumbs, TTGroup origin, string name)
+        public void MoveItemNewGroup(ObservableCollection<TThumb> items, TTGroup origin, string name)
         {
-            //元のグループから外す
-            foreach (var item in thumbs)
+            //itemを元のグループから外す
+            foreach (var item in items)
             {
                 RemoveItem(item, origin, true);
             }
             UpdateRect(origin);
 
             //新しいグループ作成
-            var (x, y) = GetGroupTopLeft(thumbs);
+            var (x, y) = GetGroupTopLeft(items);
             Data data = new(TType.Group)
             {
                 X = x + origin.X,
@@ -811,8 +811,8 @@ namespace _20221208
                 Name = name
             };
             TTGroup group = new(data);
-            //新しいグループに追加
-            foreach (var item in thumbs)
+            //Itemを新しいグループに追加
+            foreach (var item in items)
             {
                 group.Children.Add(item);
                 //AddItem(item, group);
@@ -820,7 +820,7 @@ namespace _20221208
             UpdateRect(group, false);
             AddItem(group);
         }
-
+   
         #endregion 追加と削除
 
         private void AddDragEvent(TThumb thumb)
