@@ -14,6 +14,7 @@
     <Canvas Name="MyCanvas">
       <Rectangle Width="100" Height="50" Fill="Red"/>
       <Rectangle Width="100" Height="50" Fill="MediumAquamarine" Canvas.Left="20" Canvas.Top="20"/>
+      <local:SizeChangeTest MyFontSize="150" MyText="sizechange?" Canvas.Top="50"/>
     </Canvas>
     <StackPanel Name="MyStackPanel" Grid.Column="1">
       <TextBlock Name="MyText1" Text="Text1"/>

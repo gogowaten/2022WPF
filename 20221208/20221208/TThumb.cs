@@ -124,8 +124,6 @@ namespace _20221208
             //Loaded += TThumb_Loaded;
             SizeChanged += TThumb_SizeChanged;
 
-            //SetBinding(WidthProperty, new Binding(nameof(Width)));
-            //SetBinding(HeightProperty, new Binding(nameof(Height)));
         }
         protected FrameworkElementFactory MakeBaseTemplate()
         {
@@ -133,17 +131,12 @@ namespace _20221208
             waku.SetValue(Shape.StrokeProperty, Brushes.Cyan);
             waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
             waku.SetValue(Panel.ZIndexProperty, 1);
-            //waku.SetValue(WidthProperty, new Binding(nameof(Width)));
-            //waku.SetValue(HeightProperty, new Binding(nameof(Height)));
-            //waku.SetValue(Rectangle.WidthProperty, new Binding(nameof(ActualWidth)) { Source = this });
-            //waku.SetValue(Rectangle.HeightProperty, new Binding(nameof(ActualHeight)) { Source = this });
             FrameworkElementFactory panel = new(typeof(Grid));
             panel.AppendChild(waku);
 
             return panel;
         }
-
-
+        
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             //Right = X + ActualWidth;
@@ -212,6 +205,29 @@ namespace _20221208
             DependencyProperty.Register(nameof(BackColor), typeof(Brush), typeof(TTTextBlock), new PropertyMetadata(Brushes.Transparent));
 
 
+        //public double TTFontSize
+        //{
+        //    get { return (double)GetValue(TTFontSizeProperty); }
+        //    set { SetValue(TTFontSizeProperty, value);}
+        //}
+        //public static readonly DependencyProperty TTFontSizeProperty =
+        //    DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock), 
+        //        new PropertyMetadata(20.0));
+
+        //public double TTFontSize
+        //{
+        //    get { return (double)GetValue(TTFontSizeProperty); }
+        //    set { SetValue(TTFontSizeProperty, value); }
+        //}
+        //public static readonly DependencyProperty TTFontSizeProperty =
+        //    DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock),
+        //        new PropertyMetadata(System.Windows.SystemFonts.MenuFontSize));
+        protected override Size MeasureOverride(Size constraint)
+        {
+            return base.MeasureOverride(constraint);
+            
+        }
+
         #endregion
 
         public TTTextBlock()
@@ -221,6 +237,8 @@ namespace _20221208
             elem.SetValue(TextBlock.TextProperty, new Binding(nameof(Text)));
             elem.SetValue(TextBlock.ForegroundProperty, new Binding(nameof(FontColor)));
             elem.SetValue(TextBlock.BackgroundProperty, new Binding(nameof(BackColor)));
+            //elem.SetValue(TextBlock.FontSizeProperty, new Binding(nameof(TTFontSize)));
+
             //フォントサイズプロパティはThumbにもあるし、名前も変える必要ないのでそのままBinding
             elem.SetValue(TextBlock.FontSizeProperty, new Binding() { Path = new PropertyPath(Thumb.FontSizeProperty) });
             panel.AppendChild(elem);
@@ -234,6 +252,7 @@ namespace _20221208
             Text = data.Text;
             FontColor = data.ForeColor ?? Brushes.Black;
             BackColor = data.BackColor ?? Brushes.Transparent;
+            //TTFontSize = data.FontSize;
             FontSize = data.FontSize;
             base.SetData(data);
         }
@@ -444,13 +463,13 @@ namespace _20221208
         /// <summary>
         /// Thumb群の左上座標を返す、グループ化などに使用
         /// </summary>
-        /// <param name="thumbs"></param>
+        /// <param name="items"></param>
         /// <returns></returns>
-        public (double x, double y) GetGroupTopLeft(ObservableCollection<TThumb> thumbs)
+        public (double x, double y) GetItemsTopLeft(ObservableCollection<TThumb> items)
         {
-            if (thumbs.Count < 2) return (0, 0);
+            if (items.Count < 2) return (0, 0);
             double x = double.MaxValue, y = double.MaxValue;
-            foreach (var item in thumbs)
+            foreach (var item in items)
             {
                 if (x > item.X) x = item.X;
                 if (y > item.Y) y = item.Y;
@@ -523,6 +542,7 @@ namespace _20221208
                 if (_enable != value)
                 {
                     ActiveThumb = null;
+                    SelectedThumbs.Clear();
                     if (_enable != null)
                     {
                         foreach (var item in _enable.Children)
@@ -783,44 +803,54 @@ namespace _20221208
                     UpdateRect(group, false);
                 }
 
-                ////Childrenが0個になったらGroupも削除
-                //if (group.Children.Count == 0)
-                //{
-                //    RemoveItem(group, group.ParentThumb);
-                //    EnableThumb = group.ParentThumb;
-                //}
+                
             }
         }
 
-     
+
         public void MoveItemNewGroup(ObservableCollection<TThumb> items, TTGroup origin, string name)
         {
             //itemを元のグループから外す
+            var neko = GetItemsTopLeft(origin.Children);
             foreach (var item in items)
             {
-                RemoveItem(item, origin, true);
+                RemoveItem(item, origin, false);
+                //RemoveItem(item, origin, true);
+                neko = GetItemsTopLeft(origin.Children);
             }
-            UpdateRect(origin);
+            //UpdateRect(origin);
+            neko=GetItemsTopLeft(origin.Children);
 
             //新しいグループ作成
-            var (x, y) = GetGroupTopLeft(items);
+            var (x, y) = GetItemsTopLeft(items);
             Data data = new(TType.Group)
             {
-                X = x + origin.X,
-                Y = y + origin.Y,
+                //X = x + origin.X,
+                //Y = y + origin.Y,
+                X=0, Y=0,
                 Name = name
             };
             TTGroup group = new(data);
+            neko = GetItemsTopLeft(group.Children);
+            double gy = group.Y;
             //Itemを新しいグループに追加
             foreach (var item in items)
             {
                 group.Children.Add(item);
+                neko = GetItemsTopLeft(group.Children);
+                gy = group.Y;
                 //AddItem(item, group);
             }
+            neko = GetItemsTopLeft(group.Children);
+            gy = group.Y;
             UpdateRect(group, false);
+            neko = GetItemsTopLeft(group.Children);
+            gy = group.Y;
             AddItem(group);
+            neko = GetItemsTopLeft(group.Children);
+            gy = group.Y;
         }
-   
+
         #endregion 追加と削除
 
         private void AddDragEvent(TThumb thumb)
@@ -844,20 +874,6 @@ namespace _20221208
                 }
             }
 
-            //if (sender is TThumb t)
-            //{
-            //    if (t.X < 0 || Y < 0)
-            //    {
-            //        double xDiff = t.X; double yDiff = t.Y;
-            //        if (t.ParentThumb != null)
-            //        {
-            //            foreach (var item in t.ParentThumb.Children)
-            //            {
-            //                item.X -= xDiff; item.Y -= yDiff;
-            //            }
-            //        }
-            //    }
-            //}
         }
 
         private void Item_DragDelta(object sender, DragDeltaEventArgs e)
