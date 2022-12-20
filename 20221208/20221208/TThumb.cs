@@ -208,6 +208,17 @@ namespace _20221208
         //public double TTFontSize
         //{
         //    get { return (double)GetValue(TTFontSizeProperty); }
+        //    set { SetValue(TTFontSizeProperty, value); }
+        //}
+        //public static readonly DependencyProperty TTFontSizeProperty =
+        //    DependencyProperty.Register(nameof(TTFontSize), typeof(double), typeof(TTTextBlock),
+        //        new FrameworkPropertyMetadata(20.0,
+        //            FrameworkPropertyMetadataOptions.AffectsRender |
+        //            FrameworkPropertyMetadataOptions.AffectsMeasure));
+
+        //public double TTFontSize
+        //{
+        //    get { return (double)GetValue(TTFontSizeProperty); }
         //    set { SetValue(TTFontSizeProperty, value);}
         //}
         //public static readonly DependencyProperty TTFontSizeProperty =
