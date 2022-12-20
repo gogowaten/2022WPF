@@ -60,11 +60,12 @@ namespace _20221220_TextBlockItemsControlThumb
 
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+            //これを実行するとフォントサイズ変更してもThumbのサイズが更新されない
             Width = ActualWidth;
-            Height= ActualHeight;
+            Height = ActualHeight;
         }
 
-        protected FrameworkElementFactory MakeTemplate()
+        protected static FrameworkElementFactory MakeTemplate()
         {
             FrameworkElementFactory waku = new(typeof(Rectangle));
             waku.SetValue(Shape.StrokeProperty, Brushes.Cyan);
@@ -75,7 +76,11 @@ namespace _20221220_TextBlockItemsControlThumb
             return basePanel;
         }
 
-
+        public override string ToString()
+        {
+            //return base.ToString();
+            return Name;
+        }
 
     }
 
@@ -154,7 +159,8 @@ namespace _20221220_TextBlockItemsControlThumb
         {
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
-            FrameworkElementFactory panel = new(typeof(Canvas));
+            //FrameworkElementFactory panel = new(typeof(Canvas));
+            FrameworkElementFactory panel = new(typeof(ExCanvas));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
 
             FrameworkElementFactory baseGridPanel = MakeTemplate();
@@ -162,5 +168,61 @@ namespace _20221220_TextBlockItemsControlThumb
             this.Template = new() { VisualTree = baseGridPanel };
 
         }
+    }
+
+    public class ExCanvas : Canvas
+    {
+        public override string ToString()
+        {
+            //return base.ToString();
+            return "ExCanvas";
+        }
+        protected override void OnChildDesiredSizeChanged(UIElement child)
+        {
+            base.OnChildDesiredSizeChanged(child);
+            var neko = Children.Count;
+        }
+        protected override Size MeasureOverride(Size constraint)//1
+        {
+            var neko = Children.Count;
+            return base.MeasureOverride(constraint);
+        }
+        protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)//2
+        {
+            base.OnVisualChildrenChanged(visualAdded, visualRemoved);
+            var neko = visualAdded;
+            var inu = visualAdded.GetLocalValueEnumerator();
+            var uma = Children.Count;
+        }
+        protected override Size ArrangeOverride(Size arrangeSize)//3
+        {
+            Bound();
+            var neko = Children.Count;
+            return base.ArrangeOverride(arrangeSize);
+        }
+        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)//4
+        {
+            base.OnRenderSizeChanged(sizeInfo);
+            var moto = sizeInfo.PreviousSize;
+            var ima = sizeInfo.NewSize;
+            var neko = Children.Count;
+        }
+        private void Bound()
+        {
+            foreach (var item in Children)
+            {
+                if (item is TTTextBlock tb)
+                {
+                    var left = tb.X; var top = tb.Y;
+                    var right = tb.Width;
+                    var bottom = tb.Height;
+                    var aright = tb.ActualWidth;
+                    var abottom = tb.ActualHeight;
+                }
+
+            }
+        }
+
+
     }
 }

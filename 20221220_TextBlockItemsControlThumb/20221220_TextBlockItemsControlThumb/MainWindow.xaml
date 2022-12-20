@@ -12,13 +12,13 @@
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
     <Canvas x:Name="MyCanvas">
-      <local:TTGroup>
+      <local:TTGroup x:Name="Group1">
         <local:TTTextBlock x:Name="text1" TTText="text1" FontSize="30"/>
         <local:TTTextBlock x:Name="text2" TTText="text2" FontSize="30" X="100" Y="100"/>
       </local:TTGroup>
     </Canvas>
     <StackPanel Grid.Column="1">
-      <Slider Minimum="10" Maximum="100" Value="{Binding ElementName=text1, Path=FontSize}"
+      <Slider Minimum="10" Maximum="100" Value="{Binding ElementName=text2, Path=FontSize}"
               IsSnapToTickEnabled="True" TickFrequency="10"/>
     </StackPanel>
     </Grid>

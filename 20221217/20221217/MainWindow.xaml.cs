@@ -66,6 +66,7 @@ namespace _20221217
     public class AA : Collection<string>
     {
         public event EventHandler<ListChangeEventArgs>? ListChange;
+        public event EventHandler<DragDeltaEventArgs>? ListChangeEvent;
         protected override void ClearItems()
         {
             base.ClearItems();
