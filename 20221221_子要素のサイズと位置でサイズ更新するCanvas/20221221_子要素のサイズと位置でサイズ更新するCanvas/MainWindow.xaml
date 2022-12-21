@@ -5,8 +5,60 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221221_子要素のサイズと位置でサイズ更新するCanvas"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
-    </Grid>
+        Title="MainWindow" Height="450" Width="500">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Canvas>
+      <Canvas.Resources>
+        <Style TargetType="TextBlock">
+          <Setter Property="Background" Value="Red"/>
+        </Style>
+      </Canvas.Resources>
+      <local:ExCanvas x:Name="MyExCanvas" Background="Gold">
+        <TextBlock Text="子要素11" FontSize="30" Canvas.Left="20" Canvas.Top="10"/>
+        <TextBlock x:Name="My子要素12" Text="子要素12" FontSize="30" Canvas.Left="80" Canvas.Top="80"/>
+      </local:ExCanvas>
+      <Canvas x:Name="MyCanvas" Canvas.Top="200" Background="Gold">
+        <TextBlock Text="子要素21" FontSize="30" Canvas.Left="20" Canvas.Top="10"/>
+        <TextBlock x:Name="My子要素22" Text="子要素22" FontSize="30" Canvas.Left="80" Canvas.Top="80"/>
+      </Canvas>
+    </Canvas>
+    <StackPanel Grid.Column="1">
+      <GroupBox DataContext="{Binding ElementName=MyExCanvas}" Header="{Binding Name}">
+        <StackPanel>
+          <TextBlock Text="{Binding ActualWidth, StringFormat=ActualWidth \= {0:0.0}}"/>
+          <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+          <Button x:Name="Button1" Content="Width=200、Height=100に指定" Click="Button1_Click"/>
+          <GroupBox DataContext="{Binding ElementName=My子要素12}" Header="{Binding Name}">
+            <StackPanel>
+              <Slider Value="{Binding FontSize}" 
+                  Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
+              <!--[WPF/XAML]添付プロパティにバインディングする - MithrilWorks
+https://mithrilworks.jp/others/program/xaml/dpbinding.html-->
+              <Slider Value="{Binding (Canvas.Left)}"
+                  Minimum="0" Maximum="200" IsSnapToTickEnabled="True" TickFrequency="10"/>
+            </StackPanel>
+          </GroupBox>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox DataContext="{Binding ElementName=MyCanvas}" Header="{Binding Name}">
+        <StackPanel>
+          <TextBlock Text="{Binding ActualWidth, StringFormat=ActualWidth \= {0:0.0}}"/>
+          <TextBlock Text="{Binding Width, StringFormat=Width \= {0:0.0}}"/>
+          <Button x:Name="Button2" Content="Width=200、Height=100に指定" Click="Button2_Click"/>
+          <GroupBox DataContext="{Binding ElementName=My子要素22}" Header="{Binding Name}">
+            <StackPanel>
+              <Slider Value="{Binding FontSize}" 
+                  Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
+              <Slider Value="{Binding (Canvas.Left)}"
+                  Minimum="0" Maximum="200" IsSnapToTickEnabled="True" TickFrequency="10"/>
+            </StackPanel>
+          </GroupBox>
+        </StackPanel>
+      </GroupBox>
+    </StackPanel>
+  </Grid>
 </Window>
