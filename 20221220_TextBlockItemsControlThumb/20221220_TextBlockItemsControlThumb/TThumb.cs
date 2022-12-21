@@ -55,7 +55,7 @@ namespace _20221220_TextBlockItemsControlThumb
             DataContext = this;
             SetBinding(Canvas.LeftProperty, new Binding(nameof(X)) { Mode = BindingMode.TwoWay });
             SetBinding(Canvas.TopProperty, new Binding(nameof(Y)) { Mode = BindingMode.TwoWay });
-            SizeChanged += TThumb_SizeChanged;
+            //SizeChanged += TThumb_SizeChanged;
         }
 
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -160,7 +160,8 @@ namespace _20221220_TextBlockItemsControlThumb
             FrameworkElementFactory ic = new(typeof(ItemsControl));
             ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             //FrameworkElementFactory panel = new(typeof(Canvas));
-            FrameworkElementFactory panel = new(typeof(ExCanvas));
+            FrameworkElementFactory panel = new(typeof(Ex2Canvas));
+            //FrameworkElementFactory panel = new(typeof(ExCanvas));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(panel));
 
             FrameworkElementFactory baseGridPanel = MakeTemplate();
@@ -172,6 +173,17 @@ namespace _20221220_TextBlockItemsControlThumb
 
     public class ExCanvas : Canvas
     {
+        public ExCanvas()
+        {
+            SizeChanged += ExCanvas_SizeChanged;
+
+        }
+
+        private void ExCanvas_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string ToString()
         {
             //return base.ToString();
@@ -182,17 +194,17 @@ namespace _20221220_TextBlockItemsControlThumb
             base.OnChildDesiredSizeChanged(child);
             var neko = Children.Count;
         }
-        protected override Size MeasureOverride(Size constraint)//1
-        {
-            var neko = Children.Count;
-            return base.MeasureOverride(constraint);
-        }
-        protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)//2
+        protected override void OnVisualChildrenChanged(DependencyObject visualAdded, DependencyObject visualRemoved)//1
         {
             base.OnVisualChildrenChanged(visualAdded, visualRemoved);
             var neko = visualAdded;
             var inu = visualAdded.GetLocalValueEnumerator();
             var uma = Children.Count;
+        }
+        protected override Size MeasureOverride(Size constraint)//2
+        {
+            var neko = Children.Count;
+            return base.MeasureOverride(constraint);
         }
         protected override Size ArrangeOverride(Size arrangeSize)//3
         {
@@ -222,7 +234,49 @@ namespace _20221220_TextBlockItemsControlThumb
 
             }
         }
+    }
 
 
+
+    public class Ex2Canvas : Canvas
+    {
+        public override string ToString()
+        {
+            return "Ex2Canvas";
+            //return base.ToString();
+        }
+
+        //子要素のサイズ変更と位置変更に反応するけどCanvasのActualサイズは更新されない
+        protected override Size ArrangeOverride(Size arrangeSize)
+        {
+            base.ArrangeOverride(arrangeSize);
+            double w = 0; double h = 0;
+            foreach (var item in Children.OfType<TThumb>())
+            {
+                if (item.DesiredSize.Width + item.X > w) w = item.DesiredSize.Width + item.X;
+                if (item.DesiredSize.Height + item.Y > h) h = item.DesiredSize.Height + item.Y;
+            }
+            Size size = new(w, h);
+            //差異があればサイズ更新
+            if (arrangeSize.Width != w || arrangeSize.Height != h) { this.Measure(size); }
+            return size;
+
+            //return base.ArrangeOverride(arrangeSize);
+        }
+
+        //子要素の位置変更に反応しないけどCanvasのActualサイズは更新される
+        protected override Size MeasureOverride(Size constraint)
+        {
+            base.MeasureOverride(constraint);
+            double w = 0; double h = 0;
+            foreach (var item in Children.OfType<TThumb>())
+            {
+                if (item.DesiredSize.Width + item.X > w) w = item.DesiredSize.Width + item.X;
+                if (item.DesiredSize.Height + item.Y > h) h = item.DesiredSize.Height + item.Y;
+            }
+            return new Size(w, h);
+
+            //return base.MeasureOverride(constraint);
+        }
     }
 }

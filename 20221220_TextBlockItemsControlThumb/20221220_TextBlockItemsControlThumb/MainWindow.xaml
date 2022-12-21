@@ -5,13 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221220_TextBlockItemsControlThumb"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="450" Width="400">
     <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
-    <Canvas x:Name="MyCanvas">
+    <Canvas x:Name="MyCanvas" UseLayoutRounding="False">
       <local:TTGroup x:Name="Group1">
         <local:TTTextBlock x:Name="text1" TTText="text1" FontSize="30"/>
         <local:TTTextBlock x:Name="text2" TTText="text2" FontSize="30" X="100" Y="100"/>
@@ -20,6 +20,11 @@
     <StackPanel Grid.Column="1">
       <Slider Minimum="10" Maximum="100" Value="{Binding ElementName=text2, Path=FontSize}"
               IsSnapToTickEnabled="True" TickFrequency="10"/>
+      <TextBlock Text="{Binding ElementName=Group1, Path=Width, StringFormat=Width \= {0}}"/>
+      <TextBlock Text="{Binding ElementName=Group1, Path=ActualWidth, StringFormat=ActualWidth \= {0:0.00}}"/>
+      <Slider Minimum="0" Maximum="200" Value="{Binding ElementName=text2, Path=X}"
+              IsSnapToTickEnabled="True" TickFrequency="1"/>
+      
     </StackPanel>
     </Grid>
 </Window>
