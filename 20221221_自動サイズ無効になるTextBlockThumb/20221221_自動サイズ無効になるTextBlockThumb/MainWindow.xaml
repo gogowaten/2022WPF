@@ -1,0 +1,47 @@
+﻿<Window x:Class="_20221221_自動サイズ無効になるTextBlockThumb.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20221221_自動サイズ無効になるTextBlockThumb"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800">
+  <!--オートサイズのときのWidthの値はNaN、幅を取得したいときはActualWidth、ActualWidthはReadonly
+  Widthに値を入れるとオートサイズは無効になる、これはなにかの要素のTemplateにTextBlockを使ったときも同様-->
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Grid.Resources>
+      <Style TargetType="TextBlock">
+        <Setter Property="Foreground" Value="Gold"/>
+        <Setter Property="Background" Value="Purple"/>
+        <Setter Property="FontSize" Value="30"/>
+      </Style>
+      <Style TargetType="Slider">
+        <Setter Property="Minimum" Value="10"/>
+        <Setter Property="Maximum" Value="100"/>
+        <Setter Property="TickFrequency" Value="10"/>
+        <Setter Property="IsSnapToTickEnabled" Value="True"/>
+        <Setter Property="TickPlacement" Value="TopLeft"/>
+        <Setter Property="AutoToolTipPlacement" Value="TopLeft"/>
+        <Setter Property="Margin" Value="0,20"/>
+      </Style>
+    </Grid.Resources>
+    <Canvas>
+      <TextBlock x:Name="MyText0" Text="Width、Height両方指定" Width="400" Height="50"/>
+      <TextBlock x:Name="MyText1" Text="Widthだけ指定" Width="300" Canvas.Top="100"/>
+      <TextBlock x:Name="MyText2" Text="Heightだけ指定" Height="80" Canvas.Top="200"/>
+      <TextBlock x:Name="MyText3" Text="サイズ未指定(オートサイズ)" Canvas.Top="300"/>
+    </Canvas>
+    <GroupBox Grid.Column="1" Header="フォントサイズ変更">
+      <StackPanel>
+        <Slider Value="{Binding ElementName=MyText0, Path=FontSize}"/>
+        <Slider Value="{Binding ElementName=MyText1, Path=FontSize}"/>
+        <Slider Value="{Binding ElementName=MyText2, Path=FontSize}"/>
+        <Slider Value="{Binding ElementName=MyText3, Path=FontSize}"/>
+      </StackPanel>
+    </GroupBox>
+  </Grid>
+</Window>

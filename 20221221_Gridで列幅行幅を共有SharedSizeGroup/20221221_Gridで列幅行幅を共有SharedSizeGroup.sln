@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "20221221_Gridで列幅行幅を共有SharedSizeGroup", "20221221_Gridで列幅行幅を共有SharedSizeGroup\20221221_Gridで列幅行幅を共有SharedSizeGroup.csproj", "{EB3FED42-508F-4A06-BD57-6976B8785D95}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EB3FED42-508F-4A06-BD57-6976B8785D95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EB3FED42-508F-4A06-BD57-6976B8785D95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EB3FED42-508F-4A06-BD57-6976B8785D95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EB3FED42-508F-4A06-BD57-6976B8785D95}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {45A7F0A8-41DB-44FB-8A7F-083B787EE29B}
+	EndGlobalSection
+EndGlobal
