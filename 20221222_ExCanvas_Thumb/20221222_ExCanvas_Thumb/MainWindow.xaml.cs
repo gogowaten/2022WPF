@@ -26,7 +26,14 @@ namespace _20221222_ExCanvas_Thumb
             InitializeComponent();
             //MyExCanvas.Children.Add(AddTest(2000));//多少カクつく
             //MyExCanvas.Children.Add(AddTest(200));//全く問題ない
-            MyExCanvas1.SizeChanged += MyExCanvas1_SizeChanged;
+            //MyExCanvas1.SizeChanged += MyExCanvas1_SizeChanged;
+            for (int i = 0; i < 2; i++)
+            {
+                var ex = MakeExCanvasWithThumb(30);
+                Canvas.SetLeft(ex, i * 100); Canvas.SetTop(ex, i * 100);
+                MyExCanvas1.Children.Add(ex);
+            }
+
         }
         private Thumb MakeThumb(double left, double top)
         {
@@ -35,10 +42,14 @@ namespace _20221222_ExCanvas_Thumb
             t.DragDelta += Thumb_DragDelta;
             return t;
         }
-        private void AddExCanvas()
+        private ExCanvas MakeExCanvasWithThumb(int childrenCount)
         {
-            ExCanvas ex = new();
-            //ex.Children.Add(MakeThumb());
+            ExCanvas ex = new() { Background = Brushes.MediumAquamarine, Opacity = 0.5 };
+            for (int i = 0; i < childrenCount; i++)
+            {
+                ex.Children.Add(MakeThumb(i, i));
+            }
+            return ex;
         }
         private ExCanvas AddTest(int count)
         {
