@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
+
 //ブログ記事
 //WPF、自動サイズ調整するCanvas、子要素のサイズや位置の変更で更新 - 午後わてんのブログ
 //https://gogowaten.hatenablog.com/entry/2022/12/22/163812
