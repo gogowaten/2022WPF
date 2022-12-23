@@ -8,9 +8,6 @@ using System.Windows.Controls.Primitives;
 //DragCompletedでMeasureするようにした
 namespace _20221223_ExCanvas
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         public MainWindow()

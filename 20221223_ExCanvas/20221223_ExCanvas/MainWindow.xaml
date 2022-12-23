@@ -5,18 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221223_ExCanvas"
         mc:Ignorable="d"
-        Title="MainWindow" Height="250" Width="600">
+        Title="MainWindow" Height="350" Width="600">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
     </Grid.ColumnDefinitions>
-    <!--<ScrollViewer HorizontalScrollBarVisibility="Visible">
-      <Canvas Width="{Binding ElementName=ttt, Path=ActualWidth}"
-              Height="{Binding ElementName=ttt, Path=ActualHeight}">
-        <TextBlock x:Name="ttt" Text="testtttttttttttttttt" FontSize="150"/>
-      </Canvas>
-    </ScrollViewer>-->
     <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
     <Canvas Width="{Binding ElementName=MyExCanvas1, Path=ActualWidth}"
             Height="{Binding ElementName=MyExCanvas1, Path=ActualHeight}"
