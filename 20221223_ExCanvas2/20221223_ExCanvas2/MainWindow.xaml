@@ -16,14 +16,14 @@
             Height="{Binding ElementName=MyExCanvas1, Path=ActualHeight}"
             HorizontalAlignment="Left" VerticalAlignment="Top">
         <local:ExCanvas x:Name="MyExCanvas1" Background="Gold" Canvas.Left="0" Canvas.Top="0">
-          <Thumb x:Name="MyThumb1" Width="100" Height="30" Canvas.Left="100" Canvas.Top="50" DragDelta="Thumb_DragDelta"
+          <Thumb x:Name="MyThumb1" Width="100" Height="30" Canvas.Left="200" Canvas.Top="50" DragDelta="Thumb_DragDelta"
                DragCompleted="Thumb_DragCompleted"/>
           <Thumb x:Name="MyThumb11" Width="100" Height="30" Canvas.Left="0" Canvas.Top="0" DragDelta="Thumb_DragDelta"
                DragCompleted="Thumb_DragCompleted"/>
-          <local:ExCanvas x:Name="MyExCanvas2" Background="DodgerBlue" Opacity="0.5" Canvas.Left="0" Canvas.Top="0">
-            <Thumb x:Name="MyThumb2" Width="100" Height="30" Canvas.Left="20" Canvas.Top="20" DragDelta="Thumb_DragDelta"
+          <local:ExCanvas x:Name="MyExCanvas2" Background="DodgerBlue" Opacity="0.5" Canvas.Left="20" Canvas.Top="40">
+            <Thumb x:Name="MyThumb2" Width="100" Height="30" Canvas.Left="0" Canvas.Top="0" DragDelta="Thumb_DragDelta"
                  DragCompleted="Thumb_DragCompleted"/>
-            <Thumb x:Name="MyThumb21" Width="100" Height="30" Canvas.Left="20" Canvas.Top="120" DragDelta="Thumb_DragDelta"
+            <Thumb x:Name="MyThumb21" Width="100" Height="30" Canvas.Left="120" Canvas.Top="120" DragDelta="Thumb_DragDelta"
                  DragCompleted="Thumb_DragCompleted"/>
             <!--<local:ExCanvas x:Name="MyExCanvas3" Background="Red" Opacity="0.5" Canvas.Left="0" Canvas.Top="100">
               <Thumb x:Name="MyThumb3" Width="100" Height="30" Canvas.Left="200" Canvas.Top="20" DragDelta="Thumb_DragDelta"

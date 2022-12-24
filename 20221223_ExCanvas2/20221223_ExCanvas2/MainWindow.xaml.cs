@@ -56,7 +56,10 @@ namespace _20221223_ExCanvas2
                 //Canvas.SetLeft(parent, Canvas.GetLeft(parent) + minX);
                 //Canvas.SetTop(parent, Canvas.GetTop(parent) + minY);
 
-                parent.Measure(new Size());
+                //parent.Measure(new Size(double.NaN,double.NaN));//エラー
+                //parent.Measure(new Size(double.PositiveInfinity,double.PositiveInfinity));//実行されない？
+                //parent.InvalidateMeasure();//微妙に違う結果になる
+                parent.Measure(new Size(0, 0));//これがいい
             }
         }
         private void Button1_Click(object sender, RoutedEventArgs e)
@@ -75,6 +78,7 @@ namespace _20221223_ExCanvas2
             //return base.ToString();
             return Name;
         }
+     
         //protected override Size ArrangeOverride(Size arrangeSize)
         //{
         //    if (double.IsNaN(Width) && double.IsNaN(Height))
@@ -113,8 +117,14 @@ namespace _20221223_ExCanvas2
         //    }
         //}
 
+        protected override Size ArrangeOverride(Size arrangeSize)
+        {
+            //arrangeSzie、子要素群表示に必要なサイズ
+            return base.ArrangeOverride(arrangeSize);
+        }
         protected override Size MeasureOverride(Size constraint)
         {
+            //constraint、上限サイズ
             if (double.IsNaN(Width) && double.IsNaN(Height))
             {
                 base.MeasureOverride(constraint);
@@ -123,8 +133,8 @@ namespace _20221223_ExCanvas2
                 double minY = double.MaxValue;
                 foreach (var item in InternalChildren.OfType<FrameworkElement>())
                 {
-                    double x = Canvas.GetLeft(item);
-                    double y = Canvas.GetTop(item);
+                    double x = GetLeft(item);
+                    double y = GetTop(item);
                     if (minX > x) minX = x;
                     if (minY > y) minY = y;
                     double w = GetLeft(item) + item.DesiredSize.Width;
@@ -134,11 +144,11 @@ namespace _20221223_ExCanvas2
                 }
                 foreach (var item in InternalChildren.OfType<FrameworkElement>())
                 {
-                    Canvas.SetLeft(item, Canvas.GetLeft(item) - minX);
-                    Canvas.SetTop(item, Canvas.GetTop(item) - minY);
+                    SetLeft(item, GetLeft(item) - minX);
+                    SetTop(item, GetTop(item) - minY);
                 }
-                Canvas.SetLeft(this, Canvas.GetLeft(this) + minX);
-                Canvas.SetTop(this, Canvas.GetTop(this) + minY);
+                SetLeft(this, GetLeft(this) + minX);
+                SetTop(this, GetTop(this) + minY);
 
                 return size;
             }
@@ -146,7 +156,10 @@ namespace _20221223_ExCanvas2
             {
                 return base.MeasureOverride(constraint);
             }
+
+            //return base.MeasureOverride(constraint);
         }
+
         //protected override Size MeasureOverride(Size constraint)
         //{
         //    if (double.IsNaN(Width) && double.IsNaN(Height))
