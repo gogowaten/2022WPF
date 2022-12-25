@@ -16,6 +16,7 @@ namespace _20221225_ItemsControlThumbReSize
     {
         #region 依存プロパティ、通知プロパティ
 
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
             if (EqualityComparer<T>.Default.Equals(field, value)) return;
@@ -23,18 +24,7 @@ namespace _20221225_ItemsControlThumbReSize
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-
-
         private double _myLeft;
-        //public double MyLeft
-        //{
-        //    get => _myLeft; set
-        //    {
-        //        SetProperty(ref _myLeft, value);
-
-        //        TTParentGroup?.ReSizeAndReLocate();
-        //    }
-        //}
         public double MyLeft { get => _myLeft; set => SetProperty(ref _myLeft, value); }
 
 
@@ -58,8 +48,6 @@ namespace _20221225_ItemsControlThumbReSize
         public static readonly DependencyProperty MyTopProperty =
             DependencyProperty.Register(nameof(MyTop), typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-
 
         #endregion 依存プロパティ
 
@@ -75,21 +63,21 @@ namespace _20221225_ItemsControlThumbReSize
             //return base.ToString();
             return Name;
         }
-
     }
+
 
     public class TTItemThumb : TThumb
     {
         public TTItemThumb()
         {
-            SizeChanged += TThumb_SizeChanged;
-
+            SizeChanged += TThumb_SizeChanged;            
         }
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            TTParentGroup?.ReSizeAndReLocate();
+            TTParentGroup?.UpdateTTGroupLayout();
         }
     }
+
 
     public class TTTextBlock : TTItemThumb
     {
@@ -127,7 +115,7 @@ namespace _20221225_ItemsControlThumbReSize
         {
             if (sender is TThumb tt)
             {
-                tt.TTParentGroup?.ReSizeAndReLocate();
+                tt.TTParentGroup?.UpdateTTGroupLayout();
                 //ReSize(tt.TTParentGroup);
             }
         }
@@ -173,18 +161,11 @@ namespace _20221225_ItemsControlThumbReSize
 
             Loaded += TTGroup_Loaded;
         }
-       
-        public void ReSizeAndReLocate()
+
+        public void UpdateTTGroupLayout()
         {
             TTGroup target = this;
             (double x, double y, double w, double h) = GetRect(target);
-            ////親要素のサイズ変更があれば、祖先更新フラグを立てる
-            ////これがないとすべての先祖要素が更新対象になってしまう
-            //bool flag = false;
-            //if (target.Width != w - x || target.Height != h - y)
-            //{
-            //    flag = true;
-            //}
 
             //子要素位置修正
             foreach (var item in target.Children)
@@ -203,21 +184,13 @@ namespace _20221225_ItemsControlThumbReSize
             //必要、これで実際にサイズ更新される、SizeChangedで確認できる
             target.UpdateLayout();
 
-
-            //祖先更新フラグがあれば遡って更新
+            //祖先があれば遡って更新
             if (target.TTParentGroup is TTGroup parent)
             {
-                parent.ReSizeAndReLocate();
-                //ReSize(parent);
+                parent.UpdateTTGroupLayout();
             }
-            ////祖先更新フラグがあれば遡って更新
-            //if (flag && target.TTParentGroup is TTGroup parent)
-            //{
-            //    parent.ReSizeAndReLocate();
-            //    //ReSize(parent);
-            //}
         }
-        
+
         //TTGroupのRect取得
         private static (double x, double y, double w, double h) GetRect(TTGroup? group)
         {
@@ -243,7 +216,7 @@ namespace _20221225_ItemsControlThumbReSize
         //デザイン画面でも反映される
         private void TTGroup_Loaded(object sender, RoutedEventArgs e)
         {
-            TTParentGroup?.ReSizeAndReLocate();
+            TTParentGroup?.UpdateTTGroupLayout();
             //ReSize(TTParentGroup);
         }
 
