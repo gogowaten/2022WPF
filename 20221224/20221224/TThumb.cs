@@ -1,18 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls.Primitives;
+﻿using System.Windows.Controls.Primitives;
 using System.Windows;
 using System.Windows.Controls;
-//using System.Drawing;
 using System.Windows.Shapes;
 using System.Windows.Media;
 using System.Collections.ObjectModel;
-
-using System.Windows.Data;
-using System.Configuration;
 using System.Windows.Markup;
 using System.Collections.Specialized;
 
@@ -85,19 +76,55 @@ namespace _20221224
 
         private void TTTextBlock_DragCompleted(object sender, DragCompletedEventArgs e)
         {
-            if (sender is TThumb tt && TTParentGroup != null)
+            if (sender is TThumb && TTParentGroup != null)
             {
+                //Width指定版、こっちのほうがシンプル
                 Rect rect = GetRect();
-                TTParentGroup.Arrange(rect);
-                //TTParentGroup.Arrange(new(100, 100, 100, 200));
-                //TTParentGroup.TTParentGroup?.Arrange(new(new()));
-
+                //子要素位置修正
                 foreach (var item in TTParentGroup.Children)
                 {
-
+                    item.MyLeft -= rect.X;
+                    item.MyTop -= rect.Y;
                 }
+                //親要素のサイズと位置の更新
+                TTParentGroup.MyLeft += rect.X;
+                TTParentGroup.MyTop += rect.Y;
+                TTParentGroup.Width = rect.Width - rect.X;
+                TTParentGroup.Height = rect.Height - rect.Y;
+
+                TTParentGroup.TTParentGroup?.UpdateLayout();
             }
         }
+
+        //MeasureOverrideやArrangeOverrideはよくわからん、無理
+
+        //} private void TTTextBlock_DragCompleted(object sender, DragCompletedEventArgs e)
+        //{
+        //    if (sender is TThumb && TTParentGroup != null)
+        //    {
+        //        Rect rect = GetRect();
+        //        foreach (var item in TTParentGroup.Children)
+        //        {
+        //            item.MyLeft -= rect.X;
+        //            item.MyTop -= rect.Y;
+        //        }
+
+        //        //これを実行すると移動後のサイズが1x1になってしまう
+        //        TTParentGroup.MyLeft += rect.X;
+        //        TTParentGroup.MyTop += rect.Y;
+        //        //これで表示状は正確なサイズになるけど、Actualが更新されないので、最後にもう一度実行で更新されるようになった
+        //        TTParentGroup.UpdateLayout();
+
+        //        rect.Width -= rect.X;
+        //        rect.Height -= rect.Y;
+        //        rect.X = TTParentGroup.MyLeft;
+        //        rect.Y = TTParentGroup.MyTop;
+
+        //        TTParentGroup.Arrange(rect);
+        //        TTParentGroup.UpdateLayout();//再度更新
+        //    }
+        //}
+
         private Rect GetRect()
         {
             Rect rect = new();
@@ -114,9 +141,9 @@ namespace _20221224
                     if (right < rr) right = rr;
                     if (bottom < bb) bottom = bb;
                 }
-                rect.X = minx+TTParentGroup.MyLeft; 
-                rect.Y = miny+TTParentGroup.MyTop;
-                rect.Width = right; 
+                rect.X = minx;
+                rect.Y = miny;
+                rect.Width = right;
                 rect.Height = bottom;
             }
             return rect;
@@ -125,26 +152,8 @@ namespace _20221224
         {
             MyLeft += e.HorizontalChange;
             MyTop += e.VerticalChange;
-
-            //TTParentGroup?.Measure(new Size());
-            //TTParentGroup?.ExMeasure();
-            //Test(TTParentGroup);
-            DependencyObject neko = VisualTreeHelper.GetParent(this);
-
-            //if(VisualTreeHelper.GetParent(this) is ExCanvas canvas)
-            //{
-            //    canvas.Measure(new Size());
-            //}
         }
-        private void Test(TTGroup? group)
-        {
-            if (group == null) return;
-            group.Measure(new());
-            if (group.TTParentGroup != null)
-            {
-                Test(group.TTParentGroup);
-            }
-        }
+
     }
 
     [ContentProperty(nameof(Children))]
@@ -224,7 +233,7 @@ namespace _20221224
         }
     }
 
-
+    //無理、わからん
     public class ExCanvas : Canvas
     {
 
@@ -253,6 +262,10 @@ namespace _20221224
         protected override Size ArrangeOverride(Size arrangeSize)
         {
             return base.ArrangeOverride(arrangeSize);
+        }
+        protected override Size MeasureOverride(Size constraint)
+        {
+            return base.MeasureOverride(constraint);
         }
     }
 }

@@ -31,6 +31,8 @@
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
       <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualWidth}"/>
       <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualHeight}"/>
+      <TextBlock Text="{Binding ElementName=TTG_2, Path=DesiredSize}"/>
+      <TextBlock Text="{Binding ElementName=TTG_2, Path=Width}"/>
     </StackPanel>
   </Grid>
 </Window>
