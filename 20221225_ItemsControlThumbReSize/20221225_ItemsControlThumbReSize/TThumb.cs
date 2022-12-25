@@ -7,20 +7,48 @@ using System.Collections.ObjectModel;
 using System.Windows.Markup;
 using System.Collections.Specialized;
 using System.Linq;
+using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace _20221225_ItemsControlThumbReSize
 {
-    public class TThumb : Thumb
+    public class TThumb : Thumb, INotifyPropertyChanged
     {
-        #region 依存プロパティ
+        #region 依存プロパティ、通知プロパティ
 
-        public double MyLeft
+        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
         {
-            get { return (double)GetValue(MyLeftProperty); }
-            set { SetValue(MyLeftProperty, value); }
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
-        public static readonly DependencyProperty MyLeftProperty =
-            DependencyProperty.Register(nameof(MyLeft), typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
+
+
+
+        private double _myLeft;
+        //public double MyLeft
+        //{
+        //    get => _myLeft; set
+        //    {
+        //        SetProperty(ref _myLeft, value);
+
+        //        TTParentGroup?.ReSizeAndReLocate();
+        //    }
+        //}
+        public double MyLeft { get => _myLeft; set => SetProperty(ref _myLeft, value); }
+
+
+        //依存プロパティじゃなくても、通知プロパティでおｋ
+        //public double MyLeft
+        //{
+        //    get { return (double)GetValue(MyLeftProperty); }
+        //    set
+        //    {
+        //        SetValue(MyLeftProperty, value);
+        //    }
+        //}
+        //public static readonly DependencyProperty MyLeftProperty =
+        //    DependencyProperty.Register(nameof(MyLeft), typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
 
         public double MyTop
         {
@@ -29,6 +57,8 @@ namespace _20221225_ItemsControlThumbReSize
         }
         public static readonly DependencyProperty MyTopProperty =
             DependencyProperty.Register(nameof(MyTop), typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
 
         #endregion 依存プロパティ
@@ -45,12 +75,12 @@ namespace _20221225_ItemsControlThumbReSize
             //return base.ToString();
             return Name;
         }
-       
+
     }
-   
+
     public class TTItemThumb : TThumb
     {
-       public TTItemThumb()
+        public TTItemThumb()
         {
             SizeChanged += TThumb_SizeChanged;
 
@@ -143,22 +173,24 @@ namespace _20221225_ItemsControlThumbReSize
 
             Loaded += TTGroup_Loaded;
         }
+       
         public void ReSizeAndReLocate()
         {
             TTGroup target = this;
             (double x, double y, double w, double h) = GetRect(target);
+            ////親要素のサイズ変更があれば、祖先更新フラグを立てる
+            ////これがないとすべての先祖要素が更新対象になってしまう
+            //bool flag = false;
+            //if (target.Width != w - x || target.Height != h - y)
+            //{
+            //    flag = true;
+            //}
+
             //子要素位置修正
             foreach (var item in target.Children)
             {
                 item.MyLeft -= x;
                 item.MyTop -= y;
-            }
-            //親要素のサイズ変更があれば、祖先更新フラグを立てる
-            //これがないとすべての先祖要素が更新対象になってしまう
-            bool flag = false;
-            if (target.Width != w - x || target.Height != h - y)
-            {
-                flag = true;
             }
             //親要素のサイズ更新、Root以外は位置修正
             if (target.Name != "RootTTG")
@@ -171,14 +203,21 @@ namespace _20221225_ItemsControlThumbReSize
             //必要、これで実際にサイズ更新される、SizeChangedで確認できる
             target.UpdateLayout();
 
+
             //祖先更新フラグがあれば遡って更新
-            if (flag && target.TTParentGroup is TTGroup parent)
+            if (target.TTParentGroup is TTGroup parent)
             {
                 parent.ReSizeAndReLocate();
                 //ReSize(parent);
             }
-
+            ////祖先更新フラグがあれば遡って更新
+            //if (flag && target.TTParentGroup is TTGroup parent)
+            //{
+            //    parent.ReSizeAndReLocate();
+            //    //ReSize(parent);
+            //}
         }
+        
         //TTGroupのRect取得
         private static (double x, double y, double w, double h) GetRect(TTGroup? group)
         {

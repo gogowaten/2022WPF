@@ -9,7 +9,7 @@
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
-      <ColumnDefinition Width="200"/>
+      <ColumnDefinition Width="220"/>
     </Grid.ColumnDefinitions>
     <Grid.Resources>
       <Style TargetType="local:TTTextBlock">
@@ -29,12 +29,51 @@
       </local:TTGroup>
     </Canvas>
     <StackPanel Grid.Column="1">
-      <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"
+      <StackPanel.Resources>
+        <Style TargetType="TextBlock">
+          <Setter Property="Margin" Value="10,0,0,0"/>
+        </Style>
+      </StackPanel.Resources>
+      <GroupBox DataContext="{Binding ElementName=RootTTG}" Header="{Binding Name}">
+        <StackPanel>
+          <TextBlock Text="{Binding ActualWidth, StringFormat=Width \= {0:0.0}}"/>
+          <GroupBox DataContext="{Binding ElementName=TTG_1}" Header="{Binding Name}">
+            <WrapPanel>
+              <TextBlock Text="{Binding ActualWidth, StringFormat=Width \= {0:0.0}}"/>
+              <TextBlock Text="{Binding ActualHeight, StringFormat=Height \= {0:0.0}}"/>
+              <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0:0.0}}"/>
+              <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0:0.0}}"/>
+              <GroupBox DataContext="{Binding ElementName=TTG_2}" Header="{Binding Name}">
+                <StackPanel>
+                  <Slider Value="{Binding MyLeft}"
+              Minimum="10" Maximum="500" IsSnapToTickEnabled="True" TickFrequency="10"/>
+                  <WrapPanel>
+                    <TextBlock Text="{Binding ActualWidth, StringFormat=Width \= {0:0.0}}"/>
+                    <TextBlock Text="{Binding ActualHeight, StringFormat=Height \= {0:0.0}}"/>
+                    <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0:0.0}}"/>
+                    <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0:0.0}}"/>
+                  </WrapPanel>
+                </StackPanel>
+              </GroupBox>
+            </WrapPanel>
+          </GroupBox>
+        </StackPanel>
+      </GroupBox>
+      <GroupBox DataContext="{Binding ElementName=Text_21}" Header="{Binding Name}">
+        <StackPanel>
+          <StackPanel>
+            <TextBlock Text="{Binding FontSize, StringFormat=FontSize \= {0:0}}"/>
+            <Slider Value="{Binding FontSize}"
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualWidth}"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualHeight}"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=DesiredSize}"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=Width}"/>
+            <WrapPanel>
+              <TextBlock Text="{Binding ActualWidth, StringFormat=Width \= {0:0.0}}"/>
+              <TextBlock Text="{Binding ActualHeight, StringFormat=Height \= {0:0.0}}"/>
+              <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0:0.0}}"/>
+              <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0:0.0}}"/>
+            </WrapPanel>
+          </StackPanel>
+        </StackPanel>
+      </GroupBox>
     </StackPanel>
   </Grid>
 
