@@ -25,5 +25,10 @@ namespace _20221225_ItemsControlThumbReSize
         {
             InitializeComponent();
         }
+
+        private void ButtonChangeDragTarget_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }

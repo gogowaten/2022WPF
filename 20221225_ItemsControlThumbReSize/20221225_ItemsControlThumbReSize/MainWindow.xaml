@@ -20,10 +20,10 @@
     <Grid UseLayoutRounding="True">
       <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
         <local:TTGroup x:Name="RootTTG" HorizontalAlignment="Left" VerticalAlignment="Top">
-          <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
+          <local:TTGroup x:Name="TTG_1" MyLeft="0" MyTop="0">
             <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
-            <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
-            <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
+            <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="120" MyTop="150"/>
+            <local:TTGroup x:Name="TTG_2" MyLeft="40" MyTop="40">
               <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
               <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="20" MyTop="50"/>
             </local:TTGroup>
@@ -54,7 +54,7 @@
                 <StackPanel>
                   <TextBlock Text="TTG2 Left"/>
                   <Slider Value="{Binding MyLeft}"
-              Minimum="10" Maximum="500" IsSnapToTickEnabled="True" TickFrequency="10"/>
+              Minimum="0" Maximum="300" IsSnapToTickEnabled="True" TickFrequency="10"/>
                   <WrapPanel>
                     <TextBlock Text="{Binding ActualWidth, StringFormat=Width \= {0:0.0}}"/>
                     <TextBlock Text="{Binding ActualHeight, StringFormat=Height \= {0:0.0}}"/>
@@ -82,6 +82,7 @@
           </StackPanel>
         </StackPanel>
       </GroupBox>
+      <Button x:Name="ButtonChangeDragTarget" Content="移動対象切り替え" Click="ButtonChangeDragTarget_Click"/>
     </StackPanel>
   </Grid>
 

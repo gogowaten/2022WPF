@@ -9,6 +9,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
+using System.Windows.Data;
 
 namespace _20221225_ItemsControlThumbReSize
 {
@@ -51,7 +52,7 @@ namespace _20221225_ItemsControlThumbReSize
 
         #endregion 依存プロパティ
 
-        public TTGroup? TTParentGroup { get; set; }
+        public TTGroup? TTParent { get; set; }
         public TThumb()
         {
             SetBinding(Canvas.LeftProperty, nameof(MyLeft));
@@ -63,6 +64,42 @@ namespace _20221225_ItemsControlThumbReSize
             //return base.ToString();
             return Name;
         }
+        //ドラッグ移動終了時に親要素のサイズと位置の更新
+        private void TT_DragCompleted(object sender, DragCompletedEventArgs e)
+        {
+            if (sender is TThumb tt)
+            {
+                tt.TTParent?.TTGroupUpdateLayout();
+                //this.TTGroupUpdateLayout();
+            }
+        }
+        //マウスドラッグ移動
+        private void TT_DragDelta(object sender, DragDeltaEventArgs e)
+        {
+            MyLeft += e.HorizontalChange;
+            MyTop += e.VerticalChange;
+        }
+        public void AddDragEvent(TThumb target)
+        {
+            //target.DragDelta += target.TT_DragDelta;
+            //target.DragCompleted += target.TT_DragCompleted;
+            target.DragDelta += TT_DragDelta;
+            target.DragCompleted += TT_DragCompleted;
+        }
+        public void AddDragEvent(TThumb target,TTGroup move)
+        {
+            target.DragDelta += move.TT_DragDelta;
+            target.DragCompleted += move.TT_DragCompleted;
+            //target.DragDelta += TT_DragDelta;
+            //target.DragCompleted += TT_DragCompleted;
+        }
+        
+        public void RemoveDragEvent(TThumb target)
+        {
+            target.DragDelta -= TT_DragDelta;
+            target.DragCompleted -= TT_DragCompleted;
+        }
+
     }
 
 
@@ -70,19 +107,17 @@ namespace _20221225_ItemsControlThumbReSize
     {
         public TTItemThumb()
         {
-            SizeChanged += TThumb_SizeChanged;            
+            SizeChanged += TThumb_SizeChanged;
         }
         private void TThumb_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            TTParentGroup?.UpdateTTGroupLayout();
+            TTParent?.TTGroupUpdateLayout();
         }
     }
 
 
     public class TTTextBlock : TTItemThumb
     {
-        private readonly string TTNAME = "content";
-        public TextBlock? Content { get; set; }
         public string MyText
         {
             get { return (string)GetValue(MyTextProperty); }
@@ -94,103 +129,66 @@ namespace _20221225_ItemsControlThumbReSize
         public TTTextBlock()
         {
             DataContext = this;
-            FrameworkElementFactory text = new(typeof(TextBlock), TTNAME);
+            //Template構築、適用
+            FrameworkElementFactory text = new(typeof(TextBlock));
             FrameworkElementFactory waku = new(typeof(Rectangle));
             FrameworkElementFactory panel = new(typeof(Grid));
             waku.SetValue(Shape.StrokeProperty, Brushes.Red);
             waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
+            text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
             panel.AppendChild(text);
             panel.AppendChild(waku);
             this.Template = new() { VisualTree = panel };
             this.ApplyTemplate();
-            Content = (TextBlock)this.Template.FindName(TTNAME, this);
-            Content.SetBinding(TextBlock.TextProperty, nameof(MyText));
 
-            DragDelta += TTTextBlock_DragDelta;
-            DragCompleted += TTTextBlock_DragCompleted;
+            //DragDelta += TTTextBlock_DragDelta;
+            //DragCompleted += TTTextBlock_DragCompleted;
         }
 
-        //ドラッグ移動終了時に親要素のサイズと位置の更新
-        private void TTTextBlock_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            if (sender is TThumb tt)
-            {
-                tt.TTParentGroup?.UpdateTTGroupLayout();
-                //ReSize(tt.TTParentGroup);
-            }
-        }
+        ////ドラッグ移動終了時に親要素のサイズと位置の更新
+        //private void TTTextBlock_DragCompleted(object sender, DragCompletedEventArgs e)
+        //{
+        //    if (sender is TThumb tt)
+        //    {
+        //        tt.TTParent?.UpdateTTGroupLayout();
+        //        //ReSize(tt.TTParentGroup);
+        //    }
+        //}
 
-        private void TTTextBlock_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            MyLeft += e.HorizontalChange;
-            MyTop += e.VerticalChange;
-        }
+        //private void TTTextBlock_DragDelta(object sender, DragDeltaEventArgs e)
+        //{
+        //    MyLeft += e.HorizontalChange;
+        //    MyTop += e.VerticalChange;
+        //}
 
     }
 
     [ContentProperty(nameof(Children))]
     public class TTGroup : TThumb
     {
-        private readonly string TTNAME = "content";
-
-        public ItemsControl? Content { get; set; }
-
         public ObservableCollection<TThumb> Children { get; set; } = new();
         public TTGroup()
         {
             DataContext = this;
             Children.CollectionChanged += Children_CollectionChanged;
-            SizeChanged += TTGroup_SizeChanged;
 
             FrameworkElementFactory waku = new(typeof(Rectangle));
             waku.SetValue(Rectangle.StrokeProperty, Brushes.Blue);
             waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
             FrameworkElementFactory grid = new(typeof(Grid));
-            FrameworkElementFactory ic = new(typeof(ItemsControl), TTNAME);
+            FrameworkElementFactory ic = new(typeof(ItemsControl));
             //ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
-            //FrameworkElementFactory icPanel = new(typeof(ExCanvas));
             FrameworkElementFactory icPanel = new(typeof(Canvas));
             ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(icPanel));
+            ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
             grid.AppendChild(ic);
             grid.AppendChild(waku);
             this.Template = new() { VisualTree = grid };
-            this.ApplyTemplate();
-            Content = (ItemsControl)this.Template.FindName(TTNAME, this);
-            Content.SetBinding(ItemsControl.ItemsSourceProperty, nameof(Children));
-            Content.ApplyTemplate();
 
             Loaded += TTGroup_Loaded;
         }
 
-        public void UpdateTTGroupLayout()
-        {
-            TTGroup target = this;
-            (double x, double y, double w, double h) = GetRect(target);
-
-            //子要素位置修正
-            foreach (var item in target.Children)
-            {
-                item.MyLeft -= x;
-                item.MyTop -= y;
-            }
-            //親要素のサイズ更新、Root以外は位置修正
-            if (target.Name != "RootTTG")
-            {
-                target.MyLeft += x;
-                target.MyTop += y;
-            }
-            target.Width = w - x;
-            target.Height = h - y;
-            //必要、これで実際にサイズ更新される、SizeChangedで確認できる
-            target.UpdateLayout();
-
-            //祖先があれば遡って更新
-            if (target.TTParentGroup is TTGroup parent)
-            {
-                parent.UpdateTTGroupLayout();
-            }
-        }
-
+        
         //TTGroupのRect取得
         private static (double x, double y, double w, double h) GetRect(TTGroup? group)
         {
@@ -211,25 +209,42 @@ namespace _20221225_ItemsControlThumbReSize
             return (x, y, w, h);
         }
 
+        public void TTGroupUpdateLayout()
+        {
+            TTGroup target = this;
+            (double x, double y, double w, double h) = GetRect(target);
+
+            //子要素位置修正
+            foreach (var item in target.Children)
+            {
+                item.MyLeft -= x;
+                item.MyTop -= y;
+            }
+            //自身がRoot以外なら自身の位置を更新
+            if (target.Name != "RootTTG")
+            {
+                target.MyLeft += x;
+                target.MyTop += y;
+            }
+            //自身のサイズ更新
+            target.Width = w - x;
+            target.Height = h - y;
+            //必要、これがないと見た目が変化しない、SizeChangedで確認できる
+            target.UpdateLayout();
+
+            //親要素Groupがあれば遡って更新
+            if (target.TTParent is TTGroup parent)
+            {
+                parent.TTGroupUpdateLayout();
+            }
+        }
+
         //起動直後にサイズ更新実行、
         //これでXamlで子要素が置かれていても親要素のサイズが決定される
         //デザイン画面でも反映される
         private void TTGroup_Loaded(object sender, RoutedEventArgs e)
         {
-            TTParentGroup?.UpdateTTGroupLayout();
-            //ReSize(TTParentGroup);
-        }
-
-        private void TTGroup_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            if (sender is TThumb tt)
-            {
-                var neko = tt.DesiredSize;
-                var inu = tt.ActualHeight;
-                var uma = tt.ActualWidth;
-                var origin = e.OriginalSource;
-                var source = e.Source;
-            }
+            TTParent?.TTGroupUpdateLayout();
         }
 
 
@@ -241,7 +256,10 @@ namespace _20221225_ItemsControlThumbReSize
                     //子要素追加時、子要素のParentプロパティに自身を入力しておく
                     if (e.NewItems?[0] is TThumb thumb)
                     {
-                        thumb.TTParentGroup = this;
+                        thumb.TTParent = this;
+                        if (thumb is TTTextBlock item) { AddDragEvent(item); }
+                        //if (thumb is TTItemThumb item) { AddDragEvent(item); }
+                        //if (thumb is TTGroup group) { AddDragEvent(group); }
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:
@@ -258,30 +276,5 @@ namespace _20221225_ItemsControlThumbReSize
         }
     }
 
-    //public class ExCanvas : Canvas
-    //{
-    //    //protected override Size MeasureOverride(Size constraint)
-    //    //{
-    //    //    base.MeasureOverride(constraint);
-    //    //    double x = double.MaxValue, y = double.MaxValue;
-    //    //    double w = 0, h = 0;
-    //    //    foreach (var item in InternalChildren.OfType<TThumb>())
-    //    //    {
-    //    //        var left = item.MyLeft; if (x > left) x = left;
-    //    //        var top = item.MyTop; if (y > top) y = top;
-    //    //        var width = left + item.DesiredSize.Width;
-    //    //        var height = top + item.DesiredSize.Height;
-    //    //        if (w < width) w = width;
-    //    //        if (h < height) h = height;
-    //    //    }
 
-    //    //    //if (InternalChildren[0] is TThumb tt && tt.TTParentGroup is TTGroup ttg)
-    //    //    //{
-    //    //    //    tt.ReSize(ttg);
-    //    //    //    //ttg.Measure(new());
-    //    //    //}
-    //    //    return new Size(w - x, h - y);
-    //    //    //return base.MeasureOverride(constraint);
-    //    //}
-    //}
 }
