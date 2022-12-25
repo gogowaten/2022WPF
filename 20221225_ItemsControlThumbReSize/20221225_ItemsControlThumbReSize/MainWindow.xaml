@@ -1,0 +1,41 @@
+﻿<Window x:Class="_20221225_ItemsControlThumbReSize.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:_20221225_ItemsControlThumbReSize"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="600">
+  <Grid>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition/>
+      <ColumnDefinition Width="200"/>
+    </Grid.ColumnDefinitions>
+    <Grid.Resources>
+      <Style TargetType="local:TTTextBlock">
+        <Setter Property="FontSize" Value="20"/>
+      </Style>
+    </Grid.Resources>
+    <Canvas UseLayoutRounding="True">
+      <local:TTGroup x:Name="RootTTG">
+        <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
+          <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
+          <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
+          <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
+            <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
+            <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="20" MyTop="50"/>
+          </local:TTGroup>
+        </local:TTGroup>
+      </local:TTGroup>
+    </Canvas>
+    <StackPanel Grid.Column="1">
+      <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"
+              Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
+      <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualWidth}"/>
+      <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualHeight}"/>
+      <TextBlock Text="{Binding ElementName=TTG_2, Path=DesiredSize}"/>
+      <TextBlock Text="{Binding ElementName=TTG_2, Path=Width}"/>
+    </StackPanel>
+  </Grid>
+
+</Window>
