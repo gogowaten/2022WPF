@@ -99,7 +99,7 @@ namespace _20221224
     }
 
 
-    public class TTItemThumb : TThumb
+    public abstract class TTItemThumb : TThumb
     {
         public TTItemThumb()
         {
@@ -136,6 +136,8 @@ namespace _20221224
 
 
     }
+
+
 
     [ContentProperty(nameof(Children))]
     public class TTGroup : TThumb
@@ -185,29 +187,32 @@ namespace _20221224
 
         public void TTGroupUpdateLayout()
         {
-            TTGroup target = this;
-            (double x, double y, double w, double h) = GetRect(target);
+            //TTGroup target = this;
+            (double x, double y, double w, double h) = GetRect(this);
 
             //子要素位置修正
-            foreach (var item in target.Children)
+            foreach (var item in Children)
             {
                 item.MyLeft -= x;
                 item.MyTop -= y;
             }
             //自身がRoot以外なら自身の位置を更新
-            if (target.Name != "RootTTG")
+            if(this.GetType() != typeof(TTRoot))
             {
-                target.MyLeft += x;
-                target.MyTop += y;
+                MyLeft += x;
+                MyTop += y;
             }
+
             //自身のサイズ更新
-            target.Width = w - x;
-            target.Height = h - y;
+            w -= x; h -= y;
+            if (w >= 0) Width = w;
+            if (h >= 0) Height = h;
+
             //必要、これがないと見た目が変化しない、SizeChangedで確認できる
-            target.UpdateLayout();
+            UpdateLayout();
 
             //親要素Groupがあれば遡って更新
-            if (target.TTParent is TTGroup parent)
+            if (TTParent is TTGroup parent)
             {
                 parent.TTGroupUpdateLayout();
             }
@@ -241,6 +246,8 @@ namespace _20221224
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:
+                    //削除時はサイズと位置の更新
+                    TTGroupUpdateLayout();
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     break;
@@ -252,5 +259,22 @@ namespace _20221224
                     break;
             }
         }
+    }
+
+    public class TTRoot : TTGroup
+    {
+        public TThumb? ActiveThumb { get; set; }
+        //クリックされたThumb
+        public TThumb? ClickedThumb { get; set; }
+        //フォーカスされているThumb、カーソルキーで移動させるThumb
+        public TThumb? FocusThumb { get; set; }
+        //子要素が移動対象になっているグループThumb
+        public TTGroup EnableGroup { get; set; }
+        
+        public TTRoot()
+        {
+            if (EnableGroup == null) { EnableGroup = this; }
+        }
+
     }
 }

@@ -17,7 +17,7 @@
       </Style>
     </Grid.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Visible">
-        <local:TTGroup VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
+        <local:TTRoot VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
           <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
             <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
             <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
@@ -27,14 +27,15 @@
 
             </local:TTGroup>
           </local:TTGroup>
-        </local:TTGroup>
+        </local:TTRoot>
     </ScrollViewer>
     
     <StackPanel Grid.Column="1">
       <GroupBox>
         <StackPanel>
           <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
-          <TextBox x:Name="TextBoxAdd" Text="test"/>
+          <TextBox x:Name="TextBoxAdd" Text="追加要素"/>
+          <Button x:Name="ButtonRemove" Content="Remove" Click="ButtonRemove_Click"/>
         </StackPanel>
       </GroupBox>
       <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"

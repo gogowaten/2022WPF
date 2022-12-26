@@ -20,6 +20,7 @@ namespace _20221224
     /// </summary>
     public partial class MainWindow : Window
     {
+        private int MyAddCounnt = 1;
         public MainWindow()
         {
             InitializeComponent();
@@ -27,7 +28,23 @@ namespace _20221224
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
         {
+            TTTextBlock tt = new()
+            {
+                MyLeft = 20 * MyAddCounnt,
+                MyTop = 20 * MyAddCounnt,
+                MyText = TextBoxAdd.Text + MyAddCounnt
+            };
+            TTG_1.Children.Add(tt);
+            MyAddCounnt++;
+        }
 
+        private void ButtonRemove_Click(object sender, RoutedEventArgs e)
+        {
+            int itemCount = TTG_1.Children.Count;
+            if (itemCount > 0)
+            {
+                TTG_1.Children.RemoveAt(itemCount - 1);
+            }
         }
     }
 }
