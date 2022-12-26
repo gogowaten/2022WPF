@@ -17,19 +17,19 @@
       </Style>
     </Grid.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Visible">
-        <local:TTRoot VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
-          <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
-            <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
-            <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
-            <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
-              <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
-              <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="20" MyTop="50"/>
+      <local:TTRoot x:Name="MyRootThumb" VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
+        <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
+          <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
+          <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
+          <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
+            <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
+            <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="20" MyTop="50"/>
 
-            </local:TTGroup>
           </local:TTGroup>
-        </local:TTRoot>
+        </local:TTGroup>
+      </local:TTRoot>
     </ScrollViewer>
-    
+
     <StackPanel Grid.Column="1">
       <GroupBox>
         <StackPanel>
@@ -40,10 +40,36 @@
       </GroupBox>
       <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualWidth}"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualHeight}"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=DesiredSize}"/>
-      <TextBlock Text="{Binding ElementName=TTG_2, Path=Width}"/>
+      <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
+        <GroupBox DataContext="{Binding EnableGroup}" Header="EnableGroup">
+          <WrapPanel>
+            <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
+            <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0}}"/>
+            <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+            <TextBlock Text="{Binding ActualHeight, StringFormat=ActualHeight \= {0}}"/>
+            <TextBlock Text="{Binding ActualWidth, StringFormat=ActualWidth \= {0}}"/>
+          </WrapPanel>
+        </GroupBox>
+
+        <GroupBox DataContext="{Binding ClickedThumb}" Header="{Binding Name}">
+          <DockPanel>
+            <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
+            <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0}}"/>
+          </DockPanel>
+        </GroupBox>
+        
+        <GroupBox DataContext="{Binding MovableThumb}" Header="{Binding Name}">
+          <DockPanel>
+            <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
+            <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0}}"/>
+          </DockPanel>
+        </GroupBox>
+
+      </StackPanel>
+      <Button x:Name="ButtonRootEnable" Content="RootEnable" Click="ButtonRootEnable_Click"/>
+      <Button x:Name="ButtonTTG1Enable" Content="TTG1Enable" Click="ButtonTTG1Enable_Click"/>
+      <Button x:Name="ButtonTTG2Enable" Content="TTG2Enable" Click="ButtonTTG2Enable_Click"/>
+
     </StackPanel>
   </Grid>
 </Window>

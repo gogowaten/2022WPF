@@ -32,9 +32,10 @@ namespace _20221224
             {
                 MyLeft = 20 * MyAddCounnt,
                 MyTop = 20 * MyAddCounnt,
-                MyText = TextBoxAdd.Text + MyAddCounnt
+                MyText = TextBoxAdd.Text + MyAddCounnt,
+                Name = TextBoxAdd.Text + MyAddCounnt,
             };
-            TTG_1.Children.Add(tt);
+            MyRootThumb.AddThumb(tt);
             MyAddCounnt++;
         }
 
@@ -45,6 +46,21 @@ namespace _20221224
             {
                 TTG_1.Children.RemoveAt(itemCount - 1);
             }
+        }
+
+        private void ButtonRootEnable_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableGroup = MyRootThumb;
+        }
+
+        private void ButtonTTG1Enable_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableGroup = TTG_1;
+        }
+
+        private void ButtonTTG2Enable_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableGroup = TTG_2;
         }
     }
 }

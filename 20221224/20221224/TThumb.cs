@@ -10,6 +10,8 @@ using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Windows.Data;
+using System.Diagnostics.Contracts;
+using System.Windows.Input;
 
 namespace _20221224
 {
@@ -70,7 +72,6 @@ namespace _20221224
             if (sender is TThumb tt)
             {
                 tt.TTParent?.TTGroupUpdateLayout();
-                //this.TTGroupUpdateLayout();
             }
         }
         //マウスドラッグ移動
@@ -79,22 +80,17 @@ namespace _20221224
             MyLeft += e.HorizontalChange;
             MyTop += e.VerticalChange;
         }
-        /// <summary>
-        /// ドラッグ移動系イベント登録
-        /// </summary>
-        /// <param name="addTarget">登録するThumb</param>
-        /// <param name="moveTarget">実際に移動させるThumb</param>
-        public void AddDragEvent(TThumb addTarget, TThumb moveTarget)
+        public void AddDragEvent()
         {
-            addTarget.DragDelta += moveTarget.TT_DragDelta;
-            addTarget.DragCompleted += moveTarget.TT_DragCompleted;
+            DragDelta += TT_DragDelta;
+            DragCompleted += TT_DragCompleted;
+        }
+        public void RemoveDragEvent()
+        {
+            DragDelta -= TT_DragDelta;
+            DragCompleted -= TT_DragCompleted;
         }
 
-        public void RemoveDragEvent(TThumb addTarget, TThumb moveTarget)
-        {
-            addTarget.DragDelta -= moveTarget.TT_DragDelta;
-            addTarget.DragCompleted -= moveTarget.TT_DragCompleted;
-        }
 
     }
 
@@ -197,7 +193,7 @@ namespace _20221224
                 item.MyTop -= y;
             }
             //自身がRoot以外なら自身の位置を更新
-            if(this.GetType() != typeof(TTRoot))
+            if (this.GetType() != typeof(TTRoot))
             {
                 MyLeft += x;
                 MyTop += y;
@@ -237,12 +233,6 @@ namespace _20221224
                     {
                         //子要素のParentプロパティに自身を入力しておく
                         thumb.TTParent = this;
-                        //子要素がItemThumb系ならドラッグ移動系イベント登録
-                        if (thumb is TTItemThumb item)
-                        {
-                            AddDragEvent(item, item);//移動はItemThumb
-                            //AddDragEvent(item, this);//移動はグループ単位になる
-                        }
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:
@@ -263,18 +253,104 @@ namespace _20221224
 
     public class TTRoot : TTGroup
     {
-        public TThumb? ActiveThumb { get; set; }
+        //public TThumb? ActiveThumb { get; set; }
+
         //クリックされたThumb
-        public TThumb? ClickedThumb { get; set; }
-        //フォーカスされているThumb、カーソルキーで移動させるThumb
-        public TThumb? FocusThumb { get; set; }
+        private TThumb? _clickedThumb;
+        public TThumb? ClickedThumb { get => _clickedThumb; set => SetProperty(ref _clickedThumb, value); }
+
+        //移動可能なThumb、フォーカスされているThumb、カーソルキーで移動させるThumb
+        private TThumb? _movableThumb;
+        public TThumb? MovableThumb { get => _movableThumb; set => SetProperty(ref _movableThumb, value); }
+
         //子要素が移動対象になっているグループThumb
-        public TTGroup EnableGroup { get; set; }
-        
-        public TTRoot()
+        //子要素の追加対象
+        private TTGroup _enableGroup;
+        public TTGroup EnableGroup
         {
-            if (EnableGroup == null) { EnableGroup = this; }
+            get => _enableGroup; set
+            {
+                ChangeEnableGroup(_enableGroup, value);
+                SetProperty(ref _enableGroup, value);
+            }
         }
 
+        #region コンストラクタ
+        public TTRoot()
+        {
+            _enableGroup ??= this;
+            Loaded += TTRoot_Loaded;
+            PreviewMouseLeftButtonDown += TTRoot_PreviewMouseLeftButtonDown;
+        }
+        #endregion コンストラクタ
+
+        //クリックしたとき、ClickedThumbの更新とMovableThumbの更新
+        private void TTRoot_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            //var source = e.Source;//root
+            //var origin = e.OriginalSource;//textblock
+            //this = root, sender = root
+
+            //OriginalSourceにテンプレートに使っている要素が入っているので、
+            //そのTemplateParentプロパティから目的のThumbが取得できる
+            if (e.OriginalSource is FrameworkElement el)
+            {
+                if (el.TemplatedParent is TThumb tt)
+                {
+                    ClickedThumb = tt;
+                    MovableThumb = GetMovableThumb(tt);
+                }
+            }
+
+        }
+        private bool IsMovable(TThumb thumb)
+        {
+            if (thumb.TTParent is TTGroup ttg && ttg == EnableGroup)
+            {
+                return true;
+            }
+            return false;
+
+        }
+        private TThumb? GetMovableThumb(TThumb start)
+        {
+            if (IsMovable(start))
+            {
+                return start;
+            }
+            else if (start.TTParent is TTGroup ttg)
+            {
+                return GetMovableThumb(ttg);
+            }
+            return null;
+        }
+
+        private void TTRoot_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (EnableGroup == this)
+            {
+                foreach (var item in Children)
+                {
+                    item.AddDragEvent();
+                }
+            }
+        }
+
+        public void ChangeEnableGroup(TTGroup oldGroup, TTGroup newGroup)
+        {
+            foreach (var item in oldGroup.Children)
+            {
+                item.RemoveDragEvent();
+            }
+            foreach (var item in newGroup.Children)
+            {
+                item.AddDragEvent();
+            }
+        }
+        public void AddThumb(TThumb thumb)
+        {
+            EnableGroup.Children.Add(thumb);
+            thumb.AddDragEvent();
+        }
     }
 }
