@@ -31,6 +31,11 @@
     </ScrollViewer>
 
     <StackPanel Grid.Column="1">
+      <StackPanel.Resources>
+        <Style TargetType="TextBlock">
+          <Setter Property="Margin" Value="5,0,5,0"/>
+        </Style>
+      </StackPanel.Resources>
       <GroupBox>
         <StackPanel>
           <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
@@ -51,18 +56,20 @@
           </WrapPanel>
         </GroupBox>
 
-        <GroupBox DataContext="{Binding ClickedThumb}" Header="{Binding Name}">
-          <DockPanel>
+        <GroupBox DataContext="{Binding ClickedThumb}" Header="Clicked">
+          <WrapPanel>
             <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
             <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0}}"/>
-          </DockPanel>
+            <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+          </WrapPanel>
         </GroupBox>
         
-        <GroupBox DataContext="{Binding MovableThumb}" Header="{Binding Name}">
-          <DockPanel>
+        <GroupBox DataContext="{Binding MovableThumb}" Header="Movable">
+          <WrapPanel>
             <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
             <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0}}"/>
-          </DockPanel>
+            <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
+          </WrapPanel>
         </GroupBox>
 
       </StackPanel>
