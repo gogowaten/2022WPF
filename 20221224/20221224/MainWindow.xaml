@@ -16,17 +16,27 @@
         <Setter Property="FontSize" Value="20"/>
       </Style>
     </Grid.Resources>
-    <local:TTGroup UseLayoutRounding="True">
-      <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
-        <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
-        <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
-        <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
-          <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
-          <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="20" MyTop="50"/>
+    <ScrollViewer HorizontalScrollBarVisibility="Visible">
+        <local:TTGroup VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
+          <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
+            <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
+            <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
+            <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
+              <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
+              <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="20" MyTop="50"/>
+
+            </local:TTGroup>
+          </local:TTGroup>
         </local:TTGroup>
-      </local:TTGroup>
-    </local:TTGroup>
+    </ScrollViewer>
+    
     <StackPanel Grid.Column="1">
+      <GroupBox>
+        <StackPanel>
+          <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
+          <TextBox x:Name="TextBoxAdd" Text="test"/>
+        </StackPanel>
+      </GroupBox>
       <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
       <TextBlock Text="{Binding ElementName=TTG_2, Path=ActualWidth}"/>

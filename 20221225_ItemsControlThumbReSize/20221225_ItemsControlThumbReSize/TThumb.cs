@@ -136,26 +136,8 @@ namespace _20221225_ItemsControlThumbReSize
             panel.AppendChild(waku);
             this.Template = new() { VisualTree = panel };
             this.ApplyTemplate();
-
-            //DragDelta += TTTextBlock_DragDelta;
-            //DragCompleted += TTTextBlock_DragCompleted;
         }
 
-        ////ドラッグ移動終了時に親要素のサイズと位置の更新
-        //private void TTTextBlock_DragCompleted(object sender, DragCompletedEventArgs e)
-        //{
-        //    if (sender is TThumb tt)
-        //    {
-        //        tt.TTParent?.UpdateTTGroupLayout();
-        //        //ReSize(tt.TTParentGroup);
-        //    }
-        //}
-
-        //private void TTTextBlock_DragDelta(object sender, DragDeltaEventArgs e)
-        //{
-        //    MyLeft += e.HorizontalChange;
-        //    MyTop += e.VerticalChange;
-        //}
 
     }
 

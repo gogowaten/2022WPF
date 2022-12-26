@@ -24,5 +24,10 @@ namespace _20221224
         {
             InitializeComponent();
         }
+
+        private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
