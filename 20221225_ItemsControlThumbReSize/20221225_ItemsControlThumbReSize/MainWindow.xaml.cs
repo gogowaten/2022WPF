@@ -12,8 +12,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-//位置変更で親要素のサイズと位置の更新しようとすると無限ループになってしまう
-//
+//子要素の移動とサイズ変更で親要素の位置とサイズ更新
+//ドラッグ移動完了後に更新する。リアルタイム更新は難しくてできなかった
+//ItemはTextBlockThumb、GroupはItemsControlThumb
+
 namespace _20221225_ItemsControlThumbReSize
 {
     /// <summary>
@@ -26,9 +28,5 @@ namespace _20221225_ItemsControlThumbReSize
             InitializeComponent();
         }
 
-        private void ButtonChangeDragTarget_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
     }
 }

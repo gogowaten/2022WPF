@@ -79,25 +79,21 @@ namespace _20221225_ItemsControlThumbReSize
             MyLeft += e.HorizontalChange;
             MyTop += e.VerticalChange;
         }
-        public void AddDragEvent(TThumb target)
+        /// <summary>
+        /// ドラッグ移動系イベント登録
+        /// </summary>
+        /// <param name="addTarget">登録するThumb</param>
+        /// <param name="moveTarget">実際に移動させるThumb</param>
+        public void AddDragEvent(TThumb addTarget, TThumb moveTarget)
         {
-            //target.DragDelta += target.TT_DragDelta;
-            //target.DragCompleted += target.TT_DragCompleted;
-            target.DragDelta += TT_DragDelta;
-            target.DragCompleted += TT_DragCompleted;
+            addTarget.DragDelta += moveTarget.TT_DragDelta;
+            addTarget.DragCompleted += moveTarget.TT_DragCompleted;
         }
-        public void AddDragEvent(TThumb target,TTGroup move)
+
+        public void RemoveDragEvent(TThumb addTarget, TThumb moveTarget)
         {
-            target.DragDelta += move.TT_DragDelta;
-            target.DragCompleted += move.TT_DragCompleted;
-            //target.DragDelta += TT_DragDelta;
-            //target.DragCompleted += TT_DragCompleted;
-        }
-        
-        public void RemoveDragEvent(TThumb target)
-        {
-            target.DragDelta -= TT_DragDelta;
-            target.DragCompleted -= TT_DragCompleted;
+            addTarget.DragDelta -= moveTarget.TT_DragDelta;
+            addTarget.DragCompleted -= moveTarget.TT_DragCompleted;
         }
 
     }
@@ -188,7 +184,7 @@ namespace _20221225_ItemsControlThumbReSize
             Loaded += TTGroup_Loaded;
         }
 
-        
+
         //TTGroupのRect取得
         private static (double x, double y, double w, double h) GetRect(TTGroup? group)
         {
@@ -252,14 +248,18 @@ namespace _20221225_ItemsControlThumbReSize
         {
             switch (e.Action)
             {
+                //子要素追加時、
                 case NotifyCollectionChangedAction.Add:
-                    //子要素追加時、子要素のParentプロパティに自身を入力しておく
                     if (e.NewItems?[0] is TThumb thumb)
                     {
+                        //子要素のParentプロパティに自身を入力しておく
                         thumb.TTParent = this;
-                        if (thumb is TTTextBlock item) { AddDragEvent(item); }
-                        //if (thumb is TTItemThumb item) { AddDragEvent(item); }
-                        //if (thumb is TTGroup group) { AddDragEvent(group); }
+                        //子要素がItemThumb系ならドラッグ移動系イベント登録
+                        if (thumb is TTItemThumb item)
+                        {
+                            AddDragEvent(item, item);//移動はItemThumb
+                            //AddDragEvent(item, this);//移動はグループ単位になる
+                        }
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:

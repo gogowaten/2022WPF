@@ -82,7 +82,6 @@
           </StackPanel>
         </StackPanel>
       </GroupBox>
-      <Button x:Name="ButtonChangeDragTarget" Content="移動対象切り替え" Click="ButtonChangeDragTarget_Click"/>
     </StackPanel>
   </Grid>
 
