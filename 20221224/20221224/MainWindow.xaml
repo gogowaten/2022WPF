@@ -46,7 +46,20 @@
       </GroupBox>
       <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
+      <Button x:Name="ButtonRootEnable" Content="RootEnable" Click="ButtonRootEnable_Click"/>
+      <Button x:Name="ButtonTTG1Enable" Content="TTG1Enable" Click="ButtonTTG1Enable_Click"/>
+      <Button x:Name="ButtonTTG2Enable" Content="TTG2Enable" Click="ButtonTTG2Enable_Click"/>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
+        <StackPanel DataContext="{Binding SelectedThumbs}">
+          <TextBlock Text="{Binding Count, StringFormat=選択個数 \= {0}}"/>
+          <ListBox ItemsSource="{Binding}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}"/>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
         <GroupBox DataContext="{Binding EnableGroup}" Header="EnableGroup">
           <WrapPanel>
             <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
@@ -64,7 +77,7 @@
             <TextBlock Text="{Binding Name, StringFormat=Name \= {0}}"/>
           </WrapPanel>
         </GroupBox>
-        
+
         <GroupBox DataContext="{Binding MovableThumb}" Header="Movable">
           <WrapPanel>
             <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
@@ -74,9 +87,6 @@
         </GroupBox>
 
       </StackPanel>
-      <Button x:Name="ButtonRootEnable" Content="RootEnable" Click="ButtonRootEnable_Click"/>
-      <Button x:Name="ButtonTTG1Enable" Content="TTG1Enable" Click="ButtonTTG1Enable_Click"/>
-      <Button x:Name="ButtonTTG2Enable" Content="TTG2Enable" Click="ButtonTTG2Enable_Click"/>
 
     </StackPanel>
   </Grid>

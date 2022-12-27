@@ -14,6 +14,11 @@ using System.Diagnostics.Contracts;
 using System.Windows.Input;
 using System;
 
+
+//RootThumbに選択Thumbを保持するSelectedThumbsを追加
+//Ctrl+クリックしたときにこれに追加していく、同じThumbがあった場合は削除のトグル式
+//追加できるのはEnableThumbのChildren要素だけ
+
 namespace _20221224
 {
     public class TThumb : Thumb, INotifyPropertyChanged
@@ -304,6 +309,8 @@ namespace _20221224
                 item.AddDragEvent();
             }
         }
+        //public ReadOnlyObservableCollection<TThumb> InternalSelectedThumbs { get; set; }
+        public ObservableCollection<TThumb> SelectedThumbs { get; set; } = new();
 
 
         #region コンストラクタ
@@ -327,7 +334,7 @@ namespace _20221224
             }
         }
 
-        //クリックしたとき、ClickedThumbの更新とMovableThumbの更新
+        //クリックしたとき、ClickedThumbの更新とMovableThumbの更新、SelectedThumbsの更新
         private void TTRoot_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             //var source = e.Source;//root
@@ -338,13 +345,42 @@ namespace _20221224
             //そのTemplateParentプロパティから目的のThumbが取得できる
             if (e.OriginalSource is FrameworkElement el)
             {
-                if (el.TemplatedParent is TThumb tt)
+                if (el.TemplatedParent is TThumb clicked)
                 {
-                    ClickedThumb = tt;
-                    MovableThumb = GetMovableThumb(tt);
+                    ClickedThumb = clicked;
+                    //MovableThumb = GetMovableThumb(clicked);
+                    TThumb? movable = GetMovableThumb(clicked);
+                    MovableThumb = movable;
+                    //選択Thumb群の更新
+                    if (movable != null) { ClickedChanged(movable); }
+                    //ClickedChanged(movable);
                 }
             }
 
+            //選択Thumb群の更新
+            //追加できるのはEnableThumbのChildren要素だけ、つまりMovableThumb
+            //クリックしたThumbからMovableThumbを取得、これを判定していく
+            //Ctrlキーが押されている    MovableがSelectedにあればSelectedから削除、なければ追加
+            //Ctrlキーが押されていない    Selectedをクリアして、追加
+            void ClickedChanged(TThumb movable)
+            {
+                if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    if (SelectedThumbs.Contains(movable))
+                    {
+                        SelectedThumbs.Remove(movable);
+                    }
+                    else
+                    {
+                        SelectedThumbs.Add(movable);
+                    }
+                }
+                else
+                {
+                    SelectedThumbs.Clear();
+                    SelectedThumbs.Add(movable);
+                }
+            }
         }
         private bool IsMovable(TThumb thumb)
         {
