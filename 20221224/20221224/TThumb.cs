@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Windows.Data;
 using System.Diagnostics.Contracts;
 using System.Windows.Input;
+using System;
 
 namespace _20221224
 {
@@ -52,7 +53,7 @@ namespace _20221224
             DependencyProperty.Register(nameof(MyTop), typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
 
 
-        #endregion 依存プロパティ
+        #endregion 依存プロパティ、通知プロパティ
 
         public TTGroup? TTParent { get; set; }
         public TThumb()
@@ -66,6 +67,9 @@ namespace _20221224
             //return base.ToString();
             return Name;
         }
+
+        #region ドラッグ移動系イベント
+        
         //ドラッグ移動終了時に親要素のサイズと位置の更新
         private void TT_DragCompleted(object sender, DragCompletedEventArgs e)
         {
@@ -83,18 +87,20 @@ namespace _20221224
         public void AddDragEvent()
         {
             DragDelta += TT_DragDelta;
-            DragCompleted += TT_DragCompleted;
+            DragCompleted += TT_DragCompleted;            
         }
         public void RemoveDragEvent()
         {
             DragDelta -= TT_DragDelta;
             DragCompleted -= TT_DragCompleted;
         }
-
+        #endregion ドラッグ移動系イベント
 
     }
 
-
+    /// <summary>
+    /// Item系Thumbのベース、表示する要素はこれを継承して作成する
+    /// </summary>
     public abstract class TTItemThumb : TThumb
     {
         public TTItemThumb()
@@ -107,7 +113,9 @@ namespace _20221224
         }
     }
 
-
+    /// <summary>
+    /// TextBlockのThumb
+    /// </summary>
     public class TTTextBlock : TTItemThumb
     {
         private string? _myText;
@@ -134,17 +142,28 @@ namespace _20221224
     }
 
 
-
-    [ContentProperty(nameof(Children))]
+    /// <summary>
+    /// グループ用Thumb、TemplateにItemsControlを使っている
+    /// </summary>
+    [ContentProperty(nameof(InternalChildren))]
     public class TTGroup : TThumb
     {
-        public ObservableCollection<TThumb> Children { get; set; } = new();
+        public ObservableCollection<TThumb> InternalChildren { get; set; } = new();
+        public ReadOnlyObservableCollection<TThumb> Children { get; set; }
         public TTGroup()
         {
             DataContext = this;
-            Children.CollectionChanged += Children_CollectionChanged;
+            InternalChildren.CollectionChanged += Children_CollectionChanged;
+            Children = new(InternalChildren);
 
-            FrameworkElementFactory waku = new(typeof(Rectangle));
+            //Template構造
+            //Thumb
+            //┗ Template
+            //   ┗ Grid
+            //      ┣ ItemsControl   コレクションをBinding
+            //      ┃  ┗ Canvas      PanelTemplate
+            //      ┗ Rectangle      枠
+            FrameworkElementFactory waku = new(typeof(Rectangle));//サイズ確認用枠
             waku.SetValue(Rectangle.StrokeProperty, Brushes.Blue);
             waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
             FrameworkElementFactory grid = new(typeof(Grid));
@@ -157,7 +176,6 @@ namespace _20221224
             grid.AppendChild(waku);
             this.Template = new() { VisualTree = grid };
 
-            Loaded += TTGroup_Loaded;
         }
 
 
@@ -180,10 +198,10 @@ namespace _20221224
             }
             return (x, y, w, h);
         }
-
+        //サイズと位置の更新
         public void TTGroupUpdateLayout()
         {
-            //TTGroup target = this;
+            //Rect取得
             (double x, double y, double w, double h) = GetRect(this);
 
             //子要素位置修正
@@ -201,10 +219,12 @@ namespace _20221224
 
             //自身のサイズ更新
             w -= x; h -= y;
+            if (w < 0) w = 0;
+            if (h < 0) h = 0;
             if (w >= 0) Width = w;
             if (h >= 0) Height = h;
 
-            //必要、これがないと見た目が変化しない、SizeChangedで確認できる
+            //必要、これがないと見た目が変化しない、実行直後にSizeChangedが発生
             UpdateLayout();
 
             //親要素Groupがあれば遡って更新
@@ -214,14 +234,7 @@ namespace _20221224
             }
         }
 
-        //起動直後にサイズ更新実行、
-        //これでXamlで子要素が置かれていても親要素のサイズが決定される
-        //デザイン画面でも反映される
-        private void TTGroup_Loaded(object sender, RoutedEventArgs e)
-        {
-            TTParent?.TTGroupUpdateLayout();
-        }
-
+     
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
@@ -231,7 +244,7 @@ namespace _20221224
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems?[0] is TThumb thumb)
                     {
-                        //子要素のParentプロパティに自身を入力しておく
+                        //子要素のTTParentプロパティに自身を灯籠
                         thumb.TTParent = this;
                     }
                     break;
@@ -251,10 +264,12 @@ namespace _20221224
         }
     }
 
+    /// <summary>
+    /// すべてのThumbを管理する、追加や削除もここで行う
+    /// </summary>
     public class TTRoot : TTGroup
     {
-        //public TThumb? ActiveThumb { get; set; }
-
+        
         //クリックされたThumb
         private TThumb? _clickedThumb;
         public TThumb? ClickedThumb { get => _clickedThumb; set => SetProperty(ref _clickedThumb, value); }
@@ -268,21 +283,47 @@ namespace _20221224
         private TTGroup _enableGroup;
         public TTGroup EnableGroup
         {
-            get => _enableGroup; set
+            get => _enableGroup;
+            set
             {
-                ChangeEnableGroup(_enableGroup, value);
+                ChildrenDragEventDesoption(_enableGroup, value);
                 SetProperty(ref _enableGroup, value);
             }
         }
+        //EnableGroup用、ドラッグ移動イベント脱着
+        private static void ChildrenDragEventDesoption(TTGroup removeTarget, TTGroup addTarget)
+        {
+            foreach (var item in removeTarget.Children)
+            {
+                item.RemoveDragEvent();
+            }
+            foreach (var item in addTarget.Children)
+            {
+                item.AddDragEvent();
+            }
+        }
+        
 
         #region コンストラクタ
         public TTRoot()
         {
             _enableGroup ??= this;
-            Loaded += TTRoot_Loaded;
             PreviewMouseLeftButtonDown += TTRoot_PreviewMouseLeftButtonDown;
         }
         #endregion コンストラクタ
+
+        //起動直後、自身がEnableGroupならChildrenにドラッグ移動登録
+        protected override void OnInitialized(EventArgs e)
+        {
+            base.OnInitialized(e);
+            if (EnableGroup == this)
+            {
+                foreach (var item in Children)
+                {
+                    item.AddDragEvent();
+                }
+            }
+        }
 
         //クリックしたとき、ClickedThumbの更新とMovableThumbの更新
         private void TTRoot_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -312,6 +353,8 @@ namespace _20221224
             return false;
 
         }
+        //起点からMovableThumbをサーチ
+        //MovableはEnableThumbのChildrenの中で起点に連なるもの
         private TThumb? GetMovableThumb(TThumb start)
         {
             if (IsMovable(start))
@@ -325,32 +368,27 @@ namespace _20221224
             return null;
         }
 
-        private void TTRoot_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (EnableGroup == this)
-            {
-                foreach (var item in Children)
-                {
-                    item.AddDragEvent();
-                }
-            }
-        }
-
-        public void ChangeEnableGroup(TTGroup oldGroup, TTGroup newGroup)
-        {
-            foreach (var item in oldGroup.Children)
-            {
-                item.RemoveDragEvent();
-            }
-            foreach (var item in newGroup.Children)
-            {
-                item.AddDragEvent();
-            }
-        }
+        #region 追加と削除
+        //基本的にEnableThumbのChildrenに対して行う
+        //削除対象はMovableThumbになる
+        //ドラッグ移動イベントの着脱も行う
         public void AddThumb(TThumb thumb)
         {
-            EnableGroup.Children.Add(thumb);
+            EnableGroup.InternalChildren.Add(thumb);
             thumb.AddDragEvent();
         }
+        public void RemoveThumb(TThumb thumb)
+        {
+            if (EnableGroup.InternalChildren.Remove(thumb))
+            {
+                thumb.RemoveDragEvent();
+            };
+        }
+        public void RemoveThumb()
+        {
+            if (MovableThumb != null) { RemoveThumb(MovableThumb); }
+        }
+        #endregion 追加と削除
+
     }
 }

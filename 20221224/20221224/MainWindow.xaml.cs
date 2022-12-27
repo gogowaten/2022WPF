@@ -41,11 +41,9 @@ namespace _20221224
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            int itemCount = TTG_1.Children.Count;
-            if (itemCount > 0)
-            {
-                TTG_1.Children.RemoveAt(itemCount - 1);
-            }
+            //MyRootThumb.RemoveTTMovable();
+            MyRootThumb.RemoveThumb(Text_22);
+            //MyRootThumb.RemoveTT(TTG_1);
         }
 
         private void ButtonRootEnable_Click(object sender, RoutedEventArgs e)

@@ -23,7 +23,8 @@
           <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
           <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
             <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
-            <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="20" MyTop="50"/>
+            <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="80" MyTop="50"/>
+            <!--<local:TTTextBlock x:Name="Text_23" MyText="Text_22" MyLeft="120" MyTop="50"/>-->
 
           </local:TTGroup>
         </local:TTGroup>
