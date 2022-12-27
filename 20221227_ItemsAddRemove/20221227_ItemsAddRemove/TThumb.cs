@@ -151,8 +151,9 @@ namespace _20221227_ItemsAddRemove
     [ContentProperty(nameof(InternalChildren))]
     public class TTGroup : TThumb
     {
-        public ObservableCollection<TThumb> InternalChildren { get; set; } = new();
-        public ReadOnlyObservableCollection<TThumb> Children { get; set; }
+        //ホントはMainWindowからもアクセスされたくないけど、方法がわからん、RootThumbのEnableThumbからはアクセスしたい
+        internal ObservableCollection<TThumb> InternalChildren { get; set; } = new();
+        public ReadOnlyObservableCollection<TThumb> Children { get; }
         public TTGroup()
         {
             DataContext = this;

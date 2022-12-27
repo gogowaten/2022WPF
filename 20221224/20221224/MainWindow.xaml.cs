@@ -41,9 +41,9 @@ namespace _20221224
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            //MyRootThumb.RemoveTTMovable();
-            MyRootThumb.RemoveThumb(Text_22);
-            //MyRootThumb.RemoveTT(TTG_1);
+            MyRootThumb.RemoveThumb();
+            //↓これを禁止したけど方法がわからん
+            //MyRootThumb.InternalChildren.Remove(MyRootThumb.MovableThumb);
         }
 
         private void ButtonRootEnable_Click(object sender, RoutedEventArgs e)

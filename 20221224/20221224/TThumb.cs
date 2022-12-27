@@ -69,7 +69,7 @@ namespace _20221224
         }
 
         #region ドラッグ移動系イベント
-        
+
         //ドラッグ移動終了時に親要素のサイズと位置の更新
         private void TT_DragCompleted(object sender, DragCompletedEventArgs e)
         {
@@ -87,7 +87,7 @@ namespace _20221224
         public void AddDragEvent()
         {
             DragDelta += TT_DragDelta;
-            DragCompleted += TT_DragCompleted;            
+            DragCompleted += TT_DragCompleted;
         }
         public void RemoveDragEvent()
         {
@@ -148,8 +148,11 @@ namespace _20221224
     [ContentProperty(nameof(InternalChildren))]
     public class TTGroup : TThumb
     {
-        public ObservableCollection<TThumb> InternalChildren { get; set; } = new();
-        public ReadOnlyObservableCollection<TThumb> Children { get; set; }
+        //本当はprivateかprotectedにしたい
+        internal ObservableCollection<TThumb> InternalChildren { get; set; } = new();
+        public ReadOnlyObservableCollection<TThumb> Children { get; }
+
+
         public TTGroup()
         {
             DataContext = this;
@@ -177,7 +180,6 @@ namespace _20221224
             this.Template = new() { VisualTree = grid };
 
         }
-
 
         //TTGroupのRect取得
         private static (double x, double y, double w, double h) GetRect(TTGroup? group)
@@ -234,7 +236,7 @@ namespace _20221224
             }
         }
 
-     
+
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
@@ -269,7 +271,7 @@ namespace _20221224
     /// </summary>
     public class TTRoot : TTGroup
     {
-        
+
         //クリックされたThumb
         private TThumb? _clickedThumb;
         public TThumb? ClickedThumb { get => _clickedThumb; set => SetProperty(ref _clickedThumb, value); }
@@ -302,7 +304,7 @@ namespace _20221224
                 item.AddDragEvent();
             }
         }
-        
+
 
         #region コンストラクタ
         public TTRoot()
@@ -389,6 +391,7 @@ namespace _20221224
             if (MovableThumb != null) { RemoveThumb(MovableThumb); }
         }
         #endregion 追加と削除
+
 
     }
 }

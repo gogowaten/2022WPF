@@ -41,8 +41,8 @@ namespace _20221227_ItemsAddRemove
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
-            //MyRootThumb.RemoveTTMovable();
-            MyRootThumb.RemoveThumb(Text_22);
+            MyRootThumb.RemoveThumb();
+            //MyRootThumb.RemoveThumb(Text_22);
             //MyRootThumb.RemoveTT(TTG_1);
         }
 
