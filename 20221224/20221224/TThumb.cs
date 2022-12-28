@@ -19,6 +19,9 @@ using System;
 //Ctrl+クリックしたときにこれに追加していく、同じThumbがあった場合は削除のトグル式
 //追加できるのはEnableThumbのChildren要素だけ
 
+//グループ化とグループ解除できた
+//グループ化はSelectedThumbsからTTGroup作成して、それをEnableThumbに追加
+//解除はMovableThumbがTTGroupならこれを削除して、中の子要素をEnableThumbに追加
 namespace _20221224
 {
     public class TThumb : Thumb, INotifyPropertyChanged
@@ -187,13 +190,18 @@ namespace _20221224
         }
 
         //TTGroupのRect取得
-        private static (double x, double y, double w, double h) GetRect(TTGroup? group)
+        public static (double x, double y, double w, double h) GetRect(TTGroup? group)
+        {
+            if (group == null) { return (0, 0, 0, 0); }
+            return GetRect(group.Children);
+        }
+        public static (double x, double y, double w, double h) GetRect(IEnumerable<TThumb> thumbs)
         {
             double x = double.MaxValue, y = double.MaxValue;
             double w = 0, h = 0;
-            if (group != null)
+            if (thumbs != null)
             {
-                foreach (var item in group.Children)
+                foreach (var item in thumbs)
                 {
                     var left = item.MyLeft; if (x > left) x = left;
                     var top = item.MyTop; if (y > top) y = top;
@@ -205,6 +213,7 @@ namespace _20221224
             }
             return (x, y, w, h);
         }
+
         //サイズと位置の更新
         public void TTGroupUpdateLayout()
         {
@@ -251,13 +260,14 @@ namespace _20221224
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems?[0] is TThumb thumb)
                     {
-                        //子要素のTTParentプロパティに自身を灯籠
+                        //子要素のTTParentプロパティに自身を登録
                         thumb.TTParent = this;
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     //削除時はサイズと位置の更新
-                    TTGroupUpdateLayout();
+                    //→ここではしない方がいい、グループ化の削除時に面倒なことになる
+                    //TTGroupUpdateLayout();
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     break;
@@ -393,8 +403,9 @@ namespace _20221224
         }
         //起点からMovableThumbをサーチ
         //MovableはEnableThumbのChildrenの中で起点に連なるもの
-        private TThumb? GetMovableThumb(TThumb start)
+        private TThumb? GetMovableThumb(TThumb? start)
         {
+            if (start == null) { return null; }
             if (IsMovable(start))
             {
                 return start;
@@ -412,22 +423,128 @@ namespace _20221224
         //ドラッグ移動イベントの着脱も行う
         public void AddThumb(TThumb thumb)
         {
-            EnableGroup.InternalChildren.Add(thumb);
+            //EnableGroup.InternalChildren.Add(thumb);
+            //if (thumb is TTItemThumb item) { item.AddDragEvent(); }
+            AddThumb(thumb, EnableGroup);
+        }
+        /// <summary>
+        /// 追加先Groupを指定して追加
+        /// </summary>
+        /// <param name="thumb">追加する子要素</param>
+        /// <param name="destGroup">追加先Group</param>
+        public void AddThumb(TThumb thumb, TTGroup destGroup)
+        {
+            destGroup.InternalChildren.Add(thumb);
+            //Item系Thumbだけにドラッグ移動イベント付加
+            //if (thumb is TTItemThumb item) { item.AddDragEvent(); }
+
+            //こっちのほうが正しい？
             thumb.AddDragEvent();
         }
+
         public void RemoveThumb(TThumb thumb)
         {
-            if (EnableGroup.InternalChildren.Remove(thumb))
-            {
-                thumb.RemoveDragEvent();
-            };
+            RemoveThumb(thumb, EnableGroup);
         }
         public void RemoveThumb()
         {
             if (MovableThumb != null) { RemoveThumb(MovableThumb); }
         }
+        public void RemoveThumb(TThumb thumb, TTGroup group)
+        {
+            if (group.InternalChildren.Remove(thumb))
+            {
+                thumb.RemoveDragEvent();
+                group.TTGroupUpdateLayout();
+                //SelectedThumbs.Remove(thumb);
+                //MovableThumb = null;
+            }
+        }
+
         #endregion 追加と削除
 
+        #region グループ化
+        
+        //基本的にSelectedThumbsをグループ化して、それをEnableGroupに追加する
+        public void AddGroup()
+        {
+            TTGroup? group = MakeAndAddGroup(SelectedThumbs, EnableGroup);
+            if (group != null)
+            {
+                SelectedThumbs.Clear();
+                SelectedThumbs.Add(group);
+                MovableThumb = group;
+            }
+        }
+        /// <summary>
+        /// グループ化
+        /// </summary>
+        /// <param name="thumbs">グループ化する要素群</param>
+        /// <param name="destGroup">新グループの追加先</param>
+        private TTGroup? MakeAndAddGroup(IEnumerable<TThumb> thumbs, TTGroup destGroup)
+        {
+            if (CheckAddGroup(thumbs, destGroup) == false) { return null; }
+            var (x, y, w, h) = GetRect(thumbs);
+            TTGroup group = new() { Name = "new_group", MyLeft = x, MyTop = y };
 
+            foreach (var item in thumbs)
+            {
+
+                destGroup.InternalChildren.Remove(item);
+                item.RemoveDragEvent();
+
+                //AddThumb(item, group);
+                group.InternalChildren.Add(item);
+                item.MyLeft -= x;
+                item.MyTop -= y;
+            }
+            AddThumb(group, destGroup);
+
+            group.Arrange(new(0, 0, w, h));//このタイミングで必須、Actualサイズに値が入る
+            group.TTGroupUpdateLayout();//必須
+
+            return group;
+        }
+        private bool CheckAddGroup(IEnumerable<TThumb> thumbs, TTGroup destGroup)
+        {
+            if (thumbs.Count() < 2) { return false; }
+            if (thumbs.Count() == destGroup.InternalChildren.Count) { return false; }
+            foreach (TThumb thumb in thumbs)
+            {
+                if (destGroup.InternalChildren.Contains(thumb) == false) { return false; }
+            }
+            return true;
+        }
+        #endregion グループ化
+
+        #region グループ解除
+
+        public void UnGroup()
+        {
+            if (MovableThumb is TTGroup group)
+            {
+                UnGroup(group, EnableGroup);
+                SelectedThumbs.Clear();
+                MovableThumb = GetMovableThumb(ClickedThumb);
+            }
+        }
+        public void UnGroup(TTGroup group, TTGroup destGroup)
+        {
+            foreach (var item in group.InternalChildren.ToArray())
+            {
+                group.InternalChildren.Remove(item);
+                item.RemoveDragEvent();
+                destGroup.InternalChildren.Add(item);
+                item.AddDragEvent();
+                item.MyLeft += group.MyLeft;
+                item.MyTop += group.MyTop;
+            }
+            //元のグループ要素削除
+            destGroup.InternalChildren.Remove(group);
+            group.RemoveDragEvent();//いる？
+            //destGroup.TTGroupUpdateLayout();
+        }
+        #endregion グループ解除
+        
     }
 }

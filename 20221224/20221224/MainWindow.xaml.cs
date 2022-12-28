@@ -24,6 +24,7 @@ namespace _20221224
         public MainWindow()
         {
             InitializeComponent();
+            Left = 100;Top = 100;
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
@@ -53,12 +54,22 @@ namespace _20221224
 
         private void ButtonTTG1Enable_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.EnableGroup = TTG_1;
+            //MyRootThumb.EnableGroup = TTG_1;
         }
 
         private void ButtonTTG2Enable_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.EnableGroup = TTG_2;
+            //MyRootThumb.EnableGroup = TTG_2;
+        }
+
+        private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.AddGroup();
+        }
+
+        private void ButtonUnGroup_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.UnGroup();
         }
     }
 }

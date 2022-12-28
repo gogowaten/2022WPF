@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221224"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="600">
+        Title="MainWindow" Height="550" Width="600">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
@@ -18,14 +18,15 @@
     </Grid.Resources>
     <ScrollViewer HorizontalScrollBarVisibility="Visible">
       <local:TTRoot x:Name="MyRootThumb" VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
-        <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
+        <local:TTTextBlock x:Name="Text_01" MyText="Text_01" MyLeft="100" MyTop="10"/>
+        <local:TTTextBlock x:Name="Text_02" MyText="Text_02" MyLeft="110" MyTop="40"/>
+        <local:TTTextBlock x:Name="Text_03" MyText="Text_03" MyLeft="130" MyTop="70"/>
+        <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="1" MyTop="0">
           <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
           <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
           <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
             <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
             <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="80" MyTop="50"/>
-            <!--<local:TTTextBlock x:Name="Text_23" MyText="Text_22" MyLeft="120" MyTop="50"/>-->
-
           </local:TTGroup>
         </local:TTGroup>
       </local:TTRoot>
@@ -49,6 +50,8 @@
       <Button x:Name="ButtonRootEnable" Content="RootEnable" Click="ButtonRootEnable_Click"/>
       <Button x:Name="ButtonTTG1Enable" Content="TTG1Enable" Click="ButtonTTG1Enable_Click"/>
       <Button x:Name="ButtonTTG2Enable" Content="TTG2Enable" Click="ButtonTTG2Enable_Click"/>
+      <Button x:Name="ButtonAddGroup" Content="AddGroup" Click="ButtonAddGroup_Click"/>
+      <Button x:Name="ButtonUnGroup" Content="UnGroup" Click="ButtonUnGroup_Click"/>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
         <StackPanel DataContext="{Binding SelectedThumbs}">
           <TextBlock Text="{Binding Count, StringFormat=選択個数 \= {0}}"/>
