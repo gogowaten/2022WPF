@@ -20,15 +20,18 @@
       <local:TTRoot x:Name="MyRootThumb" VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
         <local:TTTextBlock x:Name="Text_01" MyText="Text_01" MyLeft="100" MyTop="10"/>
         <local:TTTextBlock x:Name="Text_02" MyText="Text_02" MyLeft="110" MyTop="40"/>
-        <local:TTTextBlock x:Name="Text_03" MyText="Text_03" MyLeft="130" MyTop="70"/>
-        <local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="1" MyTop="0">
+        <local:TTGroup x:Name="TTG_0" MyLeft="0" MyTop="0">
+          <local:TTTextBlock x:Name="Text_03" MyText="Text_03" MyLeft="0" MyTop="0"/>
+          <local:TTTextBlock x:Name="Text_04" MyText="Text_04" MyLeft="50" MyTop="90"/>
+        </local:TTGroup>
+        <!--<local:TTGroup x:Name="TTG_1" Background="Gold" MyLeft="0" MyTop="0">
           <local:TTTextBlock x:Name="Text_11" MyText="Text_11" MyLeft="0" MyTop="0"/>
           <local:TTTextBlock x:Name="Text_12" MyText="Text_12" MyLeft="10" MyTop="30"/>
           <local:TTGroup x:Name="TTG_2" MyLeft="20" MyTop="100">
             <local:TTTextBlock x:Name="Text_21" MyText="Text_21" MyLeft="0" MyTop="0"/>
             <local:TTTextBlock x:Name="Text_22" MyText="Text_22" MyLeft="80" MyTop="50"/>
           </local:TTGroup>
-        </local:TTGroup>
+        </local:TTGroup>-->
       </local:TTRoot>
     </ScrollViewer>
 

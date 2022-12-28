@@ -13,6 +13,7 @@ using System.Windows.Data;
 using System.Diagnostics.Contracts;
 using System.Windows.Input;
 using System;
+using System.ComponentModel.Design;
 
 
 //RootThumbに選択Thumbを保持するSelectedThumbsを追加
@@ -92,11 +93,11 @@ namespace _20221224
             MyLeft += e.HorizontalChange;
             MyTop += e.VerticalChange;
         }
-        public void AddDragEvent()
-        {
-            DragDelta += TT_DragDelta;
-            DragCompleted += TT_DragCompleted;
-        }
+        //public void AddDragEvent()
+        //{
+        //    DragDelta += TT_DragDelta;
+        //    DragCompleted += TT_DragCompleted;
+        //}
         public void RemoveDragEvent()
         {
             DragDelta -= TT_DragDelta;
@@ -308,7 +309,7 @@ namespace _20221224
             }
         }
         //EnableGroup用、ドラッグ移動イベント脱着
-        private static void ChildrenDragEventDesoption(TTGroup removeTarget, TTGroup addTarget)
+        private void ChildrenDragEventDesoption(TTGroup removeTarget, TTGroup addTarget)
         {
             foreach (var item in removeTarget.Children)
             {
@@ -316,12 +317,14 @@ namespace _20221224
             }
             foreach (var item in addTarget.Children)
             {
-                item.AddDragEvent();
+                //item.AddDragEvent();
+                //AddDragEvent2();
+                item.DragDelta += Thumb_DragDelta2;
             }
         }
         //public ReadOnlyObservableCollection<TThumb> InternalSelectedThumbs { get; set; }
         public ObservableCollection<TThumb> SelectedThumbs { get; set; } = new();
-
+        private TThumb? LastAddSelectedThumb { get; set; }
 
         #region コンストラクタ
         public TTRoot()
@@ -339,7 +342,10 @@ namespace _20221224
             {
                 foreach (var item in Children)
                 {
-                    item.AddDragEvent();
+                    //item.AddDragEvent();
+                    //AddDragEvent2();
+                    item.DragDelta += Thumb_DragDelta2;
+                    item.DragCompleted += Thumb_DragCompleted2;
                 }
             }
         }
@@ -347,9 +353,7 @@ namespace _20221224
         //クリックしたとき、ClickedThumbの更新とMovableThumbの更新、SelectedThumbsの更新
         private void TTRoot_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //var source = e.Source;//root
-            //var origin = e.OriginalSource;//textblock
-            //this = root, sender = root
+            base.OnPreviewMouseLeftButtonDown(e);
 
             //OriginalSourceにテンプレートに使っている要素が入っているので、
             //そのTemplateParentプロパティから目的のThumbが取得できる
@@ -358,12 +362,10 @@ namespace _20221224
                 if (el.TemplatedParent is TThumb clicked)
                 {
                     ClickedThumb = clicked;
-                    //MovableThumb = GetMovableThumb(clicked);
                     TThumb? movable = GetMovableThumb(clicked);
                     MovableThumb = movable;
                     //選択Thumb群の更新
                     if (movable != null) { ClickedChanged(movable); }
-                    //ClickedChanged(movable);
                 }
             }
 
@@ -378,20 +380,52 @@ namespace _20221224
                 {
                     if (SelectedThumbs.Contains(movable))
                     {
-                        SelectedThumbs.Remove(movable);
+                        //SelectedThumbs.Remove(movable);
                     }
                     else
                     {
                         SelectedThumbs.Add(movable);
+                        LastAddSelectedThumb = movable;
                     }
                 }
                 else
                 {
                     SelectedThumbs.Clear();
                     SelectedThumbs.Add(movable);
+                    LastAddSelectedThumb = movable;
                 }
             }
         }
+
+        //protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
+        //{
+        //    //base.OnPreviewMouseLeftButtonUp(e);
+        //    if (e.OriginalSource is FrameworkElement el)
+        //    {
+        //        if (el is TThumb clicked)
+        //        {
+        //            if (clicked == ClickedThumb)
+        //            {
+
+        //            }
+        //            else
+        //            {
+
+        //            }
+        //            if (Keyboard.Modifiers == ModifierKeys.Control)
+        //            {
+        //                if (SelectedThumbs.Contains(clicked))
+        //                {
+        //                    var movable = GetMovableThumb(clicked);
+        //                    if (movable != null)
+        //                    {
+        //                        SelectedThumbs.Remove(movable);
+        //                    }
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
         private bool IsMovable(TThumb thumb)
         {
             if (thumb.TTParent is TTGroup ttg && ttg == EnableGroup)
@@ -439,7 +473,44 @@ namespace _20221224
             //if (thumb is TTItemThumb item) { item.AddDragEvent(); }
 
             //こっちのほうが正しい？
-            thumb.AddDragEvent();
+            //thumb.AddDragEvent();
+            //AddDragEvent2();
+            thumb.DragDelta += Thumb_DragDelta2;
+            thumb.DragCompleted += Thumb_DragCompleted2;
+        }
+
+        //public void AddDragEvent2()
+        //{
+        //    DragDelta += Thumb_DragDelta2;
+        //    DragCompleted += Thumb_DragCompleted2;
+        //}
+        private void Thumb_DragCompleted2(object sender, DragCompletedEventArgs e)
+        {
+            if (sender is TThumb tt)
+            {
+                tt.TTParent?.TTGroupUpdateLayout();
+                if (e.HorizontalChange == 0 && e.VerticalChange == 0)
+                {
+                    if (GetMovableThumb(tt) is TThumb move)
+                    {
+                        if (move != LastAddSelectedThumb)
+                        {
+                            SelectedThumbs.Remove(move);
+                            LastAddSelectedThumb = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void Thumb_DragDelta2(object sender, DragDeltaEventArgs e)
+        {
+
+            foreach (var item in SelectedThumbs)
+            {
+                item.MyLeft += e.HorizontalChange;
+                item.MyTop += e.VerticalChange;
+            }
         }
 
         public void RemoveThumb(TThumb thumb)
@@ -464,7 +535,7 @@ namespace _20221224
         #endregion 追加と削除
 
         #region グループ化
-        
+
         //基本的にSelectedThumbsをグループ化して、それをEnableGroupに追加する
         public void AddGroup()
         {
@@ -535,7 +606,9 @@ namespace _20221224
                 group.InternalChildren.Remove(item);
                 item.RemoveDragEvent();
                 destGroup.InternalChildren.Add(item);
-                item.AddDragEvent();
+                //item.AddDragEvent();
+                //AddDragEvent2();
+                item.DragDelta += Thumb_DragDelta2;
                 item.MyLeft += group.MyLeft;
                 item.MyTop += group.MyTop;
             }
