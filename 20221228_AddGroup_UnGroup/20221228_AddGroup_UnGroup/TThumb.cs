@@ -548,6 +548,7 @@ namespace _20221228_AddGroup_UnGroup
         }
         #endregion グループ解除
 
+        //EnableThumbを内側(MovableThumbの親)へ切り替える
         public void EnableInside()
         {
             if (MovableThumb is TTGroup group)
@@ -556,6 +557,8 @@ namespace _20221228_AddGroup_UnGroup
                 MovableThumb = GetMovableThumb(ClickedThumb);
             }
         }
+
+        //EnableThumbを外側(親)へ切り替える
         public void EnableOutside()
         {
             if (EnableGroup.TTParent is TTGroup parent)
