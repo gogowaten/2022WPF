@@ -545,6 +545,26 @@ namespace _20221224
             //destGroup.TTGroupUpdateLayout();
         }
         #endregion グループ解除
-        
+
+        //EnableThumbを内側(MovableThumbの親)へ切り替える
+        public void EnableInside()
+        {
+            if (MovableThumb is TTGroup group)
+            {
+                EnableGroup = group;
+                MovableThumb = GetMovableThumb(ClickedThumb);
+            }
+        }
+
+        //EnableThumbを外側(親)へ切り替える
+        public void EnableOutside()
+        {
+            if (EnableGroup.TTParent is TTGroup parent)
+            {
+                EnableGroup = parent;
+                MovableThumb = GetMovableThumb(ClickedThumb);
+            }
+        }
+
     }
 }

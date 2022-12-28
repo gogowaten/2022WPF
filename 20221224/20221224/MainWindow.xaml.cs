@@ -43,7 +43,7 @@ namespace _20221224
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.RemoveThumb();
-            //↓これを禁止したけど方法がわからん
+            //↓これを禁止したいけど方法がわからん
             //MyRootThumb.InternalChildren.Remove(MyRootThumb.MovableThumb);
         }
 
@@ -70,6 +70,16 @@ namespace _20221224
         private void ButtonUnGroup_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.UnGroup();
+        }
+
+        private void ButtonEnableInside_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableInside();
+        }
+
+        private void ButtonEnableOutside_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.EnableOutside();
         }
     }
 }

@@ -52,6 +52,8 @@
       <Button x:Name="ButtonTTG2Enable" Content="TTG2Enable" Click="ButtonTTG2Enable_Click"/>
       <Button x:Name="ButtonAddGroup" Content="AddGroup" Click="ButtonAddGroup_Click"/>
       <Button x:Name="ButtonUnGroup" Content="UnGroup" Click="ButtonUnGroup_Click"/>
+      <Button x:Name="ButtonEnableInside" Content="EnableInside" Click="ButtonEnableInside_Click"/>
+      <Button x:Name="ButtonEnableOutside" Content="EnableOutside" Click="ButtonEnableOutside_Click"/>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
         <StackPanel DataContext="{Binding SelectedThumbs}">
           <TextBlock Text="{Binding Count, StringFormat=選択個数 \= {0}}"/>
