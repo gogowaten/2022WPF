@@ -328,7 +328,7 @@ namespace _20221224
         //public ReadOnlyObservableCollection<TThumb> InternalSelectedThumbs { get; set; }
         public ObservableCollection<TThumb> SelectedThumbs { get; set; } = new();
         private TThumb? LastAddSelectedThumb { get; set; }//最後に追加されたThumb
-        private bool IsRemoveFlag { get; set; }//削除フラグ、SelectedThumbsに使用
+        private bool IsSelectedWhenPreviewDown { get; set; }//クリック前の選択状態、クリックUp時の削除に使う
 
 
         #region コンストラクタ
@@ -366,20 +366,22 @@ namespace _20221224
 
             //OriginalSourceにテンプレートに使っている要素が入っているので、
             //そのTemplateParentプロパティから目的のThumbが取得できる
-            if (e.OriginalSource is FrameworkElement el)
+            if (e.OriginalSource is FrameworkElement el && el.TemplatedParent is TThumb clicked)
             {
-                if (el.TemplatedParent is TThumb clicked)
+                ClickedThumb = clicked;
+                TThumb? movable = GetMovableThumb(clicked);
+                if (movable != MovableThumb)
                 {
-                    ClickedThumb = clicked;
-                    TThumb? movable = GetMovableThumb(clicked);
                     MovableThumb = movable;
                     ////選択Thumb群の更新
                     //if (movable != null) { ClickedChanged(movable); }
                     if (movable != null && SelectedThumbs.Contains(movable))
                     {
-                        IsRemoveFlag = true;
+                        IsSelectedWhenPreviewDown = true;
                     }
+
                 }
+
             }
 
             //選択Thumb群の更新
@@ -413,6 +415,17 @@ namespace _20221224
         protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             //base.OnPreviewMouseLeftButtonUp(e);
+            if (e.OriginalSource is FrameworkElement el && el.TemplatedParent is TThumb thumb)
+            {
+                if (Keyboard.Modifiers == ModifierKeys.Control)
+                {
+                    if (IsSelectedWhenPreviewDown)
+                    {
+                        SelectedThumbs.Remove(thumb);
+                        //削除後のClickedThumbの状態はどうする？
+                    }
+                }
+            }
         }
 
         private bool CheckIsMovable(TThumb thumb)
