@@ -80,29 +80,29 @@ namespace _20221224
         #region ドラッグ移動系イベント
 
         //ドラッグ移動終了時に親要素のサイズと位置の更新
-        private void TT_DragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            if (sender is TThumb tt)
-            {
-                tt.TTParent?.TTGroupUpdateLayout();
-            }
-        }
+        //private void TT_DragCompleted(object sender, DragCompletedEventArgs e)
+        //{
+        //    if (sender is TThumb tt)
+        //    {
+        //        tt.TTParent?.TTGroupUpdateLayout();
+        //    }
+        //}
         //マウスドラッグ移動
-        private void TT_DragDelta(object sender, DragDeltaEventArgs e)
-        {
-            MyLeft += e.HorizontalChange;
-            MyTop += e.VerticalChange;
-        }
+        //private void TT_DragDelta(object sender, DragDeltaEventArgs e)
+        //{
+        //    MyLeft += e.HorizontalChange;
+        //    MyTop += e.VerticalChange;
+        //}
         //public void AddDragEvent()
         //{
         //    DragDelta += TT_DragDelta;
         //    DragCompleted += TT_DragCompleted;
         //}
-        public void RemoveDragEvent()
-        {
-            DragDelta -= TT_DragDelta;
-            DragCompleted -= TT_DragCompleted;
-        }
+        //public void RemoveDragEvent()
+        //{
+        //    DragDelta -= TT_DragDelta;
+        //    DragCompleted -= TT_DragCompleted;
+        //}
         #endregion ドラッグ移動系イベント
 
     }
@@ -313,13 +313,16 @@ namespace _20221224
         {
             foreach (var item in removeTarget.Children)
             {
-                item.RemoveDragEvent();
+                //item.RemoveDragEvent();
+                item.DragDelta -= Thumb_DragDelta2;
+                item.DragCompleted -= Thumb_DragCompleted2;
             }
             foreach (var item in addTarget.Children)
             {
                 //item.AddDragEvent();
                 //AddDragEvent2();
                 item.DragDelta += Thumb_DragDelta2;
+                item.DragCompleted += Thumb_DragCompleted2;
             }
         }
 
@@ -351,14 +354,11 @@ namespace _20221224
                     //AddDragEvent2();
                     item.DragDelta += Thumb_DragDelta2;
                     item.DragCompleted += Thumb_DragCompleted2;
-                    item.DragStarted += Thumb_DragStarted;
+
                 }
             }
         }
-        private void Thumb_DragStarted(object sender, DragStartedEventArgs e)
-        {
 
-        }
         //クリックしたとき、ClickedThumbの更新とMovableThumbの更新、SelectedThumbsの更新
         private void TTRoot_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -445,8 +445,6 @@ namespace _20221224
         //ドラッグ移動イベントの着脱も行う
         public void AddThumb(TThumb thumb)
         {
-            //EnableGroup.InternalChildren.Add(thumb);
-            //if (thumb is TTItemThumb item) { item.AddDragEvent(); }
             AddThumb(thumb, EnableGroup);
         }
         /// <summary>
@@ -457,43 +455,22 @@ namespace _20221224
         public void AddThumb(TThumb thumb, TTGroup destGroup)
         {
             destGroup.InternalChildren.Add(thumb);
-            //Item系Thumbだけにドラッグ移動イベント付加
-            //if (thumb is TTItemThumb item) { item.AddDragEvent(); }
-
-            //こっちのほうが正しい？
-            //thumb.AddDragEvent();
-            //AddDragEvent2();
+            //ドラッグ移動イベント付加
             thumb.DragDelta += Thumb_DragDelta2;
             thumb.DragCompleted += Thumb_DragCompleted2;
         }
 
-        //public void AddDragEvent2()
-        //{
-        //    DragDelta += Thumb_DragDelta2;
-        //    DragCompleted += Thumb_DragCompleted2;
-        //}
         private void Thumb_DragCompleted2(object sender, DragCompletedEventArgs e)
         {
             if (sender is TThumb tt)
             {
                 tt.TTParent?.TTGroupUpdateLayout();
-                //if (e.HorizontalChange == 0 && e.VerticalChange == 0)
-                //{
-                //    if (GetMovableThumb(tt) is TThumb move)
-                //    {
-                //        if (move != LastAddSelectedThumb)
-                //        {
-                //            SelectedThumbs.Remove(move);
-                //            LastAddSelectedThumb = null;
-                //        }
-                //    }
-                //}
             }
         }
 
         private void Thumb_DragDelta2(object sender, DragDeltaEventArgs e)
         {
-
+            //複数選択時は全てを移動
             foreach (var item in SelectedThumbs)
             {
                 item.MyLeft += e.HorizontalChange;
@@ -501,22 +478,41 @@ namespace _20221224
             }
         }
 
-        public void RemoveThumb(TThumb thumb)
+        //public bool RemoveThumb(TThumb thumb)
+        //{
+        //    return RemoveThumb(thumb, EnableGroup);
+        //}
+        public bool RemoveThumb()
         {
-            RemoveThumb(thumb, EnableGroup);
+            if (SelectedThumbs == null) return false;
+            bool flag = true;
+            foreach (var item in SelectedThumbs.ToArray())
+            {
+                if (RemoveThumb(item, EnableGroup) == false)
+                {
+                    flag = false;
+                }
+                else
+                {
+                    SelectedThumbs.Remove(item);
+                }
+            }
+            ClickedThumb = null;
+            MovableThumb = null;
+            return flag;
         }
-        public void RemoveThumb()
-        {
-            if (MovableThumb != null) { RemoveThumb(MovableThumb); }
-        }
-        public void RemoveThumb(TThumb thumb, TTGroup group)
+        public bool RemoveThumb(TThumb thumb, TTGroup group)
         {
             if (group.InternalChildren.Remove(thumb))
             {
-                thumb.RemoveDragEvent();
+                thumb.DragCompleted -= Thumb_DragCompleted2;
+                thumb.DragDelta -= Thumb_DragDelta2;
                 group.TTGroupUpdateLayout();
-                //SelectedThumbs.Remove(thumb);
-                //MovableThumb = null;
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -550,7 +546,8 @@ namespace _20221224
             {
 
                 destGroup.InternalChildren.Remove(item);
-                item.RemoveDragEvent();
+                item.DragDelta -= Thumb_DragDelta2;
+                item.DragCompleted -= Thumb_DragCompleted2;
 
                 //AddThumb(item, group);
                 group.InternalChildren.Add(item);
@@ -592,17 +589,18 @@ namespace _20221224
             foreach (var item in group.InternalChildren.ToArray())
             {
                 group.InternalChildren.Remove(item);
-                item.RemoveDragEvent();
+                item.DragDelta -= Thumb_DragDelta2;
+                item.DragCompleted -= Thumb_DragCompleted2;
                 destGroup.InternalChildren.Add(item);
-                //item.AddDragEvent();
-                //AddDragEvent2();
                 item.DragDelta += Thumb_DragDelta2;
+                item.DragCompleted += Thumb_DragCompleted2;
                 item.MyLeft += group.MyLeft;
                 item.MyTop += group.MyTop;
             }
             //元のグループ要素削除
             destGroup.InternalChildren.Remove(group);
-            group.RemoveDragEvent();//いる？
+            group.DragCompleted -= Thumb_DragCompleted2;//いる？
+            group.DragDelta -= Thumb_DragDelta2;
             //destGroup.TTGroupUpdateLayout();
         }
         #endregion グループ解除
