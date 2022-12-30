@@ -327,7 +327,7 @@ namespace _20221224
 
         //public ReadOnlyObservableCollection<TThumb> InternalSelectedThumbs { get; set; }
         public ObservableCollection<TThumb> SelectedThumbs { get; set; } = new();
-        private TThumb? LastAddSelectedThumb { get; set; }//最後に追加されたThumb
+        //private TThumb? LastAddSelectedThumb { get; set; }//最後に追加されたThumb
         private bool IsSelectedWhenPreviewDown { get; set; }//クリック前の選択状態、クリックUp時の削除に使う
 
 
@@ -368,65 +368,50 @@ namespace _20221224
             //そのTemplateParentプロパティから目的のThumbが取得できる
             if (e.OriginalSource is FrameworkElement el && el.TemplatedParent is TThumb clicked)
             {
-
                 ClickedThumb = clicked;
                 TThumb? movable = GetMovableThumb(clicked);
                 if (movable != MovableThumb)
                 {
                     MovableThumb = movable;
-                    ////選択Thumb群の更新
-                    //if (movable != null) { ClickedChanged(movable); }
-                    if (movable != null && SelectedThumbs.Contains(movable))
-                    {
-                        IsSelectedWhenPreviewDown = true;
-                    }
-
                 }
-
-            }
-
-            //選択Thumb群の更新
-            //追加できるのはEnableThumbのChildren要素だけ、つまりMovableThumb
-            //クリックしたThumbからMovableThumbを取得、これを判定していく
-            //Ctrlキーが押されている    MovableがSelectedにあればSelectedから削除、なければ追加
-            //Ctrlキーが押されていない    Selectedをクリアして、追加
-            void ClickedChanged(TThumb movable)
-            {
-                if (Keyboard.Modifiers == ModifierKeys.Control)
+                //SelectedThumbsの更新
+                if (movable != null)
                 {
-                    if (SelectedThumbs.Contains(movable))
+                    if (Keyboard.Modifiers == ModifierKeys.Control)
                     {
-                        //SelectedThumbs.Remove(movable);
+                        if (SelectedThumbs.Contains(movable) == false)
+                        {
+                            SelectedThumbs.Add(movable);
+                            IsSelectedWhenPreviewDown = false;
+                        }
+                        else { IsSelectedWhenPreviewDown = true; }
                     }
                     else
                     {
-                        SelectedThumbs.Add(movable);
-                        LastAddSelectedThumb = movable;
+                        if (SelectedThumbs.Contains(movable) == false)
+                        {
+                            SelectedThumbs.Clear();
+                            SelectedThumbs.Add(movable);
+                            IsSelectedWhenPreviewDown = false;
+                        }
                     }
                 }
-                else
-                {
-                    SelectedThumbs.Clear();
-                    SelectedThumbs.Add(movable);
-                    LastAddSelectedThumb = movable;
-                }
+                else { IsSelectedWhenPreviewDown = false; }
             }
+
         }
 
         protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
-            //base.OnPreviewMouseLeftButtonUp(e);
-            if (e.OriginalSource is FrameworkElement el && el.TemplatedParent is TThumb thumb)
+            //
+            if (SelectedThumbs.Count > 1 && IsSelectedWhenPreviewDown && MovableThumb != null)
             {
-                if (Keyboard.Modifiers == ModifierKeys.Control)
-                {
-                    if (IsSelectedWhenPreviewDown)
-                    {
-                        SelectedThumbs.Remove(thumb);
-                        //削除後のClickedThumbの状態はどうする？
-                    }
-                }
+                SelectedThumbs.Remove(MovableThumb);
+                IsSelectedWhenPreviewDown = false;
+                MovableThumb = null;
+                ClickedThumb = null;
             }
+
         }
 
         private bool CheckIsMovable(TThumb thumb)
@@ -492,17 +477,17 @@ namespace _20221224
             if (sender is TThumb tt)
             {
                 tt.TTParent?.TTGroupUpdateLayout();
-                if (e.HorizontalChange == 0 && e.VerticalChange == 0)
-                {
-                    if (GetMovableThumb(tt) is TThumb move)
-                    {
-                        if (move != LastAddSelectedThumb)
-                        {
-                            SelectedThumbs.Remove(move);
-                            LastAddSelectedThumb = null;
-                        }
-                    }
-                }
+                //if (e.HorizontalChange == 0 && e.VerticalChange == 0)
+                //{
+                //    if (GetMovableThumb(tt) is TThumb move)
+                //    {
+                //        if (move != LastAddSelectedThumb)
+                //        {
+                //            SelectedThumbs.Remove(move);
+                //            LastAddSelectedThumb = null;
+                //        }
+                //    }
+                //}
             }
         }
 
