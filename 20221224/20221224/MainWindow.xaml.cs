@@ -24,7 +24,7 @@ namespace _20221224
         public MainWindow()
         {
             InitializeComponent();
-            Left = 100;Top = 100;
+            Left = 100; Top = 100;
         }
 
         private void ButtonAdd_Click(object sender, RoutedEventArgs e)
@@ -44,22 +44,22 @@ namespace _20221224
         {
             MyRootThumb.RemoveThumb();
             //↓これを禁止したいけど方法がわからん
-            //MyRootThumb.InternalChildren.Remove(MyRootThumb.MovableThumb);
+            //MyRootThumb.InternalChildren.Remove(MyRootThumb.ActiveThumb);
         }
 
         private void ButtonRootEnable_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.EnableGroup = MyRootThumb;
+            MyRootThumb.ActiveGroup = MyRootThumb;
         }
 
         private void ButtonTTG1Enable_Click(object sender, RoutedEventArgs e)
         {
-            //MyRootThumb.EnableGroup = TTG_1;
+            //MyRootThumb.ActiveGroup = TTG_1;
         }
 
         private void ButtonTTG2Enable_Click(object sender, RoutedEventArgs e)
         {
-            //MyRootThumb.EnableGroup = TTG_2;
+            //MyRootThumb.ActiveGroup = TTG_2;
         }
 
         private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
@@ -81,5 +81,6 @@ namespace _20221224
         {
             MyRootThumb.EnableOutside();
         }
+
     }
 }

@@ -58,17 +58,7 @@
       <Button x:Name="ButtonEnableInside" Content="EnableInside" Click="ButtonEnableInside_Click"/>
       <Button x:Name="ButtonEnableOutside" Content="EnableOutside" Click="ButtonEnableOutside_Click"/>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
-        <StackPanel DataContext="{Binding SelectedThumbs}">
-          <TextBlock Text="{Binding Count, StringFormat=選択個数 \= {0}}"/>
-          <ListBox ItemsSource="{Binding}">
-            <ListBox.ItemTemplate>
-              <DataTemplate>
-                <TextBlock Text="{Binding Name}"/>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </StackPanel>
-        <GroupBox DataContext="{Binding EnableGroup}" Header="EnableGroup">
+        <GroupBox DataContext="{Binding ActiveGroup}" Header="ActiveGroup">
           <WrapPanel>
             <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
             <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0}}"/>
@@ -86,7 +76,7 @@
           </WrapPanel>
         </GroupBox>
 
-        <GroupBox DataContext="{Binding MovableThumb}" Header="Movable">
+        <GroupBox DataContext="{Binding ActiveThumb}" Header="ActiveThumb">
           <WrapPanel>
             <TextBlock Text="{Binding MyLeft, StringFormat=Left \= {0}}"/>
             <TextBlock Text="{Binding MyTop, StringFormat=Top \= {0}}"/>
@@ -94,6 +84,16 @@
           </WrapPanel>
         </GroupBox>
 
+        <StackPanel DataContext="{Binding SelectedThumbs}">
+          <TextBlock Text="{Binding Count, StringFormat=選択個数 \= {0}}"/>
+          <ListBox ItemsSource="{Binding}">
+            <ListBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Name}"/>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
       </StackPanel>
 
     </StackPanel>
