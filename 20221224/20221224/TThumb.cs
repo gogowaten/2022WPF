@@ -368,6 +368,7 @@ namespace _20221224
             //そのTemplateParentプロパティから目的のThumbが取得できる
             if (e.OriginalSource is FrameworkElement el && el.TemplatedParent is TThumb clicked)
             {
+
                 ClickedThumb = clicked;
                 TThumb? movable = GetMovableThumb(clicked);
                 if (movable != MovableThumb)
