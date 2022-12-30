@@ -48,7 +48,7 @@
           <Button x:Name="ButtonRemove" Content="Remove" Click="ButtonRemove_Click"/>
         </StackPanel>
       </GroupBox>
-      <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"
+      <Slider Value="{Binding ElementName=Text_02, Path=FontSize}"
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
       <Button x:Name="ButtonRootActive" Content="RootActive" Click="ButtonRootActive_Click"/>
       <Button x:Name="ButtonTTG1Active" Content="TTG1Active" Click="ButtonTTG1Active_Click"/>
