@@ -47,17 +47,17 @@ namespace _20221224
             //MyRootThumb.InternalChildren.Remove(MyRootThumb.ActiveThumb);
         }
 
-        private void ButtonRootEnable_Click(object sender, RoutedEventArgs e)
+        private void ButtonRootActive_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.ActiveGroup = MyRootThumb;
         }
 
-        private void ButtonTTG1Enable_Click(object sender, RoutedEventArgs e)
+        private void ButtonTTG1Active_Click(object sender, RoutedEventArgs e)
         {
             //MyRootThumb.ActiveGroup = TTG_1;
         }
 
-        private void ButtonTTG2Enable_Click(object sender, RoutedEventArgs e)
+        private void ButtonTTG2Active_Click(object sender, RoutedEventArgs e)
         {
             //MyRootThumb.ActiveGroup = TTG_2;
         }
@@ -72,14 +72,14 @@ namespace _20221224
             MyRootThumb.UnGroup();
         }
 
-        private void ButtonEnableInside_Click(object sender, RoutedEventArgs e)
+        private void ButtonActiveInside_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.EnableInside();
+            MyRootThumb.ActiveGroupInside();
         }
 
-        private void ButtonEnableOutside_Click(object sender, RoutedEventArgs e)
+        private void ButtonActiveOutside_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.EnableOutside();
+            MyRootThumb.ActiveGroupOutside();
         }
 
     }

@@ -18,11 +18,11 @@ using System.ComponentModel.Design;
 
 //RootThumbに選択Thumbを保持するSelectedThumbsを追加
 //Ctrl+クリックしたときにこれに追加していく、同じThumbがあった場合は削除のトグル式
-//追加できるのはEnableThumbのChildren要素だけ
+//追加できるのはActiveThumbのChildren要素だけ
 
 //グループ化とグループ解除できた
-//グループ化はSelectedThumbsからTTGroup作成して、それをEnableThumbに追加
-//解除はMovableThumbがTTGroupならこれを削除して、中の子要素をEnableThumbに追加
+//グループ化はSelectedThumbsからTTGroup作成して、それをActiveThumbに追加
+//解除はActiveThumbがTTGroupならこれを削除して、中の子要素をActiveThumbに追加
 namespace _20221224
 {
     public class TThumb : Thumb, INotifyPropertyChanged
@@ -308,7 +308,7 @@ namespace _20221224
                 SetProperty(ref _activeGroup, value);
             }
         }
-        //EnableGroup用、ドラッグ移動イベント脱着
+        //ActiveGroup用、ドラッグ移動イベント脱着
         private void ChildrenDragEventDesoption(TTGroup removeTarget, TTGroup addTarget)
         {
             foreach (var item in removeTarget.Children)
@@ -338,7 +338,7 @@ namespace _20221224
         }
         #endregion コンストラクタ
 
-        //起動直後、自身がEnableGroupならChildrenにドラッグ移動登録
+        //起動直後、自身がActiveGroupならChildrenにドラッグ移動登録
         protected override void OnInitialized(EventArgs e)
         {
             base.OnInitialized(e);
@@ -352,67 +352,68 @@ namespace _20221224
             }
         }
 
-        //クリックしたとき、ClickedThumbの更新とMovableThumbの更新、SelectedThumbsの更新
+        //クリックしたとき、ClickedThumbの更新とActiveThumbの更新、SelectedThumbsの更新
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
-            //base.OnPreviewMouseLeftButtonDown(e);
+            base.OnPreviewMouseLeftButtonDown(e);//要る？
 
             //OriginalSourceにテンプレートに使っている要素が入っているので、
             //そのTemplateParentプロパティから目的のThumbが取得できる
             if (e.OriginalSource is FrameworkElement el && el.TemplatedParent is TThumb clicked)
             {
                 ClickedThumb = clicked;
-                TThumb? movable = GetMovableThumb(clicked);
-                if (movable != ActiveThumb)
+                TThumb? active = GetActiveThumb(clicked);
+                if (active != ActiveThumb)
                 {
-                    ActiveThumb = movable;
+                    ActiveThumb = active;
                 }
                 //SelectedThumbsの更新
-                if (movable != null)
+                if (active != null)
                 {
                     if (Keyboard.Modifiers == ModifierKeys.Control)
                     {
-                        if (SelectedThumbs.Contains(movable) == false)
+                        if (SelectedThumbs.Contains(active) == false)
                         {
-                            SelectedThumbs.Add(movable);
+                            SelectedThumbs.Add(active);
                             IsSelectedWhenPreviewDown = false;
                         }
-                        else { IsSelectedWhenPreviewDown = true; }
+                        else
+                        {
+                            //フラグ
+                            //ctrl+クリックされたものがもともと選択状態だったら
+                            //マウスアップ時に削除するためのフラグ
+                            IsSelectedWhenPreviewDown = true;
+                        }
                     }
                     else
                     {
-                        if (SelectedThumbs.Contains(movable) == false)
+                        if (SelectedThumbs.Contains(active) == false)
                         {
                             SelectedThumbs.Clear();
-                            SelectedThumbs.Add(movable);
+                            SelectedThumbs.Add(active);
                             IsSelectedWhenPreviewDown = false;
                         }
                     }
                 }
                 else { IsSelectedWhenPreviewDown = false; }
             }
-
-        }
-        private void TTRoot_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            
-
         }
 
+        //マウスレフトアップ、フラグがあればSelectedThumbsから削除する
         protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
             //
             if (SelectedThumbs.Count > 1 && IsSelectedWhenPreviewDown && ActiveThumb != null)
             {
-                SelectedThumbs.Remove(ActiveThumb);
-                IsSelectedWhenPreviewDown = false;
+                SelectedThumbs.Remove(ActiveThumb);//削除
+                IsSelectedWhenPreviewDown = false;//フラグ切り替え
                 ActiveThumb = null;
                 ClickedThumb = null;
             }
 
         }
 
-        private bool CheckIsMovable(TThumb thumb)
+        private bool CheckIsActive(TThumb thumb)
         {
             if (thumb.TTParent is TTGroup ttg && ttg == ActiveGroup)
             {
@@ -421,18 +422,18 @@ namespace _20221224
             return false;
 
         }
-        //起点からMovableThumbをサーチ
-        //MovableはEnableThumbのChildrenの中で起点に連なるもの
-        private TThumb? GetMovableThumb(TThumb? start)
+        //起点からActiveThumbをサーチ
+        //ActiveはActiveThumbのChildrenの中で起点に連なるもの
+        private TThumb? GetActiveThumb(TThumb? start)
         {
             if (start == null) { return null; }
-            if (CheckIsMovable(start))
+            if (CheckIsActive(start))
             {
                 return start;
             }
             else if (start.TTParent is TTGroup ttg)
             {
-                return GetMovableThumb(ttg);
+                return GetActiveThumb(ttg);
             }
             return null;
         }
@@ -458,8 +459,8 @@ namespace _20221224
         #endregion ドラッグ移動
 
         #region 追加と削除
-        //基本的にEnableThumbのChildrenに対して行う
-        //削除対象はMovableThumbになる
+        //基本的にActiveThumbのChildrenに対して行う
+        //削除対象はActiveThumbになる
         //ドラッグ移動イベントの着脱も行う
         public void AddThumb(TThumb thumb)
         {
@@ -478,7 +479,7 @@ namespace _20221224
             thumb.DragCompleted += Thumb_DragCompleted2;
         }
 
-        
+
         /// <summary>
         /// 選択Thumbすべてを削除
         /// </summary>
@@ -521,7 +522,7 @@ namespace _20221224
 
         #region グループ化
 
-        //基本的にSelectedThumbsをグループ化して、それをEnableGroupに追加する
+        //基本的にSelectedThumbsをグループ化して、それをActiveGroupに追加する
         public void AddGroup()
         {
             TTGroup? group = MakeAndAddGroup(SelectedThumbs, ActiveGroup);
@@ -582,7 +583,7 @@ namespace _20221224
             {
                 UnGroup(group, ActiveGroup);
                 SelectedThumbs.Clear();
-                ActiveThumb = GetMovableThumb(ClickedThumb);
+                ActiveThumb = GetActiveThumb(ClickedThumb);
             }
         }
         public void UnGroup(TTGroup group, TTGroup destGroup)
@@ -606,23 +607,23 @@ namespace _20221224
         }
         #endregion グループ解除
 
-        //EnableThumbを内側(MovableThumbの親)へ切り替える
-        public void EnableInside()
+        //ActiveThumbを内側(ActiveThumbの親)へ切り替える
+        public void ActiveGroupInside()
         {
             if (ActiveThumb is TTGroup group)
             {
                 ActiveGroup = group;
-                ActiveThumb = GetMovableThumb(ClickedThumb);
+                ActiveThumb = GetActiveThumb(ClickedThumb);
             }
         }
 
-        //EnableThumbを外側(親)へ切り替える
-        public void EnableOutside()
+        //ActiveThumbを外側(親)へ切り替える
+        public void ActiveGroupOutside()
         {
             if (ActiveGroup.TTParent is TTGroup parent)
             {
                 ActiveGroup = parent;
-                ActiveThumb = GetMovableThumb(ClickedThumb);
+                ActiveThumb = GetActiveThumb(ClickedThumb);
             }
         }
 

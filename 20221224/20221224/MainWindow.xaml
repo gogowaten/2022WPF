@@ -50,13 +50,13 @@
       </GroupBox>
       <Slider Value="{Binding ElementName=Text_21, Path=FontSize}"
               Minimum="10" Maximum="100" IsSnapToTickEnabled="True" TickFrequency="10"/>
-      <Button x:Name="ButtonRootEnable" Content="RootEnable" Click="ButtonRootEnable_Click"/>
-      <Button x:Name="ButtonTTG1Enable" Content="TTG1Enable" Click="ButtonTTG1Enable_Click"/>
-      <Button x:Name="ButtonTTG2Enable" Content="TTG2Enable" Click="ButtonTTG2Enable_Click"/>
+      <Button x:Name="ButtonRootActive" Content="RootActive" Click="ButtonRootActive_Click"/>
+      <Button x:Name="ButtonTTG1Active" Content="TTG1Active" Click="ButtonTTG1Active_Click"/>
+      <Button x:Name="ButtonTTG2Active" Content="TTG2Active" Click="ButtonTTG2Active_Click"/>
       <Button x:Name="ButtonAddGroup" Content="AddGroup" Click="ButtonAddGroup_Click"/>
       <Button x:Name="ButtonUnGroup" Content="UnGroup" Click="ButtonUnGroup_Click"/>
-      <Button x:Name="ButtonEnableInside" Content="EnableInside" Click="ButtonEnableInside_Click"/>
-      <Button x:Name="ButtonEnableOutside" Content="EnableOutside" Click="ButtonEnableOutside_Click"/>
+      <Button x:Name="ButtonActiveInside" Content="ActiveInside" Click="ButtonActiveInside_Click"/>
+      <Button x:Name="ButtonActiveOutside" Content="ActiveOutside" Click="ButtonActiveOutside_Click"/>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
         <GroupBox DataContext="{Binding ActiveGroup}" Header="ActiveGroup">
           <WrapPanel>
