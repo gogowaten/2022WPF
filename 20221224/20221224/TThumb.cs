@@ -410,35 +410,11 @@ namespace _20221224
             }
         }
 
-        //protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
-        //{
-        //    //base.OnPreviewMouseLeftButtonUp(e);
-        //    if (e.OriginalSource is FrameworkElement el)
-        //    {
-        //        if (el is TThumb clicked)
-        //        {
-        //            if (clicked == ClickedThumb)
-        //            {
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
+        {
+            //base.OnPreviewMouseLeftButtonUp(e);
+        }
 
-        //            }
-        //            else
-        //            {
-
-        //            }
-        //            if (Keyboard.Modifiers == ModifierKeys.Control)
-        //            {
-        //                if (SelectedThumbs.Contains(clicked))
-        //                {
-        //                    var movable = GetMovableThumb(clicked);
-        //                    if (movable != null)
-        //                    {
-        //                        SelectedThumbs.Remove(movable);
-        //                    }
-        //                }
-        //            }
-        //        }
-        //    }
-        //}
         private bool CheckIsMovable(TThumb thumb)
         {
             if (thumb.TTParent is TTGroup ttg && ttg == EnableGroup)
