@@ -322,9 +322,14 @@ namespace _20221224
                 item.DragDelta += Thumb_DragDelta2;
             }
         }
+
+
+
         //public ReadOnlyObservableCollection<TThumb> InternalSelectedThumbs { get; set; }
         public ObservableCollection<TThumb> SelectedThumbs { get; set; } = new();
-        private TThumb? LastAddSelectedThumb { get; set; }
+        private TThumb? LastAddSelectedThumb { get; set; }//最後に追加されたThumb
+        private bool IsRemoveFlag { get; set; }//削除フラグ、SelectedThumbsに使用
+
 
         #region コンストラクタ
         public TTRoot()
@@ -346,10 +351,14 @@ namespace _20221224
                     //AddDragEvent2();
                     item.DragDelta += Thumb_DragDelta2;
                     item.DragCompleted += Thumb_DragCompleted2;
+                    item.DragStarted += Thumb_DragStarted;
                 }
             }
         }
+        private void Thumb_DragStarted(object sender, DragStartedEventArgs e)
+        {
 
+        }
         //クリックしたとき、ClickedThumbの更新とMovableThumbの更新、SelectedThumbsの更新
         private void TTRoot_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
@@ -364,8 +373,12 @@ namespace _20221224
                     ClickedThumb = clicked;
                     TThumb? movable = GetMovableThumb(clicked);
                     MovableThumb = movable;
-                    //選択Thumb群の更新
-                    if (movable != null) { ClickedChanged(movable); }
+                    ////選択Thumb群の更新
+                    //if (movable != null) { ClickedChanged(movable); }
+                    if (movable != null && SelectedThumbs.Contains(movable))
+                    {
+                        IsRemoveFlag = true;
+                    }
                 }
             }
 
@@ -426,7 +439,7 @@ namespace _20221224
         //        }
         //    }
         //}
-        private bool IsMovable(TThumb thumb)
+        private bool CheckIsMovable(TThumb thumb)
         {
             if (thumb.TTParent is TTGroup ttg && ttg == EnableGroup)
             {
@@ -440,7 +453,7 @@ namespace _20221224
         private TThumb? GetMovableThumb(TThumb? start)
         {
             if (start == null) { return null; }
-            if (IsMovable(start))
+            if (CheckIsMovable(start))
             {
                 return start;
             }
