@@ -14,15 +14,14 @@ using System.Diagnostics.Contracts;
 using System.Windows.Input;
 using System;
 using System.ComponentModel.Design;
+using System.Diagnostics.CodeAnalysis;
 
 
-//RootThumbに選択Thumbを保持するSelectedThumbsを追加
-//Ctrl+クリックしたときにこれに追加していく、同じThumbがあった場合は削除のトグル式
-//追加できるのはActiveThumbのChildren要素だけ
-
-//グループ化とグループ解除できた
-//グループ化はSelectedThumbsからTTGroup作成して、それをActiveThumbに追加
-//解除はActiveThumbがTTGroupならこれを削除して、中の子要素をActiveThumbに追加
+//前面移動、背面移動できた
+//対象は選択状態のThumbすべて
+//ZIndexは使わずに、要素のIndexを変更することで移動
+//Indexの変更は削除と追加を繰り返して行ったけど、
+//moveメソッドを使ったほうが良かったかも
 namespace _20221224
 {
     public class TThumb : Thumb, INotifyPropertyChanged
@@ -77,34 +76,6 @@ namespace _20221224
             return Name;
         }
 
-        #region ドラッグ移動系イベント
-
-        //ドラッグ移動終了時に親要素のサイズと位置の更新
-        //private void TT_DragCompleted(object sender, DragCompletedEventArgs e)
-        //{
-        //    if (sender is TThumb tt)
-        //    {
-        //        tt.TTParent?.TTGroupUpdateLayout();
-        //    }
-        //}
-        //マウスドラッグ移動
-        //private void TT_DragDelta(object sender, DragDeltaEventArgs e)
-        //{
-        //    MyLeft += e.HorizontalChange;
-        //    MyTop += e.VerticalChange;
-        //}
-        //public void AddDragEvent()
-        //{
-        //    DragDelta += TT_DragDelta;
-        //    DragCompleted += TT_DragCompleted;
-        //}
-        //public void RemoveDragEvent()
-        //{
-        //    DragDelta -= TT_DragDelta;
-        //    DragCompleted -= TT_DragCompleted;
-        //}
-        #endregion ドラッグ移動系イベント
-
     }
 
     /// <summary>
@@ -140,6 +111,7 @@ namespace _20221224
             waku.SetValue(Shape.StrokeProperty, Brushes.Red);
             waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
             text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            panel.SetValue(BackgroundProperty, Brushes.AliceBlue);
             panel.AppendChild(text);
             panel.AppendChild(waku);
             this.Template = new() { VisualTree = panel };
@@ -338,6 +310,8 @@ namespace _20221224
         }
         #endregion コンストラクタ
 
+        #region オーバーライド関連
+
         //起動直後、自身がActiveGroupならChildrenにドラッグ移動登録
         protected override void OnInitialized(EventArgs e)
         {
@@ -413,6 +387,10 @@ namespace _20221224
 
         }
 
+        #endregion オーバーライド関連
+
+        #region その他関数
+
         private bool CheckIsActive(TThumb thumb)
         {
             if (thumb.TTParent is TTGroup ttg && ttg == ActiveGroup)
@@ -437,6 +415,42 @@ namespace _20221224
             }
             return null;
         }
+        /// <summary>
+        /// SelectedThumbsを並べ替えたList作成、基準はActiveGroupのChildren
+        /// </summary>
+        /// <param name="selected">SelectedThumbs</param>
+        /// <param name="group">並べ替えの基準にするGroup</param>
+        /// <returns></returns>
+        private List<TThumb> MakeSortedList(IEnumerable<TThumb> selected, TTGroup group)
+        {
+            List<TThumb> tempList = new();
+            foreach (var item in group.InternalChildren)
+            {
+                if (selected.Contains(item)) { tempList.Add(item); }
+            }
+            return tempList;
+        }
+        /// <summary>
+        /// 要素すべてがGroupのChildrenに存在するか判定
+        /// </summary>
+        /// <param name="thums">要素群</param>
+        /// <param name="group">ParentGroup</param>
+        /// <returns></returns>
+        private bool IsAllContains(IEnumerable<TThumb> thums, TTGroup group)
+        {
+            if (!thums.Any()) { return false; }//要素が一つもなければfalse
+            foreach (var item in thums)
+            {
+                if (group.InternalChildren.Contains(item) == false)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        #endregion その他関数
+
         #region ドラッグ移動
         private void Thumb_DragCompleted2(object sender, DragCompletedEventArgs e)
         {
@@ -503,6 +517,12 @@ namespace _20221224
             ActiveThumb = null;
             return flag;
         }
+        /// <summary>
+        /// 指定Thumbだけを指定Groupから削除
+        /// </summary>
+        /// <param name="thumb"></param>
+        /// <param name="group"></param>
+        /// <returns></returns>
         public bool RemoveThumb(TThumb thumb, TTGroup group)
         {
             if (group.InternalChildren.Remove(thumb))
@@ -607,6 +627,7 @@ namespace _20221224
         }
         #endregion グループ解除
 
+        #region InOut
         //ActiveThumbを内側(ActiveThumbの親)へ切り替える
         public void ActiveGroupInside()
         {
@@ -626,6 +647,150 @@ namespace _20221224
                 ActiveThumb = GetActiveThumb(ClickedThumb);
             }
         }
+        #endregion InOut
 
+        #region ZIndex
+        //ZIndexが同じ場合はChildrenIndexが前後関係になるのを利用して
+        //Children要素の入れ替えによって前面、背面移動
+        #region 背面に移動
+
+        //再背面に移動
+        public bool ZDownBackMost()
+        {
+            return ZDownBackMost(SelectedThumbs, ActiveGroup);
+        }
+        public bool ZDownBackMost(IEnumerable<TThumb> thumbs, TTGroup group)
+        {
+            group.InternalChildren.Move(1, 2);
+            if (IsAllContains(thumbs, group) == false) { return false; }
+            //下側にある要素から処理したいので、並べ替えたListを作成
+            List<TThumb> tempList = MakeSortedList(thumbs, group);
+            //削除してから先頭から挿入
+            for (int i = 0; i < tempList.Count; i++)
+            {
+                if (group.InternalChildren.Remove(tempList[i]))
+                {
+                    group.InternalChildren.Insert(i, tempList[i]);
+                }
+                else { return false; }
+            }
+            return true;
+        }
+        public bool ZDown()
+        {
+            return ZDown(SelectedThumbs, ActiveGroup);
+        }
+        public bool ZDown(IEnumerable<TThumb> thumbs, TTGroup group)
+        {
+            if (IsAllContains(thumbs, group) == false) { return false; }
+            //順番を揃えたリスト作成
+            List<TThumb> tempList = MakeSortedList(thumbs, group);
+
+            //一番下の要素がもともと一番下だった場合は処理しない
+            if (group.InternalChildren[0] == tempList[0])
+            {
+                return false;
+            }
+            //順番に処理、削除してから挿入、挿入箇所は元のインデックス-1
+            foreach (var item in tempList)
+            {
+                int ii = group.InternalChildren.IndexOf(item);
+                ii--;
+                if (group.InternalChildren.Remove(item))
+                {
+                    group.InternalChildren.Insert(ii, item);
+                }
+                else { return false; }
+            }
+
+            return true;
+        }
+
+        //最前面へ移動
+        public bool ZUpFrontMost(IEnumerable<TThumb> thumbs, TTGroup group)
+        {
+            //要素すべてがGroupのChildrenに存在するか判定、存在しない要素があれば処理しない            
+            if (IsAllContains(thumbs, group) == false) { return false; }
+
+            //下側にある要素から処理したいので、並べ替えたListを作成
+            List<TThumb> tempList = MakeSortedList(thumbs, group);
+            //削除してから追加(末尾に追加)
+            foreach (var item in tempList)
+            {
+                if (group.InternalChildren.Remove(item))
+                {
+                    group.InternalChildren.Add(item);
+                }
+                else { return false; }
+            }
+            return true;
+        }
+        #endregion 背面に移動
+
+        #region 前面に移動
+
+        public bool ZUpFrontMost()
+        {
+            return ZUpFrontMost(SelectedThumbs, ActiveGroup);
+        }
+
+        //一つ前に移動
+        public bool ZUp(IEnumerable<TThumb> thumbs, TTGroup group)
+        {
+            if (IsAllContains(thumbs, group) == false) { return false; }
+            //順番を揃えてから削除して追加
+            List<TThumb> tempList = MakeSortedList(thumbs, group);
+
+            //一番上の要素がもともと一番上だった場合は処理しない
+            if (group.InternalChildren[^1] == tempList[^1])
+            {
+                return false;
+            }
+            for (int i = tempList.Count - 1; i >= 0; i--)
+            {
+                int ii = group.InternalChildren.IndexOf(tempList[i]);
+                ii++;
+                if (group.InternalChildren.Remove(tempList[i]))
+                {
+                    group.InternalChildren.Insert(ii, tempList[i]);
+                }
+                else { return false; }
+            }
+            return true;
+
+        }
+        public bool ZUp()
+        {
+            return ZUp(SelectedThumbs, ActiveGroup);
+        }
+        #endregion 前面に移動
+
+
+        //backmost 最背面 back to back最背面にする
+        //frontmsot 一番前
+        //front 最前面
+        //put one back  一つ後ろにする
+        #endregion ZIndex
+
+    }
+
+    //C# ObservableCollection<T>で大量の要素を追加したいとき - Qiita
+//    https://qiita.com/Yuki4/items/0e73297db632376804dd
+
+    public class TTObservableCollection<T> : ObservableCollection<T>
+    {
+        public void AddRange(IEnumerable<T> collection)
+        {
+            if (collection == null)
+            {
+                throw new ArgumentNullException(nameof(collection));
+            }
+            foreach (var item in collection)
+            {
+                Items.Add(item);
+            }
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+        
     }
 }

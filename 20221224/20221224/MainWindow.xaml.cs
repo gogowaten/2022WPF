@@ -33,11 +33,33 @@ namespace _20221224
             {
                 MyLeft = 20 * MyAddCounnt,
                 MyTop = 20 * MyAddCounnt,
-                MyText = TextBoxAdd.Text + MyAddCounnt,
+                MyText = TextBoxAdd.Text + "\n" + MyAddCounnt,
                 Name = TextBoxAdd.Text + MyAddCounnt,
             };
             MyRootThumb.AddThumb(tt);
             MyAddCounnt++;
+
+            //int bunkatu = 360;
+            //double radius = 200;
+            //for (int i = 0; i < bunkatu; i++)
+            //{
+            //    double radian = DegreeToRadian(i);
+            //    double x = Math.Cos(radian) * radius;
+            //    double y = Math.Sin(radian) * radius;
+            //    TTTextBlock tx = new()
+            //    {
+            //        MyLeft = x,
+            //        MyTop = y,
+            //        MyText = TextBoxAdd.Text + MyAddCounnt,
+            //        Name = TextBoxAdd.Text + MyAddCounnt,
+            //    };
+            //    MyRootThumb.AddThumb(tx); MyAddCounnt++;
+            //}
+
+        }
+        private double DegreeToRadian(double x)
+        {
+            return Math.PI * (x / 180.0);
         }
 
         private void ButtonRemove_Click(object sender, RoutedEventArgs e)
@@ -82,5 +104,16 @@ namespace _20221224
             MyRootThumb.ActiveGroupOutside();
         }
 
+        private void ButtonZUp_Click(object sender, RoutedEventArgs e)
+        {
+            //MyRootThumb.ZUpFrontMost();
+            MyRootThumb.ZUp();
+        }
+
+        private void ButtonZDown_Click(object sender, RoutedEventArgs e)
+        {
+            //MyRootThumb.ZDownBackMost();
+            MyRootThumb.ZDown();
+        }
     }
 }
