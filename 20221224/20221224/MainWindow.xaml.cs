@@ -20,7 +20,7 @@ namespace _20221224
     /// </summary>
     public partial class MainWindow : Window
     {
-        private int MyAddCounnt = 1;
+        private int MyAddCounnt = 0;
         public MainWindow()
         {
             InitializeComponent();
