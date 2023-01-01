@@ -73,17 +73,6 @@ namespace _20221224
         {
             MyRootThumb.ActiveGroup = MyRootThumb;
         }
-
-        private void ButtonTTG1Active_Click(object sender, RoutedEventArgs e)
-        {
-            //MyRootThumb.ActiveGroup = TTG_1;
-        }
-
-        private void ButtonTTG2Active_Click(object sender, RoutedEventArgs e)
-        {
-            //MyRootThumb.ActiveGroup = TTG_2;
-        }
-
         private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
         {
             MyRootThumb.AddGroup();

@@ -636,6 +636,7 @@ namespace _20221224
             {
                 ActiveGroup = group;
                 ActiveThumb = GetActiveThumb(ClickedThumb);
+                SelectedThumbs.Clear();
             }
         }
 
@@ -646,6 +647,7 @@ namespace _20221224
             {
                 ActiveGroup = parent;
                 ActiveThumb = GetActiveThumb(ClickedThumb);
+                SelectedThumbs.Clear();
             }
         }
         #endregion InOut
