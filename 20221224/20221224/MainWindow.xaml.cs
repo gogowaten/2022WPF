@@ -106,14 +106,22 @@ namespace _20221224
 
         private void ButtonZUp_Click(object sender, RoutedEventArgs e)
         {
-            //MyRootThumb.ZUpFrontMost();
             MyRootThumb.ZUp();
         }
 
         private void ButtonZDown_Click(object sender, RoutedEventArgs e)
         {
-            //MyRootThumb.ZDownBackMost();
             MyRootThumb.ZDown();
+        }
+
+        private void ButtonZUpFrontMost_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.ZUpFrontMost();            
+        }
+
+        private void ButtonZDownBackMost_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.ZDownBackMost();
         }
     }
 }

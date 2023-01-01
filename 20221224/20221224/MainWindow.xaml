@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:_20221224"
         mc:Ignorable="d"
-        Title="MainWindow" Height="550" Width="800">
+        Title="MainWindow" Height="550" Width="600">
   <Grid>
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
@@ -50,16 +50,20 @@
       </GroupBox>
       <Button x:Name="ButtonRootActive" Content="RootActive" Click="ButtonRootActive_Click"/>
       <DockPanel>
-        <Button x:Name="ButtonAddGroup" Content="AddGroup" Click="ButtonAddGroup_Click" Width="100"/>
-        <Button x:Name="ButtonUnGroup" Content="UnGroup" Click="ButtonUnGroup_Click"/>
+        <Button x:Name="ButtonAddGroup" Content="グループ化" Click="ButtonAddGroup_Click" Width="100"/>
+        <Button x:Name="ButtonUnGroup" Content="グループ解除" Click="ButtonUnGroup_Click"/>
       </DockPanel>
       <DockPanel>
         <Button x:Name="ButtonActiveInside" Content="ActiveInside" Click="ButtonActiveInside_Click" Width="100"/>
         <Button x:Name="ButtonActiveOutside" Content="ActiveOutside" Click="ButtonActiveOutside_Click"/>
       </DockPanel>
       <DockPanel>
-        <Button x:Name="ButtonZUp" Content="ZUp" Click="ButtonZUp_Click" Width="100"/>
-        <Button x:Name="ButtonZDown" Content="ZDown" Click="ButtonZDown_Click"/>
+        <Button x:Name="ButtonZUp" Content="前面へ移動" Click="ButtonZUp_Click" Width="100"/>
+        <Button x:Name="ButtonZUpFrontMost" Content="最前面へ移動" Click="ButtonZUpFrontMost_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="ButtonZDown" Content="背面へ移動" Click="ButtonZDown_Click" Width="100"/>
+        <Button x:Name="ButtonZDownBackMost" Content="最背面へ移動" Click="ButtonZDownBackMost_Click"/>
       </DockPanel>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
         <GroupBox DataContext="{Binding ActiveGroup}" Header="ActiveGroup">

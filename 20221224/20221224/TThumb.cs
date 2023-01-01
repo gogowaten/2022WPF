@@ -545,7 +545,9 @@ namespace _20221224
         //基本的にSelectedThumbsをグループ化して、それをActiveGroupに追加する
         public void AddGroup()
         {
-            TTGroup? group = MakeAndAddGroup(SelectedThumbs, ActiveGroup);
+            //SelectedThumbs並べ替え
+            var tempList = MakeSortedList(SelectedThumbs, ActiveGroup);
+            TTGroup? group = MakeAndAddGroup(tempList, ActiveGroup);
             if (group != null)
             {
                 SelectedThumbs.Clear();
@@ -566,7 +568,6 @@ namespace _20221224
 
             foreach (var item in thumbs)
             {
-
                 destGroup.InternalChildren.Remove(item);
                 item.DragDelta -= Thumb_DragDelta2;
                 item.DragCompleted -= Thumb_DragCompleted2;
@@ -661,7 +662,6 @@ namespace _20221224
         }
         public bool ZDownBackMost(IEnumerable<TThumb> thumbs, TTGroup group)
         {
-            group.InternalChildren.Move(1, 2);
             if (IsAllContains(thumbs, group) == false) { return false; }
             //下側にある要素から処理したいので、並べ替えたListを作成
             List<TThumb> tempList = MakeSortedList(thumbs, group);
@@ -705,6 +705,9 @@ namespace _20221224
 
             return true;
         }
+        #endregion 背面に移動
+
+        #region 前面に移動
 
         //最前面へ移動
         public bool ZUpFrontMost(IEnumerable<TThumb> thumbs, TTGroup group)
@@ -725,9 +728,6 @@ namespace _20221224
             }
             return true;
         }
-        #endregion 背面に移動
-
-        #region 前面に移動
 
         public bool ZUpFrontMost()
         {
@@ -775,7 +775,7 @@ namespace _20221224
     }
 
     //C# ObservableCollection<T>で大量の要素を追加したいとき - Qiita
-//    https://qiita.com/Yuki4/items/0e73297db632376804dd
+    //    https://qiita.com/Yuki4/items/0e73297db632376804dd
 
     public class TTObservableCollection<T> : ObservableCollection<T>
     {
@@ -791,6 +791,6 @@ namespace _20221224
             }
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
-        
+
     }
 }
