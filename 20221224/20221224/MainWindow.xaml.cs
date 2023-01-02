@@ -112,5 +112,11 @@ namespace _20221224
         {
             MyRootThumb.ZDownBackMost();
         }
+
+        private void ButtonSave_Click(object sender, RoutedEventArgs e)
+        {
+            //MyRootThumb.SaveImage();
+            MyRootThumb.SaveImage(MyRootThumb, MyScrollViewer);
+        }
     }
 }

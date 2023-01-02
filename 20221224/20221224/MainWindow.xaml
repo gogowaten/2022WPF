@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:_20221224"
         mc:Ignorable="d"
         Title="MainWindow" Height="550" Width="600">
-  <Grid>
+  <Grid UseLayoutRounding="True">
     <Grid.ColumnDefinitions>
       <ColumnDefinition/>
       <ColumnDefinition Width="200"/>
@@ -16,8 +16,8 @@
         <Setter Property="FontSize" Value="20"/>
       </Style>
     </Grid.Resources>
-    <ScrollViewer HorizontalScrollBarVisibility="Visible">
-      <local:TTRoot x:Name="MyRootThumb" VerticalAlignment="top" HorizontalAlignment="Left" UseLayoutRounding="True">
+    <ScrollViewer Name="MyScrollViewer" HorizontalScrollBarVisibility="Visible">
+      <local:TTRoot x:Name="MyRootThumb" VerticalAlignment="top" HorizontalAlignment="Left">
         <!--<local:TTTextBlock x:Name="Text_01" MyText="Text_01" MyLeft="100" MyTop="10"/>
         <local:TTTextBlock x:Name="Text_02" MyText="Text_02" MyLeft="110" MyTop="40"/>
         <local:TTGroup x:Name="TTG_0" MyLeft="0" MyTop="0">
@@ -64,6 +64,9 @@
       <DockPanel>
         <Button x:Name="ButtonZDown" Content="背面へ移動" Click="ButtonZDown_Click" Width="100"/>
         <Button x:Name="ButtonZDownBackMost" Content="最背面へ移動" Click="ButtonZDownBackMost_Click"/>
+      </DockPanel>
+      <DockPanel>
+        <Button x:Name="ButtonSave" Content="Save" Click="ButtonSave_Click"/>
       </DockPanel>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
         <GroupBox DataContext="{Binding ActiveGroup}" Header="ActiveGroup">

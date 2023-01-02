@@ -15,6 +15,8 @@ using System.Windows.Input;
 using System;
 using System.ComponentModel.Design;
 using System.Diagnostics.CodeAnalysis;
+using System.Windows.Media.Imaging;
+using System.IO;
 
 
 //前面移動、背面移動できた
@@ -68,6 +70,13 @@ namespace _20221224
         {
             SetBinding(Canvas.LeftProperty, nameof(MyLeft));
             SetBinding(Canvas.TopProperty, nameof(MyTop));
+            //重要！！！！エッジモードをエイリアスに指定
+            //これでアンチエイリアスがなくなって枠線とかがくっきりで保存できる,
+            //けどこれでもまだ微妙にずれる
+            //あと、なぜか表示自体は変化ない？
+            //RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
+            //Enabledでテキストの保存時にクリアタイプが適用される。既定値はAutoでこれだと適用されない
+            //RenderOptions.SetClearTypeHint(this, ClearTypeHint.Enabled);
         }
 
         public override string ToString()
@@ -110,7 +119,12 @@ namespace _20221224
             FrameworkElementFactory panel = new(typeof(Grid));
             waku.SetValue(Shape.StrokeProperty, Brushes.Red);
             waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
+            waku.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);//エッジモード
             text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            //画像保存時のクリアタイプOFF、既定値
+            text.SetValue(RenderOptions.ClearTypeHintProperty, ClearTypeHint.Auto);
+            //画像保存時のクリアタイプON
+            //text.SetValue(RenderOptions.ClearTypeHintProperty, ClearTypeHint.Enabled);
             panel.SetValue(BackgroundProperty, Brushes.AliceBlue);
             panel.AppendChild(text);
             panel.AppendChild(waku);
@@ -774,6 +788,62 @@ namespace _20221224
         //put one back  一つ後ろにする
         #endregion ZIndex
 
+        #region 画像として保存
+        /// <summary>
+        /// BitmapSourceをpngファイルにする
+        /// </summary>
+        /// <param name="bitmap">保存する画像</param>
+        /// <param name="filePath">保存先パス(拡張子も付けたフルパス)</param>
+        private void SaveBitmapToPng(BitmapSource bitmap, string filePath)
+        {
+            PngBitmapEncoder encoder = new();
+            encoder.Frames.Add(BitmapFrame.Create(bitmap));
+            using (var stream = File.Open(filePath, FileMode.Create))
+            {
+                encoder.Save(stream);
+            }
+        }
+        public void SaveImage()
+        {
+            SaveImage(this, this);
+            //SaveImage(this);
+            //SaveImage(ActiveThumb);
+        }
+        public void SaveImage(FrameworkElement el, FrameworkElement parentPanel)
+        {
+            GeneralTransform gt = el.TransformToVisual(parentPanel);
+            Rect bounds = gt.TransformBounds(new Rect(0, 0, el.ActualWidth, el.ActualHeight));
+            DrawingVisual dVisual = new();
+            //var neko = VisualTreeHelper.GetDrawing(ActiveThumb);
+            using (DrawingContext context = dVisual.RenderOpen())
+            {
+                VisualBrush vBrush = new(el) { Stretch = Stretch.None };
+                var vBox = vBrush.Viewbox;
+                var vbUnits = vBrush.ViewboxUnits;
+                var vPort = vBrush.Viewport;
+                var vpUnits = vBrush.ViewportUnits;
+                context.DrawRectangle(vBrush,
+                    null,
+                    new Rect(0.0, 0.0, (int)bounds.Width, (int)bounds.Height));
+
+                //context.DrawRectangle(vBrush, null, new Rect(bounds.Size));
+            }
+            RenderTargetBitmap bitmap
+                = new((int)bounds.Width, (int)bounds.Height, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(dVisual);
+
+            SaveBitmapToPng(bitmap, "E:result.png");
+        }
+        public void SaveImage(FrameworkElement el)
+        {
+            RenderTargetBitmap bitmap
+                = new((int)el.ActualWidth, (int)el.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(el);
+            SaveBitmapToPng(bitmap, "E:result.png");
+        }
+
+
+        #endregion 画像として保存
     }
 
     //C# ObservableCollection<T>で大量の要素を追加したいとき - Qiita
