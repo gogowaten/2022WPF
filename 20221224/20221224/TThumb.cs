@@ -114,23 +114,56 @@ namespace _20221224
         {
             DataContext = this;
             //Template構築、適用
-            FrameworkElementFactory text = new(typeof(TextBlock));
-            FrameworkElementFactory waku = new(typeof(Rectangle));
-            FrameworkElementFactory panel = new(typeof(Grid));
-            waku.SetValue(Shape.StrokeProperty, Brushes.Red);
-            waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
-            waku.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);//エッジモード
-            text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
-            //画像保存時のクリアタイプOFF、既定値
-            text.SetValue(RenderOptions.ClearTypeHintProperty, ClearTypeHint.Auto);
-            //画像保存時のクリアタイプON
-            //text.SetValue(RenderOptions.ClearTypeHintProperty, ClearTypeHint.Enabled);
-            panel.SetValue(BackgroundProperty, Brushes.AliceBlue);
-            panel.AppendChild(text);
-            panel.AppendChild(waku);
-            this.Template = new() { VisualTree = panel };
-            this.ApplyTemplate();
+            SetTemplate3();
+            //this.VisualTextRenderingMode = TextRenderingMode.Aliased;
 
+            //FrameworkElementFactory text = new(typeof(TextBlock));
+            //FrameworkElementFactory waku = new(typeof(Rectangle));
+            //FrameworkElementFactory panel = new(typeof(Grid));
+            //waku.SetValue(Shape.StrokeProperty, Brushes.Red);
+            //waku.SetValue(Shape.StrokeThicknessProperty, 1.0);
+            ////waku.SetValue(RenderOptions.EdgeModeProperty, EdgeMode.Aliased);//エッジモード
+            //text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            ////text.SetValue(TextBlock.ForegroundProperty, Brushes.Red);
+            ////画像保存時のクリアタイプOFF、既定値
+            ////text.SetValue(RenderOptions.ClearTypeHintProperty, ClearTypeHint.Auto);
+            ////画像保存時のクリアタイプON
+            ////text.SetValue(RenderOptions.ClearTypeHintProperty, ClearTypeHint.Enabled);
+            //panel.SetValue(BackgroundProperty, Brushes.AliceBlue);
+            //panel.AppendChild(text);
+            //panel.AppendChild(waku);
+            //this.Template = new() { VisualTree = panel };
+            //this.ApplyTemplate();
+
+        }
+        private void SetTemplate1()
+        {
+            FrameworkElementFactory text = new(typeof(TextBlock));
+            FrameworkElementFactory waku = new(typeof(Border));
+            waku.SetValue(Border.BorderThicknessProperty, new Thickness(4.0));
+            waku.SetValue(Border.BorderBrushProperty, Brushes.Red);
+            text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            waku.AppendChild(text);
+            this.Template = new() { VisualTree = waku };
+        }
+        private void SetTemplate3()
+        {
+            FrameworkElementFactory text = new(typeof(TextBlock));
+            FrameworkElementFactory waku = new(typeof(Border));
+            waku.SetValue(Border.BorderThicknessProperty, new Thickness(4.0));
+            waku.SetValue(Border.BorderBrushProperty, Brushes.Red);
+            text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            waku.AppendChild(text);
+            this.Template = new() { VisualTree = waku };
+            //this.BorderThickness = new Thickness(4.0);
+        }
+        private void SetTemplate2()
+        {
+            FrameworkElementFactory text = new(typeof(TextBlock));
+            text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            this.Template = new() { VisualTree = text };
+            this.BorderBrush = Brushes.Red;
+            this.BorderThickness = new Thickness(4.0);
         }
 
 
@@ -154,26 +187,70 @@ namespace _20221224
             InternalChildren.CollectionChanged += Children_CollectionChanged;
             Children = new(InternalChildren);
 
-            //Template構造
-            //Thumb
-            //┗ Template
-            //   ┗ Grid
-            //      ┣ ItemsControl   コレクションをBinding
-            //      ┃  ┗ Canvas      PanelTemplate
-            //      ┗ Rectangle      枠
-            FrameworkElementFactory waku = new(typeof(Rectangle));//サイズ確認用枠
-            waku.SetValue(Rectangle.StrokeProperty, Brushes.Blue);
-            waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
-            FrameworkElementFactory grid = new(typeof(Grid));
-            FrameworkElementFactory ic = new(typeof(ItemsControl));
-            //ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
-            FrameworkElementFactory icPanel = new(typeof(Canvas));
-            ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(icPanel));
-            ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
-            grid.AppendChild(ic);
-            grid.AppendChild(waku);
-            this.Template = new() { VisualTree = grid };
+            SetTemplate3();
 
+            ////Template構造
+            ////Thumb
+            ////┗ Template
+            ////   ┗ Grid
+            ////      ┣ ItemsControl   コレクションをBinding
+            ////      ┃  ┗ Canvas      PanelTemplate
+            ////      ┗ Rectangle      枠
+            //FrameworkElementFactory waku = new(typeof(Rectangle));//サイズ確認用枠
+            //waku.SetValue(Rectangle.StrokeProperty, Brushes.Blue);
+            //waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
+            //FrameworkElementFactory grid = new(typeof(Grid));
+            //FrameworkElementFactory ic = new(typeof(ItemsControl));
+            ////ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
+            //FrameworkElementFactory icPanel = new(typeof(Canvas));
+            //ic.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(icPanel));
+            //ic.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
+            //grid.AppendChild(ic);
+            //grid.AppendChild(waku);
+            //this.Template = new() { VisualTree = grid };
+
+        }
+        private void SetTemplate1()
+        {
+            //FrameworkElementFactory waku = new(typeof(Border));
+            //waku.SetValue(Border.BorderThicknessProperty, new Thickness(1.0));
+            //waku.SetValue(Border.BorderBrushProperty, Brushes.Red);
+            FrameworkElementFactory fItems = new(typeof(ItemsControl));
+            FrameworkElementFactory fCanvas = new(typeof(Canvas));
+            fItems.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(fCanvas));
+            fItems.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
+            fItems.SetValue(ItemsControl.BorderThicknessProperty, new Thickness(4.0));
+            fItems.SetValue(ItemsControl.BorderBrushProperty, Brushes.Blue);
+            //this.BorderThickness = new(4.0);
+            //this.BorderBrush = Brushes.Blue;
+
+            this.Template = new() { VisualTree = fItems };
+        }
+        private void SetTemplate2()
+        {
+            FrameworkElementFactory waku = new(typeof(Border));
+            waku.SetValue(Border.BorderThicknessProperty, new Thickness(4.0));
+            waku.SetValue(Border.BorderBrushProperty, Brushes.Blue);
+            FrameworkElementFactory fItems = new(typeof(ItemsControl));
+            FrameworkElementFactory fCanvas = new(typeof(Canvas));
+            fItems.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(fCanvas));
+            fItems.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
+            waku.AppendChild(fItems);
+            this.Template = new() { VisualTree = waku };
+        }
+        private void SetTemplate3()
+        {
+            FrameworkElementFactory fGrid = new(typeof(Grid));
+            FrameworkElementFactory waku = new(typeof(Rectangle));
+            waku.SetValue(Rectangle.StrokeThicknessProperty, 1.0);
+            waku.SetValue(Rectangle.StrokeProperty, Brushes.Blue);
+            FrameworkElementFactory fItems = new(typeof(ItemsControl));
+            FrameworkElementFactory fCanvas = new(typeof(Canvas));
+            fItems.SetValue(ItemsControl.ItemsPanelProperty, new ItemsPanelTemplate(fCanvas));
+            fItems.SetValue(ItemsControl.ItemsSourceProperty, new Binding(nameof(Children)));
+            fGrid.AppendChild(fItems);
+            fGrid.AppendChild(waku);
+            this.Template = new() { VisualTree = fGrid };
         }
 
         //TTGroupのRect取得
@@ -805,7 +882,7 @@ namespace _20221224
         }
         public void SaveImage()
         {
-            SaveImage(this, this);
+            SaveImage2(this, this);
             //SaveImage(this);
             //SaveImage(ActiveThumb);
         }
@@ -818,10 +895,6 @@ namespace _20221224
             using (DrawingContext context = dVisual.RenderOpen())
             {
                 VisualBrush vBrush = new(el) { Stretch = Stretch.None };
-                var vBox = vBrush.Viewbox;
-                var vbUnits = vBrush.ViewboxUnits;
-                var vPort = vBrush.Viewport;
-                var vpUnits = vBrush.ViewportUnits;
                 context.DrawRectangle(vBrush,
                     null,
                     new Rect(0.0, 0.0, (int)bounds.Width, (int)bounds.Height));
@@ -834,6 +907,35 @@ namespace _20221224
 
             SaveBitmapToPng(bitmap, "E:result.png");
         }
+        public void SaveImage2(FrameworkElement el, FrameworkElement parentPanel)
+        {
+            //var edge=VisualTreeHelper.GetEdgeMode(el);
+            //RenderOptions.SetEdgeMode(el, EdgeMode.Aliased);
+
+            GeneralTransform gt = el.TransformToVisual(parentPanel);
+            Rect bounds = gt.TransformBounds(new Rect(0, 0, el.ActualWidth, el.ActualHeight));
+            DrawingVisual dVisual = new();
+            var debounds = VisualTreeHelper.GetDescendantBounds(parentPanel);
+            bounds.Width = (int)(bounds.Width + 0.5);
+            bounds.Height = (int)(bounds.Height + 0.5);
+
+            //var wPix = (int)(bounds.Width + 0.5);
+            //var hPix = (int)(bounds.Height + 0.5);
+            using (DrawingContext context = dVisual.RenderOpen())
+            {
+                VisualBrush vBrush = new(el) { Stretch = Stretch.None };
+                //context.DrawRectangle(vBrush, null, new Rect(0, 0, bounds.Width, bounds.Height));
+                context.DrawRectangle(vBrush, null, bounds);
+
+                //context.DrawRectangle(vBrush, null, new Rect(bounds.Size));
+            }
+            RenderTargetBitmap bitmap
+                = new((int)bounds.Width, (int)bounds.Height, 96, 96, PixelFormats.Pbgra32);
+            bitmap.Render(dVisual);
+
+            SaveBitmapToPng(bitmap, "E:result.png");
+        }
+
         public void SaveImage(FrameworkElement el)
         {
             RenderTargetBitmap bitmap
@@ -847,7 +949,7 @@ namespace _20221224
     }
 
     //C# ObservableCollection<T>で大量の要素を追加したいとき - Qiita
-    //    https://qiita.com/Yuki4/items/0e73297db632376804dd
+    //    https://qiita.com/Yuki4/fItems/0e73297db632376804dd
 
     public class TTObservableCollection<T> : ObservableCollection<T>
     {

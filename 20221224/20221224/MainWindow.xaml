@@ -43,6 +43,9 @@
       </StackPanel.Resources>
       <GroupBox>
         <StackPanel>
+          <Border BorderThickness="1.0" BorderBrush="Red">
+            <TextBlock Text="border"/>
+          </Border>
           <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
           <TextBox x:Name="TextBoxAdd" Text="追加要素"/>
           <Button x:Name="ButtonRemove" Content="Remove" Click="ButtonRemove_Click"/>

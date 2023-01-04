@@ -115,8 +115,8 @@ namespace _20221224
 
         private void ButtonSave_Click(object sender, RoutedEventArgs e)
         {
-            //MyRootThumb.SaveImage();
-            MyRootThumb.SaveImage(MyRootThumb, MyScrollViewer);
+            MyRootThumb.SaveImage();
+            //MyRootThumb.SaveImage(MyRootThumb, MyScrollViewer);
         }
     }
 }
