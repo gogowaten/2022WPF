@@ -56,7 +56,7 @@ namespace _20221224
         public Collection<Data> ChildrenData { get => _childrenData; set => SetProperty(ref _childrenData, value); }
     }
 
-    public abstract class TThumb : Thumb, INotifyPropertyChanged
+    public class TThumb : Thumb, INotifyPropertyChanged
     {
         #region 依存プロパティ、通知プロパティ
 
@@ -96,16 +96,24 @@ namespace _20221224
         #endregion 依存プロパティ、通知プロパティ
 
         public TTGroup? TTParent { get; set; }
-        public Data MyData { get; set; }
+        public Data MyData { get; set; } = new();
         public TThumb()
         {
-            MyData ??= new Data();
+
             DataContext = this;
 
             Binding b;
-            b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
+            //MyDataを基準の場合
+            //b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
+            //SetBinding(Canvas.LeftProperty, b);
+            //SetBinding(MyLeftProperty, b);
+
+            //MyData→MyLeftProperty→Canvas.leftの場合、どちらでも変わらない？
+            b = new() { Path = new PropertyPath(MyLeftProperty) };
             SetBinding(Canvas.LeftProperty, b);
-            SetBinding(MyLeftProperty, b);
+            b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
+            BindingOperations.SetBinding(this, MyLeftProperty, b);
+
 
             b = new(nameof(MyData.Y)) { Source = MyData, Mode = BindingMode.TwoWay };
             SetBinding(Canvas.TopProperty, b);
@@ -163,12 +171,12 @@ namespace _20221224
         public static readonly DependencyProperty MyTextProperty =
             DependencyProperty.Register(nameof(MyText), typeof(string), typeof(TTTextBlock), new PropertyMetadata(""));
 
-        public new DataText MyData { get; set; }
+        public new DataText MyData { get; set; } = new();
         //public DataText MyDataText { get; set; }
 
         public TTTextBlock()
         {
-            MyData ??= new DataText();
+            //MyData ??= new DataText();
             DataContext = this;
             //Template構築、適用
             SetTemplate3();
@@ -252,7 +260,7 @@ namespace _20221224
         public TTGroup()
         {
             DataContext = this;
-            InternalChildren.CollectionChanged += Children_CollectionChanged;
+            //InternalChildren.CollectionChanged += Children_CollectionChanged;
             Children = new(InternalChildren);
 
             SetTemplate3();
@@ -326,7 +334,7 @@ namespace _20221224
         }
 
         #region サイズと位置の更新
-        
+
         //TTGroupのRect取得
         public static (double x, double y, double w, double h) GetRect(TTGroup? group)
         {
@@ -488,8 +496,10 @@ namespace _20221224
         public TTRoot()
         {
             _activeGroup ??= this;
-            //PreviewMouseLeftButtonDown += TTRoot_PreviewMouseLeftButtonDown;
+      
         }
+
+      
         #endregion コンストラクタ
 
         #region オーバーライド関連
@@ -670,6 +680,9 @@ namespace _20221224
         public void AddThumb(TThumb thumb, TTGroup destGroup)
         {
             destGroup.InternalChildren.Add(thumb);
+            destGroup.MyData.ChildrenData.Add(thumb.MyData);//データ型の判定が必要
+            thumb.TTParent = destGroup;
+
             //ドラッグ移動イベント付加
             thumb.DragDelta += Thumb_DragDelta2;
             thumb.DragCompleted += Thumb_DragCompleted2;
@@ -709,6 +722,8 @@ namespace _20221224
         {
             if (group.InternalChildren.Remove(thumb))
             {
+                group.MyData.ChildrenData.Remove(thumb.MyData);
+                thumb.TTParent = null;
                 thumb.DragCompleted -= Thumb_DragCompleted2;
                 thumb.DragDelta -= Thumb_DragDelta2;
                 group.TTGroupUpdateLayout();
@@ -746,16 +761,26 @@ namespace _20221224
         {
             if (CheckAddGroup(thumbs, destGroup) == false) { return null; }
             var (x, y, w, h) = GetRect(thumbs);
+            //新規作成
             TTGroup group = new() { Name = "new_group", MyLeft = x, MyTop = y };
+            //新規作成は以下だと座標0になってしまう、なんで？
+            //TTGroup group = new();
+            //group.Name = "new_group";
+            //group.MyData.X = x;
+            //group.MyData.Y = y;
 
             foreach (var item in thumbs)
             {
                 destGroup.InternalChildren.Remove(item);
+                destGroup.MyData.ChildrenData.Remove(item.MyData);
+                item.TTParent = null;
                 item.DragDelta -= Thumb_DragDelta2;
                 item.DragCompleted -= Thumb_DragCompleted2;
 
                 //AddThumb(item, group);
                 group.InternalChildren.Add(item);
+                group.MyData.ChildrenData.Add(item.MyData);
+                item.TTParent = group;
                 item.MyLeft -= x;
                 item.MyTop -= y;
             }
@@ -794,9 +819,13 @@ namespace _20221224
             foreach (var item in group.InternalChildren.ToArray())
             {
                 group.InternalChildren.Remove(item);
+                group.MyData.ChildrenData.Remove(item.MyData);
+                item.TTParent = null;
                 item.DragDelta -= Thumb_DragDelta2;
                 item.DragCompleted -= Thumb_DragCompleted2;
                 destGroup.InternalChildren.Add(item);
+                destGroup.MyData.ChildrenData.Add(item.MyData);
+                item.TTParent = destGroup;
                 item.DragDelta += Thumb_DragDelta2;
                 item.DragCompleted += Thumb_DragCompleted2;
                 item.MyLeft += group.MyLeft;
@@ -804,6 +833,8 @@ namespace _20221224
             }
             //元のグループ要素削除
             destGroup.InternalChildren.Remove(group);
+            destGroup.MyData.ChildrenData.Remove(group.MyData);
+            //group.TTParent = null;
             group.DragCompleted -= Thumb_DragCompleted2;//いる？
             group.DragDelta -= Thumb_DragDelta2;
             //destGroup.TTGroupUpdateLayout();
