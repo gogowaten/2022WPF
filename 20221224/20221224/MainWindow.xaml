@@ -43,9 +43,6 @@
       </StackPanel.Resources>
       <GroupBox>
         <StackPanel>
-          <Border BorderThickness="1.0" BorderBrush="Red">
-            <TextBlock Text="border"/>
-          </Border>
           <Button x:Name="ButtonAdd" Content="Add" Click="ButtonAdd_Click"/>
           <TextBox x:Name="TextBoxAdd" Text="追加要素"/>
           <Button x:Name="ButtonRemove" Content="Remove" Click="ButtonRemove_Click"/>
@@ -69,7 +66,9 @@
         <Button x:Name="ButtonZDownBackMost" Content="最背面へ移動" Click="ButtonZDownBackMost_Click"/>
       </DockPanel>
       <DockPanel>
-        <Button x:Name="ButtonSave" Content="Save" Click="ButtonSave_Click"/>
+        <Button x:Name="ButtonSave" Content="SaveAll" Click="ButtonSave_Click"/>
+        <Button x:Name="ButtonActiveG" Content="SaveActiveG" Click="ButtonActiveG_Click"/>
+        <Button x:Name="ButtonActiveT" Content="SaveActiveT" Click="ButtonActiveT_Click"/>
       </DockPanel>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
         <GroupBox DataContext="{Binding ActiveGroup}" Header="ActiveGroup">

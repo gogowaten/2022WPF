@@ -909,25 +909,20 @@ namespace _20221224
         }
         public void SaveImage2(FrameworkElement el, FrameworkElement parentPanel)
         {
-            //var edge=VisualTreeHelper.GetEdgeMode(el);
-            //RenderOptions.SetEdgeMode(el, EdgeMode.Aliased);
-
             GeneralTransform gt = el.TransformToVisual(parentPanel);
             Rect bounds = gt.TransformBounds(new Rect(0, 0, el.ActualWidth, el.ActualHeight));
             DrawingVisual dVisual = new();
-            var debounds = VisualTreeHelper.GetDescendantBounds(parentPanel);
+            //var debounds = VisualTreeHelper.GetDescendantBounds(parentPanel);
             bounds.Width = (int)(bounds.Width + 0.5);
             bounds.Height = (int)(bounds.Height + 0.5);
 
-            //var wPix = (int)(bounds.Width + 0.5);
-            //var hPix = (int)(bounds.Height + 0.5);
             using (DrawingContext context = dVisual.RenderOpen())
             {
                 VisualBrush vBrush = new(el) { Stretch = Stretch.None };
                 //context.DrawRectangle(vBrush, null, new Rect(0, 0, bounds.Width, bounds.Height));
-                context.DrawRectangle(vBrush, null, bounds);
+                //context.DrawRectangle(vBrush, null, bounds);
 
-                //context.DrawRectangle(vBrush, null, new Rect(bounds.Size));
+                context.DrawRectangle(vBrush, null, new Rect(bounds.Size));
             }
             RenderTargetBitmap bitmap
                 = new((int)bounds.Width, (int)bounds.Height, 96, 96, PixelFormats.Pbgra32);
@@ -936,7 +931,14 @@ namespace _20221224
             SaveBitmapToPng(bitmap, "E:result.png");
         }
 
-        public void SaveImage(FrameworkElement el)
+        public void SaveImage(TThumb target)
+        {
+            if (target.TTParent is TTGroup parent)
+            {
+                SaveImage2(target, parent);
+            }
+        }
+        public void SaveImageEz(FrameworkElement el)
         {
             RenderTargetBitmap bitmap
                 = new((int)el.ActualWidth, (int)el.ActualHeight, 96, 96, PixelFormats.Pbgra32);
@@ -946,6 +948,16 @@ namespace _20221224
 
 
         #endregion 画像として保存
+
+        #region データ保存
+        public void SaveData(string fileName)
+        {
+
+        }
+        #endregion データ保存
+
+
+
     }
 
     //C# ObservableCollection<T>で大量の要素を追加したいとき - Qiita

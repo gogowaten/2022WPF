@@ -118,5 +118,15 @@ namespace _20221224
             MyRootThumb.SaveImage();
             //MyRootThumb.SaveImage(MyRootThumb, MyScrollViewer);
         }
+
+        private void ButtonActiveG_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.SaveImage(MyRootThumb.ActiveGroup);
+        }
+
+        private void ButtonActiveT_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.SaveImage(MyRootThumb.ActiveThumb);
+        }
     }
 }
