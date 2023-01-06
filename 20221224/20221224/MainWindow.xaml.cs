@@ -131,5 +131,10 @@ namespace _20221224
         {
             MyRootThumb.SaveImage(MyRootThumb.ActiveThumb);
         }
+
+        private void ButtonSaveData_Click(object sender, RoutedEventArgs e)
+        {
+            MyRootThumb.SaveData("E:groupData.text");
+        }
     }
 }

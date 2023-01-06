@@ -164,6 +164,8 @@ namespace _20221224
             DependencyProperty.Register(nameof(MyText), typeof(string), typeof(TTTextBlock), new PropertyMetadata(""));
 
         public new DataText MyData { get; set; }
+        //public DataText MyDataText { get; set; }
+
         public TTTextBlock()
         {
             MyData ??= new DataText();
@@ -213,6 +215,7 @@ namespace _20221224
             waku.SetValue(Border.BorderThicknessProperty, new Thickness(4.0));
             waku.SetValue(Border.BorderBrushProperty, Brushes.Red);
             Binding b;
+            //b = new(nameof(MyDataText.MyText)) { Source = MyData, Mode = BindingMode.TwoWay };
             b = new(nameof(MyData.MyText)) { Source = MyData, Mode = BindingMode.TwoWay };
             text.SetValue(TextBlock.TextProperty, b);
             //text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
@@ -244,6 +247,7 @@ namespace _20221224
         internal ObservableCollection<TThumb> InternalChildren { get; set; } = new();
         public ReadOnlyObservableCollection<TThumb> Children { get; }
 
+        public new DataGroup MyData { get; set; } = new();
 
         public TTGroup()
         {
@@ -252,6 +256,10 @@ namespace _20221224
             Children = new(InternalChildren);
 
             SetTemplate3();
+
+        }
+        private void SetTemplate0()
+        {
 
             ////Template構造
             ////Thumb
@@ -317,6 +325,8 @@ namespace _20221224
             this.Template = new() { VisualTree = fGrid };
         }
 
+        #region サイズと位置の更新
+        
         //TTGroupのRect取得
         public static (double x, double y, double w, double h) GetRect(TTGroup? group)
         {
@@ -378,6 +388,7 @@ namespace _20221224
             }
         }
 
+        #endregion サイズと位置の更新
 
 
         private void Children_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -386,6 +397,17 @@ namespace _20221224
             {
                 //子要素追加時、
                 case NotifyCollectionChangedAction.Add:
+                    var ttt = e.NewItems?[0] as TTTextBlock;
+                    Data? data = null;
+                    if (e.NewItems?[0] is TTTextBlock textb)
+                    {
+                        data = textb.MyData;
+                    }
+                    //要素のDataをコレクションに追加
+                    if (data != null)
+                    {
+                        MyData.ChildrenData.Add(data);
+                    }
                     if (e.NewItems?[0] is TThumb thumb)
                     {
                         //子要素のTTParentプロパティに自身を登録
@@ -393,6 +415,11 @@ namespace _20221224
                     }
                     break;
                 case NotifyCollectionChangedAction.Remove:
+                    //要素のDataをコレクションから削除
+                    if (e.OldItems?[0] is TThumb oldItem)
+                    {
+                        MyData.ChildrenData.Remove(oldItem.MyData);
+                    }
                     //削除時はサイズと位置の更新
                     //→ここではしない方がいい、グループ化の削除時に面倒なことになる
                     //TTGroupUpdateLayout();
@@ -719,9 +746,7 @@ namespace _20221224
         {
             if (CheckAddGroup(thumbs, destGroup) == false) { return null; }
             var (x, y, w, h) = GetRect(thumbs);
-            TTGroup group = new() { Name = "new_group" };
-            group.MyData.X = x; group.MyData.Y = y;
-            //TTGroup group = new() { Name = "new_group", MyLeft = x, MyTop = y };
+            TTGroup group = new() { Name = "new_group", MyLeft = x, MyTop = y };
 
             foreach (var item in thumbs)
             {
@@ -1018,7 +1043,7 @@ namespace _20221224
         #region データ保存
         public void SaveData(string fileName)
         {
-
+            var neko = this.MyData;
         }
         #endregion データ保存
 

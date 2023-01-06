@@ -70,6 +70,9 @@
         <Button x:Name="ButtonActiveG" Content="SaveActiveG" Click="ButtonActiveG_Click"/>
         <Button x:Name="ButtonActiveT" Content="SaveActiveT" Click="ButtonActiveT_Click"/>
       </DockPanel>
+      <DockPanel>
+        <Button x:Name="ButtonSaveData" Content="SaveData" Click="ButtonSaveData_Click"/>
+      </DockPanel>
       <StackPanel DataContext="{Binding ElementName=MyRootThumb}">
         <GroupBox DataContext="{Binding ActiveGroup}" Header="ActiveGroup">
           <WrapPanel>
