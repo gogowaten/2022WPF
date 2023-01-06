@@ -19,6 +19,7 @@ using System.Windows.Media.Imaging;
 using System.IO;
 
 
+
 //前面移動、背面移動できた
 //対象は選択状態のThumbすべて
 //ZIndexは使わずに、要素のIndexを変更することで移動
