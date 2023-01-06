@@ -26,7 +26,36 @@ using System.IO;
 //moveメソッドを使ったほうが良かったかも
 namespace _20221224
 {
-    public class TThumb : Thumb, INotifyPropertyChanged
+    public class Data : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler? PropertyChanged;
+
+        protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string? name = null)
+        {
+            if (EqualityComparer<T>.Default.Equals(field, value)) return;
+            field = value;
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        private double _x;
+        public double X { get => _x; set => SetProperty(ref _x, value); }
+
+        private double _y;
+        public double Y { get => _y; set => SetProperty(ref _y, value); }
+
+    }
+    public class DataText : Data
+    {
+        private string? _myText;
+        public string? MyText { get => _myText; set => SetProperty(ref _myText, value); }
+    }
+    public class DataGroup : Data
+    {
+        private Collection<Data> _childrenData = new();
+        public Collection<Data> ChildrenData { get => _childrenData; set => SetProperty(ref _childrenData, value); }
+    }
+
+    public abstract class TThumb : Thumb, INotifyPropertyChanged
     {
         #region 依存プロパティ、通知プロパティ
 
@@ -38,21 +67,21 @@ namespace _20221224
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
 
-        private double _myLeft;
-        public double MyLeft { get => _myLeft; set => SetProperty(ref _myLeft, value); }
+        //依存プロパティじゃなくても、通知プロパティでおｋだったけど変えた
+        //private double _myLeft;
+        //public double MyLeft { get => _myLeft; set => SetProperty(ref _myLeft, value); }
 
 
-        //依存プロパティじゃなくても、通知プロパティでおｋ
-        //public double MyLeft
-        //{
-        //    get { return (double)GetValue(MyLeftProperty); }
-        //    set
-        //    {
-        //        SetValue(MyLeftProperty, value);
-        //    }
-        //}
-        //public static readonly DependencyProperty MyLeftProperty =
-        //    DependencyProperty.Register(nameof(MyLeft), typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
+        public double MyLeft
+        {
+            get { return (double)GetValue(MyLeftProperty); }
+            set
+            {
+                SetValue(MyLeftProperty, value);
+            }
+        }
+        public static readonly DependencyProperty MyLeftProperty =
+            DependencyProperty.Register(nameof(MyLeft), typeof(double), typeof(TThumb), new PropertyMetadata(0.0));
 
         public double MyTop
         {
@@ -66,10 +95,23 @@ namespace _20221224
         #endregion 依存プロパティ、通知プロパティ
 
         public TTGroup? TTParent { get; set; }
+        public Data MyData { get; set; }
         public TThumb()
         {
-            SetBinding(Canvas.LeftProperty, nameof(MyLeft));
-            SetBinding(Canvas.TopProperty, nameof(MyTop));
+            MyData ??= new Data();
+            DataContext = this;
+
+            Binding b;
+            b = new(nameof(MyData.X)) { Source = MyData, Mode = BindingMode.TwoWay };
+            SetBinding(Canvas.LeftProperty, b);
+            SetBinding(MyLeftProperty, b);
+
+            b = new(nameof(MyData.Y)) { Source = MyData, Mode = BindingMode.TwoWay };
+            SetBinding(Canvas.TopProperty, b);
+            SetBinding(MyTopProperty, b);
+
+
+
             //重要！！！！エッジモードをエイリアスに指定
             //これでアンチエイリアスがなくなって枠線とかがくっきりで保存できる,
             //けどこれでもまだ微妙にずれる
@@ -77,6 +119,10 @@ namespace _20221224
             //RenderOptions.SetEdgeMode(this, EdgeMode.Aliased);
             //Enabledでテキストの保存時にクリアタイプが適用される。既定値はAutoでこれだと適用されない
             //RenderOptions.SetClearTypeHint(this, ClearTypeHint.Enabled);
+        }
+        public TThumb(Data data) : this()
+        {
+            MyData = data;
         }
 
         public override string ToString()
@@ -107,14 +153,26 @@ namespace _20221224
     /// </summary>
     public class TTTextBlock : TTItemThumb
     {
-        private string? _myText;
-        public string? MyText { get => _myText; set => SetProperty(ref _myText, value); }
 
+        public string MyText
+        {
+            get { return (string)GetValue(MyTextProperty); }
+            set { SetValue(MyTextProperty, value); }
+        }
+        public static readonly DependencyProperty MyTextProperty =
+            DependencyProperty.Register(nameof(MyText), typeof(string), typeof(TTTextBlock), new PropertyMetadata(""));
+
+        public new DataText MyData { get; set; }
         public TTTextBlock()
         {
+            MyData ??= new DataText();
             DataContext = this;
             //Template構築、適用
             SetTemplate3();
+
+        }
+        private void SetTemplate0()
+        {
             //this.VisualTextRenderingMode = TextRenderingMode.Aliased;
 
             //FrameworkElementFactory text = new(typeof(TextBlock));
@@ -136,6 +194,7 @@ namespace _20221224
             //this.ApplyTemplate();
 
         }
+
         private void SetTemplate1()
         {
             FrameworkElementFactory text = new(typeof(TextBlock));
@@ -152,7 +211,11 @@ namespace _20221224
             FrameworkElementFactory waku = new(typeof(Border));
             waku.SetValue(Border.BorderThicknessProperty, new Thickness(4.0));
             waku.SetValue(Border.BorderBrushProperty, Brushes.Red);
-            text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            Binding b;
+            b = new(nameof(MyData.MyText)) { Source = MyData, Mode = BindingMode.TwoWay };
+            text.SetValue(TextBlock.TextProperty, b);
+            //text.SetValue(TextBlock.TextProperty, new Binding(nameof(MyText)));
+            this.SetBinding(MyTextProperty, b);
             waku.AppendChild(text);
             this.Template = new() { VisualTree = waku };
             //this.BorderThickness = new Thickness(4.0);
@@ -655,7 +718,9 @@ namespace _20221224
         {
             if (CheckAddGroup(thumbs, destGroup) == false) { return null; }
             var (x, y, w, h) = GetRect(thumbs);
-            TTGroup group = new() { Name = "new_group", MyLeft = x, MyTop = y };
+            TTGroup group = new() { Name = "new_group" };
+            group.MyData.X = x; group.MyData.Y = y;
+            //TTGroup group = new() { Name = "new_group", MyLeft = x, MyTop = y };
 
             foreach (var item in thumbs)
             {

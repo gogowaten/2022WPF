@@ -36,6 +36,9 @@ namespace _20221224
                 MyText = TextBoxAdd.Text + "\n" + MyAddCounnt,
                 Name = TextBoxAdd.Text + MyAddCounnt,
             };
+            //tt.MyData.X = 20 * MyAddCounnt;
+            //tt.MyData.Y = 20 * MyAddCounnt;
+
             MyRootThumb.AddThumb(tt);
             MyAddCounnt++;
 
@@ -105,7 +108,7 @@ namespace _20221224
 
         private void ButtonZUpFrontMost_Click(object sender, RoutedEventArgs e)
         {
-            MyRootThumb.ZUpFrontMost();            
+            MyRootThumb.ZUpFrontMost();
         }
 
         private void ButtonZDownBackMost_Click(object sender, RoutedEventArgs e)
