@@ -18,9 +18,6 @@
     </Grid.Resources>
     <ScrollViewer Name="MyScrollViewer" HorizontalScrollBarVisibility="Visible">
       <Canvas x:Name="MyCanvas">
-        <local:UserControl1 Background="Red" BorderBrush="Cyan" BorderThickness="5" Padding="10"
-                            MyText="afsadffffa" FontFamily="ＭＳ 明朝" FontSize="50"
-                            Canvas.Left="20" Canvas.Top="20"/>
         <local:TTGroup x:Name="MyRoot">
 
         </local:TTGroup>

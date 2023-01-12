@@ -28,8 +28,17 @@ namespace _20221224
             Left = 100; Top = 100;
 
 
+
+
+
             //DataMyText dtext = new() { MyText = "test", FontSize = 30, X = 20, Y = 30 };
+
             TTTextBlock MyTTT = new();
+            //なぜかTTTextBlockだけローカルウィンドウで内部エラーになる、初めて見た
+            //TThumb.csのpublic new DataMyText? MyData { get; set; }これをはずしたときだけ正常だけど、これじゃ使えない
+            //動くには動くけど、デバッグでかなり不便
+            //同じように作っているTTImageやTTGroupは普通にローカル値が表示される
+
 
             //TTTextBlock MyTTTextBlock = new(dtext);
             //if (MyTTTextBlock.MyData != null)

@@ -9,15 +9,13 @@
   
   <Thumb>
     <Thumb.Template>
-      <ControlTemplate>
-        
-          <TextBlock DataContext="{
+      <ControlTemplate TargetType="Thumb">
+        <TextBlock 
+          DataContext="{
             Binding RelativeSource={
-              RelativeSource Mode=FindAncestor,
-              AncestorType=local:UserControl1}}"
-                     Text="{Binding Path=MyData.MyText}"
-                   />
-        
+              RelativeSource Mode=FindAncestor, AncestorType=local:UserControl1}}"
+                   Text="{Binding Path=MyData.MyText}"
+                   FontSize="{Binding Path=MyData.FontSize}"/>
       </ControlTemplate>
     </Thumb.Template>
   </Thumb>

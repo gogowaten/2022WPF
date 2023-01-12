@@ -14,6 +14,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
+//UserControlにはドラッグイベントがないから意味なかった
+
 namespace _20221224
 {
     /// <summary>
@@ -35,26 +37,35 @@ namespace _20221224
                     FrameworkPropertyMetadataOptions.AffectsMeasure|
                     FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public DataMyText MyData { get; set; }
+        public DataMyText? MyData { get; set; }
 
         public UserControl1()
         {
             InitializeComponent();
-            MyData = new DataMyText();
-            DataContext = MyData;
-            SetBinding(MyTextProperty, new Binding(nameof(MyData.MyText)));
-
+            MySetBinding(new DataMyText());
+            //MyData = new DataMyText();
+            //DataContext = MyData;
+            //MySetBinding(MyData);
         }
         public UserControl1(DataMyText data)
         {
             InitializeComponent();
-            MyData = data;
-            DataContext = MyData;
+            MySetBinding(data);
+            //MyData = data;
+            //DataContext = MyData;
+            //MySetBinding(MyData);
         }
-
-        private void UserControl1_Initialized(object? sender, EventArgs e)
+        private void MySetBinding(DataMyText data)
         {
-            //DataContext=this;
+            MyData = data;            
+            DataContext = MyData;
+            
+            SetBinding(MyTextProperty, new Binding(nameof(MyData.MyText)));
+            SetBinding(Canvas.LeftProperty, new Binding(nameof(MyData.X)) { Mode = BindingMode.TwoWay });
+            SetBinding(Canvas.TopProperty, new Binding(nameof(MyData.Y)) { Mode = BindingMode.TwoWay });
+            SetBinding(FontSizeProperty, new Binding(nameof(MyData.FontSize)) { Mode=BindingMode.TwoWay});
+
+            
         }
     }
 }
