@@ -25,116 +25,125 @@ namespace _20221224
         {
             InitializeComponent();
             Left = 100; Top = 100;
+            MyRoot.Children.Add(new TTTextBlock(new DataText() { MyText = "test", X = 20, Y = 30 }));
+
+            MyCanvas.Children.Add(new TTImage(new DataImage() { MyImage = GetImage("D:\\ブログ用\\テスト用画像\\collection_1.png"), X = 100, Y = 30 }));
+            
         }
 
-        private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+        private BitmapSource GetImage(string filePath)
         {
-            TTTextBlock tt = new()
-            {
-                MyLeft = 20 * MyAddCounnt,
-                MyTop = 20 * MyAddCounnt,
-                MyText = TextBoxAdd.Text + "\n" + MyAddCounnt,
-                Name = TextBoxAdd.Text + MyAddCounnt,
-            };
-            //tt.MyData.X = 20 * MyAddCounnt;
-            //tt.MyData.Y = 20 * MyAddCounnt;
-
-            MyRootThumb.AddThumb(tt);
-            MyAddCounnt++;
-
-            //int bunkatu = 360;
-            //double radius = 200;
-            //for (int i = 0; i < bunkatu; i++)
-            //{
-            //    double radian = DegreeToRadian(i);
-            //    double x = Math.Cos(radian) * radius;
-            //    double y = Math.Sin(radian) * radius;
-            //    TTTextBlock tx = new()
-            //    {
-            //        MyLeft = x,
-            //        MyTop = y,
-            //        MyText = TextBoxAdd.Text + MyAddCounnt,
-            //        Name = TextBoxAdd.Text + MyAddCounnt,
-            //    };
-            //    MyRootThumb.AddThumb(tx); MyAddCounnt++;
-            //}
-
+            BitmapImage image = new(new Uri(filePath));
+            return image;
         }
-        private double DegreeToRadian(double x)
-        {
-            return Math.PI * (x / 180.0);
-        }
+        //private void ButtonAdd_Click(object sender, RoutedEventArgs e)
+        //{
+        //    TTTextBlock tt = new()
+        //    {
+        //        MyLeft = 20 * MyAddCounnt,
+        //        MyTop = 20 * MyAddCounnt,
+        //        MyText = TextBoxAdd.Text + "\n" + MyAddCounnt,
+        //        Name = TextBoxAdd.Text + MyAddCounnt,
+        //    };
+        //    //tt.MyData.X = 20 * MyAddCounnt;
+        //    //tt.MyData.Y = 20 * MyAddCounnt;
 
-        private void ButtonRemove_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.RemoveThumb();
-            //↓これを禁止したいけど方法がわからん
-            //MyRootThumb.InternalChildren.Remove(MyRootThumb.ActiveThumb);
-        }
+        //    MyRootThumb.AddThumb(tt);
+        //    MyAddCounnt++;
 
-        private void ButtonRootActive_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.ActiveGroup = MyRootThumb;
-        }
-        private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.AddGroup();
-        }
+        //    //int bunkatu = 360;
+        //    //double radius = 200;
+        //    //for (int i = 0; i < bunkatu; i++)
+        //    //{
+        //    //    double radian = DegreeToRadian(i);
+        //    //    double x = Math.Cos(radian) * radius;
+        //    //    double y = Math.Sin(radian) * radius;
+        //    //    TTTextBlock tx = new()
+        //    //    {
+        //    //        MyLeft = x,
+        //    //        MyTop = y,
+        //    //        MyText = TextBoxAdd.Text + MyAddCounnt,
+        //    //        Name = TextBoxAdd.Text + MyAddCounnt,
+        //    //    };
+        //    //    MyRootThumb.AddThumb(tx); MyAddCounnt++;
+        //    //}
 
-        private void ButtonUnGroup_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.UnGroup();
-        }
+        //}
+        //private double DegreeToRadian(double x)
+        //{
+        //    return Math.PI * (x / 180.0);
+        //}
 
-        private void ButtonActiveInside_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.ActiveGroupInside();
-        }
+        //private void ButtonRemove_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.RemoveThumb();
+        //    //↓これを禁止したいけど方法がわからん
+        //    //MyRootThumb.InternalChildren.Remove(MyRootThumb.ActiveThumb);
+        //}
 
-        private void ButtonActiveOutside_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.ActiveGroupOutside();
-        }
+        //private void ButtonRootActive_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.ActiveGroup = MyRootThumb;
+        //}
+        //private void ButtonAddGroup_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.AddGroup();
+        //}
 
-        private void ButtonZUp_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.ZUp();
-        }
+        //private void ButtonUnGroup_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.UnGroup();
+        //}
 
-        private void ButtonZDown_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.ZDown();
-        }
+        //private void ButtonActiveInside_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.ActiveGroupInside();
+        //}
 
-        private void ButtonZUpFrontMost_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.ZUpFrontMost();
-        }
+        //private void ButtonActiveOutside_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.ActiveGroupOutside();
+        //}
 
-        private void ButtonZDownBackMost_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.ZDownBackMost();
-        }
+        //private void ButtonZUp_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.ZUp();
+        //}
 
-        private void ButtonSave_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.SaveImage();
-            //MyRootThumb.SaveImage(MyRootThumb, MyScrollViewer);
-        }
+        //private void ButtonZDown_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.ZDown();
+        //}
 
-        private void ButtonActiveG_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.SaveImage(MyRootThumb.ActiveGroup);
-        }
+        //private void ButtonZUpFrontMost_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.ZUpFrontMost();
+        //}
 
-        private void ButtonActiveT_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.SaveImage(MyRootThumb.ActiveThumb);
-        }
+        //private void ButtonZDownBackMost_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.ZDownBackMost();
+        //}
 
-        private void ButtonSaveData_Click(object sender, RoutedEventArgs e)
-        {
-            MyRootThumb.SaveData("E:groupData.text");
-        }
+        //private void ButtonSave_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.SaveImage();
+        //    //MyRootThumb.SaveImage(MyRootThumb, MyScrollViewer);
+        //}
+
+        //private void ButtonActiveG_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.SaveImage(MyRootThumb.ActiveGroup);
+        //}
+
+        //private void ButtonActiveT_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.SaveImage(MyRootThumb.ActiveThumb);
+        //}
+
+        //private void ButtonSaveData_Click(object sender, RoutedEventArgs e)
+        //{
+        //    MyRootThumb.SaveData("E:groupData.text");
+        //}
     }
 }
