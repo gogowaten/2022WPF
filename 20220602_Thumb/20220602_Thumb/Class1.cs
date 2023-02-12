@@ -591,7 +591,8 @@ namespace _20220602_Thumb
                     //Parent(自身)が編集状態なら追加アイテムを
                     if (this.IsMyEditing)
                     {
-                        DragEventAdd(addItem);//ドラッグ移動可能にする
+                        //ドラッグ移動可能にする
+                        DragEventAdd(addItem);
                     }
                 }
             }
