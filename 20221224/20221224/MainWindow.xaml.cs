@@ -38,6 +38,10 @@ namespace _20221224
             //TThumb.csのpublic new DataMyText? MyData { get; set; }これをはずしたときだけ正常だけど、これじゃ使えない
             //動くには動くけど、デバッグでかなり不便
             //同じように作っているTTImageやTTGroupは普通にローカル値が表示される
+            //→別プロジェクトではエラーが出ない
+            //20230113LocalValueErrorにData.cs、TThumb.csをコピペして確認したらエラーにならない、なんで？
+            //全く同じはずなのにエラーにならない、意味がわからん
+
 
 
             //TTTextBlock MyTTTextBlock = new(dtext);
