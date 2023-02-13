@@ -24,10 +24,10 @@ using System.Windows.Shapes;
 //Renderは表示更新
 //Measureはサイズ変更
 
-public enum ArrowHeadType { Type0, Type1, Type2, Type3 }
 
 namespace _20221128_矢印図形
 {
+    public enum ArrowHeadType { Type0, Type1, Type2, Type3 }
     internal class Arrow : Shape
     {
         protected override Geometry DefiningGeometry
