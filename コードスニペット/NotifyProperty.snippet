@@ -166,7 +166,7 @@ protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServ
 		<Header>
 			<Title>依存プロパティ作成、Shape継承クラス用</Title>
 			<Author>gogowaten</Author>
-			<Description>デザイン画面で値変更したときに図形サイズと表示を即更新</Description>
+			<Description>デザイン画面で値変更したときに図形サイズと表示を即更新＋双方向Binding</Description>
 			<Shortcut>propdps</Shortcut>
 		</Header>
 		<Snippet>
@@ -199,7 +199,8 @@ protected void SetProperty<T>(ref T field, T value, [System.Runtime.CompilerServ
             DependencyProperty.Register(nameof($id$), typeof($type$), typeof($ownerclass$),
 				new FrameworkPropertyMetadata($metadata$,
 					FrameworkPropertyMetadataOptions.AffectsRender |
-					FrameworkPropertyMetadataOptions.AffectsMeasure));
+					FrameworkPropertyMetadataOptions.AffectsMeasure |
+					FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 						]]>
 			</Code>
 		</Snippet>
